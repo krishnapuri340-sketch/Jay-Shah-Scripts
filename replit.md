@@ -16,18 +16,22 @@ Primary application: IPL Fantasy Cricket Tracker for 4 teams (Rajveer Puri, Momb
 
 ### Data Sources
 - **IPL Schedule**: `https://ipl-stats-sports-mechanic.s3.ap-south-1.amazonaws.com/ipl/feeds/284-matchschedule.js`
-  - JSONP callback `MatchSchedule`; data in `Matchsummary[]` with fields: MatchID, MatchStatus (Post/UpComing/Live), HomeTeamName, AwayTeamName, FirstBattingSummary, SecondBattingSummary, Commentss
-- **Scorecards**: CricAPI (`https://api.cricapi.com/v1/`) using secret `CRICAPI_KEY`
-  - Endpoints: `/series` (search), `/series_info` (match list), `/match_scorecard` (batting/bowling stats)
-  - Free tier: 100 req/day; engine has 10-minute cooldown after rate-limit hits
-  - Cached permanently in `ipl-points-cache.json` once processed
+  - JSONP callback `MatchSchedule`; data in `Matchsummary[]`; MatchID used everywhere
+- **Match Summary** (S3): `https://ipl-stats-sports-mechanic.s3.ap-south-1.amazonaws.com/ipl/feeds/{matchId}-matchsummary.js`
+  - JSONP callback `onScoringMatchsummary`; has result, toss, venue, score, umpires, referee
+- **Standings** (S3): `https://ipl-stats-sports-mechanic.s3.ap-south-1.amazonaws.com/ipl/feeds/stats/284-groupstandings.js`
+  - JSONP callback `ongroupstandings`; fields: TeamCode, Wins, Loss, Points, NetRunRate, Performance (form string)
+- **CricAPI** (`https://api.cricapi.com/v1/`) using secret `CRICAPI_KEY`
+  - Endpoints: `/series`, `/series_info`, `/match_scorecard`; free tier: 100 req/day; 10-minute cooldown
+  - Cached permanently in `ipl-points-cache.json`; cache format: `processedMatches[iplId] = { points, innings: InningData[] }`
 
 ### Points Engine (`ipl-points.ts`)
-- Finds IPL 2026 series in CricAPI by name search
-- Matches CricAPI matches to IPL S3 matches by date + team name fuzzy matching
-- Parses batting (runs, balls, 4s, 6s), bowling (wickets, maidens, overs, runs), fielding (catches from dismissal text, stumpings, run-outs)
-- Calculates fantasy points using standard IPL formula (calcPoints function — **swap with custom formula when provided**)
-- Processes up to 3 unprocessed matches per background job; cooldown prevents rate-limit loops
+- Finds IPL 2026 series in CricAPI by name search; matches matches by date + team name fuzzy matching
+- `processScorecard()` returns: `{ players: Record<string, PlayerStats>, innings: InningData[] }`
+- `InningData` contains `{ name, total, batting: BattingRow[], bowling: BowlingRow[] }` — stored in cache
+- Calculates points using T20 Fantasy Scoring v1.7 (see `calcPoints`)
+- Processes up to 3 unprocessed matches per background job with cooldown to prevent rate-limit loops
+- **`GET /api/ipl/scorecard/:matchId`** — returns cached innings + live S3 match overview (result, toss, venue)
 
 ### Fantasy Teams
 - Each team has 18 players with Captain (×2) and Vice-Captain (×1.5) designations

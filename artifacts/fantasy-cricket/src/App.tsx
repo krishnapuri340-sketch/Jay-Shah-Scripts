@@ -146,6 +146,11 @@ export default function App() {
   const [apiError, setApiError] = useState<string | null>(null);
   const [pointsError, setPointsError] = useState<string | null>(null);
   const [dataSources, setDataSources] = useState<{ iplOfficial: number; liveCount: number; competitionId?: number } | null>(null);
+  const [expandedMatchId, setExpandedMatchId] = useState<string | null>(null);
+  const [scorecards, setScorecards] = useState<Record<string, any>>({});
+  const [scorecardLoading, setScorecardLoading] = useState<string | null>(null);
+  const [standings, setStandings] = useState<any[]>([]);
+  const [standingsLoading, setStandingsLoading] = useState(false);
 
   const fetchPoints = async () => {
     if (pointsLoading) return;
@@ -193,12 +198,49 @@ export default function App() {
     setLiveLoading(false);
   };
 
+  const fetchScorecard = async (matchId: string) => {
+    if (scorecards[matchId] || scorecardLoading === matchId) return;
+    setScorecardLoading(matchId);
+    try {
+      const res = await fetch(`/api/ipl/scorecard/${matchId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setScorecards(prev => ({ ...prev, [matchId]: data }));
+      }
+    } catch (_) {}
+    setScorecardLoading(null);
+  };
+
+  const fetchStandings = async () => {
+    if (standingsLoading) return;
+    setStandingsLoading(true);
+    try {
+      const res = await fetch("/api/ipl/standings");
+      if (res.ok) {
+        const data = await res.json();
+        setStandings(data.standings || []);
+      }
+    } catch (_) {}
+    setStandingsLoading(false);
+  };
+
+  const toggleMatch = (matchId: string, isCompleted: boolean) => {
+    if (expandedMatchId === matchId) {
+      setExpandedMatchId(null);
+    } else {
+      setExpandedMatchId(matchId);
+      if (isCompleted) fetchScorecard(matchId);
+    }
+  };
+
   useEffect(() => {
     fetchLive();
     fetchPoints();
+    fetchStandings();
     const id1 = setInterval(fetchLive, 5 * 60 * 1000);
     const id2 = setInterval(fetchPoints, 5 * 60 * 1000);
-    return () => { clearInterval(id1); clearInterval(id2); };
+    const id3 = setInterval(fetchStandings, 5 * 60 * 1000);
+    return () => { clearInterval(id1); clearInterval(id2); clearInterval(id3); };
   }, []);
 
   const teamScores = Object.keys(FANTASY_TEAMS)
@@ -394,17 +436,26 @@ export default function App() {
             {matches.map((m: any) => {
               const isLive = m.matchStarted && !m.matchEnded;
               const isDone = m.matchEnded;
+              const isExpanded = expandedMatchId === String(m.id);
               const statusColor = isDone ? "#475569" : isLive ? "#34d399" : "#60a5fa";
               const statusLabel = isDone ? "COMPLETED" : isLive ? "LIVE" : "STARTS " + fmtTime(m.dateTimeGMT);
               const mNum = getMatchNum(m.name);
               const teams = m.teamInfo || [];
+              const matchIdStr = String(m.id);
+              const sc = scorecards[matchIdStr];
+              const isLoadingSc = scorecardLoading === matchIdStr;
+
               return (
-                <div key={m.id} className="match-card">
+                <div key={m.id} className="match-card" style={{ cursor: "pointer" }}
+                  onClick={() => toggleMatch(String(m.id), isDone || isLive)}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                     <div className="match-status" style={{ color: statusColor, margin: 0, fontSize: "0.6rem" }}>
                       {isDone ? "✓ " : isLive ? "● " : "◷ "}{statusLabel}
                     </div>
-                    {mNum && <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "0.82rem", color: "#334155", letterSpacing: "1px" }}>{mNum}</div>}
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      {mNum && <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "0.82rem", color: "#334155", letterSpacing: "1px" }}>{mNum}</div>}
+                      {(isDone || isLive) && <span style={{ fontSize: "0.6rem", color: "#475569" }}>{isExpanded ? "▲" : "▼"} scorecard</span>}
+                    </div>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
                     {teams.length > 0 ? teams.map((ti: any, i: number) => (
@@ -427,6 +478,91 @@ export default function App() {
                   ))}
                   {isDone && m.status && <div style={{ fontSize: "0.68rem", color: "#60a5fa", marginTop: 5 }}>{m.status}</div>}
                   {m.venue && <div className="match-venue">{m.venue}</div>}
+
+                  {isExpanded && (
+                    <div style={{ marginTop: 12, borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 12 }}
+                      onClick={e => e.stopPropagation()}>
+                      {isLoadingSc && <div style={{ color: "#475569", fontSize: "0.72rem", padding: "8px 0" }}>⏳ Loading scorecard...</div>}
+                      {sc?.overview && (
+                        <div style={{ display: "flex", flexDirection: "column" as const, gap: 3, marginBottom: 12 }}>
+                          {sc.overview.toss && <div style={{ fontSize: "0.65rem", color: "#475569" }}>🪙 {sc.overview.toss}</div>}
+                          {sc.overview.result && <div style={{ fontSize: "0.65rem", color: "#60a5fa" }}>🏆 {sc.overview.result}</div>}
+                          {sc.overview.umpires && <div style={{ fontSize: "0.62rem", color: "#334155" }}>Umpires: {sc.overview.umpires}</div>}
+                        </div>
+                      )}
+                      {sc && !sc.hasScorecard && (
+                        <div style={{ color: "#475569", fontSize: "0.72rem", padding: "4px 0" }}>
+                          Detailed scorecard will appear once fantasy points are processed via CricAPI.
+                        </div>
+                      )}
+                      {(sc?.innings || []).map((inn: any, idx: number) => (
+                        <div key={idx} style={{ marginBottom: 16 }}>
+                          <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "#94a3b8", letterSpacing: "1px", textTransform: "uppercase" as const, marginBottom: 6 }}>
+                            {inn.name} · <span style={{ color: "#f97316" }}>{inn.total}</span>
+                          </div>
+                          {inn.batting?.length > 0 && (
+                            <div style={{ overflowX: "auto" }}>
+                              <table style={{ width: "100%", borderCollapse: "collapse" as const, fontSize: "0.68rem" }}>
+                                <thead>
+                                  <tr style={{ color: "#475569", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                                    <th style={{ textAlign: "left" as const, padding: "3px 0", fontWeight: 600 }}>Batter</th>
+                                    <th style={{ textAlign: "right" as const, padding: "3px 4px", fontWeight: 600 }}>R</th>
+                                    <th style={{ textAlign: "right" as const, padding: "3px 4px", fontWeight: 600 }}>B</th>
+                                    <th style={{ textAlign: "right" as const, padding: "3px 4px", fontWeight: 600 }}>4s</th>
+                                    <th style={{ textAlign: "right" as const, padding: "3px 4px", fontWeight: 600 }}>6s</th>
+                                    <th style={{ textAlign: "right" as const, padding: "3px 4px", fontWeight: 600 }}>SR</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {inn.batting.filter((b: any) => !b.dnb).map((b: any, bi: number) => (
+                                    <tr key={bi} style={{ borderBottom: "1px solid rgba(255,255,255,0.03)" }}>
+                                      <td style={{ padding: "4px 0" }}>
+                                        <div style={{ color: b.notOut ? "#34d399" : "#cbd5e1" }}>{b.name}</div>
+                                        <div style={{ color: "#334155", fontSize: "0.6rem" }}>{b.dismissal}</div>
+                                      </td>
+                                      <td style={{ textAlign: "right" as const, padding: "4px 4px", color: "#f97316", fontFamily: "'Bebas Neue',sans-serif", fontSize: "0.9rem" }}>{b.runs}</td>
+                                      <td style={{ textAlign: "right" as const, padding: "4px 4px", color: "#64748b" }}>{b.balls}</td>
+                                      <td style={{ textAlign: "right" as const, padding: "4px 4px", color: "#60a5fa" }}>{b.fours}</td>
+                                      <td style={{ textAlign: "right" as const, padding: "4px 4px", color: "#a855f7" }}>{b.sixes}</td>
+                                      <td style={{ textAlign: "right" as const, padding: "4px 4px", color: "#64748b" }}>{parseFloat(b.sr).toFixed(1)}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          )}
+                          {inn.bowling?.length > 0 && (
+                            <div style={{ marginTop: 10, overflowX: "auto" }}>
+                              <table style={{ width: "100%", borderCollapse: "collapse" as const, fontSize: "0.68rem" }}>
+                                <thead>
+                                  <tr style={{ color: "#475569", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                                    <th style={{ textAlign: "left" as const, padding: "3px 0", fontWeight: 600 }}>Bowler</th>
+                                    <th style={{ textAlign: "right" as const, padding: "3px 4px", fontWeight: 600 }}>O</th>
+                                    <th style={{ textAlign: "right" as const, padding: "3px 4px", fontWeight: 600 }}>M</th>
+                                    <th style={{ textAlign: "right" as const, padding: "3px 4px", fontWeight: 600 }}>R</th>
+                                    <th style={{ textAlign: "right" as const, padding: "3px 4px", fontWeight: 600 }}>W</th>
+                                    <th style={{ textAlign: "right" as const, padding: "3px 4px", fontWeight: 600 }}>ECO</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {inn.bowling.map((b: any, bi: number) => (
+                                    <tr key={bi} style={{ borderBottom: "1px solid rgba(255,255,255,0.03)" }}>
+                                      <td style={{ padding: "4px 0", color: "#cbd5e1" }}>{b.name}</td>
+                                      <td style={{ textAlign: "right" as const, padding: "4px 4px", color: "#64748b" }}>{b.overs}</td>
+                                      <td style={{ textAlign: "right" as const, padding: "4px 4px", color: "#64748b" }}>{b.maidens}</td>
+                                      <td style={{ textAlign: "right" as const, padding: "4px 4px", color: "#64748b" }}>{b.runs}</td>
+                                      <td style={{ textAlign: "right" as const, padding: "4px 4px", color: "#34d399", fontFamily: "'Bebas Neue',sans-serif", fontSize: "0.9rem" }}>{b.wickets}</td>
+                                      <td style={{ textAlign: "right" as const, padding: "4px 4px", color: "#64748b" }}>{parseFloat(b.eco).toFixed(2)}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -438,7 +574,72 @@ export default function App() {
 
   const renderIPL = () => (
     <div>
-      <div className="sec-title">IPL 2026 Teams</div>
+      <div className="sec-title">IPL 2026 Points Table</div>
+      {standingsLoading && standings.length === 0 && (
+        <div style={{ color: "#475569", fontSize: "0.78rem", padding: "8px 0" }}>⏳ Loading standings...</div>
+      )}
+      {standings.length > 0 && (
+        <div style={{ background: "rgba(15,21,32,0.9)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, overflow: "hidden", marginBottom: 20 }}>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" as const, fontSize: "0.7rem" }}>
+              <thead>
+                <tr style={{ background: "rgba(255,255,255,0.03)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+                  <th style={{ textAlign: "left" as const, padding: "10px 12px", color: "#475569", fontWeight: 600, letterSpacing: "1px" }}>#</th>
+                  <th style={{ textAlign: "left" as const, padding: "10px 8px", color: "#475569", fontWeight: 600, letterSpacing: "1px" }}>TEAM</th>
+                  <th style={{ textAlign: "center" as const, padding: "10px 6px", color: "#475569", fontWeight: 600 }}>P</th>
+                  <th style={{ textAlign: "center" as const, padding: "10px 6px", color: "#475569", fontWeight: 600 }}>W</th>
+                  <th style={{ textAlign: "center" as const, padding: "10px 6px", color: "#475569", fontWeight: 600 }}>L</th>
+                  <th style={{ textAlign: "center" as const, padding: "10px 6px", color: "#475569", fontWeight: 600 }}>NR</th>
+                  <th style={{ textAlign: "center" as const, padding: "10px 6px", color: "#475569", fontWeight: 600 }}>NRR</th>
+                  <th style={{ textAlign: "center" as const, padding: "10px 8px", color: "#475569", fontWeight: 600 }}>PTS</th>
+                  <th style={{ textAlign: "center" as const, padding: "10px 8px", color: "#475569", fontWeight: 600 }}>FORM</th>
+                </tr>
+              </thead>
+              <tbody>
+                {standings.map((t: any, i: number) => {
+                  const color = IPL_COLORS[t.teamCode] || "#475569";
+                  const isTop4 = i < 4;
+                  return (
+                    <tr key={t.teamCode} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)", background: isTop4 ? "rgba(255,255,255,0.01)" : "transparent" }}>
+                      <td style={{ padding: "10px 12px", color: isTop4 ? "#34d399" : "#475569", fontWeight: 700 }}>{i + 1}</td>
+                      <td style={{ padding: "10px 8px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                          <div style={{ width: 3, height: 24, borderRadius: 2, background: color, flexShrink: 0 }} />
+                          {t.teamLogo && <img src={t.teamLogo} alt={t.teamCode} style={{ width: 22, height: 22, objectFit: "contain" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />}
+                          <div>
+                            <div style={{ fontWeight: 700, color: "#e2e8f0", fontSize: "0.72rem" }}>{t.teamCode}</div>
+                            <div style={{ color: "#475569", fontSize: "0.58rem" }}>{t.for || ""}  {t.against ? `vs ${t.against}` : ""}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td style={{ textAlign: "center" as const, padding: "10px 6px", color: "#94a3b8" }}>{t.matches}</td>
+                      <td style={{ textAlign: "center" as const, padding: "10px 6px", color: "#34d399", fontWeight: 600 }}>{t.won}</td>
+                      <td style={{ textAlign: "center" as const, padding: "10px 6px", color: "#f87171" }}>{t.lost}</td>
+                      <td style={{ textAlign: "center" as const, padding: "10px 6px", color: "#64748b" }}>{t.noResult}</td>
+                      <td style={{ textAlign: "center" as const, padding: "10px 6px", color: t.nrr >= 0 ? "#34d399" : "#f87171", fontSize: "0.68rem" }}>
+                        {t.nrr >= 0 ? "+" : ""}{t.nrr.toFixed(3)}
+                      </td>
+                      <td style={{ textAlign: "center" as const, padding: "10px 8px", fontFamily: "'Bebas Neue',sans-serif", fontSize: "1.1rem", color: color, letterSpacing: "1px" }}>{t.points}</td>
+                      <td style={{ textAlign: "center" as const, padding: "10px 8px" }}>
+                        {(t.form || "").split("").map((f: string, fi: number) => (
+                          <span key={fi} style={{ display: "inline-block", width: 14, height: 14, borderRadius: "50%", background: f === "W" ? "#34d399" : f === "L" ? "#ef4444" : "#475569", margin: "0 1px", fontSize: "0.5rem", lineHeight: "14px", color: "#fff", textAlign: "center" as const }}>{f}</span>
+                        ))}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          {standings.length > 0 && (
+            <div style={{ padding: "6px 12px", fontSize: "0.6rem", color: "#334155", borderTop: "1px solid rgba(255,255,255,0.04)" }}>
+              Top 4 qualify for playoffs · Source: IPL official feed
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="sec-title" style={{ marginTop: 8 }}>IPL 2026 Teams</div>
       {Object.entries(IPL_COLORS).map(([code, color]) => {
         const allPlayers = Object.values(FANTASY_TEAMS).flatMap(t => t.players.filter(p => p.ipl === code));
         return (

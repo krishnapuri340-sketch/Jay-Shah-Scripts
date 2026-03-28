@@ -106,6 +106,7 @@ function transformMatch(m: any): any {
 
 let cache: { data: any; timestamp: number } | null = null;
 const CACHE_TTL = 2 * 60 * 1000;
+let standingsCache: { data: any; timestamp: number } | null = null;
 
 router.get("/ipl/matches", async (req, res) => {
   try {
@@ -157,6 +158,42 @@ router.get("/ipl/matches", async (req, res) => {
   } catch (err: any) {
     req.log.error({ err }, "Failed to fetch IPL matches");
     res.status(500).json({ error: "Failed to fetch match data", matches: [] });
+  }
+});
+
+router.get("/ipl/standings", async (req, res) => {
+  try {
+    if (standingsCache && Date.now() - standingsCache.timestamp < CACHE_TTL) {
+      return res.json(standingsCache.data);
+    }
+    const url = `${IPL_S3_BASE}/stats/${IPL_COMPETITION_ID}-groupstandings.js`;
+    const r = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" }, signal: AbortSignal.timeout(10000) });
+    if (!r.ok) return res.json({ standings: [] });
+    const text = await r.text();
+    const parsed = parseJsonp(text);
+    const raw: any[] = parsed?.points || [];
+    const standings = raw.map((t: any) => ({
+      rank: parseInt(t.OrderNo) || 0,
+      teamCode: t.TeamCode || "",
+      teamName: t.TeamName || "",
+      teamLogo: t.TeamLogo || "",
+      matches: parseInt(t.Matches) || 0,
+      won: parseInt(t.Wins) || 0,
+      lost: parseInt(t.Loss) || 0,
+      tied: parseInt(t.Tied) || 0,
+      noResult: parseInt(t.NoResult) || 0,
+      points: parseInt(t.Points) || 0,
+      nrr: parseFloat(t.NetRunRate) || 0,
+      for: t.ForTeams || "",
+      against: t.AgainstTeam || "",
+      form: t.Performance || "",
+    })).sort((a: any, b: any) => (b.points - a.points) || (b.nrr - a.nrr));
+    const response = { standings, timestamp: new Date().toISOString() };
+    standingsCache = { data: response, timestamp: Date.now() };
+    res.json(response);
+  } catch (err: any) {
+    req.log.error({ err }, "Failed to fetch standings");
+    res.status(500).json({ standings: [] });
   }
 });
 
