@@ -237,9 +237,9 @@ export default function App() {
     fetchLive();
     fetchPoints();
     fetchStandings();
-    const id1 = setInterval(fetchLive, 5 * 60 * 1000);
-    const id2 = setInterval(fetchPoints, 5 * 60 * 1000);
-    const id3 = setInterval(fetchStandings, 5 * 60 * 1000);
+    const id1 = setInterval(fetchLive, 15 * 60 * 1000);
+    const id2 = setInterval(fetchPoints, 15 * 60 * 1000);
+    const id3 = setInterval(fetchStandings, 15 * 60 * 1000);
     return () => { clearInterval(id1); clearInterval(id2); clearInterval(id3); };
   }, []);
 
