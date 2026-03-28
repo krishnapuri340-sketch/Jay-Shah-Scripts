@@ -134,29 +134,42 @@ export default function App() {
   const [tab, setTab] = useState("home");
   const [selectedTeam, setSelectedTeam] = useState("rajveer");
   const [playerPoints, setPlayerPoints] = useState<Record<string, number>>({});
-  const [playedMatches, setPlayedMatches] = useState<Record<string, boolean>>({});
   const [liveMatches, setLiveMatches] = useState<any[]>([]);
   const [liveLoading, setLiveLoading] = useState(false);
+  const [pointsLoading, setPointsLoading] = useState(false);
+  const [pointsUpdating, setPointsUpdating] = useState(false);
+  const [pendingMatches, setPendingMatches] = useState(0);
+  const [nextAttempt, setNextAttempt] = useState<string | null>(null);
+  const [processedMatches, setProcessedMatches] = useState<string[]>([]);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [pointsLastUpdated, setPointsLastUpdated] = useState<Date | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
-
-  useEffect(() => {
-    try {
-      const pp = localStorage.getItem("f26pp");
-      const pm = localStorage.getItem("f26pm");
-      if (pp) setPlayerPoints(JSON.parse(pp));
-      if (pm) setPlayedMatches(JSON.parse(pm));
-    } catch (e) {}
-  }, []);
-
-  const persist = (pp: Record<string, number>, pm: Record<string, boolean>) => {
-    try {
-      localStorage.setItem("f26pp", JSON.stringify(pp));
-      localStorage.setItem("f26pm", JSON.stringify(pm));
-    } catch (e) {}
-  };
-
+  const [pointsError, setPointsError] = useState<string | null>(null);
   const [dataSources, setDataSources] = useState<{ iplOfficial: number; liveCount: number; competitionId?: number } | null>(null);
+
+  const fetchPoints = async () => {
+    if (pointsLoading) return;
+    setPointsLoading(true);
+    setPointsError(null);
+    try {
+      const res = await fetch("/api/ipl/points");
+      if (!res.ok) throw new Error(`Server error: ${res.status}`);
+      const data = await res.json();
+      if (data.error && !data.playerPoints) {
+        setPointsError(data.error);
+      } else {
+        setPlayerPoints(data.playerPoints || {});
+        setProcessedMatches(data.processedMatches || []);
+        setPointsUpdating(data.updating || false);
+        setPendingMatches(data.pendingMatches || 0);
+        setNextAttempt(data.nextAttempt || null);
+        setPointsLastUpdated(new Date());
+      }
+    } catch (e: any) {
+      setPointsError("Points fetch failed: " + (e.message || "Unknown error"));
+    }
+    setPointsLoading(false);
+  };
 
   const fetchLive = async () => {
     if (liveLoading) return;
@@ -166,13 +179,12 @@ export default function App() {
       const res = await fetch("/api/ipl/matches");
       if (!res.ok) throw new Error(`Server error: ${res.status}`);
       const data = await res.json();
-
       const matches: any[] = data.matches || [];
       if (matches.length > 0) {
         setLiveMatches(matches);
         setDataSources(data.sources || null);
       } else {
-        setApiError("No IPL matches found from official sources. Season may not have started yet.");
+        setApiError("No IPL matches found from official sources.");
       }
       setLastUpdated(new Date());
     } catch (e: any) {
@@ -183,8 +195,10 @@ export default function App() {
 
   useEffect(() => {
     fetchLive();
-    const id = setInterval(fetchLive, 5 * 60 * 1000);
-    return () => clearInterval(id);
+    fetchPoints();
+    const id1 = setInterval(fetchLive, 5 * 60 * 1000);
+    const id2 = setInterval(fetchPoints, 5 * 60 * 1000);
+    return () => { clearInterval(id1); clearInterval(id2); };
   }, []);
 
   const teamScores = Object.keys(FANTASY_TEAMS)
@@ -440,14 +454,10 @@ export default function App() {
   );
 
   const renderAdmin = () => {
+    const completedCount = liveMatches.filter((m: any) => m.matchEnded).length;
+    const liveCount = liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded).length;
+    const scoredPlayerCount = Object.keys(playerPoints).length;
     const totalPts = Object.values(playerPoints).reduce((s, v) => s + v, 0);
-
-    const removePlayer = (name: string) => {
-      const pp = { ...playerPoints };
-      delete pp[name];
-      setPlayerPoints(pp);
-      persist(pp, playedMatches);
-    };
 
     return (
       <div>
@@ -455,78 +465,104 @@ export default function App() {
 
         <div className="stat-grid" style={{ marginBottom: 20 }}>
           <div className="stat-card">
-            <div className="stat-val" style={{ color: "#60a5fa" }}>{liveMatches.length}</div>
-            <div className="stat-lbl">Matches loaded</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-val" style={{ color: "#f97316" }}>{liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded).length}</div>
-            <div className="stat-lbl">Live now</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-val" style={{ color: "#34d399" }}>{liveMatches.filter((m: any) => m.matchEnded).length}</div>
+            <div className="stat-val" style={{ color: "#34d399" }}>{completedCount}</div>
             <div className="stat-lbl">Completed</div>
           </div>
           <div className="stat-card">
-            <div className="stat-val" style={{ color: "#a855f7" }}>{totalPts}</div>
-            <div className="stat-lbl">Total pts</div>
+            <div className="stat-val" style={{ color: "#f97316" }}>{liveCount}</div>
+            <div className="stat-lbl">Live now</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-val" style={{ color: "#60a5fa" }}>{processedMatches.length}</div>
+            <div className="stat-lbl">Scored</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-val" style={{ color: "#a855f7" }}>{scoredPlayerCount}</div>
+            <div className="stat-lbl">Players</div>
           </div>
         </div>
-
-        {dataSources && (
-          <div style={{ background: "rgba(15,21,32,0.9)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: 16, marginBottom: 16 }}>
-            <div style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase" as const, color: "#94a3b8", marginBottom: 12 }}>
-              📡 Data Sources
-            </div>
-            <div style={{ display: "flex", flexDirection: "column" as const, gap: 8 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem" }}>
-                <span style={{ color: "#64748b" }}>IPL Official Feed</span>
-                <span style={{ color: dataSources.iplOfficial > 0 ? "#34d399" : "#475569" }}>
-                  {dataSources.iplOfficial > 0 ? `✓ ${dataSources.iplOfficial} matches` : "No data"}
-                  {dataSources.competitionId ? <span style={{ color: "#334155", marginLeft: 6, fontSize: "0.7rem" }}>CompID #{dataSources.competitionId}</span> : null}
-                </span>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem" }}>
-                <span style={{ color: "#64748b" }}>Live match feed</span>
-                <span style={{ color: dataSources.liveCount > 0 ? "#34d399" : "#475569" }}>
-                  {dataSources.liveCount > 0 ? `✓ ${dataSources.liveCount} live` : "None active"}
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
 
         <div style={{ background: "rgba(15,21,32,0.9)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: 16, marginBottom: 16 }}>
           <div style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase" as const, color: "#94a3b8", marginBottom: 12 }}>
-            📊 Current Points
+            🤖 Auto-Points Engine
           </div>
-          {Object.keys(playerPoints).length === 0 && (
-            <div style={{ color: "#334155", fontSize: "0.8rem", padding: "8px 0" }}>No points yet. Points populate automatically as matches complete.</div>
-          )}
-          {Object.entries(playerPoints).sort((a, b) => b[1] - a[1]).map(([name, pts]) => (
-            <div key={name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "7px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-              <span style={{ fontSize: "0.8rem", color: "#cbd5e1", flex: 1 }}>{name}</span>
-              <span style={{ fontFamily: "'Bebas Neue'", fontSize: "1.1rem", color: "#f97316", letterSpacing: "1px", marginRight: 12 }}>{pts}</span>
-              <button onClick={() => removePlayer(name)}
-                style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer", fontSize: "0.8rem", padding: "2px 6px", opacity: 0.5 }}>✕</button>
+          <div style={{ display: "flex", flexDirection: "column" as const, gap: 10 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem" }}>
+              <span style={{ color: "#64748b" }}>IPL schedule</span>
+              <span style={{ color: dataSources?.iplOfficial ? "#34d399" : "#475569" }}>
+                {dataSources?.iplOfficial ? `✓ ${dataSources.iplOfficial} matches` : "Loading..."}
+              </span>
             </div>
-          ))}
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem" }}>
+              <span style={{ color: "#64748b" }}>Scorecards fetched</span>
+              <span style={{ color: processedMatches.length > 0 ? "#34d399" : "#475569" }}>
+                {processedMatches.length > 0 ? `✓ ${processedMatches.length} of ${completedCount}` : completedCount === 0 ? "No matches yet" : "Pending..."}
+              </span>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem" }}>
+              <span style={{ color: "#64748b" }}>CricAPI points engine</span>
+              <span style={{ color: pointsUpdating ? "#f59e0b" : pointsError ? "#ef4444" : pendingMatches > 0 ? "#f59e0b" : "#34d399" }}>
+                {pointsUpdating ? "⏳ Processing..." : pointsError ? `⚠ ${pointsError.slice(0, 40)}` : pendingMatches > 0 ? `⏳ ${pendingMatches} pending` : "✓ Active"}
+              </span>
+            </div>
+            {nextAttempt && (
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem" }}>
+                <span style={{ color: "#475569" }}>Rate limit — next attempt</span>
+                <span style={{ color: "#f59e0b" }}>{new Date(nextAttempt).toLocaleTimeString()}</span>
+              </div>
+            )}
+            {pointsLastUpdated && (
+              <div style={{ fontSize: "0.65rem", color: "#334155" }}>
+                Points last updated: {pointsLastUpdated.toLocaleTimeString()} · Auto-refreshes every 5 min
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div style={{ background: "rgba(15,21,32,0.9)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: 16, marginBottom: 16 }}>
+          <div style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase" as const, color: "#94a3b8", marginBottom: 12 }}>
+            📊 Player Points Breakdown
+          </div>
+          {Object.keys(playerPoints).length === 0 ? (
+            <div style={{ color: "#334155", fontSize: "0.8rem", padding: "8px 0" }}>
+              {pointsLoading ? "⏳ Calculating points from scorecards..." : "Points will appear once matches complete and scorecards are processed."}
+            </div>
+          ) : (
+            Object.entries(playerPoints).sort((a, b) => b[1] - a[1]).map(([name, pts]) => {
+              const team = Object.values(FANTASY_TEAMS).find(t => t.players.some(p => p.name === name));
+              return (
+                <div key={name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                  <div style={{ flex: 1 }}>
+                    <span style={{ fontSize: "0.78rem", color: "#cbd5e1" }}>{name}</span>
+                    {team && <span style={{ fontSize: "0.62rem", color: "#475569", marginLeft: 6 }}>{team.name}</span>}
+                  </div>
+                  <span style={{ fontFamily: "'Bebas Neue'", fontSize: "1.1rem", color: "#f97316", letterSpacing: "1px" }}>{pts}</span>
+                </div>
+              );
+            })
+          )}
         </div>
 
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" as const }}>
-          <button className="btn-primary" onClick={fetchLive} disabled={liveLoading}>
-            {liveLoading ? <span className="spinner" /> : "🔄"} Refresh Data
+          <button className="btn-primary" onClick={() => { fetchLive(); fetchPoints(); }} disabled={liveLoading || pointsLoading}>
+            {(liveLoading || pointsLoading) ? <span className="spinner" /> : "🔄"} Refresh All
           </button>
-          <button className="btn-danger" onClick={() => {
-            if (confirm("Reset ALL points? Cannot be undone.")) {
+          <button className="btn-primary" style={{ background: "rgba(96,165,250,0.1)", borderColor: "rgba(96,165,250,0.3)", color: "#60a5fa" }}
+            onClick={fetchPoints} disabled={pointsLoading}>
+            {pointsLoading ? <span className="spinner" /> : "⚡"} Fetch Points
+          </button>
+          <button className="btn-danger" onClick={async () => {
+            if (confirm("Reset all cached points? Points will re-fetch from CricAPI.")) {
+              await fetch("/api/ipl/points/reset", { method: "POST" });
               setPlayerPoints({});
-              setPlayedMatches({});
-              try { localStorage.removeItem("f26pp"); localStorage.removeItem("f26pm"); } catch (e) {}
+              setProcessedMatches([]);
+              setTimeout(fetchPoints, 500);
             }
-          }}>🗑️ Reset Points</button>
+          }}>🗑️ Reset Cache</button>
         </div>
         {lastUpdated && (
           <div style={{ fontSize: "0.65rem", color: "#334155", marginTop: 10 }}>
-            Last updated: {lastUpdated.toLocaleTimeString()} · Auto-refreshes every 5 min
+            Schedule last updated: {lastUpdated.toLocaleTimeString()} · Total points tracked: {totalPts}
           </div>
         )}
       </div>

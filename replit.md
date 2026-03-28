@@ -4,6 +4,42 @@
 
 pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
 
+## IPL Fantasy Cricket 2026 Tracker
+
+Primary application: IPL Fantasy Cricket Tracker for 4 teams (Rajveer Puri, Mombasa K, Mumbai Ma, PonyGoat).
+
+### Architecture
+- **Frontend**: `artifacts/fantasy-cricket` — React + Vite SPA, tabs: Home (Leaderboard), Teams, Matches, IPL, Admin
+- **Backend**: `artifacts/api-server` — Express API with two main route modules:
+  - `routes/ipl.ts` — Fetches live match schedule from IPL official S3 feed (Competition ID 284)
+  - `routes/ipl-points.ts` — Auto-calculates fantasy points from CricAPI scorecards; caches to `ipl-points-cache.json`
+
+### Data Sources
+- **IPL Schedule**: `https://ipl-stats-sports-mechanic.s3.ap-south-1.amazonaws.com/ipl/feeds/284-matchschedule.js`
+  - JSONP callback `MatchSchedule`; data in `Matchsummary[]` with fields: MatchID, MatchStatus (Post/UpComing/Live), HomeTeamName, AwayTeamName, FirstBattingSummary, SecondBattingSummary, Commentss
+- **Scorecards**: CricAPI (`https://api.cricapi.com/v1/`) using secret `CRICAPI_KEY`
+  - Endpoints: `/series` (search), `/series_info` (match list), `/match_scorecard` (batting/bowling stats)
+  - Free tier: 100 req/day; engine has 10-minute cooldown after rate-limit hits
+  - Cached permanently in `ipl-points-cache.json` once processed
+
+### Points Engine (`ipl-points.ts`)
+- Finds IPL 2026 series in CricAPI by name search
+- Matches CricAPI matches to IPL S3 matches by date + team name fuzzy matching
+- Parses batting (runs, balls, 4s, 6s), bowling (wickets, maidens, overs, runs), fielding (catches from dismissal text, stumpings, run-outs)
+- Calculates fantasy points using standard IPL formula (calcPoints function — **swap with custom formula when provided**)
+- Processes up to 3 unprocessed matches per background job; cooldown prevents rate-limit loops
+
+### Fantasy Teams
+- Each team has 18 players with Captain (×2) and Vice-Captain (×1.5) designations
+- Top 11 by adjusted points auto-selected per team
+- Session secret stored as `SESSION_SECRET`
+
+### Key Files
+- `artifacts/fantasy-cricket/src/App.tsx` — All frontend logic (tabs, state, team definitions)
+- `artifacts/api-server/src/routes/ipl.ts` — IPL schedule + match data
+- `artifacts/api-server/src/routes/ipl-points.ts` — Auto-points pipeline (calcPoints to be replaced)
+- `artifacts/api-server/ipl-points-cache.json` — Persistent scorecard cache (gitignored in prod)
+
 ## Stack
 
 - **Monorepo tool**: pnpm workspaces
