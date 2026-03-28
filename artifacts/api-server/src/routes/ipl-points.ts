@@ -48,62 +48,76 @@ function saveCache(cache: PointsCache) {
   } catch (_) {}
 }
 
+// T20 Fantasy Scoring System v1.7
 function calcPoints(p: PlayerStats): number {
   if (!p.played) return 0;
-  let pts = 4;
+  let pts = 0;
 
+  // Playing XI: +4
+  pts += 4;
+
+  // --- BATTING ---
   const r = p.runs || 0;
   const balls = p.balls || 0;
-  pts += r;
-  pts += (p.fours || 0) * 4;
-  pts += (p.sixes || 0) * 8;
-  if (p.duck) pts -= 2;
 
+  pts += r;                        // Each run: +1
+  pts += (p.fours || 0) * 4;      // Four boundary bonus: +4
+  pts += (p.sixes || 0) * 8;      // Six bonus: +8
+  if (p.duck) pts -= 2;           // Dismissed for 0 (duck): -2
+
+  // Batting milestones — highest only
   if (r >= 100) pts += 16;
   else if (r >= 75) pts += 12;
   else if (r >= 50) pts += 8;
   else if (r >= 25) pts += 4;
 
+  // Strike rate bonus — min 10 balls faced OR 20 runs
   if (balls >= 10 || r >= 20) {
-    const sr = (r / balls) * 100;
-    if (sr > 190) pts += 8;
-    else if (sr > 170) pts += 6;
-    else if (sr > 150) pts += 4;
-    else if (sr > 130) pts += 2;
-    else if (sr >= 70 && sr <= 100) pts -= 2;
-    else if (sr >= 60 && sr < 70) pts -= 4;
-    else if (sr >= 50 && sr < 60) pts -= 6;
+    const sr = balls > 0 ? (r / balls) * 100 : 0;
+    if (sr > 190) pts += 8;             // Above 190: +8
+    else if (sr > 170) pts += 6;        // 170.01 - 190: +6
+    else if (sr > 150) pts += 4;        // 150.01 - 170: +4
+    else if (sr >= 130) pts += 2;       // 130 - 150: +2
+    else if (sr >= 70 && sr <= 100) pts -= 2;   // 70 - 100: -2
+    else if (sr >= 60 && sr < 70) pts -= 4;     // 60 - 70: -4
+    else if (sr >= 50 && sr < 60) pts -= 6;     // 50 - 59.99: -6
   }
 
+  // --- BOWLING ---
   const w = p.wickets || 0;
-  pts += (p.dots || 0) * 2;
-  pts += w * 30;
-  pts += (p.lbwBowled || 0) * 8;
-  pts += (p.maidens || 0) * 12;
 
+  pts += (p.dots || 0) * 2;       // Dot ball: +2
+  pts += w * 30;                   // Wicket (excl. run out): +30
+  pts += (p.lbwBowled || 0) * 8;  // LBW / Bowled bonus: +8
+  pts += (p.maidens || 0) * 12;   // Maiden over: +12
+
+  // Bowling milestones — highest only
   if (w >= 5) pts += 16;
   else if (w >= 4) pts += 12;
   else if (w >= 3) pts += 8;
 
+  // Economy rate bonus — min 2 overs bowled
   const overs = (p.ballsBowled || 0) / 6;
   if (overs >= 2) {
     const eco = (p.runsConceded || 0) / overs;
-    if (eco < 5) pts += 8;
-    else if (eco < 6) pts += 6;
-    else if (eco <= 7) pts += 4;
-    else if (eco <= 8) pts += 2;
-    else if (eco >= 10 && eco <= 11) pts -= 2;
-    else if (eco > 11 && eco <= 12) pts -= 4;
-    else if (eco > 12) pts -= 6;
+    if (eco < 5) pts += 8;               // Below 5.00: +8
+    else if (eco < 6) pts += 6;          // 5.00 - 5.99: +6
+    else if (eco <= 7) pts += 4;         // 6.00 - 7.00: +4
+    else if (eco <= 8) pts += 2;         // 7.01 - 8.00: +2
+    // 8.01 - 9.99: 0 (no bonus/penalty)
+    else if (eco >= 10 && eco <= 11) pts -= 2;    // 10.00 - 11.00: -2
+    else if (eco > 11 && eco <= 12) pts -= 4;     // 11.01 - 12.00: -4
+    else if (eco > 12) pts -= 6;                   // Above 12.00: -6
   }
 
+  // --- FIELDING ---
   const c = p.catches || 0;
-  pts += c * 8;
-  if (c >= 3) pts += 4;
-  pts += (p.runOuts || 0) * 10;
-  pts += (p.stumpings || 0) * 12;
+  pts += c * 8;                    // Catch: +8 each
+  if (c >= 3) pts += 4;           // 3+ catches bonus: +4 (once per match)
+  pts += (p.runOuts || 0) * 10;   // Run out: +10
+  pts += (p.stumpings || 0) * 12; // Stumping: +12
 
-  return Math.max(0, pts);
+  return pts;
 }
 
 function normalizeName(name: string): string {
