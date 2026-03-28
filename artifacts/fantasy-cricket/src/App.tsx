@@ -155,9 +155,6 @@ export default function App() {
   const [statsLoading, setStatsLoading] = useState(false);
   const [statsFilter, setStatsFilter] = useState<"all" | "fantasy">("all");
   const [statsCategory, setStatsCategory] = useState<"orangeCap" | "purpleCap" | "sixesLeader" | "foursLeader" | "srLeader" | "ecoLeader">("orangeCap");
-  const [predictions, setPredictions] = useState<Record<string, string>>({});
-  const [predictLoading, setPredictLoading] = useState<string | null>(null);
-
   const fetchPoints = async () => {
     if (pointsLoading) return;
     setPointsLoading(true);
@@ -240,22 +237,6 @@ export default function App() {
     setStatsLoading(false);
   };
 
-  const fetchPrediction = async (matchId: string) => {
-    if (predictLoading === matchId || predictions[matchId]) return;
-    setPredictLoading(matchId);
-    try {
-      const res = await fetch("/api/ipl/predict", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ matchId }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setPredictions(prev => ({ ...prev, [matchId]: data.prediction }));
-      }
-    } catch (_) {}
-    setPredictLoading(null);
-  };
 
   const toggleMatch = (matchId: string, isCompleted: boolean) => {
     if (expandedMatchId === matchId) {
@@ -514,26 +495,6 @@ export default function App() {
                   ))}
                   {isDone && m.status && <div style={{ fontSize: "0.68rem", color: "#60a5fa", marginTop: 5 }}>{m.status}</div>}
                   {m.venue && <div className="match-venue">{m.venue}</div>}
-
-                  {!isDone && !isLive && (
-                    <div style={{ marginTop: 10 }} onClick={e => e.stopPropagation()}>
-                      {!predictions[matchIdStr] ? (
-                        <button
-                          style={{ background: "rgba(139,92,246,0.15)", border: "1px solid rgba(139,92,246,0.3)", borderRadius: 8, padding: "5px 12px", fontSize: "0.68rem", color: "#a78bfa", cursor: "pointer", width: "100%" }}
-                          onClick={() => fetchPrediction(matchIdStr)}
-                          disabled={predictLoading === matchIdStr}>
-                          {predictLoading === matchIdStr ? "🤖 Generating prediction..." : "🤖 AI Match Prediction"}
-                        </button>
-                      ) : (
-                        <div style={{ background: "rgba(139,92,246,0.08)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, padding: "10px 12px", marginTop: 4 }}>
-                          <div style={{ fontSize: "0.6rem", color: "#7c3aed", letterSpacing: "1px", textTransform: "uppercase" as const, fontWeight: 700, marginBottom: 6 }}>🤖 AI Prediction</div>
-                          <div style={{ fontSize: "0.7rem", color: "#c4b5fd", lineHeight: 1.6, whiteSpace: "pre-wrap" as const }}>
-                            {predictions[matchIdStr].replace(/\*\*/g, "")}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
 
                   {isExpanded && (
                     <div style={{ marginTop: 12, borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 12 }}
