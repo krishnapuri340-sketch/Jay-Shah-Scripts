@@ -401,7 +401,7 @@ const FANTASY_PLAYER_NAMES = [
 
 let pointsUpdateInProgress = false;
 let lastUpdateAttempt = 0;
-const UPDATE_COOLDOWN_MS = 10 * 60 * 1000;
+const UPDATE_COOLDOWN_MS = 16 * 60 * 1000; // 16 min — respects CricAPI 15-min block window
 let pointsCache: PointsCache = loadCache();
 let lastPointsCacheReload = 0;
 
@@ -463,7 +463,7 @@ router.get("/ipl/points", async (req, res) => {
         if (seriesId) {
           const cricapiMatches = await getSeriesMatches(seriesId);
 
-          for (const iplMatch of unprocessed.slice(0, 3)) {
+          for (const iplMatch of unprocessed) {
             const iplId = String(iplMatch.MatchID);
             if (pointsCache.processedMatches[iplId]) continue;
 
@@ -500,11 +500,13 @@ router.get("/ipl/points", async (req, res) => {
                 saveCache(pointsCache);
               }
             } catch (e: any) {
-              if (e.message?.includes("hits") || e.message?.includes("limit")) break;
+              console.error(`Failed to process match ${iplId}:`, (e as any).message);
             }
           }
         }
-      } catch (_) {}
+      } catch (e: any) {
+        console.error("[ipl-points] Background job error:", e?.message || e);
+      }
       pointsUpdateInProgress = false;
     })();
 
