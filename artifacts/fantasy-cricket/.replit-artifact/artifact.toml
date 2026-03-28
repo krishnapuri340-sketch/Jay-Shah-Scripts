@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Fantasy Cricket Tracker"
+version = "1.0.0"
+id = "artifacts/fantasy-cricket"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21500
+
+[services.development]
+run = "pnpm --filter @workspace/fantasy-cricket run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/fantasy-cricket", "run", "build" ]
+publicDir = "artifacts/fantasy-cricket/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21500"
+BASE_PATH = "/"
