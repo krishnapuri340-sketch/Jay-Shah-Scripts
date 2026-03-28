@@ -61,18 +61,24 @@ interface ProcessedMatchData {
   innings: InningData[];
 }
 
+const DAILY_CALL_LIMIT = 95; // hard cap below CricAPI's 100/day free tier
+
 interface PointsCache {
   seriesId: string | null;
   cricapiMatchIds: Record<string, string>;
   processedMatches: Record<string, ProcessedMatchData>;
   lastUpdated: string;
+  dailyHits: { date: string; count: number };
+}
+
+function utcDateString(): string {
+  return new Date().toISOString().slice(0, 10); // "YYYY-MM-DD" in UTC
 }
 
 function loadCache(): PointsCache {
   if (existsSync(CACHE_FILE)) {
     try {
       const raw = JSON.parse(readFileSync(CACHE_FILE, "utf8"));
-      // migrate old format: processedMatches was Record<string, Record<string, number>>
       const processedMatches: Record<string, ProcessedMatchData> = {};
       for (const [k, v] of Object.entries(raw.processedMatches || {})) {
         if (v && typeof v === "object" && "points" in (v as any)) {
@@ -81,10 +87,13 @@ function loadCache(): PointsCache {
           processedMatches[k] = { points: v as Record<string, number>, innings: [] };
         }
       }
-      return { ...raw, processedMatches };
+      const dailyHits = raw.dailyHits && raw.dailyHits.date === utcDateString()
+        ? raw.dailyHits
+        : { date: utcDateString(), count: 0 };
+      return { ...raw, processedMatches, dailyHits };
     } catch (_) {}
   }
-  return { seriesId: null, cricapiMatchIds: {}, processedMatches: {}, lastUpdated: "" };
+  return { seriesId: null, cricapiMatchIds: {}, processedMatches: {}, lastUpdated: "", dailyHits: { date: utcDateString(), count: 0 } };
 }
 
 function saveCache(cache: PointsCache) {
@@ -313,6 +322,16 @@ function processScorecard(scorecard: any[]): { players: Record<string, PlayerSta
 
 async function cricapiGet(endpoint: string, params: Record<string, string> = {}): Promise<any> {
   if (!CRICAPI_KEY) throw new Error("CRICAPI_KEY not set");
+
+  // Reload cache to pick up persisted counter in case of a restart mid-day
+  const today = utcDateString();
+  if (pointsCache.dailyHits.date !== today) {
+    pointsCache.dailyHits = { date: today, count: 0 };
+  }
+  if (pointsCache.dailyHits.count >= DAILY_CALL_LIMIT) {
+    throw new Error(`CricAPI daily limit reached (${pointsCache.dailyHits.count}/${DAILY_CALL_LIMIT} calls used). Resets at midnight UTC.`);
+  }
+
   const url = new URL(`${CRICAPI_BASE}/${endpoint}`);
   url.searchParams.set("apikey", CRICAPI_KEY);
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
@@ -320,6 +339,11 @@ async function cricapiGet(endpoint: string, params: Record<string, string> = {})
   if (!res.ok) throw new Error(`CricAPI ${res.status}`);
   const json = await res.json();
   if (json.status === "failure") throw new Error(`CricAPI error: ${json.reason || json.message}`);
+
+  // Increment and persist counter after every successful call
+  pointsCache.dailyHits = { date: today, count: pointsCache.dailyHits.count + 1 };
+  saveCache(pointsCache);
+
   return json.data;
 }
 
@@ -423,8 +447,10 @@ router.get("/ipl/points", async (req, res) => {
       }
     }
 
+    const dailyHitsInfo = { count: pointsCache.dailyHits.count, limit: DAILY_CALL_LIMIT, date: pointsCache.dailyHits.date };
+
     if (pointsUpdateInProgress) {
-      return res.json({ playerPoints: aggregated, processedMatches: Object.keys(pointsCache.processedMatches), updating: true, timestamp: new Date().toISOString() });
+      return res.json({ playerPoints: aggregated, processedMatches: Object.keys(pointsCache.processedMatches), updating: true, timestamp: new Date().toISOString(), dailyHits: dailyHitsInfo });
     }
 
     const scheduleRes = await fetch(
@@ -440,7 +466,7 @@ router.get("/ipl/points", async (req, res) => {
     const unprocessed = completedMatches.filter((m: any) => !pointsCache.processedMatches[String(m.MatchID)]);
 
     if (unprocessed.length === 0) {
-      return res.json({ playerPoints: aggregated, processedMatches: Object.keys(pointsCache.processedMatches), timestamp: new Date().toISOString() });
+      return res.json({ playerPoints: aggregated, processedMatches: Object.keys(pointsCache.processedMatches), timestamp: new Date().toISOString(), dailyHits: dailyHitsInfo });
     }
 
     if (Date.now() - lastUpdateAttempt < UPDATE_COOLDOWN_MS) {
@@ -448,7 +474,7 @@ router.get("/ipl/points", async (req, res) => {
         playerPoints: aggregated, processedMatches: Object.keys(pointsCache.processedMatches),
         updating: false, pendingMatches: unprocessed.length,
         nextAttempt: new Date(lastUpdateAttempt + UPDATE_COOLDOWN_MS).toISOString(),
-        timestamp: new Date().toISOString(),
+        timestamp: new Date().toISOString(), dailyHits: dailyHitsInfo,
       });
     }
 
