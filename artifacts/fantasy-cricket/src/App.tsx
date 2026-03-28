@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 
-const API_KEY = "e7ef2ab6-e836-4532-bf1e-9e2e26719376";
-
 const FANTASY_TEAMS: Record<string, {
   id: string; name: string; emoji: string; color: string;
   captain: string; vc: string;
@@ -120,50 +118,6 @@ const IPL_FULL_NAMES: Record<string, string> = {
 const ROLE_ICONS: Record<string, string> = { BAT: "🏏", BWL: "🎯", AR: "⚡", WK: "🧤" };
 const ROLE_COLORS: Record<string, string> = { BAT: "#60a5fa", BWL: "#f472b6", AR: "#34d399", WK: "#fbbf24" };
 
-interface PlayerStats {
-  played: boolean;
-  runs: number;
-  balls: number;
-  fours: number;
-  sixes: number;
-  duck: boolean;
-  wickets: number;
-  dots: number;
-  lbwBowled: number;
-  maidens: number;
-  ballsBowled: number;
-  runsConceded: number;
-  catches: number;
-  runOuts: number;
-  stumpings: number;
-}
-
-function calcPoints(p: PlayerStats): number {
-  if (!p.played) return 0;
-  let pts = 4;
-  const r = p.runs || 0, balls = p.balls || 0;
-  pts += r + (p.fours || 0) * 4 + (p.sixes || 0) * 8;
-  if (p.duck) pts -= 2;
-  if (r >= 100) pts += 16; else if (r >= 75) pts += 12; else if (r >= 50) pts += 8; else if (r >= 25) pts += 4;
-  if (balls >= 10 || r >= 20) {
-    const sr = (r / balls) * 100;
-    if (sr > 190) pts += 8; else if (sr > 170) pts += 6; else if (sr > 150) pts += 4; else if (sr > 130) pts += 2;
-    else if (sr >= 70 && sr <= 100) pts -= 2; else if (sr >= 60 && sr < 70) pts -= 4; else if (sr >= 50 && sr < 60) pts -= 6;
-  }
-  const w = p.wickets || 0;
-  pts += (p.dots || 0) * 2 + w * 30 + (p.lbwBowled || 0) * 8 + (p.maidens || 0) * 12;
-  if (w >= 5) pts += 16; else if (w >= 4) pts += 12; else if (w >= 3) pts += 8;
-  const overs = (p.ballsBowled || 0) / 6;
-  if (overs >= 2) {
-    const eco = (p.runsConceded || 0) / overs;
-    if (eco < 5) pts += 8; else if (eco < 6) pts += 6; else if (eco <= 7) pts += 4; else if (eco <= 8) pts += 2;
-    else if (eco >= 10 && eco <= 11) pts -= 2; else if (eco > 11 && eco <= 12) pts -= 4; else if (eco > 12) pts -= 6;
-  }
-  const c = p.catches || 0;
-  pts += c * 8 + (c >= 3 ? 4 : 0) + (p.runOuts || 0) * 10 + (p.stumpings || 0) * 12;
-  return pts;
-}
-
 function getTeamData(teamId: string, playerPoints: Record<string, number>) {
   const team = FANTASY_TEAMS[teamId];
   const players = team.players.map(p => {
@@ -176,12 +130,6 @@ function getTeamData(teamId: string, playerPoints: Record<string, number>) {
   return { total, players, top11 };
 }
 
-const defaultStats: PlayerStats = {
-  played: true, runs: 0, balls: 0, fours: 0, sixes: 0, duck: false,
-  wickets: 0, dots: 0, lbwBowled: 0, maidens: 0, ballsBowled: 0, runsConceded: 0,
-  catches: 0, runOuts: 0, stumpings: 0
-};
-
 export default function App() {
   const [tab, setTab] = useState("home");
   const [selectedTeam, setSelectedTeam] = useState("rajveer");
@@ -191,10 +139,6 @@ export default function App() {
   const [liveLoading, setLiveLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
-  const [entryPlayer, setEntryPlayer] = useState("");
-  const [entryStats, setEntryStats] = useState<PlayerStats>({ ...defaultStats });
-  const [entryPreview, setEntryPreview] = useState<number | null>(null);
-  const [savedMsg, setSavedMsg] = useState("");
 
   useEffect(() => {
     try {
@@ -212,68 +156,25 @@ export default function App() {
     } catch (e) {}
   };
 
-  const IPL_SERIES_ID = "87c62aac-bc3c-4738-ab93-19da0690488f";
-  const IPL_KEYWORDS = ["IPL", "Indian Premier", "Chennai Super Kings", "Mumbai Indians", "Royal Challengers", "Kolkata Knight Riders", "Punjab Kings", "Gujarat Titans", "Rajasthan Royals", "Sunrisers", "Lucknow Super Giants", "Delhi Capitals"];
-
-  const isIPL = (m: any) =>
-    (m.series_id === IPL_SERIES_ID) ||
-    IPL_KEYWORDS.some(k => (m.name || "").includes(k) || (m.teams || []).some((t: string) => t.includes(k)));
+  const [dataSources, setDataSources] = useState<{ iplOfficial: number; liveCount: number; competitionId?: number } | null>(null);
 
   const fetchLive = async () => {
     if (liveLoading) return;
     setLiveLoading(true);
     setApiError(null);
     try {
-      const [res1, res2] = await Promise.all([
-        fetch(`https://api.cricapi.com/v1/currentMatches?apikey=${API_KEY}&offset=0`),
-        fetch(`https://api.cricapi.com/v1/matches?apikey=${API_KEY}&offset=0`)
-      ]);
+      const res = await fetch("/api/ipl/matches");
+      if (!res.ok) throw new Error(`Server error: ${res.status}`);
+      const data = await res.json();
 
-      const [data1, data2] = await Promise.all([res1.json(), res2.json()]);
-
-      const currentData = data1?.data || [];
-      const matchesData = data2?.data || [];
-
-      const allRaw = [...currentData, ...matchesData];
-      const seen = new Set<string>();
-      const allMatches = allRaw.filter((m: any) => {
-        if (!m?.id || seen.has(m.id)) return false;
-        seen.add(m.id);
-        return true;
-      });
-
-      const ipl = allMatches.filter(isIPL).sort((a: any, b: any) => {
-        if (a.matchStarted && !a.matchEnded && !(b.matchStarted && !b.matchEnded)) return -1;
-        if (b.matchStarted && !b.matchEnded && !(a.matchStarted && !a.matchEnded)) return 1;
-        return new Date(a.dateTimeGMT).getTime() - new Date(b.dateTimeGMT).getTime();
-      });
-
-      if (ipl.length > 0) {
-        setLiveMatches(ipl);
-      } else if (allMatches.length > 0) {
-        setLiveMatches(allMatches.slice(0, 25));
-        setApiError("No IPL matches filtered — showing all matches");
+      const matches: any[] = data.matches || [];
+      if (matches.length > 0) {
+        setLiveMatches(matches);
+        setDataSources(data.sources || null);
       } else {
-        setApiError("API returned no data. Check API key limits.");
+        setApiError("No IPL matches found from official sources. Season may not have started yet.");
       }
-
       setLastUpdated(new Date());
-
-      const pp = { ...playerPoints };
-      const pm = { ...playedMatches };
-      ipl.forEach((m: any) => {
-        if (m.matchEnded && !pm[m.id] && (m.score || []).length > 0) {
-          m.score.forEach((s: any) => {
-            (s.players || []).forEach((p: any) => {
-              if (p.name) pp[p.name] = (pp[p.name] || 0) + calcPoints(p);
-            });
-          });
-          pm[m.id] = true;
-        }
-      });
-      setPlayerPoints(pp);
-      setPlayedMatches(pm);
-      persist(pp, pm);
     } catch (e: any) {
       setApiError("Fetch failed: " + (e.message || "Unknown error"));
     }
@@ -329,24 +230,35 @@ export default function App() {
         </div>
       ))}
 
-      {liveMatches.length > 0 && (
-        <>
-          <div className="divider" />
-          <div className="sec-title">Live Now</div>
-          {liveMatches.slice(0, 2).map((m: any) => (
-            <div key={m.id} className="match-card">
-              <div className="match-status" style={{ color: m.matchEnded ? "#475569" : "#34d399" }}>
-                {m.matchEnded ? "COMPLETED" : "● LIVE"}
+      {liveMatches.length > 0 && (() => {
+        const recentOrLive = [
+          ...liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded),
+          ...liveMatches.filter((m: any) => m.matchEnded),
+        ].slice(0, 3);
+        if (recentOrLive.length === 0) return null;
+        return (
+          <>
+            <div className="divider" />
+            <div className="sec-title">{liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded).length > 0 ? "Live Now" : "Recent Results"}</div>
+            {recentOrLive.map((m: any) => (
+              <div key={m.id} className="match-card">
+                <div className="match-status" style={{ color: m.matchEnded ? "#475569" : "#34d399" }}>
+                  {m.matchEnded ? "✓ COMPLETED" : "● LIVE"}
+                </div>
+                <div className="match-name">{m.name}</div>
+                {(m.score || []).map((s: any, i: number) => (
+                  <div key={i} className="match-score">
+                    <span style={{ color: "#64748b", fontSize: "0.68rem" }}>{(s.inning || "").replace(" Innings", "").replace(" Inning", "")} </span>
+                    {s.summary || (s.r != null ? `${s.r}/${s.w} (${s.o} ov)` : "")}
+                  </div>
+                ))}
+                {m.matchEnded && m.status && <div style={{ fontSize: "0.68rem", color: "#60a5fa", marginTop: 4 }}>{m.status}</div>}
+                <div className="match-venue">{m.venue || ""}</div>
               </div>
-              <div className="match-name">{m.name}</div>
-              {(m.score || []).map((s: any, i: number) => (
-                <div key={i} className="match-score">{s.r}/{s.w} ({s.o} ov)</div>
-              ))}
-              <div className="match-venue">{m.venue || ""}</div>
-            </div>
-          ))}
-        </>
-      )}
+            ))}
+          </>
+        );
+      })()}
     </div>
   );
 
@@ -493,8 +405,10 @@ export default function App() {
                   </div>
                   {(m.score || []).map((s: any, i: number) => (
                     <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.72rem", color: "#94a3b8", padding: "3px 0", borderTop: i === 0 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
-                      <span style={{ color: "#64748b" }}>{(s.inning || "").replace(" Inning", "")}</span>
-                      <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "0.92rem", letterSpacing: "1px", color: "#cbd5e1" }}>{s.r}/{s.w} <span style={{ color: "#475569", fontSize: "0.66rem" }}>({s.o}ov)</span></span>
+                      <span style={{ color: "#64748b" }}>{(s.inning || "").replace(" Innings", "").replace(" Inning", "")}</span>
+                      <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "0.92rem", letterSpacing: "1px", color: "#cbd5e1" }}>
+                        {s.summary || (s.r != null ? `${s.r}/${s.w} (${s.o}ov)` : "")}
+                      </span>
                     </div>
                   ))}
                   {isDone && m.status && <div style={{ fontSize: "0.68rem", color: "#60a5fa", marginTop: 5 }}>{m.status}</div>}
@@ -526,47 +440,7 @@ export default function App() {
   );
 
   const renderAdmin = () => {
-    const allPlayers = Object.values(FANTASY_TEAMS)
-      .flatMap(t => t.players)
-      .reduce((acc: { name: string; role: string; ipl: string }[], p) => {
-        if (!acc.find(x => x.name === p.name)) acc.push(p);
-        return acc;
-      }, [])
-      .sort((a, b) => a.name.localeCompare(b.name));
-
-    const updateStat = (k: keyof PlayerStats, v: number | boolean) => {
-      const updated = { ...entryStats, [k]: v };
-      setEntryStats(updated);
-      if (entryPlayer) setEntryPreview(calcPoints(updated));
-    };
-
-    const handlePlayerChange = (name: string) => {
-      setEntryPlayer(name);
-      setEntryPreview(name ? calcPoints(entryStats) : null);
-    };
-
-    const saveEntry = () => {
-      if (!entryPlayer) return;
-      const pts = calcPoints(entryStats);
-      const pp = { ...playerPoints, [entryPlayer]: (playerPoints[entryPlayer] || 0) + pts };
-      setPlayerPoints(pp);
-      persist(pp, playedMatches);
-      setSavedMsg(`+${pts} pts saved for ${entryPlayer}`);
-      setTimeout(() => setSavedMsg(""), 3000);
-      setEntryPlayer("");
-      setEntryStats({ ...defaultStats });
-      setEntryPreview(null);
-    };
-
-    const overwriteEntry = () => {
-      if (!entryPlayer) return;
-      const pts = calcPoints(entryStats);
-      const pp = { ...playerPoints, [entryPlayer]: pts };
-      setPlayerPoints(pp);
-      persist(pp, playedMatches);
-      setSavedMsg(`Set ${entryPlayer} to ${pts} pts`);
-      setTimeout(() => setSavedMsg(""), 3000);
-    };
+    const totalPts = Object.values(playerPoints).reduce((s, v) => s + v, 0);
 
     const removePlayer = (name: string) => {
       const pp = { ...playerPoints };
@@ -575,127 +449,58 @@ export default function App() {
       persist(pp, playedMatches);
     };
 
-    const totalPts = Object.values(playerPoints).reduce((s, v) => s + v, 0);
-
-    const numField = (label: string, key: keyof PlayerStats, hint?: string) => (
-      <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-        <label style={{ fontSize: "0.62rem", color: "#64748b", letterSpacing: "1px", textTransform: "uppercase" as const }}>
-          {label}{hint && <span style={{ color: "#334155", marginLeft: 4 }}>{hint}</span>}
-        </label>
-        <input type="number" min="0" value={entryStats[key] as number}
-          onChange={e => updateStat(key, parseInt(e.target.value) || 0)}
-          style={{ background: "#0f1520", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 6, color: "#f1f5f9", padding: "6px 10px", fontSize: "0.9rem", width: "100%", fontFamily: "'Bebas Neue',sans-serif", letterSpacing: "1px" }} />
-      </div>
-    );
-
     return (
       <div>
         <div className="sec-title">Admin</div>
 
         <div className="stat-grid" style={{ marginBottom: 20 }}>
           <div className="stat-card">
-            <div className="stat-val" style={{ color: "#60a5fa" }}>{Object.keys(playedMatches).length}</div>
-            <div className="stat-lbl">Matches logged</div>
+            <div className="stat-val" style={{ color: "#60a5fa" }}>{liveMatches.length}</div>
+            <div className="stat-lbl">Matches loaded</div>
           </div>
           <div className="stat-card">
-            <div className="stat-val" style={{ color: "#f97316" }}>{Object.keys(playerPoints).length}</div>
-            <div className="stat-lbl">Players with pts</div>
+            <div className="stat-val" style={{ color: "#f97316" }}>{liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded).length}</div>
+            <div className="stat-lbl">Live now</div>
           </div>
-          <div className="stat-card" style={{ gridColumn: "span 2" }}>
+          <div className="stat-card">
+            <div className="stat-val" style={{ color: "#34d399" }}>{liveMatches.filter((m: any) => m.matchEnded).length}</div>
+            <div className="stat-lbl">Completed</div>
+          </div>
+          <div className="stat-card">
             <div className="stat-val" style={{ color: "#a855f7" }}>{totalPts}</div>
-            <div className="stat-lbl">Total pts in system</div>
+            <div className="stat-lbl">Total pts</div>
           </div>
         </div>
 
-        <div style={{ background: "rgba(15,21,32,0.9)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 14, padding: 16, marginBottom: 16 }}>
-          <div style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase" as const, color: "#94a3b8", marginBottom: 14 }}>
-            ➕ Manual Score Entry
-          </div>
-
-          <div style={{ marginBottom: 12 }}>
-            <label style={{ fontSize: "0.62rem", color: "#64748b", letterSpacing: "1px", textTransform: "uppercase" as const, display: "block", marginBottom: 4 }}>Select Player</label>
-            <select value={entryPlayer} onChange={e => handlePlayerChange(e.target.value)}
-              style={{ width: "100%", background: "#0f1520", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: entryPlayer ? "#f1f5f9" : "#475569", padding: "8px 12px", fontSize: "0.85rem", fontFamily: "'DM Sans',sans-serif" }}>
-              <option value="">— choose player —</option>
-              {allPlayers.map(p => (
-                <option key={p.name} value={p.name}>{p.name} ({p.ipl} · {p.role})</option>
-              ))}
-            </select>
-          </div>
-
-          <div style={{ fontSize: "0.65rem", color: "#3b82f6", letterSpacing: "2px", fontWeight: 700, marginBottom: 8, marginTop: 4 }}>🏏 BATTING</div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 12 }}>
-            {numField("Runs", "runs")}
-            {numField("Balls", "balls")}
-            {numField("4s", "fours")}
-            {numField("6s", "sixes")}
-            <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-              <label style={{ fontSize: "0.62rem", color: "#64748b", letterSpacing: "1px", textTransform: "uppercase" as const }}>Duck</label>
-              <button onClick={() => updateStat("duck", !entryStats.duck)}
-                style={{ background: entryStats.duck ? "rgba(239,68,68,0.2)" : "#0f1520", border: `1px solid ${entryStats.duck ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.08)"}`, borderRadius: 6, color: entryStats.duck ? "#f87171" : "#475569", padding: "6px", cursor: "pointer", fontSize: "0.8rem" }}>
-                {entryStats.duck ? "YES" : "NO"}
-              </button>
+        {dataSources && (
+          <div style={{ background: "rgba(15,21,32,0.9)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: 16, marginBottom: 16 }}>
+            <div style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase" as const, color: "#94a3b8", marginBottom: 12 }}>
+              📡 Data Sources
             </div>
-          </div>
-
-          <div style={{ fontSize: "0.65rem", color: "#f472b6", letterSpacing: "2px", fontWeight: 700, marginBottom: 8 }}>🎯 BOWLING</div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 12 }}>
-            {numField("Wickets", "wickets")}
-            {numField("Balls Bowled", "ballsBowled")}
-            {numField("Runs Conceded", "runsConceded")}
-            {numField("Dots", "dots")}
-            {numField("Maidens", "maidens")}
-            {numField("LBW/Bowled", "lbwBowled")}
-          </div>
-
-          <div style={{ fontSize: "0.65rem", color: "#34d399", letterSpacing: "2px", fontWeight: 700, marginBottom: 8 }}>🧤 FIELDING</div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 16 }}>
-            {numField("Catches", "catches")}
-            {numField("Run Outs", "runOuts")}
-            {numField("Stumpings", "stumpings")}
-          </div>
-
-          {entryPlayer && (
-            <div style={{ background: "rgba(249,115,22,0.08)", border: "1px solid rgba(249,115,22,0.2)", borderRadius: 10, padding: "10px 14px", marginBottom: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div>
-                <div style={{ fontSize: "0.7rem", color: "#94a3b8" }}>{entryPlayer}</div>
-                <div style={{ fontSize: "0.65rem", color: "#64748b" }}>Current total: {playerPoints[entryPlayer] || 0} pts</div>
+            <div style={{ display: "flex", flexDirection: "column" as const, gap: 8 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem" }}>
+                <span style={{ color: "#64748b" }}>IPL Official Feed</span>
+                <span style={{ color: dataSources.iplOfficial > 0 ? "#34d399" : "#475569" }}>
+                  {dataSources.iplOfficial > 0 ? `✓ ${dataSources.iplOfficial} matches` : "No data"}
+                  {dataSources.competitionId ? <span style={{ color: "#334155", marginLeft: 6, fontSize: "0.7rem" }}>CompID #{dataSources.competitionId}</span> : null}
+                </span>
               </div>
-              <div style={{ textAlign: "right" }}>
-                <div style={{ fontFamily: "'Bebas Neue'", fontSize: "2rem", color: "#f97316", letterSpacing: "1px", lineHeight: 1 }}>
-                  +{entryPreview ?? calcPoints(entryStats)}
-                </div>
-                <div style={{ fontSize: "0.6rem", color: "#64748b" }}>pts this match</div>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem" }}>
+                <span style={{ color: "#64748b" }}>Live match feed</span>
+                <span style={{ color: dataSources.liveCount > 0 ? "#34d399" : "#475569" }}>
+                  {dataSources.liveCount > 0 ? `✓ ${dataSources.liveCount} live` : "None active"}
+                </span>
               </div>
             </div>
-          )}
-
-          {savedMsg && (
-            <div style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.25)", borderRadius: 8, padding: "8px 12px", marginBottom: 10, fontSize: "0.78rem", color: "#34d399" }}>
-              ✓ {savedMsg}
-            </div>
-          )}
-
-          <div style={{ display: "flex", gap: 8 }}>
-            <button className="btn-primary" onClick={saveEntry} disabled={!entryPlayer} style={{ flex: 1, justifyContent: "center" }}>
-              ➕ Add Points
-            </button>
-            <button onClick={overwriteEntry} disabled={!entryPlayer}
-              style={{ flex: 1, padding: "10px", borderRadius: 10, border: "1px solid rgba(96,165,250,0.3)", background: "rgba(96,165,250,0.1)", color: "#60a5fa", cursor: "pointer", fontFamily: "'DM Sans',sans-serif", fontWeight: 600, fontSize: "0.85rem", opacity: entryPlayer ? 1 : 0.4 }}>
-              ✏️ Overwrite
-            </button>
           </div>
-          <div style={{ fontSize: "0.65rem", color: "#334155", marginTop: 8 }}>
-            Add Points = adds to existing total · Overwrite = replaces total
-          </div>
-        </div>
+        )}
 
         <div style={{ background: "rgba(15,21,32,0.9)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: 16, marginBottom: 16 }}>
           <div style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase" as const, color: "#94a3b8", marginBottom: 12 }}>
             📊 Current Points
           </div>
           {Object.keys(playerPoints).length === 0 && (
-            <div style={{ color: "#334155", fontSize: "0.8rem", padding: "8px 0" }}>No points entered yet.</div>
+            <div style={{ color: "#334155", fontSize: "0.8rem", padding: "8px 0" }}>No points yet. Points populate automatically as matches complete.</div>
           )}
           {Object.entries(playerPoints).sort((a, b) => b[1] - a[1]).map(([name, pts]) => (
             <div key={name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "7px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
@@ -707,19 +512,23 @@ export default function App() {
           ))}
         </div>
 
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" as const }}>
+          <button className="btn-primary" onClick={fetchLive} disabled={liveLoading}>
+            {liveLoading ? <span className="spinner" /> : "🔄"} Refresh Data
+          </button>
           <button className="btn-danger" onClick={() => {
             if (confirm("Reset ALL points? Cannot be undone.")) {
               setPlayerPoints({});
               setPlayedMatches({});
               try { localStorage.removeItem("f26pp"); localStorage.removeItem("f26pm"); } catch (e) {}
             }
-          }}>🗑️ Reset All Points</button>
-
-          <button className="btn-primary" onClick={fetchLive} disabled={liveLoading} style={{ marginLeft: 0 }}>
-            {liveLoading ? <span className="spinner" /> : "🔄"} Refresh
-          </button>
+          }}>🗑️ Reset Points</button>
         </div>
+        {lastUpdated && (
+          <div style={{ fontSize: "0.65rem", color: "#334155", marginTop: 10 }}>
+            Last updated: {lastUpdated.toLocaleTimeString()} · Auto-refreshes every 5 min
+          </div>
+        )}
       </div>
     );
   };
