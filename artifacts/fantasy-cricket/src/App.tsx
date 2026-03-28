@@ -151,6 +151,12 @@ export default function App() {
   const [scorecardLoading, setScorecardLoading] = useState<string | null>(null);
   const [standings, setStandings] = useState<any[]>([]);
   const [standingsLoading, setStandingsLoading] = useState(false);
+  const [iplStats, setIplStats] = useState<any | null>(null);
+  const [statsLoading, setStatsLoading] = useState(false);
+  const [statsFilter, setStatsFilter] = useState<"all" | "fantasy">("all");
+  const [statsCategory, setStatsCategory] = useState<"orangeCap" | "purpleCap" | "sixesLeader" | "foursLeader" | "srLeader" | "ecoLeader">("orangeCap");
+  const [predictions, setPredictions] = useState<Record<string, string>>({});
+  const [predictLoading, setPredictLoading] = useState<string | null>(null);
 
   const fetchPoints = async () => {
     if (pointsLoading) return;
@@ -224,6 +230,33 @@ export default function App() {
     setStandingsLoading(false);
   };
 
+  const fetchStats = async () => {
+    if (statsLoading) return;
+    setStatsLoading(true);
+    try {
+      const res = await fetch("/api/ipl/stats");
+      if (res.ok) setIplStats(await res.json());
+    } catch (_) {}
+    setStatsLoading(false);
+  };
+
+  const fetchPrediction = async (matchId: string) => {
+    if (predictLoading === matchId || predictions[matchId]) return;
+    setPredictLoading(matchId);
+    try {
+      const res = await fetch("/api/ipl/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ matchId }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setPredictions(prev => ({ ...prev, [matchId]: data.prediction }));
+      }
+    } catch (_) {}
+    setPredictLoading(null);
+  };
+
   const toggleMatch = (matchId: string, isCompleted: boolean) => {
     if (expandedMatchId === matchId) {
       setExpandedMatchId(null);
@@ -237,10 +270,12 @@ export default function App() {
     fetchLive();
     fetchPoints();
     fetchStandings();
+    fetchStats();
     const id1 = setInterval(fetchLive, 15 * 60 * 1000);
     const id2 = setInterval(fetchPoints, 15 * 60 * 1000);
     const id3 = setInterval(fetchStandings, 15 * 60 * 1000);
-    return () => { clearInterval(id1); clearInterval(id2); clearInterval(id3); };
+    const id4 = setInterval(fetchStats, 15 * 60 * 1000);
+    return () => { clearInterval(id1); clearInterval(id2); clearInterval(id3); clearInterval(id4); };
   }, []);
 
   const teamScores = Object.keys(FANTASY_TEAMS)
@@ -253,6 +288,7 @@ export default function App() {
     { id: "home", label: "Home", icon: "🏆" },
     { id: "teams", label: "Teams", icon: "👤" },
     { id: "fixtures", label: "Matches", icon: "📡" },
+    { id: "stats", label: "Stats", icon: "📊" },
     { id: "ipl", label: "IPL", icon: "🌐" },
     { id: "admin", label: "Admin", icon: "⚙️" },
   ];
@@ -263,7 +299,7 @@ export default function App() {
     <div>
       <div className="sec-title">Leaderboard</div>
       <div className="notice">
-        🔄 Points auto-update every 5 min from live API. Season tracking is live!
+        🔄 Points auto-update every 15 min from live API. Season tracking is live!
       </div>
       {teamScores.map((s, i) => (
         <div key={s.id} className="lb-card" onClick={() => { setSelectedTeam(s.id); setTab("teams"); }}>
@@ -479,6 +515,26 @@ export default function App() {
                   {isDone && m.status && <div style={{ fontSize: "0.68rem", color: "#60a5fa", marginTop: 5 }}>{m.status}</div>}
                   {m.venue && <div className="match-venue">{m.venue}</div>}
 
+                  {!isDone && !isLive && (
+                    <div style={{ marginTop: 10 }} onClick={e => e.stopPropagation()}>
+                      {!predictions[matchIdStr] ? (
+                        <button
+                          style={{ background: "rgba(139,92,246,0.15)", border: "1px solid rgba(139,92,246,0.3)", borderRadius: 8, padding: "5px 12px", fontSize: "0.68rem", color: "#a78bfa", cursor: "pointer", width: "100%" }}
+                          onClick={() => fetchPrediction(matchIdStr)}
+                          disabled={predictLoading === matchIdStr}>
+                          {predictLoading === matchIdStr ? "🤖 Generating prediction..." : "🤖 AI Match Prediction"}
+                        </button>
+                      ) : (
+                        <div style={{ background: "rgba(139,92,246,0.08)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: 10, padding: "10px 12px", marginTop: 4 }}>
+                          <div style={{ fontSize: "0.6rem", color: "#7c3aed", letterSpacing: "1px", textTransform: "uppercase" as const, fontWeight: 700, marginBottom: 6 }}>🤖 AI Prediction</div>
+                          <div style={{ fontSize: "0.7rem", color: "#c4b5fd", lineHeight: 1.6, whiteSpace: "pre-wrap" as const }}>
+                            {predictions[matchIdStr].replace(/\*\*/g, "")}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {isExpanded && (
                     <div style={{ marginTop: 12, borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 12 }}
                       onClick={e => e.stopPropagation()}>
@@ -568,6 +624,124 @@ export default function App() {
             })}
           </div>
         ))}
+      </div>
+    );
+  };
+
+  const STAT_CATS = [
+    { id: "orangeCap", label: "🟠 Orange Cap", sub: "Most Runs" },
+    { id: "purpleCap", label: "🟣 Purple Cap", sub: "Most Wickets" },
+    { id: "sixesLeader", label: "6️⃣ Sixes", sub: "Most Sixes" },
+    { id: "foursLeader", label: "4️⃣ Fours", sub: "Most Fours" },
+    { id: "srLeader", label: "⚡ Strike Rate", sub: "Min 10 balls" },
+    { id: "ecoLeader", label: "💧 Economy", sub: "Min 2 overs" },
+  ] as const;
+
+  const renderStatRow = (entry: any, i: number, cat: string) => {
+    const isBat = ["orangeCap", "sixesLeader", "foursLeader", "srLeader"].includes(cat);
+    const fantasyColor = entry.isFantasy ? "#34d399" : "#cbd5e1";
+    return (
+      <div key={entry.name} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", borderBottom: "1px solid rgba(255,255,255,0.04)", background: i % 2 === 0 ? "rgba(255,255,255,0.01)" : "transparent" }}>
+        <div style={{ width: 22, textAlign: "center" as const, fontFamily: "'Bebas Neue',sans-serif", fontSize: "0.9rem", color: i < 3 ? ["#f97316","#94a3b8","#b45309"][i] : "#334155" }}>{i + 1}</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: "0.75rem", fontWeight: 600, color: fantasyColor, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+            {entry.name}
+            {entry.isFantasy && <span style={{ marginLeft: 5, fontSize: "0.55rem", background: "rgba(52,211,153,0.15)", color: "#34d399", borderRadius: 4, padding: "1px 4px", verticalAlign: "middle" }}>F</span>}
+          </div>
+          {isBat ? (
+            <div style={{ fontSize: "0.6rem", color: "#475569" }}>
+              {cat === "orangeCap" && `HS: ${entry.hs} · SR: ${entry.sr} · ${entry.innings} inn`}
+              {cat === "sixesLeader" && `Runs: ${entry.runs} · SR: ${entry.sr}`}
+              {cat === "foursLeader" && `Runs: ${entry.runs} · SR: ${entry.sr}`}
+              {cat === "srLeader" && `Runs: ${entry.runs} off ${entry.balls}b · ${entry.innings} inn`}
+            </div>
+          ) : (
+            <div style={{ fontSize: "0.6rem", color: "#475569" }}>
+              {cat === "purpleCap" && `Best: ${entry.best} · Eco: ${entry.eco} · ${entry.innings} inn`}
+              {cat === "ecoLeader" && `W: ${entry.wickets} · ${entry.overs} ov · Runs: ${entry.runs}`}
+            </div>
+          )}
+        </div>
+        <div style={{ textAlign: "right" as const, flexShrink: 0 }}>
+          <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "1.4rem", letterSpacing: "1px", lineHeight: 1, color: i === 0 ? "#f97316" : i === 1 ? "#94a3b8" : i === 2 ? "#b45309" : "#60a5fa" }}>
+            {cat === "orangeCap" && entry.runs}
+            {cat === "purpleCap" && entry.wickets}
+            {cat === "sixesLeader" && entry.sixes}
+            {cat === "foursLeader" && entry.fours}
+            {cat === "srLeader" && entry.sr}
+            {cat === "ecoLeader" && entry.eco}
+          </div>
+          <div style={{ fontSize: "0.55rem", color: "#334155", textTransform: "uppercase" as const, letterSpacing: "1px" }}>
+            {cat === "orangeCap" && "runs"}
+            {cat === "purpleCap" && "wkts"}
+            {cat === "sixesLeader" && "6s"}
+            {cat === "foursLeader" && "4s"}
+            {cat === "srLeader" && "SR"}
+            {cat === "ecoLeader" && "eco"}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderStats = () => {
+    const cat = statsCategory;
+    const raw: any[] = iplStats?.[cat] || [];
+    const entries = statsFilter === "fantasy" ? raw.filter((e: any) => e.isFantasy) : raw;
+
+    return (
+      <div>
+        <div className="sec-title">IPL 2026 Stats</div>
+
+        <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
+          {(["all", "fantasy"] as const).map(f => (
+            <button key={f} onClick={() => setStatsFilter(f)}
+              style={{ flex: 1, padding: "7px 0", borderRadius: 10, border: "1px solid", fontSize: "0.68rem", fontWeight: 700, cursor: "pointer", letterSpacing: "1px",
+                background: statsFilter === f ? (f === "fantasy" ? "rgba(52,211,153,0.15)" : "rgba(248,250,252,0.07)") : "transparent",
+                borderColor: statsFilter === f ? (f === "fantasy" ? "#34d399" : "#475569") : "rgba(255,255,255,0.06)",
+                color: statsFilter === f ? (f === "fantasy" ? "#34d399" : "#e2e8f0") : "#475569" }}>
+              {f === "all" ? "All IPL" : "Fantasy Only"}
+            </button>
+          ))}
+        </div>
+
+        <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 8, marginBottom: 12 }}>
+          {STAT_CATS.map(c => (
+            <button key={c.id} onClick={() => setStatsCategory(c.id)}
+              style={{ flexShrink: 0, padding: "7px 12px", borderRadius: 10, border: "1px solid", fontSize: "0.65rem", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" as const,
+                background: statsCategory === c.id ? "rgba(249,115,22,0.15)" : "transparent",
+                borderColor: statsCategory === c.id ? "#f97316" : "rgba(255,255,255,0.06)",
+                color: statsCategory === c.id ? "#f97316" : "#475569" }}>
+              {c.label}
+            </button>
+          ))}
+        </div>
+
+        {!iplStats && statsLoading && (
+          <div style={{ color: "#475569", fontSize: "0.78rem", textAlign: "center" as const, padding: "24px 0" }}>⏳ Loading stats...</div>
+        )}
+        {iplStats && entries.length === 0 && (
+          <div style={{ color: "#334155", fontSize: "0.78rem", textAlign: "center" as const, padding: "24px 0" }}>
+            {iplStats.matchesProcessed === 0 ? "Stats will appear once match scorecards are processed via CricAPI." : `No ${statsFilter === "fantasy" ? "fantasy " : ""}players found for this category.`}
+          </div>
+        )}
+        {entries.length > 0 && (
+          <div style={{ background: "rgba(15,21,32,0.9)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, overflow: "hidden", marginBottom: 12 }}>
+            <div style={{ padding: "10px 12px", background: "rgba(255,255,255,0.03)", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "1rem", letterSpacing: "2px", color: "#e2e8f0" }}>
+                {STAT_CATS.find(c => c.id === cat)?.sub}
+              </div>
+              <div style={{ fontSize: "0.6rem", color: "#334155" }}>{iplStats.matchesProcessed} match{iplStats.matchesProcessed !== 1 ? "es" : ""} processed</div>
+            </div>
+            {entries.slice(0, 20).map((e: any, i: number) => renderStatRow(e, i, cat))}
+          </div>
+        )}
+
+        {iplStats && (
+          <div style={{ fontSize: "0.6rem", color: "#334155", textAlign: "center" as const, padding: "4px 0" }}>
+            <span style={{ color: "#34d399" }}>F</span> = in one of the 4 fantasy teams · Data from processed scorecards
+          </div>
+        )}
       </div>
     );
   };
@@ -714,7 +888,7 @@ export default function App() {
             )}
             {pointsLastUpdated && (
               <div style={{ fontSize: "0.65rem", color: "#334155" }}>
-                Points last updated: {pointsLastUpdated.toLocaleTimeString()} · Auto-refreshes every 5 min
+                Points last updated: {pointsLastUpdated.toLocaleTimeString()} · Auto-refreshes every 15 min
               </div>
             )}
           </div>
@@ -794,6 +968,7 @@ export default function App() {
           {tab === "home" && renderHome()}
           {tab === "teams" && renderTeams()}
           {tab === "fixtures" && renderFixtures()}
+          {tab === "stats" && renderStats()}
           {tab === "ipl" && renderIPL()}
           {tab === "admin" && renderAdmin()}
         </div>

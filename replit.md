@@ -38,10 +38,27 @@ Primary application: IPL Fantasy Cricket Tracker for 4 teams (Rajveer Puri, Momb
 - Top 11 by adjusted points auto-selected per team
 - Session secret stored as `SESSION_SECRET`
 
+### API Endpoints
+- `GET /api/ipl/matches` — Live match schedule (IPL S3, 2-min cache)
+- `GET /api/ipl/standings` — IPL points table (IPL S3, 2-min cache)
+- `GET /api/ipl/points` — Fantasy points aggregated from CricAPI cache; triggers background update
+- `GET /api/ipl/scorecard/:matchId` — Innings batting/bowling from cache + live S3 match overview
+- `GET /api/ipl/stats` — Aggregated season batting/bowling stats (Orange Cap, Purple Cap, Sixes, Fours, SR, Economy); each player tagged `isFantasy` if in any of the 4 fantasy teams
+- `POST /api/ipl/predict` — AI match prediction (OpenAI gpt-5.2 via Replit AI Integrations, 1-hour cache per match)
+
+### Frontend Tabs
+- Home: Leaderboard + recent results
+- Teams: Per-fantasy-team player list with points
+- Matches: IPL fixtures with expandable scorecards; upcoming matches have AI Prediction button
+- Stats: Orange Cap / Purple Cap / Sixes / Fours / SR / Economy leaderboards; toggle All vs Fantasy Only
+- IPL: Points table + team color grid
+- Admin: Manual refresh, debug info, points breakdown
+
 ### Key Files
 - `artifacts/fantasy-cricket/src/App.tsx` — All frontend logic (tabs, state, team definitions)
-- `artifacts/api-server/src/routes/ipl.ts` — IPL schedule + match data
-- `artifacts/api-server/src/routes/ipl-points.ts` — Auto-points pipeline (calcPoints to be replaced)
+- `artifacts/api-server/src/routes/ipl.ts` — IPL schedule + match data + standings
+- `artifacts/api-server/src/routes/ipl-points.ts` — Auto-points pipeline + stats endpoint
+- `artifacts/api-server/src/routes/predict.ts` — AI match predictions (OpenAI via Replit AI Integrations)
 - `artifacts/api-server/ipl-points-cache.json` — Persistent scorecard cache (gitignored in prod)
 
 ## Stack

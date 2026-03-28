@@ -556,6 +556,83 @@ router.get("/ipl/scorecard/:matchId", async (req, res) => {
   res.json({ matchId, overview, innings, hasScorecard: innings.length > 0 });
 });
 
+router.get("/ipl/stats", (req, res) => {
+  if (Date.now() - lastPointsCacheReload > 30000) {
+    pointsCache = loadCache();
+    lastPointsCacheReload = Date.now();
+  }
+
+  const ALL_FANTASY_NAMES = Object.values(FANTASY_TEAMS_EXPORT).flatMap(t => t);
+  const battingStats: Record<string, { runs: number; fours: number; sixes: number; balls: number; innings: number; notOuts: number; hs: number }> = {};
+  const bowlingStats: Record<string, { wickets: number; balls: number; runs: number; innings: number; bestW: number; bestR: number }> = {};
+
+  for (const matchData of Object.values(pointsCache.processedMatches)) {
+    for (const inning of matchData.innings || []) {
+      for (const bat of inning.batting || []) {
+        if (bat.dnb || !bat.name) continue;
+        const k = bat.name;
+        if (!battingStats[k]) battingStats[k] = { runs: 0, fours: 0, sixes: 0, balls: 0, innings: 0, notOuts: 0, hs: 0 };
+        battingStats[k].runs += bat.runs || 0;
+        battingStats[k].fours += bat.fours || 0;
+        battingStats[k].sixes += bat.sixes || 0;
+        battingStats[k].balls += bat.balls || 0;
+        battingStats[k].innings += 1;
+        if (bat.notOut) battingStats[k].notOuts += 1;
+        if ((bat.runs || 0) > battingStats[k].hs) battingStats[k].hs = bat.runs;
+      }
+      for (const bowl of inning.bowling || []) {
+        if (!bowl.name) continue;
+        const k = bowl.name;
+        if (!bowlingStats[k]) bowlingStats[k] = { wickets: 0, balls: 0, runs: 0, innings: 0, bestW: 0, bestR: 999 };
+        bowlingStats[k].wickets += bowl.wickets || 0;
+        bowlingStats[k].balls += parseOversTooBalls(bowl.overs || "0");
+        bowlingStats[k].runs += bowl.runs || 0;
+        bowlingStats[k].innings += 1;
+        if ((bowl.wickets || 0) > bowlingStats[k].bestW || ((bowl.wickets || 0) === bowlingStats[k].bestW && (bowl.runs || 0) < bowlingStats[k].bestR)) {
+          bowlingStats[k].bestW = bowl.wickets || 0;
+          bowlingStats[k].bestR = bowl.runs || 0;
+        }
+      }
+    }
+  }
+
+  const isFantasy = (name: string) => ALL_FANTASY_NAMES.some(n => namesMatch(n, name));
+
+  const batters = Object.entries(battingStats).map(([name, s]) => ({
+    name, runs: s.runs, fours: s.fours, sixes: s.sixes, balls: s.balls, innings: s.innings, notOuts: s.notOuts, hs: s.hs,
+    avg: s.innings > s.notOuts ? +(s.runs / (s.innings - s.notOuts)).toFixed(1) : s.runs,
+    sr: s.balls > 0 ? +((s.runs / s.balls) * 100).toFixed(1) : 0,
+    isFantasy: isFantasy(name),
+  }));
+
+  const bowlers = Object.entries(bowlingStats).map(([name, s]) => ({
+    name, wickets: s.wickets, balls: s.balls, runs: s.runs, innings: s.innings,
+    overs: +(s.balls / 6).toFixed(1),
+    eco: s.balls > 0 ? +((s.runs / (s.balls / 6))).toFixed(2) : 0,
+    avg: s.wickets > 0 ? +(s.runs / s.wickets).toFixed(1) : 999,
+    best: `${s.bestW}/${s.bestR === 999 ? 0 : s.bestR}`,
+    isFantasy: isFantasy(name),
+  }));
+
+  res.json({
+    orangeCap: [...batters].sort((a, b) => b.runs - a.runs || b.sr - a.sr),
+    purpleCap: [...bowlers].sort((a, b) => b.wickets - a.wickets || a.eco - b.eco),
+    sixesLeader: [...batters].sort((a, b) => b.sixes - a.sixes),
+    foursLeader: [...batters].sort((a, b) => b.fours - a.fours),
+    srLeader: [...batters].filter(b => b.balls >= 10).sort((a, b) => b.sr - a.sr),
+    ecoLeader: [...bowlers].filter(b => b.balls >= 12).sort((a, b) => a.eco - b.eco),
+    matchesProcessed: Object.keys(pointsCache.processedMatches).length,
+    timestamp: new Date().toISOString(),
+  });
+});
+
+const FANTASY_TEAMS_EXPORT: Record<string, string[]> = {
+  rajveer: ["Rajat Patidar","Axar Patel","Shubman Gill","Jos Buttler","Yuzvendra Chahal","Jacob Bethell","Bhuvneshwar Kumar","Shreyas Iyer","Cameron Green","Nicholas Pooran","Phil Salt","Krunal Pandya","Priyansh Arya","Vaibhav Suryavanshi","Dhruv Jurel","Mohammed Shami","Tim David","Deepak Chahar"],
+  mombasa: ["Jitesh Sharma","Varun Chakravarthy","Marco Jansen","Arshdeep Singh","Shivam Dube","Riyan Parag","Abhishek Sharma","Prabhsimran Singh","Nehal Wadhera","Shimron Hetmyer","Sai Sudharsan","Will Jacks","Prasidh Krishna","Aiden Markram","Rashid Khan","Rohit Sharma","Yash Thakur","Harshit Rana"],
+  mumbai: ["Hardik Pandya","Sanju Samson","Virat Kohli","KL Rahul","Rohit Sharma","Pat Cummins","Mitchell Starc","Ruturaj Gaikwad","Devon Conway","Ravindra Jadeja","MS Dhoni","Matheesha Pathirana","Tushar Deshpande","Nitish Kumar Reddy","Heinrich Klaasen","T Natarajan","Jacob Duffy","Liam Livingstone"],
+  ponygoat: ["Jasprit Bumrah","Sunil Narine","Travis Head","Ishan Kishan","Tilak Varma","Rinku Singh","Kuldeep Yadav","Avesh Khan","Rahul Tripathi","Abhishek Sharma","Suryakumar Yadav","Mohammed Siraj","Axar Patel","Washington Sundar","Shubman Gill","Vaibhav Arora","Nandre Burger","Glenn Maxwell"],
+};
+
 router.post("/ipl/points/reset", async (_req, res) => {
   pointsCache = { seriesId: null, cricapiMatchIds: {}, processedMatches: {}, lastUpdated: "" };
   saveCache(pointsCache);
