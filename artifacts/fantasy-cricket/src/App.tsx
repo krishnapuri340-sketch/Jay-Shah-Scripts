@@ -822,15 +822,13 @@ export default function App() {
             {hasNextMatch && (
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
-                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", display: "inline-block", flexShrink: 0 }} />
-                  <span style={{ fontSize: "0.65rem", fontWeight: 600, color: "#4ade80", letterSpacing: "0.06em" }}>UPCOMING</span>
-                  {nextMatchInfoForTeam[0] && <span style={{ fontSize: "0.65rem", color: "var(--text-3)" }}>{nextMatchInfoForTeam[0].matchLabel}</span>}
+                  <span style={{ fontSize: "0.65rem", fontWeight: 600, color: "var(--text-3)", letterSpacing: "0.06em" }}>NEXT</span>
+                  {nextMatchInfoForTeam[0] && <span style={{ fontSize: "0.65rem", color: "var(--text-2)" }}>{nextMatchInfoForTeam[0].matchLabel}</span>}
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                   {td.players.filter(p => nextMatchPlaying.has(p.name) && !liveNowPlaying.has(p.name)).map(p => (
                     <div key={p.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", display: "inline-block", flexShrink: 0 }} />
                         <span style={{ fontSize: "0.78rem", fontWeight: 500, color: "var(--text-2)" }}>{p.name}</span>
                         {p.name === t.captain && <span style={{ fontSize: "0.55rem", fontWeight: 700, color: "#d4a843" }}>C</span>}
                         {p.name === t.vc && <span style={{ fontSize: "0.55rem", fontWeight: 700, color: "var(--text-3)" }}>VC</span>}
