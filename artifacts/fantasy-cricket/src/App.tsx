@@ -487,28 +487,26 @@ export default function App() {
         </div>
       )}
 
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 2 }}>
-        <div className="sec-title" style={{ marginBottom: 0 }}>Leaderboard</div>
-        <div style={{ display: "flex", gap: 8 }}>
+      <div className="sec-title">Leaderboard</div>
+      <div className="notice" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+        <span>Points auto-update every 15 min · Only Top 11 players count per team</span>
+        <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
           <button
             className="btn-primary"
-            style={{ padding: "6px 12px", fontSize: "0.75rem" }}
+            style={{ padding: "5px 10px", fontSize: "0.72rem" }}
             onClick={shareLeaderboard}
           >
             📤 Share
           </button>
           <button
             className="btn-primary"
-            style={{ padding: "6px 12px", fontSize: "0.75rem" }}
+            style={{ padding: "5px 10px", fontSize: "0.72rem" }}
             onClick={() => { fetchLive(); fetchPoints(); }}
             disabled={liveLoading || pointsLoading}
           >
             {(liveLoading || pointsLoading) ? <span className="spinner" /> : "🔄"} Refresh
           </button>
         </div>
-      </div>
-      <div className="notice">
-        🔄 Points auto-update every 15 min · Only Top 11 players count per team
       </div>
       {teamScores.map((s, i) => (
         <div key={s.id} className={`lb-card ${i === 0 ? "rank-first" : ""}`} onClick={() => { setSelectedTeam(s.id); setTab("teams"); }}>
