@@ -1814,7 +1814,7 @@ export default function App() {
               <div className="header-logo-ring">
                 <div className="header-logo-inner">
                   <img
-                    src={`${import.meta.env.BASE_URL}logo.jpeg`}
+                    src={`${import.meta.env.BASE_URL}app-icon.png`}
                     alt="Logo"
                     className="header-logo"
                   />
