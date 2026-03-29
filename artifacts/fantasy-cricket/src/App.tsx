@@ -1247,15 +1247,15 @@ export default function App() {
               <div className="hist-hero-champion">
                 <TeamBadge name={s.champion} size={44} />
                 <div>
-                  <div style={{ color: s.color, fontSize: "1.05rem", fontWeight: 800, lineHeight: 1.2 }}>{s.champion} 🏆</div>
+                  <div style={{ color: s.color, fontSize: "1.05rem", fontWeight: 800, lineHeight: 1.2 }}>{s.champion}</div>
                   <div style={{ fontSize: "0.68rem", color: "var(--text-3)", marginTop: 3, fontWeight: 500 }}>Champions</div>
                 </div>
               </div>
               <div className="hist-hero-runner">
-                <TeamBadge name={s.runnerUp} size={32} />
+                <TeamBadge name={s.runnerUp} size={44} />
                 <div>
-                  <div style={{ fontSize: "0.88rem", fontWeight: 700, color: "var(--text-2)" }}>{s.runnerUp}</div>
-                  <div style={{ fontSize: "0.65rem", color: "var(--text-3)", marginTop: 2 }}>Runner-up</div>
+                  <div style={{ color: "var(--text-2)", fontSize: "1.05rem", fontWeight: 800, lineHeight: 1.2 }}>{s.runnerUp}</div>
+                  <div style={{ fontSize: "0.68rem", color: "var(--text-3)", marginTop: 3, fontWeight: 500 }}>Runner-up</div>
                 </div>
               </div>
               <div className="hist-hero-awards">
@@ -1321,18 +1321,20 @@ export default function App() {
                 {/* Champion row */}
                 <div className="hist-card-row">
                   <TeamBadge name={h.champion} size={24} />
-                  <span className="hist-card-champ" style={{ color: h.color }}>{champAbbr} 🏆</span>
+                  <span className="hist-card-champ" style={{ color: h.color }}>{champAbbr}</span>
+                  <span className="hist-card-tag-winner">Winner</span>
                 </div>
                 {/* Runner-up row */}
                 <div className="hist-card-row" style={{ marginTop: 5 }}>
                   <TeamBadge name={h.runnerUp} size={24} />
                   <span className="hist-card-ru">{ruAbbr}</span>
+                  <span className="hist-card-tag-ru">Runner-up</span>
                 </div>
                 {/* Cap line */}
                 <div className="hist-card-caps">
-                  <span>🟠 {h.orangeCap.split(" ").slice(-1)[0]} {h.orangeRuns}</span>
+                  <span>🟠 {h.orangeCap.split(" ").slice(-1)[0]} {h.orangeRuns} runs</span>
                   <span className="hist-card-sep">·</span>
-                  <span>🟣 {h.purpleCap.split(" ").slice(-1)[0]} {h.purpleWkts}w</span>
+                  <span>🟣 {h.purpleCap.split(" ").slice(-1)[0]} {h.purpleWkts} wks</span>
                 </div>
               </div>
               <div className="hist-card-arrow">›</div>

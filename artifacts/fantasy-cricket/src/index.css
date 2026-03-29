@@ -468,6 +468,18 @@ body { background: var(--bg); }
 .hist-card-row { display: flex; align-items: center; gap: 7px; }
 .hist-card-champ { font-size: 0.84rem; font-weight: 800; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .hist-card-ru { font-size: 0.8rem; color: var(--text-2); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hist-card-tag-winner {
+  font-size: 0.58rem; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase;
+  background: rgba(212,168,67,0.15); color: var(--gold);
+  border: 1px solid rgba(212,168,67,0.3); border-radius: 4px; padding: 1px 5px;
+  white-space: nowrap; flex-shrink: 0;
+}
+.hist-card-tag-ru {
+  font-size: 0.58rem; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase;
+  background: rgba(161,161,170,0.1); color: var(--text-3);
+  border: 1px solid rgba(161,161,170,0.2); border-radius: 4px; padding: 1px 5px;
+  white-space: nowrap; flex-shrink: 0;
+}
 .hist-card-caps {
   display: flex; align-items: center; gap: 6px; flex-wrap: nowrap;
   font-size: 0.64rem; color: var(--text-2); font-weight: 500;
