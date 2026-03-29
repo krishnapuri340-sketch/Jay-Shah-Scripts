@@ -6,17 +6,17 @@
   "processedMatches": {
     "2417": {
       "points": {
-        "Rajat Patidar": 79,
+        "Rajat Patidar": 73,
         "Bhuvneshwar Kumar": 36,
         "Phil Salt": 20,
         "Krunal Pandya": -2,
-        "Tim David": 36,
-        "Abhishek Sharma": 19,
-        "Ishan Kishan": 176,
+        "Tim David": 34,
+        "Abhishek Sharma": 17,
+        "Ishan Kishan": 166,
         "Travis Head": 23,
-        "Virat Kohli": 147,
+        "Virat Kohli": 137,
         "Nitish Kumar Reddy": 5,
-        "Heinrich Klaasen": 57,
+        "Heinrich Klaasen": 55,
         "Jacob Duffy": 108
       },
       "innings": [
@@ -346,9 +346,9 @@
       ]
     }
   },
-  "lastUpdated": "2026-03-29T00:14:57.599Z",
+  "lastUpdated": "2026-03-29T00:28:24.354Z",
   "dailyHits": {
     "date": "2026-03-29",
-    "count": 5
+    "count": 7
   }
 }

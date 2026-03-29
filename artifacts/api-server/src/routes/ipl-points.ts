@@ -112,7 +112,7 @@ function calcPoints(p: PlayerStats): number {
 
   pts += r;
   pts += (p.fours || 0) * 4;
-  pts += (p.sixes || 0) * 8;
+  pts += (p.sixes || 0) * 6;
   if (p.duck) pts -= 2;
 
   if (r >= 100) pts += 16;
