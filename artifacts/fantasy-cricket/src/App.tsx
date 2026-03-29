@@ -255,8 +255,6 @@ export default function App() {
   const [statsFilter, setStatsFilter] = useState<"all" | "fantasy">("all");
   const [statsCategory, setStatsCategory] = useState<"orangeCap" | "purpleCap" | "sixesLeader" | "foursLeader" | "srLeader" | "ecoLeader">("orangeCap");
   const [rankChanges, setRankChanges] = useState<Record<string, number>>({});
-  const [playing11, setPlaying11] = useState<Set<string>>(new Set());
-  const [liveMatchesActive, setLiveMatchesActive] = useState(false);
   const [isDark, setIsDark] = useState(true);
   const [showToast, setShowToast] = useState(false);
   const [countdown, setCountdown] = useState<{ text: string; matchName: string } | null>(null);
@@ -344,18 +342,6 @@ export default function App() {
     setStatsLoading(false);
   };
 
-  const fetchPlaying11 = async () => {
-    try {
-      const res = await fetch("/api/ipl/playing11");
-      if (res.ok) {
-        const data = await res.json();
-        setPlaying11(new Set<string>(data.inXI || []));
-        setLiveMatchesActive(!!data.liveMatchesFound);
-      }
-    } catch (_) {}
-  };
-
-
   const toggleMatch = (matchId: string, isCompleted: boolean) => {
     if (expandedMatchId === matchId) {
       setExpandedMatchId(null);
@@ -370,13 +356,11 @@ export default function App() {
     fetchPoints();
     fetchStandings();
     fetchStats();
-    fetchPlaying11();
     const id1 = setInterval(fetchLive, 15 * 60 * 1000);
     const id2 = setInterval(fetchPoints, 15 * 60 * 1000);
     const id3 = setInterval(fetchStandings, 15 * 60 * 1000);
     const id4 = setInterval(fetchStats, 15 * 60 * 1000);
-    const id5 = setInterval(fetchPlaying11, 15 * 60 * 1000);
-    return () => { clearInterval(id1); clearInterval(id2); clearInterval(id3); clearInterval(id4); clearInterval(id5); };
+    return () => { clearInterval(id1); clearInterval(id2); clearInterval(id3); clearInterval(id4); };
   }, []);
 
   const teamScores = Object.keys(FANTASY_TEAMS)
@@ -583,30 +567,20 @@ export default function App() {
   };
 
   // Helper: build preview data from a list of matches
-  // useXI=true → apply playing XI filter (for live matches); when liveMatchesActive but XI
-  // not yet confirmed, we suppress ALL players rather than show benched ones as "active".
-  const buildMatchPreviews = (matches: any[], useXI = false) =>
+  const buildMatchPreviews = (matches: any[]) =>
     matches.map((match: any) => {
       const teamInfo: any[] = match.teamInfo || [];
       const playingTeams = new Set(teamInfo.map((ti: any) => (ti.shortname || "").toUpperCase()));
-      const xi11Known = useXI && playing11.size > 0;
-      const xi11Loading = useXI && liveMatchesActive && playing11.size === 0;
       const preview = Object.values(FANTASY_TEAMS).map(ft => ({
         team: ft,
-        activePlayers: ft.players.filter(p => {
-          if (!playingTeams.has(p.ipl.toUpperCase())) return false;
-          if (xi11Loading) return false;  // live match on, but XI not confirmed yet — hide all
-          if (xi11Known) return playing11.has(p.name);
-          return true;
-        })
+        activePlayers: ft.players.filter(p => playingTeams.has(p.ipl.toUpperCase()))
       })).filter(x => x.activePlayers.length > 0);
       return { match, playingTeams: [...playingTeams], preview };
     }).filter(item => item.playingTeams.length > 0);
 
-  // Currently LIVE matches (started, not ended) — filter to confirmed XI
+  // Currently LIVE matches (started, not ended)
   const liveMatchPreviews = buildMatchPreviews(
-    liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded),
-    true
+    liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded)
   );
 
   // All upcoming matches within the next 24 hours — handles double-headers
