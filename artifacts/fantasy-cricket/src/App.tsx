@@ -159,6 +159,9 @@ export default function App() {
   const [statsFilter, setStatsFilter] = useState<"all" | "fantasy">("all");
   const [statsCategory, setStatsCategory] = useState<"orangeCap" | "purpleCap" | "sixesLeader" | "foursLeader" | "srLeader" | "ecoLeader">("orangeCap");
   const [rankChanges, setRankChanges] = useState<Record<string, number>>({});
+  const [isDark, setIsDark] = useState(true);
+  const [showToast, setShowToast] = useState(false);
+  const [countdown, setCountdown] = useState<{ text: string; matchName: string } | null>(null);
   const fetchPoints = async () => {
     if (pointsLoading) return;
     setPointsLoading(true);
@@ -294,6 +297,89 @@ export default function App() {
     } catch { /* ignore storage errors */ }
   }, [playerPoints]);
 
+  // Countdown to next match
+  useEffect(() => {
+    const update = () => {
+      const upcoming = liveMatches
+        .filter((m: any) => !m.matchStarted && m.dateTimeGMT)
+        .sort((a: any, b: any) => new Date(a.dateTimeGMT).getTime() - new Date(b.dateTimeGMT).getTime())[0];
+      if (!upcoming) { setCountdown(null); return; }
+      const diff = new Date(upcoming.dateTimeGMT).getTime() - Date.now();
+      if (diff <= 0) { setCountdown(null); return; }
+      const days = Math.floor(diff / 86400000);
+      const hrs = Math.floor((diff % 86400000) / 3600000);
+      const mins = Math.floor((diff % 3600000) / 60000);
+      const secs = Math.floor((diff % 60000) / 1000);
+      const text = days > 0
+        ? `${days}D ${String(hrs).padStart(2,"0")}H ${String(mins).padStart(2,"0")}M`
+        : `${String(hrs).padStart(2,"0")}:${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
+      setCountdown({ text, matchName: upcoming.name });
+    };
+    update();
+    const id = setInterval(update, 1000);
+    return () => clearInterval(id);
+  }, [liveMatches]);
+
+  // Hot players: scored >= 25 pts in most recent match
+  const hotPlayers = new Set<string>(
+    Object.entries(playerMatchPoints)
+      .filter(([, matches]) => {
+        const sorted = [...matches].sort((a, b) => b.matchNum - a.matchNum);
+        return sorted.length > 0 && sorted[0].pts >= 25;
+      })
+      .map(([name]) => name)
+  );
+
+  // Per-team match-by-match cumulative points (for chart)
+  const matchHistory = (() => {
+    const allNums = new Set<number>();
+    const labels: Record<number, string> = {};
+    for (const matches of Object.values(playerMatchPoints)) {
+      for (const e of matches) { allNums.add(e.matchNum); labels[e.matchNum] = e.label; }
+    }
+    const sorted = [...allNums].sort((a, b) => a - b);
+    return Object.entries(FANTASY_TEAMS).map(([teamId, team]) => {
+      let cum = 0;
+      const points = sorted.map(matchNum => {
+        let pts = 0;
+        for (const player of team.players) {
+          const entry = (playerMatchPoints[player.name] || []).find(e => e.matchNum === matchNum);
+          if (entry) {
+            let p = entry.pts;
+            if (player.name === team.captain) p *= 2;
+            else if (player.name === team.vc) p = Math.floor(p * 1.5);
+            pts += p;
+          }
+        }
+        cum += pts;
+        return { matchNum, label: `M${matchNum}`, cum };
+      });
+      return { teamId, color: team.color, name: team.name, emoji: team.emoji, points };
+    });
+  })();
+
+  const shareLeaderboard = async () => {
+    const lines = [
+      "🏆 IPL Fantasy 2026 — Leaderboard",
+      "",
+      ...teamScores.map((s, i) => {
+        const medal = ["🥇", "🥈", "🥉", "4️⃣"][i] ?? `${i + 1}.`;
+        return `${medal} ${s.team.name} — ${s.total} pts`;
+      }),
+      "",
+      `Updated: ${lastUpdated ? lastUpdated.toLocaleTimeString() : "just now"}`,
+    ].join("\n");
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "IPL Fantasy 2026", text: lines });
+      } else {
+        await navigator.clipboard.writeText(lines);
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 2500);
+      }
+    } catch { /* user cancelled */ }
+  };
+
   const maxPts = teamScores[0]?.total || 1;
 
   const TABS = [
@@ -390,16 +476,36 @@ export default function App() {
     const awards = computeAwards();
     return (
     <div>
+      {/* Countdown to next match */}
+      {countdown && (
+        <div className="countdown-card">
+          <div>
+            <div className="countdown-timer">{countdown.text}</div>
+            <div className="countdown-label">Next Match</div>
+          </div>
+          <div className="countdown-match">{countdown.matchName}</div>
+        </div>
+      )}
+
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 2 }}>
         <div className="sec-title" style={{ marginBottom: 0 }}>Leaderboard</div>
-        <button
-          className="btn-primary"
-          style={{ padding: "6px 14px", fontSize: "0.78rem" }}
-          onClick={() => { fetchLive(); fetchPoints(); }}
-          disabled={liveLoading || pointsLoading}
-        >
-          {(liveLoading || pointsLoading) ? <span className="spinner" /> : "🔄"} Refresh
-        </button>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button
+            className="btn-primary"
+            style={{ padding: "6px 12px", fontSize: "0.75rem" }}
+            onClick={shareLeaderboard}
+          >
+            📤 Share
+          </button>
+          <button
+            className="btn-primary"
+            style={{ padding: "6px 12px", fontSize: "0.75rem" }}
+            onClick={() => { fetchLive(); fetchPoints(); }}
+            disabled={liveLoading || pointsLoading}
+          >
+            {(liveLoading || pointsLoading) ? <span className="spinner" /> : "🔄"} Refresh
+          </button>
+        </div>
       </div>
       <div className="notice">
         🔄 Points auto-update every 15 min · Only Top 11 players count per team
@@ -434,6 +540,64 @@ export default function App() {
           </div>
         </div>
       ))}
+
+      {/* Points history chart */}
+      {matchHistory.some(t => t.points.length > 0) && (() => {
+        const allMatches = matchHistory[0]?.points || [];
+        const maxCum = Math.max(...matchHistory.flatMap(t => t.points.map(p => p.cum)), 1);
+        const W = 320; const H = 110; const PAD = 28;
+        const chartW = W - PAD * 2; const chartH = H - PAD;
+        const n = allMatches.length;
+        const xPos = (i: number) => n === 1 ? PAD + chartW / 2 : PAD + (i / (n - 1)) * chartW;
+        const yPos = (v: number) => PAD / 2 + (1 - v / maxCum) * chartH;
+        return (
+          <div className="chart-wrap">
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+              <span className="sec-title" style={{ fontSize: "1rem", marginBottom: 0 }}>Points Race</span>
+              <div className="chart-legend">
+                {matchHistory.map(t => (
+                  <div key={t.teamId} className="chart-legend-item">
+                    <div className="chart-legend-dot" style={{ background: t.color }} />
+                    {t.emoji} {t.points[t.points.length - 1]?.cum ?? 0}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} style={{ overflow: "visible" }}>
+              {/* Grid lines */}
+              {[0.25, 0.5, 0.75, 1].map(f => (
+                <line key={f} x1={PAD} x2={W - PAD} y1={yPos(f * maxCum)} y2={yPos(f * maxCum)}
+                  stroke="rgba(255,255,255,0.04)" strokeWidth={1} />
+              ))}
+              {/* Match labels on x-axis */}
+              {allMatches.map((m, i) => (
+                <text key={i} x={xPos(i)} y={H - 4} textAnchor="middle"
+                  fontSize={8} fill="rgba(255,255,255,0.25)">{m.label}</text>
+              ))}
+              {/* Team lines and dots */}
+              {matchHistory.map(team => {
+                if (team.points.length === 0) return null;
+                if (team.points.length === 1) {
+                  return (
+                    <circle key={team.teamId}
+                      cx={xPos(0)} cy={yPos(team.points[0].cum)} r={5}
+                      fill={team.color} opacity={0.9} />
+                  );
+                }
+                const path = team.points.map((p, i) => `${i === 0 ? "M" : "L"}${xPos(i)},${yPos(p.cum)}`).join(" ");
+                return (
+                  <g key={team.teamId}>
+                    <path d={path} stroke={team.color} strokeWidth={2} fill="none" strokeLinejoin="round" strokeLinecap="round" opacity={0.85} />
+                    {team.points.map((p, i) => (
+                      <circle key={i} cx={xPos(i)} cy={yPos(p.cum)} r={3.5} fill={team.color} opacity={0.9} />
+                    ))}
+                  </g>
+                );
+              })}
+            </svg>
+          </div>
+        );
+      })()}
 
       {liveMatches.length > 0 && (() => {
         const recentOrLive = [
@@ -549,7 +713,7 @@ export default function App() {
                 <div className="player-ipl-badge" style={{ background: IPL_COLORS[p.ipl] + "33", color: IPL_COLORS[p.ipl] }}>
                   {p.ipl}
                 </div>
-                <div className="player-name">{p.name}</div>
+                <div className="player-name">{hotPlayers.has(p.name) ? "🔥 " : ""}{p.name}</div>
                 <div className="player-pts" style={{ color: p.adj > 0 ? t.color : "#475569" }}>{p.adj}</div>
                 {p.name === t.captain && <div className="player-pts-raw">raw: {p.raw} × 2</div>}
                 {p.name === t.vc && <div className="player-pts-raw">raw: {p.raw} × 1.5</div>}
@@ -1178,7 +1342,8 @@ export default function App() {
 
   return (
     <>
-      <div className="app">
+      {showToast && <div className="share-toast">✓ Copied to clipboard!</div>}
+      <div className={`app${isDark ? "" : " light-mode"}`}>
         <div className="bg-field" />
         <div className="content">
           <div className="header">
@@ -1194,7 +1359,14 @@ export default function App() {
               </div>
             </div>
             <div className="header-right">
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <button
+                  className="btn-theme"
+                  onClick={() => setIsDark(d => !d)}
+                  title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+                >
+                  {isDark ? "☀️" : "🌙"}
+                </button>
                 <button
                   className={`btn-dashboard ${tab === "admin" ? "active" : ""}`}
                   onClick={() => setTab("admin")}
