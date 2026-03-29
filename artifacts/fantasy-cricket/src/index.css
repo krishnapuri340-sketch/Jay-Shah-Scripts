@@ -125,6 +125,8 @@ body { background: #060810; }
 }
 .player-card:hover { border-color: rgba(255,255,255,0.1); transform: translateY(-1px); }
 .player-card.benched { opacity: 0.45; }
+.player-card.player-expanded { border-color: rgba(255,255,255,0.2) !important; background: rgba(30,41,59,0.9) !important; transform: none !important; }
+.player-card.benched.player-expanded { opacity: 0.85; }
 .player-card.is-c::before { content: 'C'; position: absolute; top: 6px; right: 8px; font-family: 'Bebas Neue'; font-size: 0.9rem; color: #f59e0b; }
 .player-card.is-vc::before { content: 'VC'; position: absolute; top: 6px; right: 8px; font-family: 'Bebas Neue'; font-size: 0.9rem; color: #94a3b8; }
 .player-ipl-badge {

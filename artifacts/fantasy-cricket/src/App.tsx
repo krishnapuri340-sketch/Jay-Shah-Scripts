@@ -134,6 +134,8 @@ export default function App() {
   const [tab, setTab] = useState("home");
   const [selectedTeam, setSelectedTeam] = useState("rajveer");
   const [playerPoints, setPlayerPoints] = useState<Record<string, number>>({});
+  const [playerMatchPoints, setPlayerMatchPoints] = useState<Record<string, Array<{ matchNum: number; label: string; pts: number; source: string }>>>({});
+  const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
   const [liveMatches, setLiveMatches] = useState<any[]>([]);
   const [liveLoading, setLiveLoading] = useState(false);
   const [pointsLoading, setPointsLoading] = useState(false);
@@ -168,6 +170,7 @@ export default function App() {
         setPointsError(data.error);
       } else {
         setPlayerPoints(data.playerPoints || {});
+        setPlayerMatchPoints(data.playerMatchPoints || {});
         setProcessedMatches(data.processedMatches || []);
         setPointsUpdating(data.updating || false);
         setPendingMatches(data.pendingMatches || 0);
@@ -440,6 +443,16 @@ export default function App() {
     );
   };
 
+  const TEAM_ABBREVS: Record<string, string> = {
+    "Royal Challengers Bengaluru": "RCB", "Sunrisers Hyderabad": "SRH",
+    "Mumbai Indians": "MI", "Chennai Super Kings": "CSK",
+    "Kolkata Knight Riders": "KKR", "Rajasthan Royals": "RR",
+    "Punjab Kings": "PBKS", "Delhi Capitals": "DC",
+    "Gujarat Titans": "GT", "Lucknow Super Giants": "LSG",
+  };
+  const shortMatchLabel = (label: string) =>
+    label.split(" vs ").map(t => TEAM_ABBREVS[t.trim()] || t.trim().split(" ").map((w: string) => w[0]).join("")).join(" vs ");
+
   const renderTeams = () => {
     const t = FANTASY_TEAMS[selectedTeam];
     const td = getTeamData(selectedTeam, playerPoints);
@@ -481,32 +494,124 @@ export default function App() {
 
         <div className="top11-label">Playing XI (Top 11)</div>
         <div className="players-grid">
-          {td.players.filter(p => td.top11.has(p.name)).map(p => (
-            <div key={p.name} className={`player-card ${p.name === t.captain ? "is-c" : p.name === t.vc ? "is-vc" : ""}`}>
-              <div className="playing-badge" />
-              <div className="player-ipl-badge" style={{ background: IPL_COLORS[p.ipl] + "33", color: IPL_COLORS[p.ipl] }}>
-                {p.ipl}
+          {td.players.filter(p => td.top11.has(p.name)).map(p => {
+            const isExp = expandedPlayer === p.name;
+            return (
+              <div key={p.name} className={`player-card ${p.name === t.captain ? "is-c" : p.name === t.vc ? "is-vc" : ""} ${isExp ? "player-expanded" : ""}`}
+                style={{ cursor: "pointer" }}
+                onClick={() => setExpandedPlayer(isExp ? null : p.name)}>
+                <div className="playing-badge" />
+                <div className="player-ipl-badge" style={{ background: IPL_COLORS[p.ipl] + "33", color: IPL_COLORS[p.ipl] }}>
+                  {p.ipl}
+                </div>
+                <div className="player-name">{p.name}</div>
+                <div className="player-pts" style={{ color: p.adj > 0 ? t.color : "#475569" }}>{p.adj}</div>
+                {p.name === t.captain && <div className="player-pts-raw">raw: {p.raw} × 2</div>}
+                {p.name === t.vc && <div className="player-pts-raw">raw: {p.raw} × 1.5</div>}
+                <div style={{ fontSize: "0.55rem", color: "#475569", marginTop: 2 }}>{isExp ? "▲ hide" : "▼ details"}</div>
               </div>
-              <div className="player-name">{p.name}</div>
-              <div className="player-pts" style={{ color: p.adj > 0 ? t.color : "#475569" }}>{p.adj}</div>
-              {p.name === t.captain && <div className="player-pts-raw">raw: {p.raw} × 2</div>}
-              {p.name === t.vc && <div className="player-pts-raw">raw: {p.raw} × 1.5</div>}
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className="top11-label" style={{ marginTop: 16 }}>Bench</div>
         <div className="players-grid">
-          {td.players.filter(p => !td.top11.has(p.name)).map(p => (
-            <div key={p.name} className="player-card benched">
-              <div className="player-ipl-badge" style={{ background: IPL_COLORS[p.ipl] + "22", color: IPL_COLORS[p.ipl] + "88" }}>
-                {p.ipl}
+          {td.players.filter(p => !td.top11.has(p.name)).map(p => {
+            const isExp = expandedPlayer === p.name;
+            return (
+              <div key={p.name} className={`player-card benched ${isExp ? "player-expanded" : ""}`}
+                style={{ cursor: "pointer" }}
+                onClick={() => setExpandedPlayer(isExp ? null : p.name)}>
+                <div className="player-ipl-badge" style={{ background: IPL_COLORS[p.ipl] + "22", color: IPL_COLORS[p.ipl] + "88" }}>
+                  {p.ipl}
+                </div>
+                <div className="player-name" style={{ color: "#64748b" }}>{p.name}</div>
+                <div className="player-pts" style={{ color: "#475569" }}>{p.adj}</div>
+                <div style={{ fontSize: "0.55rem", color: "#475569", marginTop: 2 }}>{isExp ? "▲ hide" : "▼ details"}</div>
               </div>
-              <div className="player-name" style={{ color: "#64748b" }}>{p.name}</div>
-              <div className="player-pts" style={{ color: "#475569" }}>{p.adj}</div>
-            </div>
-          ))}
+            );
+          })}
         </div>
+
+        {/* Player point breakdown panel */}
+        {expandedPlayer && (() => {
+          const playerName = expandedPlayer;
+          const breakdown = playerMatchPoints[playerName] || [];
+          const pData = td.players.find(p => p.name === playerName);
+          const isCap = playerName === t.captain;
+          const isVC = playerName === t.vc;
+          const inTop11 = td.top11.has(playerName);
+          const raw = pData?.raw ?? 0;
+          const adj = pData?.adj ?? 0;
+          const multiplier = isCap ? "× 2 (Captain)" : isVC ? "× 1.5 (VC)" : null;
+          return (
+            <div style={{
+              marginTop: 16, background: "rgba(15,21,32,0.95)", border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: 14, padding: "14px 16px",
+            }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: "0.95rem", color: "#f1f5f9" }}>{playerName}</div>
+                  <div style={{ display: "flex", gap: 6, marginTop: 4, flexWrap: "wrap" }}>
+                    <span style={{ fontSize: "0.62rem", padding: "1px 7px", borderRadius: 10, background: IPL_COLORS[pData?.ipl || ""] + "22", color: IPL_COLORS[pData?.ipl || ""] }}>{pData?.ipl}</span>
+                    {isCap && <span style={{ fontSize: "0.62rem", padding: "1px 7px", borderRadius: 10, background: "rgba(251,191,36,0.15)", color: "#fbbf24", border: "1px solid rgba(251,191,36,0.3)" }}>© Captain ×2</span>}
+                    {isVC && <span style={{ fontSize: "0.62rem", padding: "1px 7px", borderRadius: 10, background: "rgba(167,139,250,0.15)", color: "#a78bfa", border: "1px solid rgba(167,139,250,0.3)" }}>VC ×1.5</span>}
+                    {!inTop11 && <span style={{ fontSize: "0.62rem", padding: "1px 7px", borderRadius: 10, background: "rgba(100,116,139,0.15)", color: "#64748b" }}>Bench</span>}
+                    <span style={{ fontSize: "0.62rem", padding: "1px 7px", borderRadius: 10, background: "rgba(100,116,139,0.1)", color: "#64748b" }}>{pData?.role}</span>
+                  </div>
+                </div>
+                <button onClick={() => setExpandedPlayer(null)}
+                  style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", fontSize: "1rem", padding: "2px 6px" }}>✕</button>
+              </div>
+
+              {breakdown.length === 0 ? (
+                <div style={{ color: "#475569", fontSize: "0.78rem", textAlign: "center", padding: "12px 0" }}>No match data yet — points sync after each game.</div>
+              ) : (
+                <>
+                  <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 10 }}>
+                    {breakdown.map((entry, i) => (
+                      <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: "0.72rem", color: "#94a3b8" }}>
+                            <span style={{ color: "#64748b", marginRight: 6 }}>M{entry.matchNum}</span>
+                            {shortMatchLabel(entry.label)}
+                          </div>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <span style={{ fontSize: "0.6rem", padding: "1px 5px", borderRadius: 8,
+                            background: entry.source === "official" ? "rgba(52,211,153,0.1)" : "rgba(251,191,36,0.1)",
+                            color: entry.source === "official" ? "#34d399" : "#fbbf24",
+                            border: `1px solid ${entry.source === "official" ? "rgba(52,211,153,0.2)" : "rgba(251,191,36,0.2)"}` }}>
+                            {entry.source === "official" ? "✓ official" : "★ live"}
+                          </span>
+                          <span style={{ fontWeight: 700, fontSize: "0.88rem", color: entry.pts > 0 ? "#f1f5f9" : "#475569", minWidth: 36, textAlign: "right" }}>
+                            {entry.pts}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", marginTop: 10, paddingTop: 10 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", color: "#64748b" }}>
+                      <span>Raw total</span>
+                      <span style={{ color: "#94a3b8" }}>{raw} pts</span>
+                    </div>
+                    {multiplier && (
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", color: "#64748b", marginTop: 4 }}>
+                        <span>Multiplier</span>
+                        <span style={{ color: isCap ? "#fbbf24" : "#a78bfa" }}>{multiplier}</span>
+                      </div>
+                    )}
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.92rem", fontWeight: 700, marginTop: 8, color: inTop11 ? t.color : "#475569" }}>
+                      <span>{inTop11 ? "Counts toward team score" : "Bench (not counted)"}</span>
+                      <span>{adj} pts</span>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          );
+        })()}
       </div>
     );
   };

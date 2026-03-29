@@ -622,25 +622,42 @@ router.get("/ipl/points", async (req, res) => {
       Object.values(pointsCache.supabaseScores || {}).map(f => f.linkedIplId).filter(Boolean) as string[]
     );
     const aggregated: Record<string, number> = {};
+    // playerMatchPoints: player → [ { matchNum, label, pts, source } ]
+    const playerMatchPoints: Record<string, Array<{ matchNum: number; label: string; pts: number; source: "official" | "live" }>> = {};
+
+    const addMatchPoint = (player: string, matchNum: number, label: string, pts: number, source: "official" | "live") => {
+      aggregated[player] = (aggregated[player] || 0) + pts;
+      if (!playerMatchPoints[player]) playerMatchPoints[player] = [];
+      playerMatchPoints[player].push({ matchNum, label, pts, source });
+    };
 
     // 1. Official Supabase scores for completed matches
-    for (const fixtureData of Object.values(pointsCache.supabaseScores || {})) {
+    for (const fixtureData of Object.values(pointsCache.supabaseScores || {})
+        .sort((a, b) => a.matchNumber - b.matchNumber)) {
       for (const [player, pts] of Object.entries(fixtureData.points || {})) {
-        aggregated[player] = (aggregated[player] || 0) + pts;
+        addMatchPoint(player, fixtureData.matchNumber, fixtureData.matchLabel, pts, "official");
       }
     }
 
     // 2. CricAPI points for live/recent matches NOT yet covered by Supabase
     const cricapiLiveLabels: string[] = [];
+    let liveMatchNum = 900; // high number so live matches sort after official ones
     for (const [iplId, matchData] of Object.entries(pointsCache.processedMatches || {})) {
-      if (supabaseLinkedIds.has(iplId)) continue; // Supabase already covers this
+      if (supabaseLinkedIds.has(iplId)) continue;
+      const meta = (pointsCache.matchMetadata || {})[iplId];
+      const label = meta ? `${meta.teamA} vs ${meta.teamB}` : `Match ${iplId}`;
       for (const [player, pts] of Object.entries(matchData.points || {})) {
-        aggregated[player] = (aggregated[player] || 0) + pts;
+        addMatchPoint(player, liveMatchNum, label, pts, "live");
       }
       if (Object.keys(matchData.points || {}).length > 0) {
-        const meta = (pointsCache.matchMetadata || {})[iplId];
-        cricapiLiveLabels.push(meta ? `${meta.teamA} vs ${meta.teamB} ★live` : `Match ${iplId} ★live`);
+        cricapiLiveLabels.push(`${label} ★live`);
+        liveMatchNum++;
       }
+    }
+
+    // Sort each player's match breakdown chronologically
+    for (const entries of Object.values(playerMatchPoints)) {
+      entries.sort((a, b) => a.matchNum - b.matchNum);
     }
 
     const supabaseMatchLabels = [
@@ -654,7 +671,7 @@ router.get("/ipl/points", async (req, res) => {
 
     if (pointsUpdateInProgress) {
       return res.json({
-        playerPoints: aggregated, processedMatches: supabaseMatchLabels,
+        playerPoints: aggregated, playerMatchPoints, processedMatches: supabaseMatchLabels,
         updating: true, timestamp: new Date().toISOString(), dailyHits: dailyHitsInfo,
       });
     }
@@ -790,7 +807,7 @@ router.get("/ipl/points", async (req, res) => {
     }
 
     return res.json({
-      playerPoints: aggregated, processedMatches: supabaseMatchLabels,
+      playerPoints: aggregated, playerMatchPoints, processedMatches: supabaseMatchLabels,
       updating: pointsUpdateInProgress, timestamp: new Date().toISOString(), dailyHits: dailyHitsInfo,
     });
   } catch (err: any) {
