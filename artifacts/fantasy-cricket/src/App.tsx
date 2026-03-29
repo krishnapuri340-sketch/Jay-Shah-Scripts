@@ -1944,13 +1944,13 @@ export default function App() {
               <table style={{ width: "100%", borderCollapse: "collapse" as const, fontSize: "0.7rem" }}>
                 <thead>
                   <tr style={{ borderBottom: "1px solid var(--border)" }}>
-                    <th style={{ textAlign: "left" as const, padding: "8px 12px", color: "var(--text-3)", fontWeight: 600 }}>#</th>
-                    <th style={{ textAlign: "left" as const, padding: "8px 8px", color: "var(--text-3)", fontWeight: 600 }}>TEAM</th>
-                    <th style={{ textAlign: "center" as const, padding: "8px 6px", color: "var(--text-3)", fontWeight: 600 }}>P</th>
-                    <th style={{ textAlign: "center" as const, padding: "8px 6px", color: "var(--text-3)", fontWeight: 600 }}>W</th>
-                    <th style={{ textAlign: "center" as const, padding: "8px 6px", color: "var(--text-3)", fontWeight: 600 }}>L</th>
-                    <th style={{ textAlign: "center" as const, padding: "8px 6px", color: "var(--text-3)", fontWeight: 600 }}>NRR</th>
-                    <th style={{ textAlign: "center" as const, padding: "8px 8px", color: "var(--text-3)", fontWeight: 600 }}>PTS</th>
+                    <th style={{ textAlign: "left" as const, padding: "6px 4px 6px 10px", color: "var(--text-3)", fontWeight: 600, width: 24 }}>#</th>
+                    <th style={{ textAlign: "left" as const, padding: "6px 4px", color: "var(--text-3)", fontWeight: 600 }}>TEAM</th>
+                    <th style={{ textAlign: "center" as const, padding: "6px 4px", color: "var(--text-3)", fontWeight: 600, width: 28 }}>P</th>
+                    <th style={{ textAlign: "center" as const, padding: "6px 4px", color: "var(--text-3)", fontWeight: 600, width: 28 }}>W</th>
+                    <th style={{ textAlign: "center" as const, padding: "6px 4px", color: "var(--text-3)", fontWeight: 600, width: 28 }}>L</th>
+                    <th style={{ textAlign: "center" as const, padding: "6px 4px", color: "var(--text-3)", fontWeight: 600, width: 52 }}>NRR</th>
+                    <th style={{ textAlign: "center" as const, padding: "6px 8px 6px 4px", color: "var(--text-3)", fontWeight: 600, width: 36 }}>PTS</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1962,21 +1962,21 @@ export default function App() {
                       <tr key={t.teamCode}
                         onClick={() => setTeamFilter(isSelected ? null : t.teamCode)}
                         style={{ borderBottom: "1px solid var(--border)", cursor: "pointer", background: isSelected ? color + "14" : "transparent", transition: "background 0.15s" }}>
-                        <td style={{ padding: "8px 12px", color: isTop4 ? "#22c55e" : "var(--text-3)", fontWeight: 700 }}>{i + 1}</td>
-                        <td style={{ padding: "8px 8px" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                            <div style={{ width: 2, height: 18, borderRadius: 2, background: color, flexShrink: 0 }} />
+                        <td style={{ padding: "6px 4px 6px 10px", color: isTop4 ? "#22c55e" : "var(--text-3)", fontWeight: 700 }}>{i + 1}</td>
+                        <td style={{ padding: "6px 4px" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                            <div style={{ width: 2, height: 16, borderRadius: 2, background: color, flexShrink: 0 }} />
                             {(TEAM_LOGO_CDN[t.teamCode] || t.teamLogo) && <img src={TEAM_LOGO_CDN[t.teamCode] || t.teamLogo} alt={t.teamCode} style={{ width: 18, height: 18, objectFit: "contain" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />}
                             <span style={{ fontWeight: 600, color: "var(--text)", fontSize: "0.7rem" }}>{t.teamCode}</span>
                           </div>
                         </td>
-                        <td style={{ textAlign: "center" as const, padding: "8px 6px", color: "var(--text-2)" }}>{t.matches}</td>
-                        <td style={{ textAlign: "center" as const, padding: "8px 6px", color: "#22c55e", fontWeight: 600 }}>{t.won}</td>
-                        <td style={{ textAlign: "center" as const, padding: "8px 6px", color: "var(--red)" }}>{t.lost}</td>
-                        <td style={{ textAlign: "center" as const, padding: "8px 6px", color: t.nrr >= 0 ? "#22c55e" : "var(--red)", fontSize: "0.65rem" }}>
+                        <td style={{ textAlign: "center" as const, padding: "6px 4px", color: "var(--text-2)" }}>{t.matches}</td>
+                        <td style={{ textAlign: "center" as const, padding: "6px 4px", color: "#22c55e", fontWeight: 600 }}>{t.won}</td>
+                        <td style={{ textAlign: "center" as const, padding: "6px 4px", color: "var(--red)" }}>{t.lost}</td>
+                        <td style={{ textAlign: "center" as const, padding: "6px 4px", color: t.nrr >= 0 ? "#22c55e" : "var(--red)", fontSize: "0.63rem" }}>
                           {t.nrr >= 0 ? "+" : ""}{t.nrr.toFixed(3)}
                         </td>
-                        <td style={{ textAlign: "center" as const, padding: "8px 8px", fontSize: "0.95rem", fontWeight: 700, color: color }}>{t.points}</td>
+                        <td style={{ textAlign: "center" as const, padding: "6px 8px 6px 4px", fontSize: "0.88rem", fontWeight: 700, color: color }}>{t.points}</td>
                       </tr>
                     );
                   })}
