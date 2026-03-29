@@ -118,12 +118,14 @@ const IPL_FULL_NAMES: Record<string, string> = {
 const ROLE_ICONS: Record<string, string> = { BAT: "🏏", BWL: "🎯", AR: "⚡", WK: "🧤" };
 const ROLE_COLORS: Record<string, string> = { BAT: "#60a5fa", BWL: "#f472b6", AR: "#34d399", WK: "#fbbf24" };
 
-function LineupPreviewCard({ data }: {
+function LineupPreviewCard({ data, matchIndex = 0, totalMatches = 1 }: {
   data: {
     match: any;
     playingTeams: string[];
     preview: { team: typeof FANTASY_TEAMS[string]; activePlayers: { name: string; role: string; ipl: string }[] }[];
-  }
+  };
+  matchIndex?: number;
+  totalMatches?: number;
 }) {
   const [open, setOpen] = useState(false);
   const { match, playingTeams, preview } = data;
@@ -131,6 +133,7 @@ function LineupPreviewCard({ data }: {
   const matchLabel = teamInfo.length >= 2
     ? `${teamInfo[0]?.shortname || ""} vs ${teamInfo[1]?.shortname || ""}`
     : match.name;
+  const isDoubleHeader = totalMatches > 1;
 
   return (
     <div className="lineup-preview-card">
@@ -138,8 +141,15 @@ function LineupPreviewCard({ data }: {
         <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 0 }}>
           <span style={{ fontSize: "1.2rem" }}>🔮</span>
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "1rem", letterSpacing: "1.5px", color: "#e8821a" }}>
-              NEXT MATCH LINEUP
+            <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+              <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "1rem", letterSpacing: "1.5px", color: "#e8821a" }}>
+                {isDoubleHeader ? `MATCH ${matchIndex + 1} LINEUP` : "NEXT MATCH LINEUP"}
+              </div>
+              {isDoubleHeader && (
+                <span style={{ fontSize: "0.55rem", fontWeight: 700, padding: "1px 6px", borderRadius: 20, background: "rgba(232,130,26,0.15)", border: "1px solid rgba(232,130,26,0.3)", color: "#e8821a", letterSpacing: "0.5px" }}>
+                  DOUBLE HEADER
+                </span>
+              )}
             </div>
             <div style={{ fontSize: "0.62rem", color: "#64748b", marginTop: 1 }}>{matchLabel}</div>
           </div>
@@ -557,31 +567,28 @@ export default function App() {
     return awards;
   };
 
-  // Build upcoming lineup preview — which fantasy players are in tomorrow's match
-  const upcomingLineupPreview = (() => {
-    const upcoming = liveMatches
+  // All upcoming matches within the next 24 hours — handles single matches and double-headers
+  const upcomingLineupPreviews = (() => {
+    const now = Date.now();
+    const window24h = 24 * 60 * 60 * 1000;
+    const upcomingMatches = liveMatches
       .filter((m: any) => !m.matchStarted && m.dateTimeGMT)
-      .sort((a: any, b: any) => new Date(a.dateTimeGMT).getTime() - new Date(b.dateTimeGMT).getTime())[0];
-    if (!upcoming) return null;
-    const diff = new Date(upcoming.dateTimeGMT).getTime() - Date.now();
-    // Only show within 24 hours
-    if (diff <= 0 || diff > 24 * 60 * 60 * 1000) return null;
+      .map((m: any) => ({ m, diff: new Date(m.dateTimeGMT).getTime() - now }))
+      .filter(({ diff }) => diff > 0 && diff <= window24h)
+      .sort((a, b) => a.diff - b.diff)
+      .map(({ m }) => m);
 
-    // Extract the two playing IPL team shortnames from teamInfo
-    const teamInfo: any[] = upcoming.teamInfo || [];
-    const playingTeams = new Set(
-      teamInfo.map((ti: any) => (ti.shortname || "").toUpperCase())
-    );
-
-    if (playingTeams.size === 0) return null;
-
-    // For each fantasy team, find players whose IPL team is playing
-    const preview = Object.values(FANTASY_TEAMS).map(ft => {
-      const activePlayers = ft.players.filter(p => playingTeams.has(p.ipl.toUpperCase()));
-      return { team: ft, activePlayers };
-    }).filter(x => x.activePlayers.length > 0);
-
-    return { match: upcoming, playingTeams: [...playingTeams], preview };
+    return upcomingMatches.map((match: any) => {
+      const teamInfo: any[] = match.teamInfo || [];
+      const playingTeams = new Set(
+        teamInfo.map((ti: any) => (ti.shortname || "").toUpperCase())
+      );
+      const preview = Object.values(FANTASY_TEAMS).map(ft => {
+        const activePlayers = ft.players.filter(p => playingTeams.has(p.ipl.toUpperCase()));
+        return { team: ft, activePlayers };
+      }).filter(x => x.activePlayers.length > 0);
+      return { match, playingTeams: [...playingTeams], preview };
+    }).filter(item => item.playingTeams.length > 0);
   })();
 
   const renderHome = () => {
@@ -599,10 +606,10 @@ export default function App() {
         </div>
       )}
 
-      {/* Upcoming lineup preview — only within 24h */}
-      {upcomingLineupPreview && (
-        <LineupPreviewCard data={upcomingLineupPreview} />
-      )}
+      {/* Upcoming lineup previews — all matches within 24h (handles double-headers) */}
+      {upcomingLineupPreviews.map((data, i) => (
+        <LineupPreviewCard key={data.match.id ?? i} data={data} matchIndex={i} totalMatches={upcomingLineupPreviews.length} />
+      ))}
 
       <div className="sec-title">Leaderboard</div>
       <div style={{ display: "flex", gap: 6, justifyContent: "flex-end", marginBottom: 10 }}>
