@@ -158,6 +158,7 @@ export default function App() {
   const [statsLoading, setStatsLoading] = useState(false);
   const [statsFilter, setStatsFilter] = useState<"all" | "fantasy">("all");
   const [statsCategory, setStatsCategory] = useState<"orangeCap" | "purpleCap" | "sixesLeader" | "foursLeader" | "srLeader" | "ecoLeader">("orangeCap");
+  const [rankChanges, setRankChanges] = useState<Record<string, number>>({});
   const fetchPoints = async () => {
     if (pointsLoading) return;
     setPointsLoading(true);
@@ -267,6 +268,31 @@ export default function App() {
   const teamScores = Object.keys(FANTASY_TEAMS)
     .map(id => ({ id, ...getTeamData(id, playerPoints), team: FANTASY_TEAMS[id] }))
     .sort((a, b) => b.total - a.total);
+
+  // Rank change tracking — compare current standings to hourly snapshot in localStorage
+  useEffect(() => {
+    if (!Object.keys(playerPoints).length) return;
+    const STORAGE_KEY = "ipl_fantasy_rank_snapshot";
+    const COOLDOWN_MS = 60 * 60 * 1000; // refresh snapshot at most once per hour
+    const currentRanks: Record<string, number> = {};
+    teamScores.forEach((s, i) => { currentRanks[s.id] = i + 1; });
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const { ranks: prevR, timestamp } = JSON.parse(stored) as { ranks: Record<string, number>; timestamp: number };
+        const changes: Record<string, number> = {};
+        for (const id of Object.keys(currentRanks)) {
+          if (prevR[id] !== undefined) changes[id] = prevR[id] - currentRanks[id];
+        }
+        setRankChanges(changes);
+        if (Date.now() - timestamp > COOLDOWN_MS) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({ ranks: currentRanks, timestamp: Date.now() }));
+        }
+      } else {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ranks: currentRanks, timestamp: Date.now() }));
+      }
+    } catch { /* ignore storage errors */ }
+  }, [playerPoints]);
 
   const maxPts = teamScores[0]?.total || 1;
 
@@ -388,7 +414,14 @@ export default function App() {
             </div>
             <div className="lb-emoji">{s.team.emoji}</div>
             <div className="lb-info">
-              <div className={`lb-name ${i === 0 ? "first" : ""}`}>{s.team.name}</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <div className={`lb-name ${i === 0 ? "first" : ""}`}>{s.team.name}</div>
+                {rankChanges[s.id] !== undefined && rankChanges[s.id] !== 0 && (
+                  <span className={`rank-change ${rankChanges[s.id] > 0 ? "up" : "down"}`}>
+                    {rankChanges[s.id] > 0 ? `▲${rankChanges[s.id]}` : `▼${Math.abs(rankChanges[s.id])}`}
+                  </span>
+                )}
+              </div>
               <div className="lb-meta">C: {s.team.captain} · VC: {s.team.vc}</div>
             </div>
             <div style={{ textAlign: "right" }}>
