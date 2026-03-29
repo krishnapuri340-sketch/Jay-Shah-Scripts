@@ -655,8 +655,12 @@ export default function App() {
             <div className="divider" />
             <div className="sec-title">Live Now</div>
             {liveNow.map((m: any) => (
-              <div key={m.id} className="match-card">
-                <div className="match-status" style={{ color: "var(--live)" }}>Live</div>
+              <div key={m.id} className="match-card" onClick={() => { setTab("matches"); setMatchFilter("live"); }}
+                style={{ cursor: "pointer" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div className="match-status" style={{ color: "var(--live)" }}>Live</div>
+                  <div style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>View in Matches →</div>
+                </div>
                 <div className="match-name">{m.name}</div>
                 {(m.score || []).map((s: any, i: number) => (
                   <div key={i} className="match-score" style={{ marginTop: 3 }}>
