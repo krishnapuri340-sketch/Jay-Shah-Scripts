@@ -1260,12 +1260,12 @@ export default function App() {
               </div>
               <div className="hist-hero-awards">
                 <div className="hist-hero-award">
-                  <span style={{ fontSize: "0.65rem", color: "#f97316" }}>🟠 Orange Cap</span>
+                  <span style={{ fontSize: "0.65rem", color: "#f97316" }}><span style={{filter:"hue-rotate(175deg) saturate(3) brightness(1.1)"}}>🧢</span> Orange Cap</span>
                   <span className="hist-hero-aname">{s.orangeCap}</span>
                   <span className="hist-hero-aval">{s.orangeRuns} runs</span>
                 </div>
                 <div className="hist-hero-award">
-                  <span style={{ fontSize: "0.65rem", color: "#a78bfa" }}>🟣 Purple Cap</span>
+                  <span style={{ fontSize: "0.65rem", color: "#a78bfa" }}><span style={{filter:"hue-rotate(60deg) saturate(2) brightness(0.9)"}}>🧢</span> Purple Cap</span>
                   <span className="hist-hero-aname">{s.purpleCap}</span>
                   <span className="hist-hero-aval">{s.purpleWkts} wkts</span>
                 </div>
@@ -1279,7 +1279,7 @@ export default function App() {
             {/* Top 10 lists */}
             <div className="hist-top10-grid">
               <div className="hist-top10-col">
-                <div className="hist-top10-hdr" style={{ color: "#f97316" }}>🟠 Top Run-scorers</div>
+                <div className="hist-top10-hdr" style={{ color: "#f97316" }}><span style={{filter:"hue-rotate(175deg) saturate(3) brightness(1.1)"}}>🧢</span> Top Run-scorers</div>
                 {s.topBat.map((p, i) => (
                   <div key={i} className="hist-top10-row">
                     <span className="hist-rk">{i + 1}</span>
@@ -1290,7 +1290,7 @@ export default function App() {
                 ))}
               </div>
               <div className="hist-top10-col">
-                <div className="hist-top10-hdr" style={{ color: "#a78bfa" }}>🟣 Top Wicket-takers</div>
+                <div className="hist-top10-hdr" style={{ color: "#a78bfa" }}><span style={{filter:"hue-rotate(60deg) saturate(2) brightness(0.9)"}}>🧢</span> Top Wicket-takers</div>
                 {s.topBwl.map((p, i) => (
                   <div key={i} className="hist-top10-row">
                     <span className="hist-rk">{i + 1}</span>
