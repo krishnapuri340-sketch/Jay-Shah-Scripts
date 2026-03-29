@@ -254,6 +254,8 @@ export default function App() {
   const [statsLoading, setStatsLoading] = useState(false);
   const [statsFilter, setStatsFilter] = useState<"all" | "fantasy">("all");
   const [statsCategory, setStatsCategory] = useState<"orangeCap" | "purpleCap" | "sixesLeader" | "foursLeader" | "srLeader" | "ecoLeader">("orangeCap");
+  const [matchFilter, setMatchFilter] = useState<"upcoming" | "live" | "completed" | "all">("upcoming");
+  const [standingsOpen, setStandingsOpen] = useState(false);
   const [rankChanges, setRankChanges] = useState<Record<string, number>>({});
   const [isDark, setIsDark] = useState(true);
   const [showToast, setShowToast] = useState(false);
@@ -1111,82 +1113,106 @@ export default function App() {
       return mx ? "M" + mx[1] : "";
     };
 
+    const activeFilter = live.length > 0 && matchFilter === "upcoming" ? "live" : matchFilter;
+    const filteredMatches = liveMatches.filter((m: any) => {
+      const isLiveM = m.matchStarted && !m.matchEnded;
+      const isDoneM = m.matchEnded;
+      if (activeFilter === "live") return isLiveM;
+      if (activeFilter === "upcoming") return !m.matchStarted && !m.matchEnded;
+      if (activeFilter === "completed") return isDoneM;
+      return true;
+    });
+    const filteredGrouped = filteredMatches.reduce((acc: Record<string, any[]>, m: any) => {
+      const d = m.date || (m.dateTimeGMT || "").split("T")[0] || "Unknown";
+      if (!acc[d]) acc[d] = [];
+      acc[d].push(m);
+      return acc;
+    }, {});
+
     return (
       <div>
-        <div className="sec-title">IPL 2026 Points Table</div>
-        {standingsLoading && standings.length === 0 && (
-          <div style={{ color: "var(--text-3)", fontSize: "0.78rem", padding: "8px 0" }}>Loading standings...</div>
-        )}
-        {standings.length > 0 && (
-          <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden", marginBottom: 20 }}>
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse" as const, fontSize: "0.7rem" }}>
-                <thead>
-                  <tr style={{ borderBottom: "1px solid var(--border)" }}>
-                    <th style={{ textAlign: "left" as const, padding: "10px 12px", color: "var(--text-3)", fontWeight: 600, letterSpacing: "0.06em" }}>#</th>
-                    <th style={{ textAlign: "left" as const, padding: "10px 8px", color: "var(--text-3)", fontWeight: 600, letterSpacing: "0.06em" }}>TEAM</th>
-                    <th style={{ textAlign: "center" as const, padding: "10px 6px", color: "var(--text-3)", fontWeight: 600 }}>P</th>
-                    <th style={{ textAlign: "center" as const, padding: "10px 6px", color: "var(--text-3)", fontWeight: 600 }}>W</th>
-                    <th style={{ textAlign: "center" as const, padding: "10px 6px", color: "var(--text-3)", fontWeight: 600 }}>L</th>
-                    <th style={{ textAlign: "center" as const, padding: "10px 6px", color: "var(--text-3)", fontWeight: 600 }}>NR</th>
-                    <th style={{ textAlign: "center" as const, padding: "10px 6px", color: "var(--text-3)", fontWeight: 600 }}>NRR</th>
-                    <th style={{ textAlign: "center" as const, padding: "10px 8px", color: "var(--text-3)", fontWeight: 600 }}>PTS</th>
-                    <th style={{ textAlign: "center" as const, padding: "10px 8px", color: "var(--text-3)", fontWeight: 600 }}>FORM</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {standings.map((t: any, i: number) => {
-                    const color = IPL_COLORS[t.teamCode] || "var(--text-3)";
-                    const isTop4 = i < 4;
-                    return (
-                      <tr key={t.teamCode} style={{ borderBottom: "1px solid var(--border)" }}>
-                        <td style={{ padding: "10px 12px", color: isTop4 ? "#22c55e" : "var(--text-3)", fontWeight: 700 }}>{i + 1}</td>
-                        <td style={{ padding: "10px 8px" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                            <div style={{ width: 2, height: 20, borderRadius: 2, background: color, flexShrink: 0 }} />
-                            {t.teamLogo && <img src={t.teamLogo} alt={t.teamCode} style={{ width: 20, height: 20, objectFit: "contain" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />}
-                            <div style={{ fontWeight: 600, color: "var(--text)", fontSize: "0.72rem" }}>{t.teamCode}</div>
-                          </div>
-                        </td>
-                        <td style={{ textAlign: "center" as const, padding: "10px 6px", color: "var(--text-2)" }}>{t.matches}</td>
-                        <td style={{ textAlign: "center" as const, padding: "10px 6px", color: "#22c55e", fontWeight: 600 }}>{t.won}</td>
-                        <td style={{ textAlign: "center" as const, padding: "10px 6px", color: "var(--red)" }}>{t.lost}</td>
-                        <td style={{ textAlign: "center" as const, padding: "10px 6px", color: "var(--text-3)" }}>{t.noResult}</td>
-                        <td style={{ textAlign: "center" as const, padding: "10px 6px", color: t.nrr >= 0 ? "#22c55e" : "var(--red)", fontSize: "0.66rem" }}>
-                          {t.nrr >= 0 ? "+" : ""}{t.nrr.toFixed(3)}
-                        </td>
-                        <td style={{ textAlign: "center" as const, padding: "10px 8px", fontSize: "1rem", fontWeight: 700, color: color, letterSpacing: "-0.02em" }}>{t.points}</td>
-                        <td style={{ textAlign: "center" as const, padding: "10px 8px" }}>
-                          {(t.form || "").split("").map((f: string, fi: number) => (
-                            <span key={fi} style={{ display: "inline-block", width: 13, height: 13, borderRadius: "50%", background: f === "W" ? "#22c55e" : f === "L" ? "#ef4444" : "var(--text-3)", margin: "0 1px" }} />
-                          ))}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+        {/* Collapsible Points Table */}
+        <div style={{ marginBottom: 16 }}>
+          <button onClick={() => setStandingsOpen(o => !o)}
+            style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: standingsOpen ? "12px 12px 0 0" : 12, padding: "11px 14px", cursor: "pointer", fontFamily: "inherit" }}>
+            <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--text)" }}>Points Table</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              {standings[0] && <span style={{ fontSize: "0.65rem", color: "var(--text-3)" }}>{standings[0].teamCode} leads</span>}
+              <span style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{standingsOpen ? "▲" : "▼"}</span>
             </div>
-            <div style={{ padding: "8px 12px", fontSize: "0.6rem", color: "var(--text-3)", borderTop: "1px solid var(--border)" }}>
-              Top 4 qualify for playoffs
+          </button>
+          {standingsOpen && standings.length > 0 && (
+            <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderTop: "none", borderRadius: "0 0 12px 12px", overflow: "hidden" }}>
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse" as const, fontSize: "0.7rem" }}>
+                  <thead>
+                    <tr style={{ borderBottom: "1px solid var(--border)" }}>
+                      <th style={{ textAlign: "left" as const, padding: "8px 12px", color: "var(--text-3)", fontWeight: 600 }}>#</th>
+                      <th style={{ textAlign: "left" as const, padding: "8px 8px", color: "var(--text-3)", fontWeight: 600 }}>TEAM</th>
+                      <th style={{ textAlign: "center" as const, padding: "8px 6px", color: "var(--text-3)", fontWeight: 600 }}>P</th>
+                      <th style={{ textAlign: "center" as const, padding: "8px 6px", color: "var(--text-3)", fontWeight: 600 }}>W</th>
+                      <th style={{ textAlign: "center" as const, padding: "8px 6px", color: "var(--text-3)", fontWeight: 600 }}>L</th>
+                      <th style={{ textAlign: "center" as const, padding: "8px 6px", color: "var(--text-3)", fontWeight: 600 }}>NRR</th>
+                      <th style={{ textAlign: "center" as const, padding: "8px 8px", color: "var(--text-3)", fontWeight: 600 }}>PTS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {standings.map((t: any, i: number) => {
+                      const color = IPL_COLORS[t.teamCode] || "var(--text-3)";
+                      const isTop4 = i < 4;
+                      return (
+                        <tr key={t.teamCode} style={{ borderBottom: "1px solid var(--border)" }}>
+                          <td style={{ padding: "8px 12px", color: isTop4 ? "#22c55e" : "var(--text-3)", fontWeight: 700 }}>{i + 1}</td>
+                          <td style={{ padding: "8px 8px" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                              <div style={{ width: 2, height: 18, borderRadius: 2, background: color, flexShrink: 0 }} />
+                              {t.teamLogo && <img src={t.teamLogo} alt={t.teamCode} style={{ width: 18, height: 18, objectFit: "contain" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />}
+                              <span style={{ fontWeight: 600, color: "var(--text)", fontSize: "0.7rem" }}>{t.teamCode}</span>
+                            </div>
+                          </td>
+                          <td style={{ textAlign: "center" as const, padding: "8px 6px", color: "var(--text-2)" }}>{t.matches}</td>
+                          <td style={{ textAlign: "center" as const, padding: "8px 6px", color: "#22c55e", fontWeight: 600 }}>{t.won}</td>
+                          <td style={{ textAlign: "center" as const, padding: "8px 6px", color: "var(--red)" }}>{t.lost}</td>
+                          <td style={{ textAlign: "center" as const, padding: "8px 6px", color: t.nrr >= 0 ? "#22c55e" : "var(--red)", fontSize: "0.65rem" }}>
+                            {t.nrr >= 0 ? "+" : ""}{t.nrr.toFixed(3)}
+                          </td>
+                          <td style={{ textAlign: "center" as const, padding: "8px 8px", fontSize: "0.95rem", fontWeight: 700, color: color }}>{t.points}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+              <div style={{ padding: "6px 12px", fontSize: "0.6rem", color: "var(--text-3)", borderTop: "1px solid var(--border)" }}>Top 4 qualify for playoffs</div>
             </div>
-          </div>
-        )}
-
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-          <div className="sec-title" style={{ margin: 0 }}>All Matches</div>
-          <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
-            {live.length > 0 && <span style={{ fontSize: "0.6rem", padding: "2px 7px", borderRadius: 20, color: "#22c55e", border: "1px solid rgba(34,197,94,0.2)" }}>{live.length} live</span>}
-            <span style={{ fontSize: "0.6rem", padding: "2px 7px", borderRadius: 20, color: "var(--text-3)", border: "1px solid var(--border)" }}>{completed.length} done</span>
-            <span style={{ fontSize: "0.6rem", padding: "2px 7px", borderRadius: 20, color: "var(--blue)", border: "1px solid rgba(96,165,250,0.2)" }}>{upcoming.length} upcoming</span>
-          </div>
+          )}
         </div>
-        <div style={{ color: "#475569", fontSize: "0.67rem", marginBottom: 14 }}>{liveMatches.length}/70 matches loaded</div>
+
+        {/* Filter bar */}
+        <div style={{ display: "flex", gap: 6, marginBottom: 16 }}>
+          {(["live", "upcoming", "completed", "all"] as const).map(f => {
+            const count = f === "live" ? live.length : f === "upcoming" ? upcoming.length : f === "completed" ? completed.length : liveMatches.length;
+            const isActive = activeFilter === f;
+            return (
+              <button key={f} onClick={() => setMatchFilter(f)}
+                style={{ flex: 1, padding: "8px 0", borderRadius: 10, border: "1px solid", fontSize: "0.65rem", fontWeight: 500, cursor: "pointer", fontFamily: "inherit", textTransform: "capitalize" as const,
+                  background: isActive ? "var(--surface-2)" : "transparent",
+                  borderColor: isActive ? "var(--border-2)" : "var(--border)",
+                  color: isActive ? (f === "live" ? "#22c55e" : f === "upcoming" ? "var(--blue)" : "var(--text)") : "var(--text-3)" }}>
+                {f}<br />
+                <span style={{ fontSize: "0.6rem", opacity: 0.7 }}>{count}</span>
+              </button>
+            );
+          })}
+        </div>
+
         {apiError && <div className="notice" style={{ background: "rgba(239,68,68,0.08)", borderColor: "rgba(239,68,68,0.2)", color: "#f87171", marginBottom: 12 }}>{apiError}</div>}
-        {liveMatches.length === 0 && !liveLoading && (
-          <div className="empty-state"><div className="big">🏟️</div><p>No IPL matches found.<br />Try refreshing.</p></div>
+        {filteredMatches.length === 0 && (
+          <div style={{ textAlign: "center" as const, color: "var(--text-3)", fontSize: "0.78rem", padding: "32px 0" }}>
+            {activeFilter === "live" ? "No live matches right now" : activeFilter === "upcoming" ? "No upcoming matches" : "No matches"}
+          </div>
         )}
-        {Object.entries(grouped).map(([date, matches]: [string, any[]]) => (
+        {Object.entries(filteredGrouped).map(([date, matches]: [string, any[]]) => (
           <div key={date}>
             <div style={{ fontSize: "0.6rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-3)", margin: "16px 0 8px", fontWeight: 600 }}>
               {fmtDate(date)}
