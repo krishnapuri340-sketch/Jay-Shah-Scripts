@@ -466,8 +466,8 @@ body { background: var(--bg); }
 .hist-card-sn { font-size: 0.58rem; color: var(--text-3); font-weight: 500; letter-spacing: 0.4px; margin-top: 2px; }
 .hist-card-main { flex: 1; min-width: 0; padding: 11px 10px 10px; }
 .hist-card-row { display: flex; align-items: center; gap: 7px; }
-.hist-card-champ { font-size: 0.84rem; font-weight: 800; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.hist-card-ru { font-size: 0.8rem; color: var(--text-2); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hist-card-champ { font-size: 0.84rem; font-weight: 800; line-height: 1.2; white-space: nowrap; min-width: 3rem; }
+.hist-card-ru { font-size: 0.8rem; color: var(--text-2); font-weight: 600; white-space: nowrap; min-width: 3rem; }
 .hist-card-tag-winner {
   font-size: 0.62rem; font-weight: 500; color: var(--text-3);
   white-space: nowrap; flex-shrink: 0;
