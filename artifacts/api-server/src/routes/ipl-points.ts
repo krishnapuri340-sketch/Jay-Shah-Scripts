@@ -832,6 +832,78 @@ router.get("/ipl/points", async (req, res) => {
   }
 });
 
+// ── Playing XI cache (stable after toss, keyed by cricapi match ID) ──────────
+const playing11Cache: Record<string, { names: string[]; fetched: number }> = {};
+const PLAYING11_CACHE_TTL = 30 * 60 * 1000; // 30 min
+
+router.get("/ipl/playing11", async (req, res) => {
+  try {
+    if (Date.now() - lastPointsCacheReload > 30000) {
+      pointsCache = loadCache();
+      lastPointsCacheReload = Date.now();
+    }
+
+    const today = utcDateString();
+
+    // Collect cricapi IDs only for today's matches
+    const todayCricapiIds: string[] = Object.entries(pointsCache.matchMetadata || {})
+      .filter(([, meta]) => meta.matchDate === today)
+      .map(([iplId]) => pointsCache.cricapiMatchIds[iplId])
+      .filter(Boolean) as string[];
+
+    const confirmedFantasyNames: string[] = [];
+
+    for (const cricapiId of todayCricapiIds) {
+      let names: string[];
+
+      const cached = playing11Cache[cricapiId];
+      if (cached && Date.now() - cached.fetched < PLAYING11_CACHE_TTL) {
+        names = cached.names;
+      } else {
+        if (!CRICAPI_KEY || pointsCache.dailyHits.count >= DAILY_CALL_LIMIT) continue;
+        try {
+          const data = await cricapiGet("match_info", { id: cricapiId });
+          const raw: string[] = [];
+
+          // data.players: { "Team A": [{name, ...}], "Team B": [...] }
+          if (data?.players && typeof data.players === "object" && !Array.isArray(data.players)) {
+            for (const team of Object.values(data.players) as any[]) {
+              if (Array.isArray(team)) {
+                for (const p of team) {
+                  const n = typeof p === "string" ? p : (p?.name || "");
+                  if (n) raw.push(n);
+                }
+              }
+            }
+          }
+          // Fallback: flat playing11 array
+          if (!raw.length && Array.isArray(data?.playing11)) {
+            for (const p of data.playing11) {
+              const n = typeof p === "string" ? p : (p?.name || "");
+              if (n) raw.push(n);
+            }
+          }
+
+          names = raw;
+          if (names.length) playing11Cache[cricapiId] = { names, fetched: Date.now() };
+        } catch {
+          continue;
+        }
+      }
+
+      // Match CricAPI names against known fantasy player names
+      for (const fp of FANTASY_PLAYER_NAMES) {
+        if (confirmedFantasyNames.includes(fp)) continue;
+        if (names.some(n => namesMatch(fp, n))) confirmedFantasyNames.push(fp);
+      }
+    }
+
+    res.json({ inXI: confirmedFantasyNames, matchCount: todayCricapiIds.length });
+  } catch (e: any) {
+    res.status(500).json({ error: e.message, inXI: [] });
+  }
+});
+
 router.get("/ipl/scorecard/:matchId", async (req, res) => {
   const { matchId } = req.params;
   const cached = pointsCache.processedMatches[matchId];
