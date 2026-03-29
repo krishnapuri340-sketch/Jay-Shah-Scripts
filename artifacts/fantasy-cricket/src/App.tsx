@@ -731,6 +731,22 @@ export default function App() {
       return acc;
     }, {});
 
+    // Compute which of this team's players are playing in an upcoming match (within 24h)
+    const nextMatchPlaying = new Set<string>();
+    const nextMatchInfoForTeam: { matchLabel: string; playingTeams: string[] }[] = [];
+    upcomingLineupPreviews.forEach(lp => {
+      const myPlayers = lp.preview.find(x => x.team.id === selectedTeam);
+      if (myPlayers && myPlayers.activePlayers.length > 0) {
+        myPlayers.activePlayers.forEach(p => nextMatchPlaying.add(p.name));
+        const ti: any[] = lp.match.teamInfo || [];
+        const matchLabel = ti.length >= 2
+          ? `${ti[0]?.shortname || ""} vs ${ti[1]?.shortname || ""}`
+          : lp.match.name;
+        nextMatchInfoForTeam.push({ matchLabel, playingTeams: lp.playingTeams });
+      }
+    });
+    const hasNextMatch = nextMatchPlaying.size > 0;
+
     return (
       <div>
         <div className="team-tabs">
@@ -743,6 +759,63 @@ export default function App() {
             </button>
           ))}
         </div>
+
+        {/* Upcoming match banner — only when a match is within 24h */}
+        {hasNextMatch && (
+          <div className="team-next-match-banner">
+            <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 8 }}>
+              <span style={{ fontSize: "1rem" }}>🔮</span>
+              <div>
+                {nextMatchInfoForTeam.map((info, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: i < nextMatchInfoForTeam.length - 1 ? 3 : 0 }}>
+                    <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "0.9rem", letterSpacing: "1px", color: "#e8821a" }}>
+                      {nextMatchInfoForTeam.length > 1 ? `MATCH ${i + 1}: ` : "PLAYING NEXT: "}
+                    </span>
+                    <span style={{ fontSize: "0.72rem", color: "#cbd5e1", fontWeight: 600 }}>{info.matchLabel}</span>
+                    {info.playingTeams.filter(t2 => IPL_COLORS[t2]).map(t2 => (
+                      <span key={t2} style={{
+                        fontSize: "0.56rem", fontWeight: 700, padding: "1px 6px", borderRadius: 4,
+                        background: IPL_COLORS[t2] + "22", border: `1px solid ${IPL_COLORS[t2]}44`, color: IPL_COLORS[t2]
+                      }}>{t2}</span>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+              {td.players
+                .filter(p => nextMatchPlaying.has(p.name))
+                .map(p => {
+                  const isCap = p.name === t.captain;
+                  const isVC = p.name === t.vc;
+                  return (
+                    <div key={p.name} style={{
+                      display: "flex", alignItems: "center", gap: 4,
+                      padding: "5px 9px", borderRadius: 8,
+                      background: (IPL_COLORS[p.ipl] || "#334155") + "18",
+                      border: `1px solid ${IPL_COLORS[p.ipl] || "#334155"}35`,
+                    }}>
+                      <span style={{ fontSize: "0.7rem" }}>{ROLE_ICONS[p.role]}</span>
+                      <span style={{ fontSize: "0.74rem", fontWeight: 600, color: "#f1f5f9" }}>{p.name}</span>
+                      {isCap && <span style={{ fontSize: "0.56rem", fontWeight: 800, color: "#d4a017", background: "rgba(212,160,23,0.18)", borderRadius: 4, padding: "1px 4px" }}>C</span>}
+                      {isVC && <span style={{ fontSize: "0.56rem", fontWeight: 800, color: "#a78bfa", background: "rgba(167,139,250,0.12)", borderRadius: 4, padding: "1px 4px" }}>VC</span>}
+                      <span style={{ fontSize: "0.6rem", color: IPL_COLORS[p.ipl] || "#64748b", fontWeight: 700 }}>{p.ipl}</span>
+                    </div>
+                  );
+                })}
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8, fontSize: "0.6rem", color: "#475569" }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", display: "inline-block" }} />
+                Playing tonight
+              </span>
+              <span style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#334155", display: "inline-block", border: "1px solid #475569" }} />
+                Not in this match
+              </span>
+            </div>
+          </div>
+        )}
 
         <div className="team-header-card" style={{ "--team-color": t.color } as React.CSSProperties}>
           <div className="team-big-emoji">{t.emoji}</div>
@@ -971,17 +1044,27 @@ export default function App() {
               <div className="players-grid">
                 {td.players.filter(p => td.top11.has(p.name)).map(p => {
                   const isExp = expandedPlayer === p.name;
+                  const isPlayingNext = hasNextMatch && nextMatchPlaying.has(p.name);
+                  const isDimmed = hasNextMatch && !nextMatchPlaying.has(p.name);
                   return (
                     <React.Fragment key={p.name}>
-                      <div className={`player-card ${p.name === t.captain ? "is-c" : p.name === t.vc ? "is-vc" : ""} ${isExp ? "player-expanded" : ""}`}
-                        style={{ cursor: "pointer" }}
+                      <div className={`player-card ${p.name === t.captain ? "is-c" : p.name === t.vc ? "is-vc" : ""} ${isExp ? "player-expanded" : ""} ${isPlayingNext ? "playing-next" : ""} ${isDimmed ? "not-playing-next" : ""}`}
+                        style={{
+                          cursor: "pointer",
+                          ...(isPlayingNext ? { boxShadow: `0 0 0 1.5px ${IPL_COLORS[p.ipl] || t.color}55, 0 4px 16px ${IPL_COLORS[p.ipl] || t.color}18` } : {})
+                        }}
                         onClick={() => setExpandedPlayer(isExp ? null : p.name)}>
                         <div className="playing-badge" />
-                        <div className="player-ipl-badge" style={{ background: IPL_COLORS[p.ipl] + "33", color: IPL_COLORS[p.ipl] }}>
+                        {isPlayingNext && (
+                          <div style={{ position: "absolute", top: 7, right: 9, display: "flex", alignItems: "center", gap: 2 }}>
+                            <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#4ade80", display: "inline-block", boxShadow: "0 0 5px #4ade80" }} />
+                          </div>
+                        )}
+                        <div className="player-ipl-badge" style={{ background: IPL_COLORS[p.ipl] + (isPlayingNext ? "44" : "33"), color: IPL_COLORS[p.ipl] + (isDimmed ? "88" : "") }}>
                           {p.ipl}
                         </div>
-                        <div className="player-name">{hotPlayers.has(p.name) ? "🔥 " : ""}{p.name}</div>
-                        <div className="player-pts" style={{ color: p.adj > 0 ? t.color : "#475569" }}>{p.adj}</div>
+                        <div className="player-name" style={isDimmed ? { color: "#4a5568" } : {}}>{hotPlayers.has(p.name) ? "🔥 " : ""}{p.name}</div>
+                        <div className="player-pts" style={{ color: isDimmed ? "#374151" : (p.adj > 0 ? t.color : "#475569") }}>{p.adj}</div>
                         {p.name === t.captain && <div className="player-pts-raw">raw: {p.raw} × 2</div>}
                         {p.name === t.vc && <div className="player-pts-raw">raw: {p.raw} × 1.5</div>}
                         <div style={{ fontSize: "0.55rem", color: "#475569", marginTop: 2 }}>{isExp ? "▲ hide" : "▼ details"}</div>
@@ -996,16 +1079,26 @@ export default function App() {
               <div className="players-grid">
                 {td.players.filter(p => !td.top11.has(p.name)).map(p => {
                   const isExp = expandedPlayer === p.name;
+                  const isPlayingNext = hasNextMatch && nextMatchPlaying.has(p.name);
+                  const isDimmed = hasNextMatch && !nextMatchPlaying.has(p.name);
                   return (
                     <React.Fragment key={p.name}>
-                      <div className={`player-card benched ${isExp ? "player-expanded" : ""}`}
-                        style={{ cursor: "pointer" }}
+                      <div className={`player-card benched ${isExp ? "player-expanded" : ""} ${isPlayingNext ? "playing-next" : ""} ${isDimmed ? "not-playing-next" : ""}`}
+                        style={{
+                          cursor: "pointer",
+                          ...(isPlayingNext ? { boxShadow: `0 0 0 1.5px ${IPL_COLORS[p.ipl] || t.color}55, 0 4px 14px ${IPL_COLORS[p.ipl] || t.color}15`, opacity: 1 } : {})
+                        }}
                         onClick={() => setExpandedPlayer(isExp ? null : p.name)}>
-                        <div className="player-ipl-badge" style={{ background: IPL_COLORS[p.ipl] + "22", color: IPL_COLORS[p.ipl] + "88" }}>
+                        {isPlayingNext && (
+                          <div style={{ position: "absolute", top: 7, right: 9 }}>
+                            <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#4ade80", display: "inline-block", boxShadow: "0 0 5px #4ade80" }} />
+                          </div>
+                        )}
+                        <div className="player-ipl-badge" style={{ background: IPL_COLORS[p.ipl] + (isPlayingNext ? "33" : "22"), color: IPL_COLORS[p.ipl] + (isDimmed ? "66" : "88") }}>
                           {p.ipl}
                         </div>
-                        <div className="player-name" style={{ color: "#64748b" }}>{p.name}</div>
-                        <div className="player-pts" style={{ color: "#475569" }}>{p.adj}</div>
+                        <div className="player-name" style={{ color: isDimmed ? "#374151" : (isPlayingNext ? "#94a3b8" : "#64748b") }}>{p.name}</div>
+                        <div className="player-pts" style={{ color: isDimmed ? "#2d3748" : (isPlayingNext ? "#64748b" : "#475569") }}>{p.adj}</div>
                         <div style={{ fontSize: "0.55rem", color: "#475569", marginTop: 2 }}>{isExp ? "▲ hide" : "▼ details"}</div>
                       </div>
                       {isExp && renderBreakdown(p)}

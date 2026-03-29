@@ -383,6 +383,41 @@ body { background: #07090f; }
 }
 .btn-theme:hover { background: rgba(255,255,255,0.1); color: #fff; }
 
+/* === TEAM NEXT MATCH BANNER (Teams tab) === */
+.team-next-match-banner {
+  border-radius: 14px; padding: 13px 14px; margin-bottom: 12px;
+  background: rgba(10, 20, 12, 0.95);
+  border: 1px solid rgba(74, 222, 128, 0.18);
+  animation: slideUp 0.2s ease;
+}
+.light-mode .team-next-match-banner {
+  background: rgba(240, 255, 244, 0.95);
+  border-color: rgba(74, 222, 128, 0.3);
+}
+
+/* Player cards — playing next match */
+.player-card.playing-next {
+  background: rgba(15, 22, 14, 0.97) !important;
+  border-color: rgba(74, 222, 128, 0.22) !important;
+}
+.player-card.playing-next .player-name { color: #f1f5f9 !important; }
+
+/* Player cards — NOT playing in next match */
+.player-card.not-playing-next {
+  opacity: 0.38;
+  filter: saturate(0.4);
+}
+.player-card.not-playing-next:hover,
+.player-card.not-playing-next.player-expanded {
+  opacity: 0.7;
+  filter: saturate(0.8);
+}
+
+/* Light mode overrides */
+.light-mode .player-card.playing-next { background: rgba(240,255,244,0.98) !important; }
+.light-mode .player-card.not-playing-next { opacity: 0.32; filter: saturate(0.3) brightness(0.9); }
+.light-mode .player-card.not-playing-next:hover { opacity: 0.65; filter: saturate(0.7); }
+
 /* === LINEUP PREVIEW CARD === */
 .lineup-preview-card {
   border-radius: 14px; margin-bottom: 12px;
