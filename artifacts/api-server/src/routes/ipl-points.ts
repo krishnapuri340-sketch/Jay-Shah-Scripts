@@ -63,10 +63,35 @@ interface ProcessedMatchData {
 
 const DAILY_CALL_LIMIT = 1900; // hard cap below CricAPI's 2000/day paid tier
 
+// ── AuctionRoom / Supabase integration ─────────────────────────────────────
+const SUPABASE_URL = "https://ldwqrdlipzqsnpljqyhk.supabase.co/rest/v1";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxkd3FyZGxpcHpxc25wbGpxeWhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4NDkwMDgsImV4cCI6MjA4ODQyNTAwOH0.jEhev-CwAyv_aDFV1HaJ_AN7RGRIuazZ_GZHA3y6Gh8";
+const IPL_TOURNAMENT_ID = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+
+async function supabaseGet(table: string, params: Record<string, string> = {}): Promise<any[]> {
+  const url = new URL(`${SUPABASE_URL}/${table}`);
+  for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
+  const res = await fetch(url.toString(), {
+    headers: { "apikey": SUPABASE_ANON_KEY, "Authorization": `Bearer ${SUPABASE_ANON_KEY}` },
+    signal: AbortSignal.timeout(15000),
+  });
+  if (!res.ok) throw new Error(`Supabase /${table}: HTTP ${res.status}`);
+  return (res.json() as Promise<any[]>);
+}
+
+interface SupabaseFixtureScore {
+  points: Record<string, number>;
+  matchLabel: string;
+  matchDate: string;
+  matchNumber: number;
+}
+
 interface PointsCache {
   seriesId: string | null;
   cricapiMatchIds: Record<string, string>;
-  processedMatches: Record<string, ProcessedMatchData>;
+  processedMatches: Record<string, ProcessedMatchData>; // innings display only
+  supabaseScores: Record<string, SupabaseFixtureScore>; // fixtureId → scores
+  playerIdMap: Record<string, string>; // supabase player_id → player name
   lastUpdated: string;
   dailyHits: { date: string; count: number };
 }
@@ -76,24 +101,29 @@ function utcDateString(): string {
 }
 
 function loadCache(): PointsCache {
+  const empty: PointsCache = {
+    seriesId: null, cricapiMatchIds: {}, processedMatches: {},
+    supabaseScores: {}, playerIdMap: {},
+    lastUpdated: "", dailyHits: { date: utcDateString(), count: 0 },
+  };
   if (existsSync(CACHE_FILE)) {
     try {
       const raw = JSON.parse(readFileSync(CACHE_FILE, "utf8"));
       const processedMatches: Record<string, ProcessedMatchData> = {};
       for (const [k, v] of Object.entries(raw.processedMatches || {})) {
-        if (v && typeof v === "object" && "points" in (v as any)) {
+        if (v && typeof v === "object" && "innings" in (v as any)) {
           processedMatches[k] = v as ProcessedMatchData;
         } else {
-          processedMatches[k] = { points: v as Record<string, number>, innings: [] };
+          processedMatches[k] = { points: {}, innings: [] };
         }
       }
       const dailyHits = raw.dailyHits && raw.dailyHits.date === utcDateString()
         ? raw.dailyHits
         : { date: utcDateString(), count: 0 };
-      return { ...raw, processedMatches, dailyHits };
+      return { ...empty, ...raw, processedMatches, dailyHits };
     } catch (_) {}
   }
-  return { seriesId: null, cricapiMatchIds: {}, processedMatches: {}, lastUpdated: "", dailyHits: { date: utcDateString(), count: 0 } };
+  return empty;
 }
 
 function saveCache(cache: PointsCache) {
@@ -339,7 +369,7 @@ async function cricapiGet(endpoint: string, params: Record<string, string> = {})
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
   const res = await fetch(url.toString(), { signal: AbortSignal.timeout(10000) });
   if (!res.ok) throw new Error(`CricAPI ${res.status}`);
-  const json = await res.json();
+  const json = await res.json() as any;
   if (json.status === "failure") throw new Error(`CricAPI error: ${json.reason || json.message}`);
 
   // Increment and persist counter after every successful call
@@ -423,50 +453,69 @@ async function processSingleMatch(
   return { points, innings };
 }
 
+// Derived from App.tsx FANTASY_TEAMS — all 4 fantasy team rosters combined
 const FANTASY_PLAYER_NAMES = [
+  // Rajveer Puri
   "Rajat Patidar", "Axar Patel", "Shubman Gill", "Jos Buttler", "Yuzvendra Chahal",
   "Jacob Bethell", "Bhuvneshwar Kumar", "Shreyas Iyer", "Cameron Green", "Nicholas Pooran",
   "Phil Salt", "Krunal Pandya", "Priyansh Arya", "Vaibhav Suryavanshi", "Dhruv Jurel",
   "Mohammed Shami", "Tim David", "Deepak Chahar",
-  "Abhishek Sharma", "Sai Sudharsan", "Ishan Kishan", "Tilak Varma", "Rinku Singh",
-  "Jasprit Bumrah", "Sunil Narine", "Travis Head", "Riyan Parag", "Liam Livingstone",
-  "Kuldeep Yadav", "Arshdeep Singh", "Rahul Tripathi", "Avesh Khan",
-  "Hardik Pandya", "Sanju Samson", "Virat Kohli", "KL Rahul", "Rohit Sharma",
-  "Pat Cummins", "Mitchell Starc", "Ruturaj Gaikwad", "Devon Conway", "Ravindra Jadeja",
-  "MS Dhoni", "Matheesha Pathirana", "Tushar Deshpande", "Nitish Kumar Reddy",
-  "Heinrich Klaasen", "T Natarajan", "Jacob Duffy",
+  // Mombasa K
+  "Jitesh Sharma", "Varun Chakravarthy", "Marco Jansen", "Arshdeep Singh", "Shivam Dube",
+  "Riyan Parag", "Abhishek Sharma", "Prabhsimran Singh", "Nehal Wadhera", "Shimron Hetmyer",
+  "Sai Sudharsan", "Will Jacks", "Prasidh Krishna", "Aiden Markram", "Rashid Khan",
+  "Ajinkya Rahane", "Trent Boult", "Tilak Varma",
+  // Mumbai Ma
+  "Rishabh Pant", "Dewald Brevis", "Rohit Sharma", "Sherfane Rutherford", "Rinku Singh",
+  "Heinrich Klaasen", "Nitish Rana", "Ruturaj Gaikwad", "Lungi Ngidi", "Mohammed Siraj",
+  "Harshal Patel", "Tristan Stubbs", "Sanju Samson", "Prashant Veer", "Ishan Kishan",
+  "Hardik Pandya", "Finn Allen", "Venkatesh Iyer",
+  // PonyGoat
+  "Marcus Stoinis", "Yashasvi Jaiswal", "Tim Seifert", "Virat Kohli", "Shashank Singh",
+  "Sunil Narine", "Suryakumar Yadav", "Jasprit Bumrah", "Ravindra Jadeja", "Travis Head",
+  "KL Rahul", "Ryan Rickelton", "Mitchell Marsh", "Khaleel Ahmed", "Kuldeep Yadav",
+  "Washington Sundar", "T Natarajan",
 ];
 
 // IPL 2026 team assignments — used to skip fantasy players whose team isn't in a given match
 const PLAYER_TEAMS: Record<string, string> = {
   // RCB
-  "Rajat Patidar": "rcb", "Virat Kohli": "rcb", "Phil Salt": "rcb",
-  "Tim David": "rcb", "Bhuvneshwar Kumar": "rcb", "Jacob Duffy": "rcb",
-  "Krunal Pandya": "rcb", "Liam Livingstone": "rcb", "Jacob Bethell": "rcb",
+  "Rajat Patidar": "rcb", "Phil Salt": "rcb", "Tim David": "rcb",
+  "Bhuvneshwar Kumar": "rcb", "Krunal Pandya": "rcb", "Jacob Bethell": "rcb",
+  "Jitesh Sharma": "rcb", "Venkatesh Iyer": "rcb", "Virat Kohli": "rcb",
   // GT
   "Shubman Gill": "gt", "Jos Buttler": "gt", "Sai Sudharsan": "gt",
-  "Mohammed Shami": "gt",
+  "Mohammed Siraj": "gt", "Prasidh Krishna": "gt", "Rashid Khan": "gt",
+  "Washington Sundar": "gt",
   // RR
-  "Sanju Samson": "rr", "Riyan Parag": "rr", "Yuzvendra Chahal": "rr",
-  "Vaibhav Suryavanshi": "rr", "Dhruv Jurel": "rr",
+  "Yuzvendra Chahal": "rr", "Vaibhav Suryavanshi": "rr", "Dhruv Jurel": "rr",
+  "Riyan Parag": "rr", "Shimron Hetmyer": "rr", "Yashasvi Jaiswal": "rr",
+  "Ravindra Jadeja": "rr",
   // PBKS
   "Shreyas Iyer": "pbks", "Arshdeep Singh": "pbks", "Priyansh Arya": "pbks",
+  "Marco Jansen": "pbks", "Prabhsimran Singh": "pbks", "Nehal Wadhera": "pbks",
+  "Marcus Stoinis": "pbks", "Shashank Singh": "pbks",
   // MI
   "Rohit Sharma": "mi", "Jasprit Bumrah": "mi", "Hardik Pandya": "mi",
-  "Tilak Varma": "mi", "Deepak Chahar": "mi",
+  "Sherfane Rutherford": "mi", "Will Jacks": "mi", "Trent Boult": "mi",
+  "Tilak Varma": "mi", "Suryakumar Yadav": "mi", "Ryan Rickelton": "mi",
+  "Deepak Chahar": "mi",
   // SRH
   "Travis Head": "srh", "Abhishek Sharma": "srh", "Ishan Kishan": "srh",
-  "Heinrich Klaasen": "srh", "Pat Cummins": "srh", "T Natarajan": "srh",
-  "Nitish Kumar Reddy": "srh",
+  "Heinrich Klaasen": "srh", "Harshal Patel": "srh", "T Natarajan": "srh",
   // CSK
-  "MS Dhoni": "csk", "Ravindra Jadeja": "csk", "Ruturaj Gaikwad": "csk",
-  "Devon Conway": "csk", "Matheesha Pathirana": "csk", "Tushar Deshpande": "csk",
+  "Sanju Samson": "csk", "Ruturaj Gaikwad": "csk", "Shivam Dube": "csk",
+  "Dewald Brevis": "csk", "Prashant Veer": "csk", "Khaleel Ahmed": "csk",
   // DC
-  "Axar Patel": "dc", "KL Rahul": "dc", "Mitchell Starc": "dc", "Kuldeep Yadav": "dc",
+  "Axar Patel": "dc", "KL Rahul": "dc", "Kuldeep Yadav": "dc",
+  "Nitish Rana": "dc", "Lungi Ngidi": "dc", "Tristan Stubbs": "dc",
   // KKR
   "Sunil Narine": "kkr", "Rinku Singh": "kkr", "Cameron Green": "kkr",
+  "Varun Chakravarthy": "kkr", "Ajinkya Rahane": "kkr", "Finn Allen": "kkr",
+  "Tim Seifert": "kkr",
   // LSG
-  "Nicholas Pooran": "lsg", "Avesh Khan": "lsg", "Rahul Tripathi": "lsg",
+  "Nicholas Pooran": "lsg", "Mohammed Shami": "lsg", "Aiden Markram": "lsg",
+  "Rishabh Pant": "lsg", "Mitchell Marsh": "lsg",
 };
 
 let pointsUpdateInProgress = false;
@@ -475,123 +524,205 @@ const UPDATE_COOLDOWN_MS = 16 * 60 * 1000; // 16 min — respects CricAPI 15-min
 let pointsCache: PointsCache = loadCache();
 let lastPointsCacheReload = 0;
 
+// ── Supabase fetch helpers ───────────────────────────────────────────────────
+
+async function ensurePlayerIdMap(cache: PointsCache): Promise<void> {
+  if (Object.keys(cache.playerIdMap).length > 0) return;
+  console.log("[supabase] Building IPL 2026 player ID → name map …");
+  const tpRows = await supabaseGet("tournament_players", {
+    tournament_id: `eq.${IPL_TOURNAMENT_ID}`,
+    select: "player_id",
+    limit: "500",
+  });
+  if (!tpRows.length) return;
+  const ids: string[] = tpRows.map((r: any) => r.player_id);
+  for (let i = 0; i < ids.length; i += 50) {
+    const chunk = ids.slice(i, i + 50);
+    const players = await supabaseGet("players", {
+      id: `in.(${chunk.join(",")})`,
+      select: "id,name",
+    });
+    for (const p of players) cache.playerIdMap[p.id] = p.name;
+  }
+  console.log(`[supabase] Player map ready: ${Object.keys(cache.playerIdMap).length} players`);
+}
+
+async function syncAuctionRoomScores(cache: PointsCache): Promise<boolean> {
+  let changed = false;
+  await ensurePlayerIdMap(cache);
+  if (!Object.keys(cache.playerIdMap).length) return false;
+
+  // Get all fixture IDs that have scores in Supabase
+  const allScoreRows = await supabaseGet("player_fixture_scores", {
+    tournament_id: `eq.${IPL_TOURNAMENT_ID}`,
+    select: "fixture_id",
+    limit: "1000",
+  });
+  const fixtureIds = [...new Set<string>(allScoreRows.map((r: any) => r.fixture_id))];
+  if (!fixtureIds.length) return false;
+
+  // Fetch fixture metadata for any new fixture IDs
+  const newFixtureIds = fixtureIds.filter(id => !cache.supabaseScores[id]);
+  if (!newFixtureIds.length) return false;
+
+  const fixtureRows = await supabaseGet("tournament_fixtures", {
+    id: `in.(${newFixtureIds.join(",")})`,
+    select: "id,team_a,team_b,match_date,match_number",
+    limit: "100",
+  });
+  const fixtureMap: Record<string, any> = {};
+  for (const f of fixtureRows) fixtureMap[f.id] = f;
+
+  for (const fixtureId of newFixtureIds) {
+    const meta = fixtureMap[fixtureId];
+    const scoreRows = await supabaseGet("player_fixture_scores", {
+      tournament_id: `eq.${IPL_TOURNAMENT_ID}`,
+      fixture_id: `eq.${fixtureId}`,
+      select: "player_id,score",
+      limit: "500",
+    });
+    const points: Record<string, number> = {};
+    for (const { player_id, score } of scoreRows) {
+      const playerName = cache.playerIdMap[player_id];
+      if (!playerName) continue;
+      const normName = normalizeName(playerName);
+      for (const fp of FANTASY_PLAYER_NAMES) {
+        if (namesMatch(normName, normalizeName(fp))) {
+          points[fp] = score;
+          break;
+        }
+      }
+    }
+    const matchLabel = meta
+      ? `${meta.team_a} vs ${meta.team_b}`
+      : `Match ${fixtureId.slice(0, 8)}`;
+    cache.supabaseScores[fixtureId] = {
+      points,
+      matchLabel,
+      matchDate: meta?.match_date ?? "",
+      matchNumber: meta?.match_number ?? 0,
+    };
+    console.log(`[supabase] Fixture ${matchLabel}: mapped ${Object.keys(points).length} fantasy players`);
+    changed = true;
+  }
+  return changed;
+}
+
 router.get("/ipl/points", async (req, res) => {
   try {
-    if (!CRICAPI_KEY) {
-      return res.json({ playerPoints: {}, processedMatches: [], error: "CRICAPI_KEY not configured" });
-    }
-
     if (Date.now() - lastPointsCacheReload > 30000) {
       pointsCache = loadCache();
       lastPointsCacheReload = Date.now();
     }
 
+    // ── Aggregate from AuctionRoom/Supabase scores (primary source) ─────────
     const aggregated: Record<string, number> = {};
-    for (const matchData of Object.values(pointsCache.processedMatches)) {
-      for (const [player, pts] of Object.entries(matchData.points || {})) {
+    for (const fixtureData of Object.values(pointsCache.supabaseScores || {})) {
+      for (const [player, pts] of Object.entries(fixtureData.points || {})) {
         aggregated[player] = (aggregated[player] || 0) + pts;
       }
     }
+    const supabaseMatchLabels = Object.values(pointsCache.supabaseScores || {})
+      .sort((a, b) => a.matchNumber - b.matchNumber)
+      .map(f => f.matchLabel);
 
     const dailyHitsInfo = { count: pointsCache.dailyHits.count, limit: DAILY_CALL_LIMIT, date: pointsCache.dailyHits.date };
 
     if (pointsUpdateInProgress) {
-      return res.json({ playerPoints: aggregated, processedMatches: Object.keys(pointsCache.processedMatches), updating: true, timestamp: new Date().toISOString(), dailyHits: dailyHitsInfo });
-    }
-
-    const scheduleRes = await fetch(
-      "https://ipl-stats-sports-mechanic.s3.ap-south-1.amazonaws.com/ipl/feeds/284-matchschedule.js",
-      { signal: AbortSignal.timeout(10000) }
-    );
-    if (!scheduleRes.ok) throw new Error("Failed to fetch IPL schedule");
-    const scheduleText = await scheduleRes.text();
-    const scheduleMatch = scheduleText.match(/^[A-Za-z_$][A-Za-z0-9_$]*\(([\s\S]*)\)\s*;?\s*$/);
-    if (!scheduleMatch) throw new Error("Failed to parse IPL schedule");
-    const schedule = JSON.parse(scheduleMatch[1]);
-    const completedMatches = (schedule.Matchsummary || []).filter((m: any) => m.MatchStatus === "Post");
-    const unprocessed = completedMatches.filter((m: any) => !pointsCache.processedMatches[String(m.MatchID)]);
-
-    if (unprocessed.length === 0) {
-      return res.json({ playerPoints: aggregated, processedMatches: Object.keys(pointsCache.processedMatches), timestamp: new Date().toISOString(), dailyHits: dailyHitsInfo });
-    }
-
-    if (Date.now() - lastUpdateAttempt < UPDATE_COOLDOWN_MS) {
       return res.json({
-        playerPoints: aggregated, processedMatches: Object.keys(pointsCache.processedMatches),
-        updating: false, pendingMatches: unprocessed.length,
-        nextAttempt: new Date(lastUpdateAttempt + UPDATE_COOLDOWN_MS).toISOString(),
-        timestamp: new Date().toISOString(), dailyHits: dailyHitsInfo,
+        playerPoints: aggregated, processedMatches: supabaseMatchLabels,
+        updating: true, timestamp: new Date().toISOString(), dailyHits: dailyHitsInfo,
       });
     }
 
-    pointsUpdateInProgress = true;
-    lastUpdateAttempt = Date.now();
+    // Run Supabase sync + CricAPI innings fetch in background
+    if (Date.now() - lastUpdateAttempt >= UPDATE_COOLDOWN_MS) {
+      pointsUpdateInProgress = true;
+      lastUpdateAttempt = Date.now();
+      (async () => {
+        try {
+          // Step 1: Sync AuctionRoom scores from Supabase
+          const changed = await syncAuctionRoomScores(pointsCache);
+          if (changed) { pointsCache.lastUpdated = new Date().toISOString(); saveCache(pointsCache); }
 
-    (async () => {
-      try {
-        const seriesId = await findIPLSeriesId(pointsCache);
-        if (seriesId && seriesId !== pointsCache.seriesId) { pointsCache.seriesId = seriesId; saveCache(pointsCache); }
+          // Step 2: Fetch innings display data from CricAPI for any new matches
+          if (CRICAPI_KEY && pointsCache.dailyHits.count < DAILY_CALL_LIMIT) {
+            const scheduleRes = await fetch(
+              "https://ipl-stats-sports-mechanic.s3.ap-south-1.amazonaws.com/ipl/feeds/284-matchschedule.js",
+              { signal: AbortSignal.timeout(10000) }
+            );
+            if (scheduleRes.ok) {
+              const scheduleText = await scheduleRes.text();
+              const scheduleMatch = scheduleText.match(/^[A-Za-z_$][A-Za-z0-9_$]*\(([\s\S]*)\)\s*;?\s*$/);
+              if (scheduleMatch) {
+                const schedule = JSON.parse(scheduleMatch[1]);
+                const completedMatches = (schedule.Matchsummary || []).filter((m: any) => m.MatchStatus === "Post");
+                const needInnings = completedMatches.filter((m: any) => {
+                  const cached = pointsCache.processedMatches[String(m.MatchID)];
+                  return !cached || !cached.innings?.length;
+                });
 
-        if (seriesId) {
-          const cricapiMatches = await getSeriesMatches(seriesId);
-
-          for (const iplMatch of unprocessed) {
-            const iplId = String(iplMatch.MatchID);
-            if (pointsCache.processedMatches[iplId]) continue;
-
-            let cricapiId = pointsCache.cricapiMatchIds[iplId];
-            if (!cricapiId) {
-              const iplDate = iplMatch.GMTMatchDate || iplMatch.MatchDate || "";
-              const homeTeam = iplMatch.HomeTeamName || "";
-              const awayTeam = iplMatch.AwayTeamName || "";
-
-              for (const cm of cricapiMatches) {
-                const cmDate: string = (cm.date || cm.dateTimeGMT || "").split("T")[0];
-                const cmName: string = cm.name || "";
-                const parts = cmName.split(" vs ");
-                if (parts.length === 2 && (cmDate === iplDate || !iplDate)) {
-                  const teamA = parts[0].split(",")[0].trim();
-                  const teamB = parts[1].split(",")[0].trim();
-                  if ((teamNamesMatch(teamA, homeTeam) && teamNamesMatch(teamB, awayTeam)) ||
-                    (teamNamesMatch(teamA, awayTeam) && teamNamesMatch(teamB, homeTeam))) {
-                    cricapiId = cm.id;
-                    pointsCache.cricapiMatchIds[iplId] = cricapiId;
-                    break;
+                if (needInnings.length > 0) {
+                  const seriesId = await findIPLSeriesId(pointsCache);
+                  if (seriesId) {
+                    if (seriesId !== pointsCache.seriesId) { pointsCache.seriesId = seriesId; }
+                    const cricapiMatches = await getSeriesMatches(seriesId);
+                    for (const iplMatch of needInnings) {
+                      const iplId = String(iplMatch.MatchID);
+                      let cricapiId = pointsCache.cricapiMatchIds[iplId];
+                      if (!cricapiId) {
+                        const iplDate = iplMatch.GMTMatchDate || iplMatch.MatchDate || "";
+                        const homeTeam = iplMatch.HomeTeamName || "";
+                        const awayTeam = iplMatch.AwayTeamName || "";
+                        for (const cm of cricapiMatches) {
+                          const cmDate: string = (cm.date || cm.dateTimeGMT || "").split("T")[0];
+                          const cmName: string = cm.name || "";
+                          const parts = cmName.split(" vs ");
+                          if (parts.length === 2 && (cmDate === iplDate || !iplDate)) {
+                            const teamA = parts[0].split(",")[0].trim();
+                            const teamB = parts[1].split(",")[0].trim();
+                            if ((teamNamesMatch(teamA, homeTeam) && teamNamesMatch(teamB, awayTeam)) ||
+                              (teamNamesMatch(teamA, awayTeam) && teamNamesMatch(teamB, homeTeam))) {
+                              cricapiId = cm.id;
+                              pointsCache.cricapiMatchIds[iplId] = cricapiId;
+                              break;
+                            }
+                          }
+                        }
+                      }
+                      if (!cricapiId) continue;
+                      try {
+                        const matchData = await processSingleMatch(
+                          cricapiId, FANTASY_PLAYER_NAMES,
+                          iplMatch.HomeTeamName || "", iplMatch.AwayTeamName || ""
+                        );
+                        if (matchData.innings.length > 0) {
+                          pointsCache.processedMatches[iplId] = { points: {}, innings: matchData.innings };
+                          saveCache(pointsCache);
+                        }
+                      } catch (e: any) {
+                        console.error(`Failed innings fetch for match ${iplId}:`, e?.message);
+                      }
+                    }
                   }
                 }
               }
             }
-
-            if (!cricapiId) continue;
-
-            try {
-              const matchData = await processSingleMatch(
-                cricapiId, FANTASY_PLAYER_NAMES,
-                iplMatch.HomeTeamName || "", iplMatch.AwayTeamName || ""
-              );
-              if (Object.keys(matchData.points).length > 0 || matchData.innings.length > 0) {
-                pointsCache.processedMatches[iplId] = matchData;
-                pointsCache.lastUpdated = new Date().toISOString();
-                saveCache(pointsCache);
-              }
-            } catch (e: any) {
-              console.error(`Failed to process match ${iplId}:`, (e as any).message);
-            }
           }
+        } catch (e: any) {
+          console.error("[ipl-points] Background job error:", e?.message || e);
         }
-      } catch (e: any) {
-        console.error("[ipl-points] Background job error:", e?.message || e);
-      }
-      pointsUpdateInProgress = false;
-    })();
+        pointsUpdateInProgress = false;
+      })();
+    }
 
     return res.json({
-      playerPoints: aggregated, processedMatches: Object.keys(pointsCache.processedMatches),
-      updating: unprocessed.length > 0, timestamp: new Date().toISOString(),
+      playerPoints: aggregated, processedMatches: supabaseMatchLabels,
+      updating: pointsUpdateInProgress, timestamp: new Date().toISOString(), dailyHits: dailyHitsInfo,
     });
   } catch (err: any) {
     req.log.error({ err }, "Failed to calculate IPL points");
-    res.status(500).json({ error: "Failed", playerPoints: {} });
+    return res.status(500).json({ error: "Failed", playerPoints: {} });
   }
 });
 
@@ -703,13 +834,18 @@ router.get("/ipl/stats", (req, res) => {
 
 const FANTASY_TEAMS_EXPORT: Record<string, string[]> = {
   rajveer: ["Rajat Patidar","Axar Patel","Shubman Gill","Jos Buttler","Yuzvendra Chahal","Jacob Bethell","Bhuvneshwar Kumar","Shreyas Iyer","Cameron Green","Nicholas Pooran","Phil Salt","Krunal Pandya","Priyansh Arya","Vaibhav Suryavanshi","Dhruv Jurel","Mohammed Shami","Tim David","Deepak Chahar"],
-  mombasa: ["Jitesh Sharma","Varun Chakravarthy","Marco Jansen","Arshdeep Singh","Shivam Dube","Riyan Parag","Abhishek Sharma","Prabhsimran Singh","Nehal Wadhera","Shimron Hetmyer","Sai Sudharsan","Will Jacks","Prasidh Krishna","Aiden Markram","Rashid Khan","Rohit Sharma","Yash Thakur","Harshit Rana"],
-  mumbai: ["Hardik Pandya","Sanju Samson","Virat Kohli","KL Rahul","Rohit Sharma","Pat Cummins","Mitchell Starc","Ruturaj Gaikwad","Devon Conway","Ravindra Jadeja","MS Dhoni","Matheesha Pathirana","Tushar Deshpande","Nitish Kumar Reddy","Heinrich Klaasen","T Natarajan","Jacob Duffy","Liam Livingstone"],
-  ponygoat: ["Jasprit Bumrah","Sunil Narine","Travis Head","Ishan Kishan","Tilak Varma","Rinku Singh","Kuldeep Yadav","Avesh Khan","Rahul Tripathi","Abhishek Sharma","Suryakumar Yadav","Mohammed Siraj","Axar Patel","Washington Sundar","Shubman Gill","Vaibhav Arora","Nandre Burger","Glenn Maxwell"],
+  mombasa: ["Jitesh Sharma","Varun Chakravarthy","Marco Jansen","Arshdeep Singh","Shivam Dube","Riyan Parag","Abhishek Sharma","Prabhsimran Singh","Nehal Wadhera","Shimron Hetmyer","Sai Sudharsan","Will Jacks","Prasidh Krishna","Aiden Markram","Rashid Khan","Ajinkya Rahane","Trent Boult","Tilak Varma"],
+  mumbai: ["Rishabh Pant","Dewald Brevis","Rohit Sharma","Sherfane Rutherford","Rinku Singh","Heinrich Klaasen","Nitish Rana","Ruturaj Gaikwad","Lungi Ngidi","Mohammed Siraj","Harshal Patel","Tristan Stubbs","Sanju Samson","Prashant Veer","Ishan Kishan","Hardik Pandya","Finn Allen","Venkatesh Iyer"],
+  ponygoat: ["Marcus Stoinis","Yashasvi Jaiswal","Tim Seifert","Virat Kohli","Shashank Singh","Sunil Narine","Suryakumar Yadav","Jasprit Bumrah","Ravindra Jadeja","Travis Head","KL Rahul","Ryan Rickelton","Mitchell Marsh","Khaleel Ahmed","Kuldeep Yadav","Washington Sundar","T Natarajan"],
 };
 
 router.post("/ipl/points/reset", async (_req, res) => {
-  pointsCache = { seriesId: null, cricapiMatchIds: {}, processedMatches: {}, lastUpdated: "" };
+  pointsCache = {
+    seriesId: null, cricapiMatchIds: {}, processedMatches: {},
+    supabaseScores: {}, playerIdMap: {},
+    lastUpdated: "", dailyHits: { date: utcDateString(), count: 0 },
+  };
+  lastUpdateAttempt = 0;
   saveCache(pointsCache);
   res.json({ ok: true });
 });

@@ -614,7 +614,7 @@ export default function App() {
                       )}
                       {sc && !sc.hasScorecard && (
                         <div style={{ color: "#475569", fontSize: "0.72rem", padding: "4px 0" }}>
-                          Detailed scorecard will appear once fantasy points are processed via CricAPI.
+                          Detailed scorecard will appear once match innings data is synced.
                         </div>
                       )}
                       {(sc?.innings || []).map((inn: any, idx: number) => (
@@ -788,7 +788,7 @@ export default function App() {
         )}
         {iplStats && entries.length === 0 && (
           <div style={{ color: "#334155", fontSize: "0.78rem", textAlign: "center" as const, padding: "24px 0" }}>
-            {iplStats.matchesProcessed === 0 ? "Stats will appear once match scorecards are processed via CricAPI." : `No ${statsFilter === "fantasy" ? "fantasy " : ""}players found for this category.`}
+            {iplStats.matchesProcessed === 0 ? "Stats will appear once match innings data is synced." : `No ${statsFilter === "fantasy" ? "fantasy " : ""}players found for this category.`}
           </div>
         )}
         {entries.length > 0 && (
@@ -941,7 +941,7 @@ export default function App() {
               </span>
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem" }}>
-              <span style={{ color: "#64748b" }}>CricAPI points engine</span>
+              <span style={{ color: "#64748b" }}>AuctionRoom points engine</span>
               <span style={{ color: pointsUpdating ? "#f59e0b" : pointsError ? "#ef4444" : pendingMatches > 0 ? "#f59e0b" : "#34d399" }}>
                 {pointsUpdating ? "⏳ Processing..." : pointsError ? `⚠ ${pointsError.slice(0, 40)}` : pendingMatches > 0 ? `⏳ ${pendingMatches} pending` : "✓ Active"}
               </span>
@@ -952,7 +952,7 @@ export default function App() {
               return (
                 <div style={{ display: "flex", flexDirection: "column" as const, gap: 5 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem" }}>
-                    <span style={{ color: "#64748b" }}>CricAPI calls today (UTC)</span>
+                    <span style={{ color: "#64748b" }}>CricAPI innings syncs today (UTC)</span>
                     <span style={{ color: barColor, fontWeight: 700 }}>{dailyHits.count} / {dailyHits.limit}</span>
                   </div>
                   <div style={{ height: 4, borderRadius: 2, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
@@ -1009,7 +1009,7 @@ export default function App() {
             {pointsLoading ? <span className="spinner" /> : "⚡"} Fetch Points
           </button>
           <button className="btn-danger" onClick={async () => {
-            if (confirm("Reset all cached points? Points will re-fetch from CricAPI.")) {
+            if (confirm("Reset all cached points? Points will re-sync from AuctionRoom.")) {
               await fetch("/api/ipl/points/reset", { method: "POST" });
               setPlayerPoints({});
               setProcessedMatches([]);

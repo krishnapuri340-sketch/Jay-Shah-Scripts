@@ -190,10 +190,10 @@ router.get("/ipl/standings", async (req, res) => {
     })).sort((a: any, b: any) => (b.points - a.points) || (b.nrr - a.nrr));
     const response = { standings, timestamp: new Date().toISOString() };
     standingsCache = { data: response, timestamp: Date.now() };
-    res.json(response);
+    return res.json(response);
   } catch (err: any) {
     req.log.error({ err }, "Failed to fetch standings");
-    res.status(500).json({ standings: [] });
+    return res.status(500).json({ standings: [] });
   }
 });
 

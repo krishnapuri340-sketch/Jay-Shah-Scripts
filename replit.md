@@ -12,7 +12,7 @@ Primary application: IPL Fantasy Cricket Tracker for 4 teams (Rajveer Puri, Momb
 - **Frontend**: `artifacts/fantasy-cricket` — React + Vite SPA, tabs: Home (Leaderboard), Teams, Matches, IPL, Admin
 - **Backend**: `artifacts/api-server` — Express API with two main route modules:
   - `routes/ipl.ts` — Fetches live match schedule from IPL official S3 feed (Competition ID 284)
-  - `routes/ipl-points.ts` — Auto-calculates fantasy points from CricAPI scorecards; caches to `ipl-points-cache.json`
+  - `routes/ipl-points.ts` — Syncs fantasy points from AuctionRoom (Supabase); fetches innings via CricAPI for display; caches to `ipl-points-cache.json`
 
 ### Data Sources
 - **IPL Schedule**: `https://ipl-stats-sports-mechanic.s3.ap-south-1.amazonaws.com/ipl/feeds/284-matchschedule.js`
@@ -21,16 +21,20 @@ Primary application: IPL Fantasy Cricket Tracker for 4 teams (Rajveer Puri, Momb
   - JSONP callback `onScoringMatchsummary`; has result, toss, venue, score, umpires, referee
 - **Standings** (S3): `https://ipl-stats-sports-mechanic.s3.ap-south-1.amazonaws.com/ipl/feeds/stats/284-groupstandings.js`
   - JSONP callback `ongroupstandings`; fields: TeamCode, Wins, Loss, Points, NetRunRate, Performance (form string)
-- **CricAPI** (`https://api.cricapi.com/v1/`) using secret `CRICAPI_KEY`
-  - Endpoints: `/series`, `/series_info`, `/match_scorecard`; free tier: 100 req/day; 10-minute cooldown
-  - Cached permanently in `ipl-points-cache.json`; cache format: `processedMatches[iplId] = { points, innings: InningData[] }`
+- **AuctionRoom Supabase** (`https://ldwqrdlipzqsnpljqyhk.supabase.co/rest/v1`) — **PRIMARY scoring source**
+  - IPL 2026 tournament ID: `bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb`
+  - Tables: `player_fixture_scores` (fixture_id, player_id, score), `tournament_fixtures` (match metadata), `tournament_players` (player_id), `players` (id, name)
+  - Scores are official auctionroom.in values (includes all fielding bonuses, LBW, stumpings etc.)
+  - `syncAuctionRoomScores()` fetches completed fixtures, maps player IDs to names via 250-player cache
+- **CricAPI** (`https://api.cricapi.com/v1/`) using secret `CRICAPI_KEY` — **innings display only**
+  - Endpoints: `/series`, `/series_info`, `/match_scorecard`; 1900/day limit
+  - Used ONLY for batting/bowling innings rows in scorecard display (not for points calculation)
 
 ### Points Engine (`ipl-points.ts`)
-- Finds IPL 2026 series in CricAPI by name search; matches matches by date + team name fuzzy matching
-- `processScorecard()` returns: `{ players: Record<string, PlayerStats>, innings: InningData[] }`
-- `InningData` contains `{ name, total, batting: BattingRow[], bowling: BowlingRow[] }` — stored in cache
-- Calculates points using T20 Fantasy Scoring v1.7 (see `calcPoints`)
-- Processes up to 3 unprocessed matches per background job with cooldown to prevent rate-limit loops
+- **Primary**: `syncAuctionRoomScores()` — fetches from Supabase `player_fixture_scores`, maps player UUIDs to names, matches to FANTASY_PLAYER_NAMES using `namesMatch()`, caches in `supabaseScores[fixtureId]`
+- **Secondary**: CricAPI processes innings only (no points from CricAPI anymore) — `processedMatches[iplId] = { points: {}, innings: InningData[] }`
+- `InningData` contains `{ name, total, batting: BattingRow[], bowling: BowlingRow[] }` — stored in processedMatches
+- Background job: Supabase sync first → CricAPI innings for display → cooldown 16 min
 - **`GET /api/ipl/scorecard/:matchId`** — returns cached innings + live S3 match overview (result, toss, venue)
 
 ### Fantasy Teams
