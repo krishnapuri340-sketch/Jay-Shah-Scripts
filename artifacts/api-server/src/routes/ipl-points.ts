@@ -61,7 +61,7 @@ interface ProcessedMatchData {
   innings: InningData[];
 }
 
-const DAILY_CALL_LIMIT = 95; // hard cap below CricAPI's 100/day free tier
+const DAILY_CALL_LIMIT = 900; // hard cap below CricAPI's 1000/day paid tier
 
 interface PointsCache {
   seriesId: string | null;
