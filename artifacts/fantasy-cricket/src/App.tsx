@@ -1966,7 +1966,7 @@ export default function App() {
                         <td style={{ padding: "8px 8px" }}>
                           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                             <div style={{ width: 2, height: 18, borderRadius: 2, background: color, flexShrink: 0 }} />
-                            {t.teamLogo && <img src={t.teamLogo} alt={t.teamCode} style={{ width: 18, height: 18, objectFit: "contain" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />}
+                            {(TEAM_LOGO_CDN[t.teamCode] || t.teamLogo) && <img src={TEAM_LOGO_CDN[t.teamCode] || t.teamLogo} alt={t.teamCode} style={{ width: 18, height: 18, objectFit: "contain" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />}
                             <span style={{ fontWeight: 600, color: "var(--text)", fontSize: "0.7rem" }}>{t.teamCode}</span>
                           </div>
                         </td>
@@ -2054,7 +2054,7 @@ export default function App() {
                     {teams.length > 0 ? teams.map((ti: any, i: number) => (
                       <div key={i} style={{ display: "flex", alignItems: "center", gap: 5 }}>
                         {i === 1 && <span style={{ color: "var(--text-3)", fontSize: "0.6rem", margin: "0 2px" }}>vs</span>}
-                        <img src={ti.img} alt={ti.shortname} style={{ width: 18, height: 18, objectFit: "contain" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                        <img src={TEAM_LOGO_CDN[ti.shortname] || ti.img} alt={ti.shortname} style={{ width: 18, height: 18, objectFit: "contain" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                         <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text)" }}>{ti.shortname}</span>
                       </div>
                     )) : (
