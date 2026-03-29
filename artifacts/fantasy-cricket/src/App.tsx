@@ -567,85 +567,74 @@ export default function App() {
 
     const awards: { trophy: string; title: string; winner: string; detail: string; color: string }[] = [];
 
-    // All fantasy players flat list
+    // All fantasy players flat list with roles
     const allPlayers = Object.values(FANTASY_TEAMS).flatMap(t =>
       t.players.map(p => ({ name: p.name, role: p.role, team: t.name, owner: t.owner, pts: playerPoints[p.name] || 0 }))
     );
 
-    // Helper: sum a stat field across all match entries for a player
-    const sumStat = (name: string, field: keyof NonNullable<(typeof playerMatchPoints)[string][number]["stats"]>) => {
-      return (playerMatchPoints[name] || []).reduce((acc, e) => acc + ((e.stats?.[field] as number) || 0), 0);
-    };
+    // Sum a numeric stat field across all match entries for a player
+    const sumStat = (name: string, field: keyof NonNullable<(typeof playerMatchPoints)[string][number]["stats"]>) =>
+      (playerMatchPoints[name] || []).reduce((acc, e) => acc + ((e.stats?.[field] as number) || 0), 0);
 
-    // 1. The Champion — owner with highest total team pts
-    const leader = teamScores[0];
-    if (leader.total > 0) {
-      awards.push({ trophy: "🏆", title: "The Champion", winner: leader.team.owner, detail: `${leader.team.name} · ${leader.total} pts from Top 11`, color: leader.team.color });
+    // Best single-match pts entry for a player
+    const bestMatch = (name: string) =>
+      (playerMatchPoints[name] || []).reduce<{ pts: number; label: string } | null>(
+        (best, e) => (!best || e.pts > best.pts) ? { pts: e.pts, label: e.label } : best, null
+      );
+
+    // 1. Best Captain Performance — best single match pts (×2) among all 4 captains
+    const capBests = Object.values(FANTASY_TEAMS).map(t => {
+      const bm = bestMatch(t.captain);
+      return { name: t.captain, team: t.name, owner: t.owner, matchPts: bm ? bm.pts * 2 : 0, label: bm?.label || "" };
+    }).sort((a, b) => b.matchPts - a.matchPts);
+    if (capBests[0].matchPts > 0) {
+      awards.push({ trophy: "🎖️", title: "Best Captain Performance", winner: capBests[0].name, detail: `${capBests[0].matchPts} pts (×2) · ${capBests[0].label} · ${capBests[0].team} (${capBests[0].owner})`, color: "#f97316" });
     }
 
-    // 2. Captain Marvel — captain with highest adjusted (×2) pts
+    // 2. Best Batting Performance — best single match pts among BAT role players
+    const batBests = allPlayers.filter(p => p.role === "BAT").map(p => {
+      const bm = bestMatch(p.name);
+      return { name: p.name, team: p.team, owner: p.owner, matchPts: bm ? bm.pts : 0, label: bm?.label || "" };
+    }).sort((a, b) => b.matchPts - a.matchPts);
+    if (batBests.length > 0 && batBests[0].matchPts > 0) {
+      awards.push({ trophy: "🏏", title: "Best Batting Performance", winner: batBests[0].name, detail: `${batBests[0].matchPts} pts · ${batBests[0].label} · ${batBests[0].team} (${batBests[0].owner})`, color: "#60a5fa" });
+    }
+
+    // 3. Best Bowling Performance — best single match pts among BWL role players
+    const bwlBests = allPlayers.filter(p => p.role === "BWL").map(p => {
+      const bm = bestMatch(p.name);
+      return { name: p.name, team: p.team, owner: p.owner, matchPts: bm ? bm.pts : 0, label: bm?.label || "" };
+    }).sort((a, b) => b.matchPts - a.matchPts);
+    if (bwlBests.length > 0 && bwlBests[0].matchPts > 0) {
+      awards.push({ trophy: "🎳", title: "Best Bowling Performance", winner: bwlBests[0].name, detail: `${bwlBests[0].matchPts} pts · ${bwlBests[0].label} · ${bwlBests[0].team} (${bwlBests[0].owner})`, color: "#f472b6" });
+    }
+
+    // 4. Best All-Rounder — highest total pts among AR role players
+    const ars = allPlayers.filter(p => p.role === "AR").sort((a, b) => b.pts - a.pts);
+    if (ars.length > 0 && ars[0].pts > 0) {
+      awards.push({ trophy: "🎪", title: "Best All-Rounder", winner: ars[0].name, detail: `${ars[0].pts} total pts · ${ars[0].team} (${ars[0].owner})`, color: "#c084fc" });
+    }
+
+    // 5. Most Dot Balls — across all matches (any role)
+    const dotKing = allPlayers.map(p => ({ ...p, dots: sumStat(p.name, "dots") })).sort((a, b) => b.dots - a.dots)[0];
+    if (dotKing && dotKing.dots > 0) {
+      awards.push({ trophy: "⚫", title: "Most Dot Balls", winner: dotKing.name, detail: `${dotKing.dots} dots · ${dotKing.team} (${dotKing.owner})`, color: "#818cf8" });
+    }
+
+    // 6. Most Catches — across all matches
+    const safeHands = allPlayers.map(p => ({ ...p, catches: sumStat(p.name, "catches") })).sort((a, b) => b.catches - a.catches)[0];
+    if (safeHands && safeHands.catches > 0) {
+      awards.push({ trophy: "🧤", title: "Most Catches", winner: safeHands.name, detail: `${safeHands.catches} catches · ${safeHands.team} (${safeHands.owner})`, color: "#2dd4bf" });
+    }
+
+    // 7. Flopped Captain — captain with lowest total adjusted (×2) pts (at least 2 must have scored)
     const captains = Object.values(FANTASY_TEAMS).map(t => ({
       name: t.captain, team: t.name, owner: t.owner, pts: (playerPoints[t.captain] || 0) * 2
     })).sort((a, b) => b.pts - a.pts);
-    if (captains[0].pts > 0) {
-      awards.push({ trophy: "🎖️", title: "Captain Marvel", winner: captains[0].name, detail: `${captains[0].pts} adjusted pts · ${captains[0].team} (${captains[0].owner})`, color: "#f97316" });
-    }
-
-    // 3. Tournament MVP — highest raw pts player across all 4 squads
-    const mvp = [...allPlayers].sort((a, b) => b.pts - a.pts)[0];
-    if (mvp.pts > 0) {
-      awards.push({ trophy: "🌟", title: "Tournament MVP", winner: mvp.name, detail: `${mvp.pts} pts · ${mvp.team} (${mvp.owner})`, color: "#fbbf24" });
-    }
-
-    // 4. Run Machine — most fantasy pts among BAT role players
-    const batters = allPlayers.filter(p => p.role === "BAT").sort((a, b) => b.pts - a.pts);
-    if (batters.length > 0 && batters[0].pts > 0) {
-      awards.push({ trophy: "🏏", title: "Run Machine", winner: batters[0].name, detail: `${batters[0].pts} fantasy pts · ${batters[0].team} (${batters[0].owner})`, color: "#60a5fa" });
-    }
-
-    // 5. All-Rounder King — highest pts among AR role players
-    const ars = allPlayers.filter(p => p.role === "AR").sort((a, b) => b.pts - a.pts);
-    if (ars.length > 0 && ars[0].pts > 0) {
-      awards.push({ trophy: "🎪", title: "All-Rounder King", winner: ars[0].name, detail: `${ars[0].pts} fantasy pts · ${ars[0].team} (${ars[0].owner})`, color: "#c084fc" });
-    }
-
-    // 6. Hidden Gem — highest bench scorer (player not in any team's top 11)
-    const benchAll = teamScores.flatMap(s =>
-      s.players.filter(p => !s.top11.has(p.name) && p.raw > 0).map(p => ({ name: p.name, team: s.team.name, owner: s.team.owner, pts: p.raw }))
-    ).sort((a, b) => b.pts - a.pts);
-    if (benchAll.length > 0) {
-      awards.push({ trophy: "💎", title: "Hidden Gem", winner: benchAll[0].name, detail: `${benchAll[0].pts} pts on bench · ${benchAll[0].team} (${benchAll[0].owner})`, color: "#34d399" });
-    }
-
-    // 7. Squad Goals — most even squad (lowest std-dev across top-11 pts)
-    const squadGoals = teamScores.map(s => {
-      const top11Pts = [...s.top11].map(name => playerPoints[name] || 0);
-      if (top11Pts.length < 2) return null;
-      const mean = top11Pts.reduce((a, b) => a + b, 0) / top11Pts.length;
-      const sd = Math.sqrt(top11Pts.reduce((a, b) => a + (b - mean) ** 2, 0) / top11Pts.length);
-      return { team: s.team.name, owner: s.team.owner, sd: Math.round(sd), color: s.team.color };
-    }).filter(Boolean).sort((a, b) => (a!.sd - b!.sd)) as { team: string; owner: string; sd: number; color: string }[];
-    if (squadGoals.length > 0 && teamScores[0].total > 0) {
-      awards.push({ trophy: "🤝", title: "Squad Goals", winner: squadGoals[0].owner, detail: `${squadGoals[0].team} · spread of only ±${squadGoals[0].sd} pts`, color: squadGoals[0].color });
-    }
-
-    // 8. Dot Ball King — most dot balls across all matches
-    const dotKing = allPlayers.map(p => ({ ...p, dots: sumStat(p.name, "dots") })).sort((a, b) => b.dots - a.dots)[0];
-    if (dotKing && dotKing.dots > 0) {
-      awards.push({ trophy: "🎳", title: "Dot Ball King", winner: dotKing.name, detail: `${dotKing.dots} dot balls · ${dotKing.team} (${dotKing.owner})`, color: "#818cf8" });
-    }
-
-    // 9. Safe Hands — most catches across all matches
-    const safeHands = allPlayers.map(p => ({ ...p, catches: sumStat(p.name, "catches") })).sort((a, b) => b.catches - a.catches)[0];
-    if (safeHands && safeHands.catches > 0) {
-      awards.push({ trophy: "🧤", title: "Safe Hands", winner: safeHands.name, detail: `${safeHands.catches} catches · ${safeHands.team} (${safeHands.owner})`, color: "#2dd4bf" });
-    }
-
-    // 10. Captain Flop — captain with lowest adjusted pts (among captains who have scored)
-    const flopCaps = captains.filter(c => c.pts > 0);
-    if (flopCaps.length >= 2) {
-      const flop = flopCaps[flopCaps.length - 1];
-      awards.push({ trophy: "😬", title: "Captain Flop", winner: flop.name, detail: `Only ${flop.pts} adjusted pts · ${flop.team} (${flop.owner})`, color: "#475569" });
+    const scoringCaps = captains.filter(c => c.pts > 0);
+    if (scoringCaps.length >= 2) {
+      const flop = scoringCaps[scoringCaps.length - 1];
+      awards.push({ trophy: "😬", title: "Flopped Captain", winner: flop.name, detail: `Only ${flop.pts} adjusted pts · ${flop.team} (${flop.owner})`, color: "#475569" });
     }
 
     return awards;
