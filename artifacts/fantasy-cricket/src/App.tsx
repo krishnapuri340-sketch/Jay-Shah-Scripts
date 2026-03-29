@@ -1095,6 +1095,7 @@ export default function App() {
                   const { isLiveNow, isUpcoming, isDimmed, glowColor } = getPlayerState(p.name, p.ipl);
                   const cardClass = [
                     "player-card benched",
+                    p.name === t.captain ? "is-c" : p.name === t.vc ? "is-vc" : "",
                     isExp ? "player-expanded" : "",
                     isLiveNow ? "live-now" : isUpcoming ? "playing-next" : isDimmed ? "not-playing-next" : ""
                   ].filter(Boolean).join(" ");
@@ -1106,8 +1107,12 @@ export default function App() {
                         <div className="player-ipl-badge" style={{ background: IPL_COLORS[p.ipl] + "22", color: IPL_COLORS[p.ipl] + "99" }}>
                           {p.ipl}
                         </div>
-                        <div className="player-name" style={isLiveNow ? { color: "#fca5a5" } : {}}>{p.name}</div>
-                        <div className="player-pts" style={{ color: isLiveNow ? "#fca5a5" : "var(--text-3)" }}>{p.adj}</div>
+                        <div className="player-name" style={isLiveNow ? { color: "#fca5a5" } : {}}>{p.name}{p.name === t.captain ? <span style={{ marginLeft: 5, fontSize: "0.56rem", color: "#d4a843", fontWeight: 700 }}>C</span> : p.name === t.vc ? <span style={{ marginLeft: 5, fontSize: "0.56rem", color: "#a1a1aa", fontWeight: 700 }}>VC</span> : null}</div>
+                        <div style={{ textAlign: "right", flexShrink: 0 }}>
+                          <div className="player-pts" style={{ color: isLiveNow ? "#fca5a5" : "var(--text-3)" }}>{p.adj}</div>
+                          {p.name === t.captain && <div className="player-pts-raw">×2</div>}
+                          {p.name === t.vc && <div className="player-pts-raw">×1.5</div>}
+                        </div>
                       </div>
                       {isExp && renderBreakdown(p)}
                     </React.Fragment>
