@@ -597,128 +597,114 @@ export default function App() {
   })();
 
   const shareLeaderboard = async () => {
-    const W = 1080, H = 1080;
+    const W = 1080, H = 1000, PAD = 64;
     const canvas = document.createElement("canvas");
     canvas.width = W; canvas.height = H;
     const ctx = canvas.getContext("2d")!;
 
-    // Load logo asynchronously
+    // Load logo
     const logoImg = new Image();
     logoImg.crossOrigin = "anonymous";
     logoImg.src = `${import.meta.env.BASE_URL}app-icon.png`;
     await new Promise(res => { logoImg.onload = res; logoImg.onerror = res; });
 
-    // Background
-    const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
-    bgGrad.addColorStop(0, "#111113"); bgGrad.addColorStop(1, "#09090b");
-    ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, W, H);
+    // — Background —
+    ctx.fillStyle = "#09090b";
+    ctx.fillRect(0, 0, W, H);
 
-    // Gold accent bars (top + bottom)
+    // Gold top line (thin, tasteful)
     const goldGrad = ctx.createLinearGradient(0, 0, W, 0);
     goldGrad.addColorStop(0, "#a07832"); goldGrad.addColorStop(0.5, "#d4a843"); goldGrad.addColorStop(1, "#a07832");
-    ctx.fillStyle = goldGrad; ctx.fillRect(0, 0, W, 6);
-    ctx.fillStyle = goldGrad; ctx.fillRect(0, H - 6, W, 6);
+    ctx.fillStyle = goldGrad; ctx.fillRect(0, 0, W, 3);
 
-    // Logo circle
-    const logoR = 52, logoX = W / 2, logoY = 85;
+    // — Header —
+    // Logo circle (small, top-left)
+    const logoR = 26, logoX = PAD + logoR, logoY = 68;
     ctx.save();
     ctx.beginPath(); ctx.arc(logoX, logoY, logoR, 0, Math.PI * 2); ctx.clip();
     if (logoImg.naturalWidth > 0) ctx.drawImage(logoImg, logoX - logoR, logoY - logoR, logoR * 2, logoR * 2);
     ctx.restore();
-    ctx.strokeStyle = "#d4a843"; ctx.lineWidth = 4;
-    ctx.beginPath(); ctx.arc(logoX, logoY, logoR + 3, 0, Math.PI * 2); ctx.stroke();
 
-    // Title
-    ctx.textAlign = "center";
-    ctx.font = "bold 60px Arial, sans-serif";
-    ctx.fillStyle = "#ffffff"; ctx.fillText("IPL Fantasy 2026", W / 2, 194);
-    ctx.font = "32px Arial, sans-serif";
-    ctx.fillStyle = "#d4a843"; ctx.fillText("Leaderboard", W / 2, 242);
+    // App name + label (right of logo)
+    ctx.textAlign = "left";
+    ctx.font = "700 36px -apple-system, Arial, sans-serif";
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText("IPL Fantasy 2026", PAD + logoR * 2 + 18, 59);
+    ctx.font = "400 23px -apple-system, Arial, sans-serif";
+    ctx.fillStyle = "#52525b";
+    ctx.fillText("Leaderboard", PAD + logoR * 2 + 18, 88);
 
-    // Team cards
-    const cardX = 60, cardW = W - 120, cardH = 148, gap = 18;
-    const startY = 284;
-    const rankLabels = ["1st", "2nd", "3rd", "4th"];
-    const rankColors = ["#d4a843", "#9ca3af", "#cd7f5a", "#6b7280"];
-    const maxTeamPts = teamScores[0]?.total || 1;
+    // Timestamp (top-right, muted)
+    ctx.textAlign = "right";
+    ctx.font = "400 21px -apple-system, Arial, sans-serif";
+    ctx.fillStyle = "#3f3f46";
+    ctx.fillText(lastUpdated?.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) ?? "just now", W - PAD, 88);
 
-    const roundedRect = (x: number, y: number, w: number, h: number, r: number) => {
-      ctx.beginPath();
-      ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y);
-      ctx.arcTo(x + w, y, x + w, y + r, r); ctx.lineTo(x + w, y + h - r);
-      ctx.arcTo(x + w, y + h, x + w - r, y + h, r); ctx.lineTo(x + r, y + h);
-      ctx.arcTo(x, y + h, x, y + h - r, r); ctx.lineTo(x, y + r);
-      ctx.arcTo(x, y, x + r, y, r); ctx.closePath();
-    };
+    // Thin separator line
+    ctx.strokeStyle = "#1c1c20"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(PAD, 116); ctx.lineTo(W - PAD, 116); ctx.stroke();
+
+    // — Rows —
+    const rowH = 200, startY = 132;
 
     teamScores.forEach((s, i) => {
-      const cy = startY + i * (cardH + gap);
+      const ry = startY + i * rowH;
+      const isFirst = i === 0;
 
-      // Card background
-      ctx.fillStyle = i === 0 ? "#19160d" : "#111113";
-      roundedRect(cardX, cy, cardW, cardH, 14); ctx.fill();
+      // Faint rank number (Sofascore-style ghost number, left)
+      ctx.textAlign = "left";
+      ctx.font = `100 108px -apple-system, Arial, sans-serif`;
+      ctx.fillStyle = "#18181b";
+      ctx.fillText(String(i + 1), PAD, ry + 130);
 
-      // Left accent stripe
-      ctx.fillStyle = s.team.color;
+      // Color dot
       ctx.beginPath();
-      ctx.moveTo(cardX, cy + 14); ctx.lineTo(cardX, cy + cardH - 14);
-      ctx.arcTo(cardX, cy + cardH, cardX + 14, cy + cardH, 14);
-      ctx.arcTo(cardX + 8, cy + cardH, cardX + 8, cy + cardH - 14, 0);
-      ctx.lineTo(cardX + 8, cy + 14);
-      ctx.arcTo(cardX + 8, cy, cardX, cy, 0);
-      ctx.arcTo(cardX, cy, cardX, cy + 14, 14);
+      ctx.arc(PAD + 110, ry + 62, 8, 0, Math.PI * 2);
+      ctx.fillStyle = s.team.color;
       ctx.fill();
 
-      // Rank label
-      ctx.font = `bold 22px Arial, sans-serif`;
-      ctx.fillStyle = rankColors[i]; ctx.textAlign = "left";
-      ctx.fillText(rankLabels[i], cardX + 22, cy + 36);
+      // Owner name (primary)
+      ctx.textAlign = "left";
+      ctx.font = `600 52px -apple-system, Arial, sans-serif`;
+      ctx.fillStyle = isFirst ? "#ffffff" : "#e4e4e7";
+      ctx.fillText(s.team.owner, PAD + 130, ry + 78);
 
-      // Owner name
-      ctx.font = "bold 46px Arial, sans-serif";
-      ctx.fillStyle = "#ffffff";
-      ctx.fillText(s.team.owner, cardX + 22, cy + 85);
-
-      // Team name
-      ctx.font = "26px Arial, sans-serif";
-      ctx.fillStyle = "#71717a";
-      ctx.fillText(s.team.name, cardX + 22, cy + 118);
+      // Team name (secondary — smaller, muted)
+      ctx.font = `400 25px -apple-system, Arial, sans-serif`;
+      ctx.fillStyle = "#52525b";
+      ctx.fillText(s.team.name, PAD + 130, ry + 116);
 
       // Points (right)
-      ctx.font = `bold 62px Arial, sans-serif`;
-      ctx.fillStyle = i === 0 ? "#d4a843" : "#e5e7eb";
       ctx.textAlign = "right";
-      ctx.fillText(String(s.total), cardX + cardW - 24, cy + 90);
-      ctx.font = "24px Arial, sans-serif";
-      ctx.fillStyle = "#52525b";
-      ctx.fillText("pts", cardX + cardW - 24, cy + 120);
+      ctx.font = `700 58px -apple-system, Arial, sans-serif`;
+      ctx.fillStyle = isFirst ? "#d4a843" : "#e4e4e7";
+      ctx.fillText(String(s.total), W - PAD, ry + 84);
 
-      // Progress bar
-      const barY = cy + cardH - 10;
-      const maxBarW = cardW - 32;
-      const barFill = Math.max(10, Math.round((s.total / maxTeamPts) * maxBarW));
-      ctx.fillStyle = "#1e1e22";
-      roundedRect(cardX + 16, barY - 4, maxBarW, 6, 3); ctx.fill();
-      ctx.fillStyle = s.team.color + "cc";
-      roundedRect(cardX + 16, barY - 4, barFill, 6, 3); ctx.fill();
+      ctx.font = `400 21px -apple-system, Arial, sans-serif`;
+      ctx.fillStyle = "#3f3f46";
+      ctx.fillText("pts", W - PAD, ry + 118);
+
+      // Row divider
+      if (i < teamScores.length - 1) {
+        ctx.strokeStyle = "#111114"; ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(PAD + 110, ry + rowH - 4);
+        ctx.lineTo(W - PAD, ry + rowH - 4);
+        ctx.stroke();
+      }
     });
 
-    // Footer timestamp
-    const footerY = startY + 4 * (cardH + gap) + 30;
-    ctx.font = "28px Arial, sans-serif";
-    ctx.fillStyle = "#3f3f46"; ctx.textAlign = "center";
-    ctx.fillText(`Updated: ${lastUpdated?.toLocaleTimeString() ?? "just now"}`, W / 2, footerY);
+    // Bottom gold line
+    ctx.fillStyle = goldGrad; ctx.fillRect(0, H - 3, W, 3);
 
     // Share
     const blob = await new Promise<Blob | null>(res => canvas.toBlob(res, "image/png"));
     if (!blob) return;
     const file = new File([blob], "ipl-fantasy-leaderboard.png", { type: "image/png" });
-
     try {
       if (navigator.share && navigator.canShare?.({ files: [file] })) {
         await navigator.share({ files: [file], title: "IPL Fantasy 2026 — Leaderboard" });
       } else {
-        // Desktop fallback: download the image
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url; a.download = "ipl-fantasy-leaderboard.png";
