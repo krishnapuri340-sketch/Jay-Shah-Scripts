@@ -766,6 +766,25 @@ export default function App() {
           ))}
         </div>
 
+        <div className="team-header-card" style={{ "--team-color": t.color } as React.CSSProperties}>
+          <div style={{ flex: 1 }}>
+            <div className="team-hname" style={{ color: t.color }}>{t.name}</div>
+            <div style={{ fontSize: "0.7rem", color: "var(--text-3)", marginBottom: 4 }}>{t.owner}</div>
+            <div className="team-roles">
+              {Object.entries(roleCounts).sort((a, b) => (b[1] as number) - (a[1] as number)).map(([role, n]) => (
+                <span key={role} className="role-badge"
+                  style={{ color: ROLE_COLORS[role], borderColor: ROLE_COLORS[role] + "44", background: ROLE_COLORS[role] + "11" }}>
+                  {n} {role}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div style={{ textAlign: "right" }}>
+            <div className="team-htotal" style={{ color: t.color }}>{td.total}</div>
+            <div className="team-hlabel">total pts</div>
+          </div>
+        </div>
+
         {/* Match status banner — shows LIVE and/or UPCOMING players */}
         {hasAnyContext && (
           <div className={`team-next-match-banner ${hasLiveNow ? "has-live" : ""}`}>
@@ -824,25 +843,6 @@ export default function App() {
             )}
           </div>
         )}
-
-        <div className="team-header-card" style={{ "--team-color": t.color } as React.CSSProperties}>
-          <div style={{ flex: 1 }}>
-            <div className="team-hname" style={{ color: t.color }}>{t.name}</div>
-            <div style={{ fontSize: "0.7rem", color: "var(--text-3)", marginBottom: 4 }}>{t.owner}</div>
-            <div className="team-roles">
-              {Object.entries(roleCounts).sort((a, b) => (b[1] as number) - (a[1] as number)).map(([role, n]) => (
-                <span key={role} className="role-badge"
-                  style={{ color: ROLE_COLORS[role], borderColor: ROLE_COLORS[role] + "44", background: ROLE_COLORS[role] + "11" }}>
-                  {n} {role}
-                </span>
-              ))}
-            </div>
-          </div>
-          <div style={{ textAlign: "right" }}>
-            <div className="team-htotal" style={{ color: t.color }}>{td.total}</div>
-            <div className="team-hlabel">total pts</div>
-          </div>
-        </div>
 
         {(() => {
           const renderBreakdown = (p: { name: string; raw: number; adj: number; role: string; ipl: string }) => {
