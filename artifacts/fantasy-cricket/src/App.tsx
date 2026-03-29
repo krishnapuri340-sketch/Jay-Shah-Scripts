@@ -672,23 +672,6 @@ export default function App() {
         );
       })()}
 
-      {awards.length > 0 && (
-        <>
-          <div className="divider" />
-          <div className="sec-title">Season Awards</div>
-          <div style={{ display: "flex", flexDirection: "column" as const, gap: 6, marginBottom: 8 }}>
-            {awards.map((a, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, background: "var(--surface)", border: "1px solid var(--border)", borderLeft: `2px solid ${a.color}`, borderRadius: 12, padding: "12px 14px" }}>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: "0.58rem", color: "var(--text-3)", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" as const, marginBottom: 3 }}>{a.title}</div>
-                  <div style={{ fontSize: "0.85rem", fontWeight: 600, color: a.color, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{a.winner}</div>
-                  <div style={{ fontSize: "0.67rem", color: "var(--text-3)", marginTop: 2 }}>{a.detail}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </>
-      )}
     </div>
     );
   };
