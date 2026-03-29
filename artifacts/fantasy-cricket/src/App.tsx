@@ -351,7 +351,7 @@ export default function App() {
   const pointsRetryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const SWIPEABLE_TABS = ["home", "teams", "fixtures", "stats", "history"];
   // PTR refs
-  const pullState = useRef({ active: false, startY: 0 });
+  const pullState = useRef({ active: false, startY: 0, startX: 0 });
   const pullYRef = useRef(0);
   const PULL_THRESHOLD = 72;
   const sparkTipTimer = useRef<ReturnType<typeof setTimeout>>();
@@ -380,8 +380,9 @@ export default function App() {
         setNextAttempt(data.nextAttempt || null);
         if (data.dailyHits) setDailyHits(data.dailyHits);
         setPointsLastUpdated(new Date());
-        // If data came back empty (server still syncing on startup), retry quickly
-        if (Object.keys(pp).length === 0) {
+        // If data came back empty or sparse (server still syncing on startup), retry quickly.
+        // The full ID map has ~250 players; fewer than 50 means it's still being built.
+        if (Object.keys(pp).length < 50) {
           pointsRetryTimer.current = setTimeout(() => {
             pointsRetryTimer.current = null;
             fetchPoints();
@@ -526,12 +527,13 @@ export default function App() {
     const onStart = (e: TouchEvent) => {
       pullState.current.active = window.scrollY <= 0;
       pullState.current.startY = e.touches[0].clientY;
+      pullState.current.startX = e.touches[0].clientX;
     };
     const onMove = (e: TouchEvent) => {
       if (!pullState.current.active) return;
       const dy = e.touches[0].clientY - pullState.current.startY;
       if (dy <= 0) { pullState.current.active = false; pullYRef.current = 0; setPullY(0); return; }
-      const dx = Math.abs(e.touches[0].clientX - pullState.current.startY);
+      const dx = Math.abs(e.touches[0].clientX - pullState.current.startX);
       if (dx > 30) { pullState.current.active = false; pullYRef.current = 0; setPullY(0); return; }
       const clamped = Math.min(dy * 0.45, PULL_THRESHOLD);
       pullYRef.current = clamped;
@@ -1611,8 +1613,8 @@ export default function App() {
               <div className="lb-meta">{s.team.owner} · <span style={{ color: "#d4a843" }}>C:</span> {s.team.captain} · <span style={{ color: "var(--text-2)" }}>VC:</span> {s.team.vc}</div>
             </div>
             <div style={{ textAlign: "right" }}>
-              <div className={`lb-pts ${i === 0 ? "first" : ""}`} style={{ color: Object.keys(playerPoints).length === 0 ? "var(--text-3)" : s.team.color }}>
-                {Object.keys(playerPoints).length === 0 ? "—" : s.total}
+              <div className={`lb-pts ${i === 0 ? "first" : ""}`} style={{ color: Object.keys(playerPoints).length < 50 ? "var(--text-3)" : s.team.color }}>
+                {Object.keys(playerPoints).length < 50 ? "—" : s.total}
               </div>
               <div className="lb-pts-label">pts</div>
             </div>
@@ -1764,8 +1766,8 @@ export default function App() {
             </div>
           </div>
           <div style={{ textAlign: "right" }}>
-            <div className="team-htotal" style={{ color: Object.keys(playerPoints).length === 0 ? "var(--text-3)" : t.color }}>
-              {Object.keys(playerPoints).length === 0 ? "—" : td.total}
+            <div className="team-htotal" style={{ color: Object.keys(playerPoints).length < 50 ? "var(--text-3)" : t.color }}>
+              {Object.keys(playerPoints).length < 50 ? "—" : td.total}
             </div>
             <div className="team-hlabel">total pts</div>
           </div>
@@ -2629,7 +2631,7 @@ export default function App() {
             </span>
             <span style={{ fontSize: "0.65rem", color: "#475569" }}>{adminBreakdownOpen ? "▲" : "▼"} {Object.keys(playerPoints).length} players</span>
           </div>
-          {adminBreakdownOpen && Object.keys(playerPoints).length === 0 && (
+          {adminBreakdownOpen && Object.keys(playerPoints).length < 50 && (
             <div style={{ color: "#334155", fontSize: "0.8rem", padding: "8px 0" }}>
               {pointsLoading ? "⏳ Calculating points from scorecards..." : "Points will appear once matches complete and scorecards are processed."}
             </div>
