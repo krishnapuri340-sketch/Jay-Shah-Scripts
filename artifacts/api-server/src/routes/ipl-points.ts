@@ -177,7 +177,9 @@ function namesMatch(a: string, b: string): boolean {
   if (lastA === lastB && lastA.length > 3) {
     const firstA = partsA[0];
     const firstB = partsB[0];
-    if (firstA[0] === firstB[0]) return true;
+    // Require at least 4 characters of first name to match (prevents "Abhinandan" matching "Arshdeep")
+    const minLen = Math.min(firstA.length, firstB.length, 4);
+    if (minLen >= 4 && firstA.slice(0, minLen) === firstB.slice(0, minLen)) return true;
     if (firstA.startsWith(firstB) || firstB.startsWith(firstA)) return true;
   }
   return false;
