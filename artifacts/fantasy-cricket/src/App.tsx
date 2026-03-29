@@ -365,7 +365,17 @@ export default function App() {
     const awards = computeAwards();
     return (
     <div>
-      <div className="sec-title">Leaderboard</div>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 2 }}>
+        <div className="sec-title" style={{ marginBottom: 0 }}>Leaderboard</div>
+        <button
+          className="btn-primary"
+          style={{ padding: "6px 14px", fontSize: "0.78rem" }}
+          onClick={() => { fetchLive(); fetchPoints(); }}
+          disabled={liveLoading || pointsLoading}
+        >
+          {(liveLoading || pointsLoading) ? <span className="spinner" /> : "🔄"} Refresh
+        </button>
+      </div>
       <div className="notice">
         🔄 Points auto-update every 15 min · Only Top 11 players count per team
       </div>
@@ -1137,9 +1147,16 @@ export default function App() {
         <div className="bg-field" />
         <div className="content">
           <div className="header">
-            <div>
-              <div className="header-title">🏏 IPL Fantasy</div>
-              <div className="header-sub">2026 Season</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <img
+                src={`${import.meta.env.BASE_URL}logo.jpeg`}
+                alt="Logo"
+                style={{ width: 48, height: 48, borderRadius: "50%", objectFit: "cover", border: "2px solid rgba(255,255,255,0.2)" }}
+              />
+              <div>
+                <div className="header-title">IPL Fantasy</div>
+                <div className="header-sub">2026 Season</div>
+              </div>
             </div>
             <div className="header-right">
               <div className="live-pill">
