@@ -272,6 +272,8 @@ body { background: var(--bg); }
 .player-card:active { opacity: 0.6; }
 .player-card.benched { opacity: 0.38; }
 .player-card.benched:hover { opacity: 0.55; }
+.player-card.benched.playing-next { opacity: 0.72; }
+.player-card.benched.playing-next:hover { opacity: 0.88; }
 .player-card.live-now { opacity: 1 !important; }
 .player-card.player-expanded { border-bottom: none; }
 .player-card.is-c::after { }
