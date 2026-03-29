@@ -1272,7 +1272,7 @@ export default function App() {
                   <span className="hist-hero-aval">{s.orangeRuns} runs</span>
                 </div>
                 <div className="hist-hero-award">
-                  <span style={{ fontSize: "0.65rem", color: "#a78bfa" }}><span style={{filter:"hue-rotate(60deg) saturate(2) brightness(0.9)"}}>🧢</span> Purple Cap</span>
+                  <span style={{ fontSize: "0.65rem", color: "#7c3aed" }}><span style={{filter:"hue-rotate(270deg) saturate(4) brightness(0.6)"}}>🧢</span> Purple Cap</span>
                   <span className="hist-hero-aname">{s.purpleCap}</span>
                   <span className="hist-hero-aval">{s.purpleWkts} wkts</span>
                 </div>
@@ -1297,7 +1297,7 @@ export default function App() {
                 ))}
               </div>
               <div className="hist-top10-col">
-                <div className="hist-top10-hdr" style={{ color: "#a78bfa" }}><span style={{filter:"hue-rotate(60deg) saturate(2) brightness(0.9)"}}>🧢</span> Top Wicket-takers</div>
+                <div className="hist-top10-hdr" style={{ color: "#7c3aed" }}><span style={{filter:"hue-rotate(270deg) saturate(4) brightness(0.6)"}}>🧢</span> Top Wicket-takers</div>
                 {s.topBwl.map((p, i) => (
                   <div key={i} className="hist-top10-row">
                     <span className="hist-rk">{i + 1}</span>
@@ -1340,7 +1340,7 @@ export default function App() {
                 {/* Cap line */}
                 <div className="hist-card-caps">
                   <span className="hist-cap-orange"><span style={{filter:"hue-rotate(175deg) saturate(3) brightness(1.1)"}}>🧢</span> {h.orangeCap.split(" ").slice(-1)[0]} {h.orangeRuns} runs</span>
-                  <span className="hist-cap-purple"><span style={{filter:"hue-rotate(60deg) saturate(2) brightness(0.9)"}}>🧢</span> {h.purpleCap.split(" ").slice(-1)[0]} {h.purpleWkts} wks</span>
+                  <span className="hist-cap-purple"><span style={{filter:"hue-rotate(270deg) saturate(4) brightness(0.6)"}}>🧢</span> {h.purpleCap.split(" ").slice(-1)[0]} {h.purpleWkts} wks</span>
                 </div>
               </div>
               <div className="hist-card-arrow">›</div>
@@ -1977,6 +1977,7 @@ export default function App() {
                         <td style={{ padding: "8px 0 8px 12px", color: isTop4 ? "#22c55e" : "var(--text-3)", fontWeight: 700, fontSize: "0.68rem" }}>{i + 1}</td>
                         <td style={{ padding: "8px 4px" }}>
                           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                            <div style={{ width: 2, height: 18, borderRadius: 2, background: color, flexShrink: 0 }} />
                             {logoUrl
                               ? <img src={logoUrl} alt={t.teamCode} style={{ width: 20, height: 20, objectFit: "contain", flexShrink: 0 }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                               : <div style={{ width: 20, height: 20, borderRadius: "50%", background: color + "33", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.5rem", fontWeight: 700, color, flexShrink: 0 }}>{t.teamCode.slice(0,2)}</div>
