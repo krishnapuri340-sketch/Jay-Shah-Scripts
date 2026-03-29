@@ -570,3 +570,31 @@ body { background: var(--bg); }
   pointer-events: none;
 }
 
+
+/* === TROPHY CABINET === */
+.hist-cabinet {
+  background: var(--surface); border-radius: 14px;
+  padding: 14px 14px 10px; margin-bottom: 14px;
+  border: 1px solid rgba(212,168,67,0.2);
+}
+.hist-cabinet-title {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--gold); margin-bottom: 12px;
+}
+.hist-cabinet-rows { display: flex; flex-direction: column; gap: 9px; }
+.hist-cabinet-row {
+  display: flex; align-items: center; gap: 10px;
+}
+.hist-cabinet-info { flex: 1; min-width: 0; }
+.hist-cabinet-name {
+  font-size: 0.73rem; font-weight: 600; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  margin-bottom: 4px;
+}
+.hist-cabinet-bar-wrap {
+  height: 5px; background: rgba(255,255,255,0.07); border-radius: 3px; overflow: hidden;
+}
+.hist-cabinet-bar { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+.hist-cabinet-count {
+  font-size: 1.05rem; font-weight: 800; min-width: 22px; text-align: right;
+}

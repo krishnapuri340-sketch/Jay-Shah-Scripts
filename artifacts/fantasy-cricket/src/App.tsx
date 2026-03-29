@@ -242,6 +242,22 @@ const IPL_TEAM_BADGE: Record<string, { abbr: string; bg: string; fg: string }> =
   "Punjab Kings":                  { abbr: "PBKS", bg: "#AA0000", fg: "#fff" },
   "Kings XI Punjab":               { abbr: "KXIP", bg: "#AA0000", fg: "#fff" },
   "Lucknow Super Giants":          { abbr: "LSG",  bg: "#00B4D8", fg: "#fff" },
+  "Gujarat Lions":                 { abbr: "GL",   bg: "#F26522", fg: "#fff" },
+  "Kochi Tuskers Kerala":          { abbr: "KTK",  bg: "#7B2D8B", fg: "#fff" },
+  "Pune Warriors":                 { abbr: "PWI",  bg: "#004B87", fg: "#fff" },
+};
+// Official IPL CDN logos for active/recent teams
+const TEAM_LOGO_CDN: Record<string, string> = {
+  RR:   "https://scores.iplt20.com/ipl/teamlogos/RR.png",
+  CSK:  "https://scores.iplt20.com/ipl/teamlogos/CSK.png",
+  KKR:  "https://scores.iplt20.com/ipl/teamlogos/KKR.png",
+  MI:   "https://scores.iplt20.com/ipl/teamlogos/MI.png",
+  SRH:  "https://scores.iplt20.com/ipl/teamlogos/SRH.png",
+  RCB:  "https://scores.iplt20.com/ipl/teamlogos/RCB.png",
+  GT:   "https://scores.iplt20.com/ipl/teamlogos/GT.png",
+  DC:   "https://scores.iplt20.com/ipl/teamlogos/DC.png",
+  PBKS: "https://scores.iplt20.com/ipl/teamlogos/PBKS.png",
+  LSG:  "https://scores.iplt20.com/ipl/teamlogos/LSG.png",
 };
 // Abbreviation → team name (for top-10 rows)
 const ABBR_TO_TEAM: Record<string, string> = {
@@ -249,16 +265,28 @@ const ABBR_TO_TEAM: Record<string, string> = {
   KKR:"Kolkata Knight Riders", MI:"Mumbai Indians", SRH:"Sunrisers Hyderabad",
   RCB:"Royal Challengers Bengaluru", RPS:"Rising Pune Supergiant", GT:"Gujarat Titans",
   DC:"Delhi Capitals", DD:"Delhi Daredevils", PBKS:"Punjab Kings", KXIP:"Kings XI Punjab",
-  LSG:"Lucknow Super Giants", PWI:"Pune Warriors",
+  LSG:"Lucknow Super Giants", PWI:"Pune Warriors", GL:"Gujarat Lions",
 };
 function TeamBadge({ name, size = 32 }: { name: string; size?: number }) {
   const b = IPL_TEAM_BADGE[name] || IPL_TEAM_BADGE[ABBR_TO_TEAM[name]] || { abbr: name.slice(0,2).toUpperCase(), bg:"#444", fg:"#fff" };
+  const logoUrl = TEAM_LOGO_CDN[b.abbr];
   const fs = b.abbr.length >= 4 ? size * 0.27 : b.abbr.length === 3 ? size * 0.3 : size * 0.35;
+  const pad = size * 0.1;
   return (
     <div style={{ width:size, height:size, borderRadius:"50%", background:b.bg,
       display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0,
-      border:"1.5px solid rgba(255,255,255,0.12)", }}>
-      <span style={{ color:b.fg, fontSize:fs, fontWeight:800, letterSpacing:"-0.3px", lineHeight:1 }}>{b.abbr}</span>
+      border:"1.5px solid rgba(255,255,255,0.15)", overflow:"hidden", position:"relative" }}>
+      {logoUrl ? (
+        <img src={logoUrl} alt={b.abbr}
+          style={{ width: size - pad*2, height: size - pad*2, objectFit:"contain", position:"absolute" }}
+          onError={(e) => {
+            (e.target as HTMLImageElement).style.display = "none";
+            const el = (e.target as HTMLImageElement).nextSibling as HTMLElement;
+            if (el) el.style.display = "flex";
+          }} />
+      ) : null}
+      <span style={{ color:b.fg, fontSize:fs, fontWeight:800, letterSpacing:"-0.3px", lineHeight:1,
+        display: logoUrl ? "none" : "flex" }}>{b.abbr}</span>
     </div>
   );
 }
@@ -985,7 +1013,7 @@ export default function App() {
         { name: "Virat Kohli", team: "RCB", val: 306 }, { name: "Gautam Gambhir", team: "KKR", val: 311 },
       ],
       topBwl: [
-        { name: "Dwayne Bravo", team: "MI", val: 32 }, { name: "Sunil Narine", team: "KKR", val: 24 },
+        { name: "Dwayne Bravo", team: "CSK", val: 32 }, { name: "Sunil Narine", team: "KKR", val: 24 },
         { name: "Amit Mishra", team: "SRH", val: 20 }, { name: "Morne Morkel", team: "DC", val: 21 },
         { name: "Dale Steyn", team: "SRH", val: 18 }, { name: "R Vinay Kumar", team: "KKR", val: 18 },
         { name: "RP Singh", team: "DC", val: 15 }, { name: "Harbhajan Singh", team: "MI", val: 14 },
@@ -1151,6 +1179,12 @@ export default function App() {
 
   const renderHistory = () => {
     const s = historyYear ? IPL_HISTORY.find(h => h.year === historyYear) : null;
+
+    // Trophy cabinet — titles per team, sorted desc
+    const titleMap: Record<string, number> = {};
+    IPL_HISTORY.forEach(h => { titleMap[h.champion] = (titleMap[h.champion] || 0) + 1; });
+    const titleBoard = Object.entries(titleMap).sort((a, b) => b[1] - a[1]);
+
     return (
       <div>
         <div className="sec-title">IPL History</div>
@@ -1208,27 +1242,54 @@ export default function App() {
             {/* Top 10 lists */}
             <div className="hist-top10-grid">
               <div className="hist-top10-col">
-                <div className="hist-top10-hdr" style={{ color: "#f97316" }}>🟠 Top Runs</div>
+                <div className="hist-top10-hdr" style={{ color: "#f97316" }}>🟠 Top Run-scorers</div>
                 {s.topBat.map((p, i) => (
                   <div key={i} className="hist-top10-row">
                     <span className="hist-rk">{i + 1}</span>
                     <TeamBadge name={p.team} size={20} />
                     <span className="hist-pname">{p.name}</span>
-                    <span className="hist-pval">{p.val}r</span>
+                    <span className="hist-pval">{p.val}</span>
                   </div>
                 ))}
               </div>
               <div className="hist-top10-col">
-                <div className="hist-top10-hdr" style={{ color: "#a78bfa" }}>🟣 Top Wickets</div>
+                <div className="hist-top10-hdr" style={{ color: "#a78bfa" }}>🟣 Top Wicket-takers</div>
                 {s.topBwl.map((p, i) => (
                   <div key={i} className="hist-top10-row">
                     <span className="hist-rk">{i + 1}</span>
                     <TeamBadge name={p.team} size={20} />
                     <span className="hist-pname">{p.name}</span>
-                    <span className="hist-pval">{p.val}w</span>
+                    <span className="hist-pval">{p.val}</span>
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* TROPHY CABINET */}
+        {!s && (
+          <div className="hist-cabinet">
+            <div className="hist-cabinet-title">🏆 Trophy Cabinet</div>
+            <div className="hist-cabinet-rows">
+              {titleBoard.map(([team, count]) => {
+                const b = IPL_TEAM_BADGE[team] || { abbr: "?", bg: "#444", fg: "#fff" };
+                const barW = Math.round((count / titleBoard[0][1]) * 100);
+                return (
+                  <div key={team} className="hist-cabinet-row">
+                    <TeamBadge name={team} size={28} />
+                    <div className="hist-cabinet-info">
+                      <div className="hist-cabinet-name">{team}</div>
+                      <div className="hist-cabinet-bar-wrap">
+                        <div className="hist-cabinet-bar" style={{ width: `${barW}%`, background: b.bg }} />
+                      </div>
+                    </div>
+                    <div className="hist-cabinet-count" style={{ color: b.bg === "#F5C518" ? "#a37e00" : b.bg }}>
+                      {count}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
