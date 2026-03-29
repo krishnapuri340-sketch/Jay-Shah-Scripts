@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 const FANTASY_TEAMS: Record<string, {
   id: string; name: string; emoji: string; color: string;
@@ -637,206 +637,212 @@ export default function App() {
           </div>
         </div>
 
-        <div className="top11-label">Playing XI (Top 11)</div>
-        <div className="players-grid">
-          {td.players.filter(p => td.top11.has(p.name)).map(p => {
-            const isExp = expandedPlayer === p.name;
+        {(() => {
+          const renderBreakdown = (p: { name: string; raw: number; adj: number; role: string; ipl: string }) => {
+            const playerName = p.name;
+            const breakdown = playerMatchPoints[playerName] || [];
+            const isCap = playerName === t.captain;
+            const isVC = playerName === t.vc;
+            const inTop11 = td.top11.has(playerName);
+            const raw = p.raw;
+            const adj = p.adj;
+            const multiplier = isCap ? "× 2 (Captain)" : isVC ? "× 1.5 (VC)" : null;
             return (
-              <div key={p.name} className={`player-card ${p.name === t.captain ? "is-c" : p.name === t.vc ? "is-vc" : ""} ${isExp ? "player-expanded" : ""}`}
-                style={{ cursor: "pointer" }}
-                onClick={() => setExpandedPlayer(isExp ? null : p.name)}>
-                <div className="playing-badge" />
-                <div className="player-ipl-badge" style={{ background: IPL_COLORS[p.ipl] + "33", color: IPL_COLORS[p.ipl] }}>
-                  {p.ipl}
-                </div>
-                <div className="player-name">{hotPlayers.has(p.name) ? "🔥 " : ""}{p.name}</div>
-                <div className="player-pts" style={{ color: p.adj > 0 ? t.color : "#475569" }}>{p.adj}</div>
-                {p.name === t.captain && <div className="player-pts-raw">raw: {p.raw} × 2</div>}
-                {p.name === t.vc && <div className="player-pts-raw">raw: {p.raw} × 1.5</div>}
-                <div style={{ fontSize: "0.55rem", color: "#475569", marginTop: 2 }}>{isExp ? "▲ hide" : "▼ details"}</div>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="top11-label" style={{ marginTop: 16 }}>Bench</div>
-        <div className="players-grid">
-          {td.players.filter(p => !td.top11.has(p.name)).map(p => {
-            const isExp = expandedPlayer === p.name;
-            return (
-              <div key={p.name} className={`player-card benched ${isExp ? "player-expanded" : ""}`}
-                style={{ cursor: "pointer" }}
-                onClick={() => setExpandedPlayer(isExp ? null : p.name)}>
-                <div className="player-ipl-badge" style={{ background: IPL_COLORS[p.ipl] + "22", color: IPL_COLORS[p.ipl] + "88" }}>
-                  {p.ipl}
-                </div>
-                <div className="player-name" style={{ color: "#64748b" }}>{p.name}</div>
-                <div className="player-pts" style={{ color: "#475569" }}>{p.adj}</div>
-                <div style={{ fontSize: "0.55rem", color: "#475569", marginTop: 2 }}>{isExp ? "▲ hide" : "▼ details"}</div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Player point breakdown panel */}
-        {expandedPlayer && (() => {
-          const playerName = expandedPlayer;
-          const breakdown = playerMatchPoints[playerName] || [];
-          const pData = td.players.find(p => p.name === playerName);
-          const isCap = playerName === t.captain;
-          const isVC = playerName === t.vc;
-          const inTop11 = td.top11.has(playerName);
-          const raw = pData?.raw ?? 0;
-          const adj = pData?.adj ?? 0;
-          const multiplier = isCap ? "× 2 (Captain)" : isVC ? "× 1.5 (VC)" : null;
-          return (
-            <div style={{
-              marginTop: 16, background: "rgba(15,21,32,0.95)", border: "1px solid rgba(255,255,255,0.1)",
-              borderRadius: 14, padding: "14px 16px",
-            }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: "0.95rem", color: "#f1f5f9" }}>{playerName}</div>
-                  <div style={{ display: "flex", gap: 6, marginTop: 4, flexWrap: "wrap" }}>
-                    <span style={{ fontSize: "0.62rem", padding: "1px 7px", borderRadius: 10, background: IPL_COLORS[pData?.ipl || ""] + "22", color: IPL_COLORS[pData?.ipl || ""] }}>{pData?.ipl}</span>
-                    {isCap && <span style={{ fontSize: "0.62rem", padding: "1px 7px", borderRadius: 10, background: "rgba(251,191,36,0.15)", color: "#fbbf24", border: "1px solid rgba(251,191,36,0.3)" }}>© Captain ×2</span>}
-                    {isVC && <span style={{ fontSize: "0.62rem", padding: "1px 7px", borderRadius: 10, background: "rgba(167,139,250,0.15)", color: "#a78bfa", border: "1px solid rgba(167,139,250,0.3)" }}>VC ×1.5</span>}
-                    {!inTop11 && <span style={{ fontSize: "0.62rem", padding: "1px 7px", borderRadius: 10, background: "rgba(100,116,139,0.15)", color: "#64748b" }}>Bench</span>}
-                    <span style={{ fontSize: "0.62rem", padding: "1px 7px", borderRadius: 10, background: "rgba(100,116,139,0.1)", color: "#64748b" }}>{pData?.role}</span>
+              <div style={{
+                gridColumn: "1 / -1", background: "rgba(10,16,28,0.98)",
+                border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12,
+                padding: "12px 14px", marginTop: 2, marginBottom: 2,
+              }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: "0.9rem", color: "#f1f5f9" }}>{playerName}</div>
+                    <div style={{ display: "flex", gap: 5, marginTop: 4, flexWrap: "wrap" as const }}>
+                      <span style={{ fontSize: "0.6rem", padding: "1px 6px", borderRadius: 10, background: IPL_COLORS[p.ipl] + "22", color: IPL_COLORS[p.ipl] }}>{p.ipl}</span>
+                      {isCap && <span style={{ fontSize: "0.6rem", padding: "1px 6px", borderRadius: 10, background: "rgba(251,191,36,0.15)", color: "#fbbf24", border: "1px solid rgba(251,191,36,0.3)" }}>© Captain ×2</span>}
+                      {isVC && <span style={{ fontSize: "0.6rem", padding: "1px 6px", borderRadius: 10, background: "rgba(167,139,250,0.15)", color: "#a78bfa", border: "1px solid rgba(167,139,250,0.3)" }}>VC ×1.5</span>}
+                      {!inTop11 && <span style={{ fontSize: "0.6rem", padding: "1px 6px", borderRadius: 10, background: "rgba(100,116,139,0.15)", color: "#64748b" }}>Bench</span>}
+                      <span style={{ fontSize: "0.6rem", padding: "1px 6px", borderRadius: 10, background: "rgba(100,116,139,0.1)", color: "#64748b" }}>{p.role}</span>
+                    </div>
                   </div>
+                  <button onClick={(e) => { e.stopPropagation(); setExpandedPlayer(null); }}
+                    style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", fontSize: "1rem", padding: "2px 6px" }}>✕</button>
                 </div>
-                <button onClick={() => setExpandedPlayer(null)}
-                  style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", fontSize: "1rem", padding: "2px 6px" }}>✕</button>
-              </div>
 
-              {breakdown.length === 0 ? (
-                <div style={{ color: "#475569", fontSize: "0.78rem", textAlign: "center", padding: "12px 0" }}>No match data yet — points sync after each game.</div>
-              ) : (
-                <>
-                  <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 10 }}>
-                    {breakdown.map((entry, ei) => {
-                      const s = entry.stats;
-                      // Build categorised breakdown lines from raw stats
-                      const lines: { label: string; pts: number; color: string }[] = [];
-                      if (s) {
-                        // Playing XI
-                        lines.push({ label: "Playing XI", pts: 4, color: "#94a3b8" });
-                        // Batting
-                        if (s.runs > 0) lines.push({ label: `${s.runs} runs (${s.balls}b)`, pts: s.runs, color: "#f97316" });
-                        if (s.fours > 0) lines.push({ label: `${s.fours} fours`, pts: s.fours * 4, color: "#fb923c" });
-                        if (s.sixes > 0) lines.push({ label: `${s.sixes} sixes`, pts: s.sixes * 6, color: "#fbbf24" });
-                        if (s.duck) lines.push({ label: "Duck", pts: -2, color: "#ef4444" });
-                        const r = s.runs; const b = s.balls;
-                        if (r >= 100) lines.push({ label: "Century bonus", pts: 16, color: "#34d399" });
-                        else if (r >= 75) lines.push({ label: "75+ bonus", pts: 12, color: "#34d399" });
-                        else if (r >= 50) lines.push({ label: "Half-century bonus", pts: 8, color: "#34d399" });
-                        else if (r >= 25) lines.push({ label: "25+ bonus", pts: 4, color: "#34d399" });
-                        if (b >= 10 || r >= 20) {
-                          const sr = b > 0 ? (r / b) * 100 : 0;
-                          if (sr > 190) lines.push({ label: `SR ${sr.toFixed(0)} bonus`, pts: 8, color: "#34d399" });
-                          else if (sr > 170) lines.push({ label: `SR ${sr.toFixed(0)} bonus`, pts: 6, color: "#34d399" });
-                          else if (sr > 150) lines.push({ label: `SR ${sr.toFixed(0)} bonus`, pts: 4, color: "#34d399" });
-                          else if (sr >= 130) lines.push({ label: `SR ${sr.toFixed(0)} bonus`, pts: 2, color: "#34d399" });
-                          else if (sr >= 70 && sr <= 100) lines.push({ label: `SR ${sr.toFixed(0)} penalty`, pts: -2, color: "#ef4444" });
-                          else if (sr >= 60 && sr < 70) lines.push({ label: `SR ${sr.toFixed(0)} penalty`, pts: -4, color: "#ef4444" });
-                          else if (sr >= 50 && sr < 60) lines.push({ label: `SR ${sr.toFixed(0)} penalty`, pts: -6, color: "#ef4444" });
+                {breakdown.length === 0 ? (
+                  <div style={{ color: "#475569", fontSize: "0.75rem", textAlign: "center" as const, padding: "10px 0" }}>No match data yet — points sync after each game.</div>
+                ) : (
+                  <>
+                    <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 8 }}>
+                      {breakdown.map((entry, ei) => {
+                        const s = entry.stats;
+                        const lines: { label: string; pts: number; color: string }[] = [];
+                        if (s) {
+                          lines.push({ label: "Playing XI", pts: 4, color: "#94a3b8" });
+                          if (s.runs > 0) lines.push({ label: `${s.runs} runs (${s.balls}b)`, pts: s.runs, color: "#f97316" });
+                          if (s.fours > 0) lines.push({ label: `${s.fours} fours`, pts: s.fours * 4, color: "#fb923c" });
+                          if (s.sixes > 0) lines.push({ label: `${s.sixes} sixes`, pts: s.sixes * 6, color: "#fbbf24" });
+                          if (s.duck) lines.push({ label: "Duck", pts: -2, color: "#ef4444" });
+                          const r = s.runs; const b = s.balls;
+                          if (r >= 100) lines.push({ label: "Century bonus", pts: 16, color: "#34d399" });
+                          else if (r >= 75) lines.push({ label: "75+ bonus", pts: 12, color: "#34d399" });
+                          else if (r >= 50) lines.push({ label: "Half-century bonus", pts: 8, color: "#34d399" });
+                          else if (r >= 25) lines.push({ label: "25+ bonus", pts: 4, color: "#34d399" });
+                          if (b >= 10 || r >= 20) {
+                            const sr = b > 0 ? (r / b) * 100 : 0;
+                            if (sr > 190) lines.push({ label: `SR ${sr.toFixed(0)} bonus`, pts: 8, color: "#34d399" });
+                            else if (sr > 170) lines.push({ label: `SR ${sr.toFixed(0)} bonus`, pts: 6, color: "#34d399" });
+                            else if (sr > 150) lines.push({ label: `SR ${sr.toFixed(0)} bonus`, pts: 4, color: "#34d399" });
+                            else if (sr >= 130) lines.push({ label: `SR ${sr.toFixed(0)} bonus`, pts: 2, color: "#34d399" });
+                            else if (sr >= 70 && sr <= 100) lines.push({ label: `SR ${sr.toFixed(0)} penalty`, pts: -2, color: "#ef4444" });
+                            else if (sr >= 60 && sr < 70) lines.push({ label: `SR ${sr.toFixed(0)} penalty`, pts: -4, color: "#ef4444" });
+                            else if (sr >= 50 && sr < 60) lines.push({ label: `SR ${sr.toFixed(0)} penalty`, pts: -6, color: "#ef4444" });
+                          }
+                          if (s.wickets > 0) lines.push({ label: `${s.wickets} wicket${s.wickets > 1 ? "s" : ""}`, pts: s.wickets * 30, color: "#60a5fa" });
+                          if (s.lbwBowled > 0) lines.push({ label: `${s.lbwBowled} LBW/Bowled`, pts: s.lbwBowled * 8, color: "#60a5fa" });
+                          if (s.dots > 0) lines.push({ label: `${s.dots} dot balls`, pts: s.dots * 2, color: "#818cf8" });
+                          if (s.maidens > 0) lines.push({ label: `${s.maidens} maiden${s.maidens > 1 ? "s" : ""}`, pts: s.maidens * 12, color: "#818cf8" });
+                          const w = s.wickets;
+                          if (w >= 5) lines.push({ label: "5-wicket haul", pts: 16, color: "#34d399" });
+                          else if (w >= 4) lines.push({ label: "4-wicket haul", pts: 12, color: "#34d399" });
+                          else if (w >= 3) lines.push({ label: "3-wicket haul", pts: 8, color: "#34d399" });
+                          const overs = s.ballsBowled / 6;
+                          if (overs >= 2) {
+                            const eco = s.runsConceded / overs;
+                            if (eco < 5) lines.push({ label: `Eco ${eco.toFixed(1)} bonus`, pts: 8, color: "#34d399" });
+                            else if (eco < 6) lines.push({ label: `Eco ${eco.toFixed(1)} bonus`, pts: 6, color: "#34d399" });
+                            else if (eco <= 7) lines.push({ label: `Eco ${eco.toFixed(1)} bonus`, pts: 4, color: "#34d399" });
+                            else if (eco <= 8) lines.push({ label: `Eco ${eco.toFixed(1)} bonus`, pts: 2, color: "#34d399" });
+                            else if (eco >= 10 && eco <= 11) lines.push({ label: `Eco ${eco.toFixed(1)} penalty`, pts: -2, color: "#ef4444" });
+                            else if (eco > 11 && eco <= 12) lines.push({ label: `Eco ${eco.toFixed(1)} penalty`, pts: -4, color: "#ef4444" });
+                            else if (eco > 12) lines.push({ label: `Eco ${eco.toFixed(1)} penalty`, pts: -6, color: "#ef4444" });
+                          }
+                          if (s.catches > 0) lines.push({ label: `${s.catches} catch${s.catches > 1 ? "es" : ""}`, pts: s.catches * 8, color: "#a78bfa" });
+                          if (s.catches >= 3) lines.push({ label: "3+ catch bonus", pts: 4, color: "#a78bfa" });
+                          if (s.runOuts > 0) lines.push({ label: `${s.runOuts} run out${s.runOuts > 1 ? "s" : ""}`, pts: s.runOuts * 10, color: "#a78bfa" });
+                          if (s.stumpings > 0) lines.push({ label: `${s.stumpings} stumping${s.stumpings > 1 ? "s" : ""}`, pts: s.stumpings * 12, color: "#a78bfa" });
                         }
-                        // Bowling
-                        if (s.wickets > 0) lines.push({ label: `${s.wickets} wickets`, pts: s.wickets * 30, color: "#60a5fa" });
-                        if (s.lbwBowled > 0) lines.push({ label: `${s.lbwBowled} LBW/Bowled`, pts: s.lbwBowled * 8, color: "#60a5fa" });
-                        if (s.dots > 0) lines.push({ label: `${s.dots} dot balls`, pts: s.dots * 2, color: "#818cf8" });
-                        if (s.maidens > 0) lines.push({ label: `${s.maidens} maidens`, pts: s.maidens * 12, color: "#818cf8" });
-                        const w = s.wickets;
-                        if (w >= 5) lines.push({ label: "5-wicket haul", pts: 16, color: "#34d399" });
-                        else if (w >= 4) lines.push({ label: "4-wicket haul", pts: 12, color: "#34d399" });
-                        else if (w >= 3) lines.push({ label: "3-wicket haul", pts: 8, color: "#34d399" });
-                        const overs = s.ballsBowled / 6;
-                        if (overs >= 2) {
-                          const eco = s.runsConceded / overs;
-                          if (eco < 5) lines.push({ label: `Eco ${eco.toFixed(1)} bonus`, pts: 8, color: "#34d399" });
-                          else if (eco < 6) lines.push({ label: `Eco ${eco.toFixed(1)} bonus`, pts: 6, color: "#34d399" });
-                          else if (eco <= 7) lines.push({ label: `Eco ${eco.toFixed(1)} bonus`, pts: 4, color: "#34d399" });
-                          else if (eco <= 8) lines.push({ label: `Eco ${eco.toFixed(1)} bonus`, pts: 2, color: "#34d399" });
-                          else if (eco >= 10 && eco <= 11) lines.push({ label: `Eco ${eco.toFixed(1)} penalty`, pts: -2, color: "#ef4444" });
-                          else if (eco > 11 && eco <= 12) lines.push({ label: `Eco ${eco.toFixed(1)} penalty`, pts: -4, color: "#ef4444" });
-                          else if (eco > 12) lines.push({ label: `Eco ${eco.toFixed(1)} penalty`, pts: -6, color: "#ef4444" });
-                        }
-                        // Fielding
-                        if (s.catches > 0) lines.push({ label: `${s.catches} catch${s.catches > 1 ? "es" : ""}`, pts: s.catches * 8, color: "#a78bfa" });
-                        if (s.catches >= 3) lines.push({ label: "3+ catch bonus", pts: 4, color: "#a78bfa" });
-                        if (s.runOuts > 0) lines.push({ label: `${s.runOuts} run out${s.runOuts > 1 ? "s" : ""}`, pts: s.runOuts * 10, color: "#a78bfa" });
-                        if (s.stumpings > 0) lines.push({ label: `${s.stumpings} stumping${s.stumpings > 1 ? "s" : ""}`, pts: s.stumpings * 12, color: "#a78bfa" });
-                      }
-                      return (
-                        <div key={ei} style={{ marginBottom: 12, paddingBottom: 10, borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: s ? 8 : 0 }}>
-                            <div style={{ fontSize: "0.72rem", color: "#94a3b8" }}>
-                              <span style={{ color: "#64748b", marginRight: 6 }}>M{entry.matchNum < 900 ? entry.matchNum : "live"}</span>
-                              {shortMatchLabel(entry.label)}
+                        return (
+                          <div key={ei} style={{ marginBottom: 10, paddingBottom: 8, borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: s ? 6 : 0 }}>
+                              <div style={{ fontSize: "0.68rem", color: "#94a3b8" }}>
+                                <span style={{ color: "#64748b", marginRight: 5 }}>M{entry.matchNum < 900 ? entry.matchNum : "live"}</span>
+                                {shortMatchLabel(entry.label)}
+                              </div>
+                              <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                                <span style={{ fontSize: "0.57rem", padding: "1px 5px", borderRadius: 8,
+                                  background: entry.source === "official" ? "rgba(52,211,153,0.1)" : "rgba(251,191,36,0.1)",
+                                  color: entry.source === "official" ? "#34d399" : "#fbbf24",
+                                  border: `1px solid ${entry.source === "official" ? "rgba(52,211,153,0.2)" : "rgba(251,191,36,0.2)"}` }}>
+                                  {entry.source === "official" ? "✓ official" : "★ live"}
+                                </span>
+                                <span style={{ fontWeight: 700, fontSize: "0.88rem", color: entry.pts > 0 ? "#f1f5f9" : "#475569", minWidth: 28, textAlign: "right" as const }}>
+                                  {entry.pts}
+                                </span>
+                              </div>
                             </div>
-                            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                              <span style={{ fontSize: "0.58rem", padding: "1px 5px", borderRadius: 8,
-                                background: entry.source === "official" ? "rgba(52,211,153,0.1)" : "rgba(251,191,36,0.1)",
-                                color: entry.source === "official" ? "#34d399" : "#fbbf24",
-                                border: `1px solid ${entry.source === "official" ? "rgba(52,211,153,0.2)" : "rgba(251,191,36,0.2)"}` }}>
-                                {entry.source === "official" ? "✓ official" : "★ live"}
-                              </span>
-                              <span style={{ fontWeight: 700, fontSize: "0.92rem", color: entry.pts > 0 ? "#f1f5f9" : "#475569", minWidth: 32, textAlign: "right" as const }}>
-                                {entry.pts}
-                              </span>
-                            </div>
+                            {s && lines.length > 0 && (
+                              <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "2px 10px", padding: "5px 8px", background: "rgba(255,255,255,0.02)", borderRadius: 7 }}>
+                                {lines.map((line, li) => (
+                                  <>
+                                    <span key={`l${li}`} style={{ fontSize: "0.62rem", color: "#64748b" }}>{line.label}</span>
+                                    <span key={`p${li}`} style={{ fontSize: "0.62rem", fontWeight: 600, color: line.pts >= 0 ? line.color : "#ef4444", textAlign: "right" as const }}>
+                                      {line.pts > 0 ? "+" : ""}{line.pts}
+                                    </span>
+                                  </>
+                                ))}
+                              </div>
+                            )}
+                            {s && (() => {
+                              const computed = lines.reduce((a, l) => a + l.pts, 0);
+                              const diff = entry.pts - computed;
+                              if (Math.abs(diff) > 0) {
+                                return (
+                                  <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "2px 10px", padding: "3px 8px 0", marginTop: 2 }}>
+                                    <span style={{ fontSize: "0.62rem", color: "#475569" }}>Dots / other</span>
+                                    <span style={{ fontSize: "0.62rem", fontWeight: 600, color: diff >= 0 ? "#818cf8" : "#ef4444", textAlign: "right" as const }}>{diff > 0 ? "+" : ""}{diff}</span>
+                                  </div>
+                                );
+                              }
+                              return null;
+                            })()}
+                            {!s && entry.source === "official" && (
+                              <div style={{ fontSize: "0.6rem", color: "#475569", paddingLeft: 4, marginTop: 2 }}>Official score — stats syncing...</div>
+                            )}
                           </div>
-                          {s && lines.length > 0 && (
-                            <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "2px 12px", padding: "6px 10px", background: "rgba(255,255,255,0.02)", borderRadius: 8 }}>
-                              {lines.map((line, li) => (
-                                <>
-                                  <span key={`l${li}`} style={{ fontSize: "0.65rem", color: "#64748b" }}>{line.label}</span>
-                                  <span key={`p${li}`} style={{ fontSize: "0.65rem", fontWeight: 600, color: line.pts >= 0 ? line.color : "#ef4444", textAlign: "right" as const }}>
-                                    {line.pts > 0 ? "+" : ""}{line.pts}
-                                  </span>
-                                </>
-                              ))}
-                            </div>
-                          )}
-                          {s && (() => {
-                            const computed = lines.reduce((a, l) => a + l.pts, 0);
-                            const diff = entry.pts - computed;
-                            if (Math.abs(diff) > 0) {
-                              return (
-                                <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "2px 12px", padding: "4px 10px 0", marginTop: 2 }}>
-                                  <span style={{ fontSize: "0.65rem", color: "#475569" }}>Dots / other</span>
-                                  <span style={{ fontSize: "0.65rem", fontWeight: 600, color: diff >= 0 ? "#818cf8" : "#ef4444", textAlign: "right" as const }}>{diff > 0 ? "+" : ""}{diff}</span>
-                                </div>
-                              );
-                            }
-                            return null;
-                          })()}
-                          {!s && entry.source === "official" && (
-                            <div style={{ fontSize: "0.62rem", color: "#475569", paddingLeft: 4, marginTop: 2 }}>Official score — stats syncing...</div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", marginTop: 4, paddingTop: 10 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", color: "#64748b" }}>
-                      <span>Raw total</span>
-                      <span style={{ color: "#94a3b8" }}>{raw} pts</span>
+                        );
+                      })}
                     </div>
-                    {multiplier && (
-                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", color: "#64748b", marginTop: 4 }}>
-                        <span>Multiplier</span>
-                        <span style={{ color: isCap ? "#fbbf24" : "#a78bfa" }}>{multiplier}</span>
+                    <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)", marginTop: 2, paddingTop: 8 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", color: "#64748b" }}>
+                        <span>Raw total</span>
+                        <span style={{ color: "#94a3b8" }}>{raw} pts</span>
                       </div>
-                    )}
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.92rem", fontWeight: 700, marginTop: 8, color: inTop11 ? t.color : "#475569" }}>
-                      <span>{inTop11 ? "Counts toward team score" : "Bench (not counted)"}</span>
-                      <span>{adj} pts</span>
+                      {multiplier && (
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", color: "#64748b", marginTop: 3 }}>
+                          <span>Multiplier</span>
+                          <span style={{ color: isCap ? "#fbbf24" : "#a78bfa" }}>{multiplier}</span>
+                        </div>
+                      )}
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem", fontWeight: 700, marginTop: 6, color: inTop11 ? t.color : "#475569" }}>
+                        <span>{inTop11 ? "Counts toward team" : "Bench (not counted)"}</span>
+                        <span>{adj} pts</span>
+                      </div>
                     </div>
-                  </div>
-                </>
-              )}
-            </div>
+                  </>
+                )}
+              </div>
+            );
+          };
+
+          return (
+            <>
+              <div className="top11-label">Playing XI (Top 11)</div>
+              <div className="players-grid">
+                {td.players.filter(p => td.top11.has(p.name)).map(p => {
+                  const isExp = expandedPlayer === p.name;
+                  return (
+                    <React.Fragment key={p.name}>
+                      <div className={`player-card ${p.name === t.captain ? "is-c" : p.name === t.vc ? "is-vc" : ""} ${isExp ? "player-expanded" : ""}`}
+                        style={{ cursor: "pointer" }}
+                        onClick={() => setExpandedPlayer(isExp ? null : p.name)}>
+                        <div className="playing-badge" />
+                        <div className="player-ipl-badge" style={{ background: IPL_COLORS[p.ipl] + "33", color: IPL_COLORS[p.ipl] }}>
+                          {p.ipl}
+                        </div>
+                        <div className="player-name">{hotPlayers.has(p.name) ? "🔥 " : ""}{p.name}</div>
+                        <div className="player-pts" style={{ color: p.adj > 0 ? t.color : "#475569" }}>{p.adj}</div>
+                        {p.name === t.captain && <div className="player-pts-raw">raw: {p.raw} × 2</div>}
+                        {p.name === t.vc && <div className="player-pts-raw">raw: {p.raw} × 1.5</div>}
+                        <div style={{ fontSize: "0.55rem", color: "#475569", marginTop: 2 }}>{isExp ? "▲ hide" : "▼ details"}</div>
+                      </div>
+                      {isExp && renderBreakdown(p)}
+                    </React.Fragment>
+                  );
+                })}
+              </div>
+
+              <div className="top11-label" style={{ marginTop: 16 }}>Bench</div>
+              <div className="players-grid">
+                {td.players.filter(p => !td.top11.has(p.name)).map(p => {
+                  const isExp = expandedPlayer === p.name;
+                  return (
+                    <React.Fragment key={p.name}>
+                      <div className={`player-card benched ${isExp ? "player-expanded" : ""}`}
+                        style={{ cursor: "pointer" }}
+                        onClick={() => setExpandedPlayer(isExp ? null : p.name)}>
+                        <div className="player-ipl-badge" style={{ background: IPL_COLORS[p.ipl] + "22", color: IPL_COLORS[p.ipl] + "88" }}>
+                          {p.ipl}
+                        </div>
+                        <div className="player-name" style={{ color: "#64748b" }}>{p.name}</div>
+                        <div className="player-pts" style={{ color: "#475569" }}>{p.adj}</div>
+                        <div style={{ fontSize: "0.55rem", color: "#475569", marginTop: 2 }}>{isExp ? "▲ hide" : "▼ details"}</div>
+                      </div>
+                      {isExp && renderBreakdown(p)}
+                    </React.Fragment>
+                  );
+                })}
+              </div>
+            </>
           );
         })()}
       </div>
