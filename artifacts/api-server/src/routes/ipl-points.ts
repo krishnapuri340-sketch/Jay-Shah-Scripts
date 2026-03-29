@@ -929,87 +929,120 @@ router.get("/ipl/playing11", async (req, res) => {
       }
     };
 
-    // Source 1: Playing XI from CricAPI — try match_info first, then match_scorecard batting lineup
-    for (const cricapiId of todayCricapiIds) {
-      const cached = playing11Cache[cricapiId];
-      if (cached && Date.now() - cached.fetched < PLAYING11_CACHE_TTL) {
-        matchNames(cached.names);
-        continue;
-      }
+    // Strip captain/wk markers from IPL feed player names e.g. "Virat Kohli (c)" -> "Virat Kohli"
+    const stripRoleMarkers = (name: string) =>
+      name.replace(/\s*\([cwk]+\)/gi, "").trim();
 
-      if (!CRICAPI_KEY || pointsCache.dailyHits.count >= DAILY_CALL_LIMIT) continue;
+    // Source 1 (primary, free, no API credits): IPL official Innings feeds
+    // BattingCard lists ALL 11 from the batting team in order — even players yet to bat.
+    // BowlingCard lists fielding-team bowlers who've bowled so far.
+    // Combining innings 1+2 gives up to the full 22-player playing XI.
+    const IPL_FEED_BASE = "https://ipl-stats-sports-mechanic.s3.ap-south-1.amazonaws.com/ipl/feeds";
+    const iplInnNames: string[] = [];
 
-      let names: string[] = [];
-
-      // 1a: match_info — best source, full 22-player XI when available
-      try {
-        const data = await cricapiGet("match_info", { id: cricapiId });
-        const raw: string[] = [];
-        if (data?.players && typeof data.players === "object" && !Array.isArray(data.players)) {
-          for (const team of Object.values(data.players) as any[]) {
-            if (Array.isArray(team)) {
-              for (const p of team) {
-                const n = typeof p === "string" ? p : (p?.name || "");
-                if (n) raw.push(n);
-              }
-            }
-          }
-        }
-        if (!raw.length) {
-          for (const field of ["squads", "playing11"] as const) {
-            if (Array.isArray((data as any)?.[field])) {
-              for (const p of (data as any)[field]) {
-                const n = typeof p === "string" ? p : (p?.name || "");
-                if (n) raw.push(n);
-              }
-              if (raw.length) break;
-            }
-          }
-        }
-        names = raw;
-      } catch { /* fall through to scorecard */ }
-
-      // 1b: match_scorecard batting lineup — reliable fallback; batting array lists all 11 even before they bat
-      if (!names.length && pointsCache.dailyHits.count < DAILY_CALL_LIMIT) {
+    for (const iplId of todayIplIds) {
+      for (const n of [1, 2]) {
         try {
-          const data = await cricapiGet("match_scorecard", { id: cricapiId });
-          const scorecard: any[] = data?.scorecard || [];
-          const raw: string[] = [];
-          for (const inning of scorecard) {
-            for (const bat of inning.batting || []) {
-              const n = bat?.batsman?.name || bat?.batsmanName || "";
-              if (n) raw.push(n);
-            }
-            for (const bowl of inning.bowling || []) {
-              const n = bowl?.bowler?.name || bowl?.bowlerName || "";
-              if (n) raw.push(n);
-            }
+          const r = await fetch(`${IPL_FEED_BASE}/${iplId}-Innings${n}.js`);
+          if (!r.ok) break;
+          const text = await r.text();
+          const raw = text.replace(/^[A-Za-z_$][A-Za-z0-9_$]*\(/, "").replace(/\)\s*;?\s*$/, "");
+          const data = JSON.parse(raw);
+          const inn = data[`Innings${n}`] || {};
+          for (const bat of inn.BattingCard || []) {
+            const name = stripRoleMarkers(bat.PlayerName || "");
+            if (name) iplInnNames.push(name);
           }
-          names = raw;
-        } catch { /* skip */ }
-      }
-
-      if (names.length) {
-        playing11Cache[cricapiId] = { names, fetched: Date.now() };
-        matchNames(names);
+          for (const bowl of inn.BowlingCard || []) {
+            const name = stripRoleMarkers(bowl.PlayerName || "");
+            if (name) iplInnNames.push(name);
+          }
+        } catch { break; }
       }
     }
 
-    // Source 2: Scorecard cache (fallback — confirms players who've appeared in innings)
-    // Uses todayIplIds collected during schedule fetch above.
-    for (const iplId of todayIplIds) {
-      const matchData = pointsCache.processedMatches[iplId];
-      if (!matchData?.innings?.length) continue;
-      const scorecardNames: string[] = [];
-      for (const inning of matchData.innings) {
-        for (const bat of inning.batting || []) {
-          if (bat.name && !bat.dnb) scorecardNames.push(bat.name);
+    if (iplInnNames.length) {
+      matchNames(iplInnNames);
+    } else {
+      // Source 2 (backup, uses API credits): CricAPI match_info then match_scorecard
+      for (const cricapiId of todayCricapiIds) {
+        const cached = playing11Cache[cricapiId];
+        if (cached && Date.now() - cached.fetched < PLAYING11_CACHE_TTL) {
+          matchNames(cached.names);
+          continue;
         }
-        for (const bowl of inning.bowling || []) {
-          if (bowl.name) scorecardNames.push(bowl.name);
+        if (!CRICAPI_KEY || pointsCache.dailyHits.count >= DAILY_CALL_LIMIT) continue;
+        let names: string[] = [];
+
+        // 2a: match_info
+        try {
+          const data = await cricapiGet("match_info", { id: cricapiId });
+          const raw: string[] = [];
+          if (data?.players && typeof data.players === "object" && !Array.isArray(data.players)) {
+            for (const team of Object.values(data.players) as any[]) {
+              if (Array.isArray(team)) {
+                for (const p of team) {
+                  const n = typeof p === "string" ? p : (p?.name || "");
+                  if (n) raw.push(n);
+                }
+              }
+            }
+          }
+          if (!raw.length) {
+            for (const field of ["squads", "playing11"] as const) {
+              if (Array.isArray((data as any)?.[field])) {
+                for (const p of (data as any)[field]) {
+                  const n = typeof p === "string" ? p : (p?.name || "");
+                  if (n) raw.push(n);
+                }
+                if (raw.length) break;
+              }
+            }
+          }
+          names = raw;
+        } catch { /* fall through */ }
+
+        // 2b: match_scorecard batting array
+        if (!names.length && pointsCache.dailyHits.count < DAILY_CALL_LIMIT) {
+          try {
+            const data = await cricapiGet("match_scorecard", { id: cricapiId });
+            const scorecard: any[] = data?.scorecard || [];
+            const raw: string[] = [];
+            for (const inning of scorecard) {
+              for (const bat of inning.batting || []) {
+                const n = bat?.batsman?.name || bat?.batsmanName || "";
+                if (n) raw.push(n);
+              }
+              for (const bowl of inning.bowling || []) {
+                const n = bowl?.bowler?.name || bowl?.bowlerName || "";
+                if (n) raw.push(n);
+              }
+            }
+            names = raw;
+          } catch { /* skip */ }
+        }
+
+        if (names.length) {
+          playing11Cache[cricapiId] = { names, fetched: Date.now() };
+          matchNames(names);
         }
       }
-      if (scorecardNames.length) matchNames(scorecardNames);
+
+      // Source 3: Scorecard cache (last resort — players who've appeared in processed innings)
+      for (const iplId of todayIplIds) {
+        const matchData = pointsCache.processedMatches[iplId];
+        if (!matchData?.innings?.length) continue;
+        const scorecardNames: string[] = [];
+        for (const inning of matchData.innings) {
+          for (const bat of inning.batting || []) {
+            if (bat.name && !bat.dnb) scorecardNames.push(bat.name);
+          }
+          for (const bowl of inning.bowling || []) {
+            if (bowl.name) scorecardNames.push(bowl.name);
+          }
+        }
+        if (scorecardNames.length) matchNames(scorecardNames);
+      }
     }
 
     res.json({ inXI: confirmedFantasyNames, liveMatchesFound, matchCount: todayCricapiIds.length });
