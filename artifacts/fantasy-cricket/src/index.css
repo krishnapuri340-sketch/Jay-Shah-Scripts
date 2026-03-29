@@ -466,8 +466,8 @@ body { background: var(--bg); }
 .hist-card-sn { font-size: 0.58rem; color: var(--text-3); font-weight: 500; letter-spacing: 0.4px; margin-top: 2px; }
 .hist-card-main { flex: 1; min-width: 0; padding: 11px 10px 10px; }
 .hist-card-row { display: flex; align-items: center; gap: 7px; }
-.hist-card-champ { font-size: 0.88rem; font-weight: 800; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.hist-card-ru { font-size: 0.65rem; color: var(--text-3); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hist-card-champ { font-size: 0.84rem; font-weight: 800; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hist-card-ru { font-size: 0.8rem; color: var(--text-2); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .hist-card-caps {
   display: flex; align-items: center; gap: 6px; flex-wrap: nowrap;
   font-size: 0.64rem; color: var(--text-2); font-weight: 500;
@@ -525,7 +525,7 @@ body { background: var(--bg); }
 .hist-hero-champion {
   display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
 }
-.hist-hero-runner { font-size: 0.72rem; color: var(--text-3); margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
+.hist-hero-runner { margin-bottom: 14px; display: flex; align-items: center; gap: 10px; padding: 10px 0 0; border-top: 1px solid var(--border); }
 .hist-hero-awards { display: flex; gap: 6px; flex-wrap: wrap; }
 .hist-hero-award {
   flex: 1; min-width: 90px;

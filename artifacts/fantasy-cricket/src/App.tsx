@@ -998,7 +998,7 @@ export default function App() {
         { name: "Mohit Sharma", team: "CSK", val: 23 }, { name: "Piyush Chawla", team: "PBKS", val: 21 },
         { name: "Sandeep Sharma", team: "PBKS", val: 19 }, { name: "Pragyan Ojha", team: "MI", val: 18 },
         { name: "Bhuvneshwar Kumar", team: "SRH", val: 17 }, { name: "Umesh Yadav", team: "KKR", val: 17 },
-        { name: "Morne Morkel", team: "DC", val: 15 }, { name: "Dhawal Kulkarni", team: "RR", val: 16 },
+        { name: "Morne Morkel", team: "DD", val: 15 }, { name: "Dhawal Kulkarni", team: "RR", val: 16 },
         { name: "Harbhajan Singh", team: "MI", val: 12 }, { name: "Imran Tahir", team: "CSK", val: 11 },
       ],
     },
@@ -1014,9 +1014,9 @@ export default function App() {
       ],
       topBwl: [
         { name: "Dwayne Bravo", team: "CSK", val: 32 }, { name: "Sunil Narine", team: "KKR", val: 24 },
-        { name: "Amit Mishra", team: "SRH", val: 20 }, { name: "Morne Morkel", team: "DC", val: 21 },
+        { name: "Amit Mishra", team: "SRH", val: 20 }, { name: "Morne Morkel", team: "DD", val: 21 },
         { name: "Dale Steyn", team: "SRH", val: 18 }, { name: "R Vinay Kumar", team: "KKR", val: 18 },
-        { name: "RP Singh", team: "DC", val: 15 }, { name: "Harbhajan Singh", team: "MI", val: 14 },
+        { name: "RP Singh", team: "DD", val: 15 }, { name: "Harbhajan Singh", team: "MI", val: 14 },
         { name: "Brad Hogg", team: "RR", val: 12 }, { name: "Piyush Chawla", team: "PBKS", val: 13 },
       ],
     },
@@ -1027,15 +1027,15 @@ export default function App() {
         { name: "Chris Gayle", team: "RCB", val: 733 }, { name: "Gautam Gambhir", team: "KKR", val: 590 },
         { name: "Michael Hussey", team: "CSK", val: 517 }, { name: "Ajinkya Rahane", team: "RR", val: 560 },
         { name: "Suresh Raina", team: "CSK", val: 474 }, { name: "Jacques Kallis", team: "KKR", val: 415 },
-        { name: "Kevin Pietersen", team: "DC", val: 388 }, { name: "Rohit Sharma", team: "MI", val: 434 },
+        { name: "Kevin Pietersen", team: "DD", val: 388 }, { name: "Rohit Sharma", team: "MI", val: 434 },
         { name: "MS Dhoni", team: "CSK", val: 358 }, { name: "Virat Kohli", team: "RCB", val: 364 },
       ],
       topBwl: [
-        { name: "Morne Morkel", team: "DC", val: 25 }, { name: "Sunil Narine", team: "KKR", val: 24 },
+        { name: "Morne Morkel", team: "DD", val: 25 }, { name: "Sunil Narine", team: "KKR", val: 24 },
         { name: "Lasith Malinga", team: "MI", val: 22 }, { name: "Harbhajan Singh", team: "MI", val: 21 },
-        { name: "Piyush Chawla", team: "CSK", val: 19 }, { name: "Pragyan Ojha", team: "DC", val: 19 },
-        { name: "Dwayne Bravo", team: "CSK", val: 18 }, { name: "Amit Mishra", team: "DC", val: 18 },
-        { name: "Bhuvneshwar Kumar", team: "PWI", val: 15 }, { name: "RP Singh", team: "DC", val: 17 },
+        { name: "Piyush Chawla", team: "CSK", val: 19 }, { name: "Pragyan Ojha", team: "MI", val: 19 },
+        { name: "Dwayne Bravo", team: "CSK", val: 18 }, { name: "Amit Mishra", team: "DCH", val: 18 },
+        { name: "Bhuvneshwar Kumar", team: "PWI", val: 15 }, { name: "RP Singh", team: "DCH", val: 17 },
       ],
     },
     {
@@ -1051,8 +1051,8 @@ export default function App() {
       topBwl: [
         { name: "Lasith Malinga", team: "MI", val: 28 }, { name: "Piyush Chawla", team: "KKR", val: 21 },
         { name: "Albie Morkel", team: "CSK", val: 19 }, { name: "Doug Bollinger", team: "CSK", val: 18 },
-        { name: "Harbhajan Singh", team: "MI", val: 17 }, { name: "Amit Mishra", team: "DD", val: 16 },
-        { name: "RP Singh", team: "DC", val: 15 }, { name: "Dwayne Bravo", team: "CSK", val: 14 },
+        { name: "Harbhajan Singh", team: "MI", val: 17 }, { name: "Amit Mishra", team: "DCH", val: 16 },
+        { name: "RP Singh", team: "DCH", val: 15 }, { name: "Dwayne Bravo", team: "CSK", val: 14 },
         { name: "Sreesanth", team: "PBKS", val: 13 }, { name: "Shane Bond", team: "MI", val: 13 },
       ],
     },
@@ -1061,14 +1061,14 @@ export default function App() {
       color: "#F5C518", orangeCap: "Sachin Tendulkar", orangeRuns: 618, purpleCap: "Pragyan Ojha", purpleWkts: 21, mvp: "Sachin Tendulkar",
       topBat: [
         { name: "Sachin Tendulkar", team: "MI", val: 618 }, { name: "Gautam Gambhir", team: "KKR", val: 553 },
-        { name: "Suresh Raina", team: "CSK", val: 520 }, { name: "Kumar Sangakkara", team: "DC", val: 512 },
-        { name: "Rohit Sharma", team: "DC", val: 404 }, { name: "Michael Hussey", team: "CSK", val: 388 },
+        { name: "Suresh Raina", team: "CSK", val: 520 }, { name: "Kumar Sangakkara", team: "DCH", val: 512 },
+        { name: "Rohit Sharma", team: "DCH", val: 404 }, { name: "Michael Hussey", team: "CSK", val: 388 },
         { name: "Murali Vijay", team: "CSK", val: 366 }, { name: "Jacques Kallis", team: "KKR", val: 307 },
         { name: "MS Dhoni", team: "CSK", val: 287 }, { name: "Abhishek Nayar", team: "MI", val: 292 },
       ],
       topBwl: [
-        { name: "Pragyan Ojha", team: "DC", val: 21 }, { name: "Dale Steyn", team: "DC", val: 17 },
-        { name: "RP Singh", team: "DC", val: 17 }, { name: "Munaf Patel", team: "MI", val: 18 },
+        { name: "Pragyan Ojha", team: "DCH", val: 21 }, { name: "Dale Steyn", team: "DCH", val: 17 },
+        { name: "RP Singh", team: "DCH", val: 17 }, { name: "Munaf Patel", team: "MI", val: 18 },
         { name: "Zaheer Khan", team: "MI", val: 16 }, { name: "Ashish Nehra", team: "CSK", val: 15 },
         { name: "Piyush Chawla", team: "KKR", val: 15 }, { name: "Vinay Kumar", team: "RCB", val: 13 },
         { name: "Shaun Pollock", team: "MI", val: 14 }, { name: "Albie Morkel", team: "CSK", val: 13 },
@@ -1078,16 +1078,16 @@ export default function App() {
       year: 2009, season: 2, champion: "Deccan Chargers", runnerUp: "Royal Challengers Bangalore",
       color: "#1B75BB", orangeCap: "Matthew Hayden", orangeRuns: 572, purpleCap: "RP Singh", purpleWkts: 23, mvp: "Adam Gilchrist",
       topBat: [
-        { name: "Matthew Hayden", team: "CSK", val: 572 }, { name: "Adam Gilchrist", team: "DC", val: 495 },
-        { name: "Sachin Tendulkar", team: "MI", val: 418 }, { name: "Herschelle Gibbs", team: "DC", val: 441 },
+        { name: "Matthew Hayden", team: "CSK", val: 572 }, { name: "Adam Gilchrist", team: "DCH", val: 495 },
+        { name: "Sachin Tendulkar", team: "MI", val: 418 }, { name: "Herschelle Gibbs", team: "DCH", val: 441 },
         { name: "AB de Villiers", team: "DD", val: 424 }, { name: "Michael Hussey", team: "CSK", val: 388 },
         { name: "Jacques Kallis", team: "KKR", val: 372 }, { name: "Ross Taylor", team: "RR", val: 366 },
-        { name: "Rohit Sharma", team: "DC", val: 362 }, { name: "Justin Kemp", team: "RR", val: 323 },
+        { name: "Rohit Sharma", team: "DCH", val: 362 }, { name: "Justin Kemp", team: "RR", val: 323 },
       ],
       topBwl: [
-        { name: "RP Singh", team: "DC", val: 23 }, { name: "Muttiah Muralitharan", team: "CSK", val: 21 },
-        { name: "Pragyan Ojha", team: "DC", val: 18 }, { name: "Vinay Kumar", team: "RCB", val: 18 },
-        { name: "Dale Steyn", team: "DC", val: 17 }, { name: "Amit Mishra", team: "DD", val: 16 },
+        { name: "RP Singh", team: "DCH", val: 23 }, { name: "Muttiah Muralitharan", team: "CSK", val: 21 },
+        { name: "Pragyan Ojha", team: "DCH", val: 18 }, { name: "Vinay Kumar", team: "RCB", val: 18 },
+        { name: "Dale Steyn", team: "DCH", val: 17 }, { name: "Amit Mishra", team: "DCH", val: 16 },
         { name: "Harbhajan Singh", team: "MI", val: 16 }, { name: "Pradeep Sangwan", team: "DD", val: 15 },
         { name: "Chaminda Vaas", team: "CSK", val: 14 }, { name: "Ishant Sharma", team: "KKR", val: 12 },
       ],
@@ -1103,9 +1103,9 @@ export default function App() {
         { name: "Gautam Gambhir", team: "DD", val: 362 }, { name: "Michael Hussey", team: "CSK", val: 349 },
       ],
       topBwl: [
-        { name: "Sohail Tanvir", team: "RR", val: 22 }, { name: "RP Singh", team: "DC", val: 19 },
+        { name: "Sohail Tanvir", team: "RR", val: 22 }, { name: "RP Singh", team: "DCH", val: 19 },
         { name: "Ishant Sharma", team: "KKR", val: 17 }, { name: "Munaf Patel", team: "RR", val: 16 },
-        { name: "Zaheer Khan", team: "DD", val: 16 }, { name: "Pragyan Ojha", team: "DC", val: 15 },
+        { name: "Zaheer Khan", team: "DD", val: 16 }, { name: "Pragyan Ojha", team: "DCH", val: 15 },
         { name: "Amit Mishra", team: "DD", val: 15 }, { name: "Shane Bond", team: "KKR", val: 14 },
         { name: "Irfan Pathan", team: "PBKS", val: 14 }, { name: "Chaminda Vaas", team: "CSK", val: 13 },
       ],
@@ -1243,17 +1243,20 @@ export default function App() {
             </button>
             {/* Champion hero card */}
             <div className="hist-hero" style={{ borderColor: s.color }}>
-              <div className="hist-hero-year" style={{ color: s.color }}>Season {s.season} · {s.year}</div>
+              <div className="hist-hero-year" style={{ color: s.color }}>Season {s.season} · IPL {s.year}</div>
               <div className="hist-hero-champion">
-                <TeamBadge name={s.champion} size={42} />
+                <TeamBadge name={s.champion} size={44} />
                 <div>
-                  <div style={{ color: s.color, fontSize: "1.1rem", fontWeight: 800, lineHeight: 1.2 }}>🏆 {s.champion}</div>
-                  <div style={{ fontSize: "0.7rem", color: "var(--text-3)", marginTop: 2 }}>IPL {s.year} Champion</div>
+                  <div style={{ color: s.color, fontSize: "1.05rem", fontWeight: 800, lineHeight: 1.2 }}>{s.champion} 🏆</div>
+                  <div style={{ fontSize: "0.68rem", color: "var(--text-3)", marginTop: 3, fontWeight: 500 }}>Champions</div>
                 </div>
               </div>
               <div className="hist-hero-runner">
-                <TeamBadge name={s.runnerUp} size={20} />
-                <span>Runner-up: {s.runnerUp}</span>
+                <TeamBadge name={s.runnerUp} size={32} />
+                <div>
+                  <div style={{ fontSize: "0.88rem", fontWeight: 700, color: "var(--text-2)" }}>{s.runnerUp}</div>
+                  <div style={{ fontSize: "0.65rem", color: "var(--text-3)", marginTop: 2 }}>Runner-up</div>
+                </div>
               </div>
               <div className="hist-hero-awards">
                 <div className="hist-hero-award">
@@ -1317,13 +1320,13 @@ export default function App() {
               <div className="hist-card-main">
                 {/* Champion row */}
                 <div className="hist-card-row">
-                  <TeamBadge name={h.champion} size={26} />
-                  <span className="hist-card-champ" style={{ color: h.color }}>🏆 {champAbbr}</span>
+                  <TeamBadge name={h.champion} size={24} />
+                  <span className="hist-card-champ" style={{ color: h.color }}>{champAbbr} 🏆</span>
                 </div>
                 {/* Runner-up row */}
                 <div className="hist-card-row" style={{ marginTop: 5 }}>
-                  <TeamBadge name={h.runnerUp} size={18} />
-                  <span className="hist-card-ru">Runner-up: {ruAbbr}</span>
+                  <TeamBadge name={h.runnerUp} size={24} />
+                  <span className="hist-card-ru">{ruAbbr}</span>
                 </div>
                 {/* Cap line */}
                 <div className="hist-card-caps">
