@@ -2486,7 +2486,10 @@ export default function App() {
   const handleSwipeEnd = (e: React.TouchEvent) => {
     const dx = e.changedTouches[0].clientX - swipeStartX.current;
     const dy = e.changedTouches[0].clientY - swipeStartY.current;
-    if (Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx) * 0.65) return;
+    // Must be a clearly horizontal swipe: min 70px horizontal, and horizontal
+    // must be at least 3× the vertical movement (within ~18° of horizontal axis)
+    if (Math.abs(dx) < 70) return;
+    if (Math.abs(dy) > Math.abs(dx) * 0.3) return;
     const idx = SWIPEABLE_TABS.indexOf(tab);
     if (idx === -1) return;
     if (dx < 0 && idx < SWIPEABLE_TABS.length - 1) setTab(SWIPEABLE_TABS[idx + 1]);
