@@ -606,11 +606,6 @@ export default function App() {
         </div>
       )}
 
-      {/* Upcoming lineup previews — all matches within 24h (handles double-headers) */}
-      {upcomingLineupPreviews.map((data, i) => (
-        <LineupPreviewCard key={data.match.id ?? i} data={data} matchIndex={i} totalMatches={upcomingLineupPreviews.length} />
-      ))}
-
       <div className="sec-title">Leaderboard</div>
       <div style={{ display: "flex", gap: 6, justifyContent: "flex-end", marginBottom: 10 }}>
         <button

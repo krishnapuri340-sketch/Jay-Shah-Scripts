@@ -404,19 +404,19 @@ body { background: #07090f; }
 
 /* Player cards — NOT playing in next match */
 .player-card.not-playing-next {
-  opacity: 0.38;
-  filter: saturate(0.4);
+  opacity: 0.55;
+  filter: saturate(0.55);
 }
 .player-card.not-playing-next:hover,
 .player-card.not-playing-next.player-expanded {
-  opacity: 0.7;
-  filter: saturate(0.8);
+  opacity: 0.82;
+  filter: saturate(0.9);
 }
 
 /* Light mode overrides */
 .light-mode .player-card.playing-next { background: rgba(240,255,244,0.98) !important; }
-.light-mode .player-card.not-playing-next { opacity: 0.32; filter: saturate(0.3) brightness(0.9); }
-.light-mode .player-card.not-playing-next:hover { opacity: 0.65; filter: saturate(0.7); }
+.light-mode .player-card.not-playing-next { opacity: 0.5; filter: saturate(0.5) brightness(0.92); }
+.light-mode .player-card.not-playing-next:hover { opacity: 0.8; filter: saturate(0.85); }
 
 /* === LINEUP PREVIEW CARD === */
 .lineup-preview-card {
