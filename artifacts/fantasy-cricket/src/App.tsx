@@ -735,6 +735,22 @@ export default function App() {
   const shortMatchLabel = (label: string) =>
     label.split(" vs ").map(t => TEAM_ABBREVS[t.trim()] || t.trim().split(" ").map((w: string) => w[0]).join("")).join(" vs ");
 
+  const Sparkline = ({ name, color }: { name: string; color: string }) => {
+    const ms = (playerMatchPoints[name] || []).slice(-5);
+    if (ms.length === 0) return null;
+    const maxPts = Math.max(...ms.map(m => m.pts), 1);
+    const BAR_W = 3, GAP = 2, H = 10;
+    const W = ms.length * BAR_W + (ms.length - 1) * GAP;
+    return (
+      <svg width={W} height={H} style={{ display: "block", marginTop: 3, flexShrink: 0, opacity: 0.75 }}>
+        {ms.map((m, i) => {
+          const barH = Math.max(2, Math.round((m.pts / maxPts) * H));
+          return <rect key={i} x={i * (BAR_W + GAP)} y={H - barH} width={BAR_W} height={barH} rx={1} fill={m.pts > 0 ? color : "#334155"} />;
+        })}
+      </svg>
+    );
+  };
+
   const renderTeams = () => {
     const t = FANTASY_TEAMS[selectedTeam];
     const td = getTeamData(selectedTeam, playerPoints);
@@ -1091,7 +1107,10 @@ export default function App() {
                         <div className="player-ipl-badge" style={{ background: IPL_COLORS[p.ipl] + "33", color: IPL_COLORS[p.ipl] }}>
                           {p.ipl}
                         </div>
-                        <div className="player-name" style={isLiveNow ? { color: "#fca5a5" } : {}}>{p.name}{p.name === t.captain ? <span style={{ marginLeft: 5, fontSize: "0.56rem", color: "#d4a843", fontWeight: 700 }}>C</span> : p.name === t.vc ? <span style={{ marginLeft: 5, fontSize: "0.56rem", color: "#a1a1aa", fontWeight: 700 }}>VC</span> : null}</div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div className="player-name" style={isLiveNow ? { color: "#fca5a5" } : {}}>{p.name}{p.name === t.captain ? <span style={{ marginLeft: 5, fontSize: "0.56rem", color: "#d4a843", fontWeight: 700 }}>C</span> : p.name === t.vc ? <span style={{ marginLeft: 5, fontSize: "0.56rem", color: "#a1a1aa", fontWeight: 700 }}>VC</span> : null}</div>
+                          <Sparkline name={p.name} color={t.color} />
+                        </div>
                         <div style={{ textAlign: "right", flexShrink: 0 }}>
                           <div className="player-pts" style={{ color: isLiveNow ? "#fca5a5" : p.adj > 0 ? t.color : "var(--text-3)" }}>{p.adj}</div>
                           {p.name === t.captain && <div className="player-pts-raw">×2</div>}
@@ -1123,7 +1142,10 @@ export default function App() {
                         <div className="player-ipl-badge" style={{ background: IPL_COLORS[p.ipl] + "22", color: IPL_COLORS[p.ipl] + "99" }}>
                           {p.ipl}
                         </div>
-                        <div className="player-name" style={isLiveNow ? { color: "#fca5a5" } : {}}>{p.name}{p.name === t.captain ? <span style={{ marginLeft: 5, fontSize: "0.56rem", color: "#d4a843", fontWeight: 700 }}>C</span> : p.name === t.vc ? <span style={{ marginLeft: 5, fontSize: "0.56rem", color: "#a1a1aa", fontWeight: 700 }}>VC</span> : null}</div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div className="player-name" style={isLiveNow ? { color: "#fca5a5" } : {}}>{p.name}{p.name === t.captain ? <span style={{ marginLeft: 5, fontSize: "0.56rem", color: "#d4a843", fontWeight: 700 }}>C</span> : p.name === t.vc ? <span style={{ marginLeft: 5, fontSize: "0.56rem", color: "#a1a1aa", fontWeight: 700 }}>VC</span> : null}</div>
+                          <Sparkline name={p.name} color={t.color + "88"} />
+                        </div>
                         <div style={{ textAlign: "right", flexShrink: 0 }}>
                           <div className="player-pts" style={{ color: isLiveNow ? "#fca5a5" : "var(--text-3)" }}>{p.adj}</div>
                           {p.name === t.captain && <div className="player-pts-raw">×2</div>}
