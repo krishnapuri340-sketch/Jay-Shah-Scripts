@@ -1646,14 +1646,18 @@ export default function App() {
         <div className="content">
           <div className="header">
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <img
-                src={`${import.meta.env.BASE_URL}logo.jpeg`}
-                alt="Logo"
-                className="header-logo"
-              />
-              <div>
-                <div className="header-title">IPL Fantasy</div>
-                <div className="header-season-sub">2026 season</div>
+              <div className="header-logo-ring">
+                <div className="header-logo-inner">
+                  <img
+                    src={`${import.meta.env.BASE_URL}logo.jpeg`}
+                    alt="Logo"
+                    className="header-logo"
+                  />
+                </div>
+              </div>
+              <div className="header-title-row">
+                <span className="header-title">IPL Fantasy</span>
+                <span className="header-year">2026</span>
               </div>
             </div>
             <div className="header-right">

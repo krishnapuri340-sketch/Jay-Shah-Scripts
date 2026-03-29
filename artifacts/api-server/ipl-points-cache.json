@@ -1041,6 +1041,28 @@
       "matchDate": "2026-03-28",
       "matchNumber": 1,
       "linkedIplId": "2417"
+    },
+    "4d7bd0d4-48ea-42d6-8cc1-c6eb4155a1f0": {
+      "points": {
+        "Suryakumar Yadav": 32,
+        "Rohit Sharma": 162,
+        "Ryan Rickelton": 167,
+        "Tilak Varma": 58,
+        "Hardik Pandya": 84,
+        "Sherfane Rutherford": 12,
+        "Trent Boult": 18,
+        "Jasprit Bumrah": 12,
+        "Finn Allen": 89,
+        "Ajinkya Rahane": 125,
+        "Cameron Green": 38,
+        "Rinku Singh": 69,
+        "Sunil Narine": 44,
+        "Varun Chakravarthy": 10
+      },
+      "matchLabel": "Mumbai Indians vs Kolkata Knight Riders",
+      "matchDate": "2026-03-29",
+      "matchNumber": 2,
+      "linkedIplId": "2418"
     }
   },
   "playerIdMap": {
@@ -1647,7 +1669,7 @@
       "teamB": "Delhi Capitals"
     }
   },
-  "lastUpdated": null,
+  "lastUpdated": "2026-03-29T18:00:26.567Z",
   "dailyHits": {
     "date": "2026-03-29",
     "count": 39
