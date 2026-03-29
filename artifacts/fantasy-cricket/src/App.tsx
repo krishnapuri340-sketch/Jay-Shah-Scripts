@@ -265,6 +265,8 @@ export default function App() {
   const [isDark, setIsDark] = useState(true);
   const [sparkTip, setSparkTip] = useState<{ label: string; pts: number } | null>(null);
   const [pullY, setPullY] = useState(0);
+  const [installPrompt, setInstallPrompt] = useState<any>(null);
+  const [appInstalled, setAppInstalled] = useState(false);
   const lbContainerRef = useRef<HTMLDivElement>(null);
   const prevCardTops = useRef<Record<string, number>>({});
   const [showToast, setShowToast] = useState(false);
@@ -410,6 +412,18 @@ export default function App() {
 
   // Keep refreshFnRef up-to-date every render so PTR always calls the latest version
   useEffect(() => { refreshFnRef.current = () => { fetchLive(); fetchPoints(); }; });
+
+  // PWA install prompt
+  useEffect(() => {
+    const onPrompt = (e: Event) => { e.preventDefault(); setInstallPrompt(e); };
+    const onInstalled = () => { setAppInstalled(true); setInstallPrompt(null); };
+    window.addEventListener("beforeinstallprompt", onPrompt);
+    window.addEventListener("appinstalled", onInstalled);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", onPrompt);
+      window.removeEventListener("appinstalled", onInstalled);
+    };
+  }, []);
 
   // Pull-to-refresh via native touch listeners (needs passive:true so it doesn't block scroll)
   useEffect(() => {
@@ -1812,6 +1826,23 @@ export default function App() {
               </div>
             </div>
             <div className="header-right">
+              {installPrompt && !appInstalled && (
+                <button
+                  className="btn-install"
+                  onClick={async () => {
+                    installPrompt.prompt();
+                    const { outcome } = await installPrompt.userChoice;
+                    if (outcome === "accepted") { setAppInstalled(true); setInstallPrompt(null); }
+                  }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                  </svg>
+                  Install
+                </button>
+              )}
               <button
                 className={`btn-dashboard ${tab === "admin" ? "active" : ""}`}
                 onClick={() => setTab("admin")}

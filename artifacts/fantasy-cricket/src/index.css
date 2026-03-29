@@ -442,6 +442,17 @@ body { background: var(--bg); }
 .light-mode body { background: #fafafa; }
 .light-mode .app { background: #fafafa; }
 
+/* === INSTALL BUTTON === */
+.btn-install {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--gold); color: #000;
+  border: none; border-radius: 8px;
+  padding: 5px 10px; font-size: 0.7rem; font-weight: 600;
+  cursor: pointer; white-space: nowrap;
+  font-family: inherit;
+}
+.btn-install:active { opacity: 0.8; }
+
 /* === SPARKLINE TOOLTIP === */
 .spark-tip {
   position: fixed;
