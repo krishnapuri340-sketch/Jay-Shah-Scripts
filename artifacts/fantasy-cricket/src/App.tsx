@@ -356,17 +356,26 @@ export default function App() {
     }
   };
 
+  // Initial fetch on mount
   useEffect(() => {
     fetchLive();
     fetchPoints();
     fetchStandings();
     fetchStats();
-    const id1 = setInterval(fetchLive, 15 * 60 * 1000);
-    const id2 = setInterval(fetchPoints, 15 * 60 * 1000);
-    const id3 = setInterval(fetchStandings, 15 * 60 * 1000);
-    const id4 = setInterval(fetchStats, 15 * 60 * 1000);
-    return () => { clearInterval(id1); clearInterval(id2); clearInterval(id3); clearInterval(id4); };
   }, []);
+
+  // Adaptive polling: 1 min during a live match, 15 min when idle
+  const isAnyMatchLive = liveMatches.some((m: any) => m.matchStarted && !m.matchEnded);
+  useEffect(() => {
+    const delay = isAnyMatchLive ? 60_000 : 15 * 60_000;
+    const ids = [
+      setInterval(fetchLive, delay),
+      setInterval(fetchPoints, delay),
+      setInterval(fetchStandings, delay),
+      setInterval(fetchStats, delay),
+    ];
+    return () => ids.forEach(clearInterval);
+  }, [isAnyMatchLive]);
 
   const teamScores = Object.keys(FANTASY_TEAMS)
     .map(id => ({ id, ...getTeamData(id, playerPoints), team: FANTASY_TEAMS[id] }))

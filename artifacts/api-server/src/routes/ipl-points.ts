@@ -530,7 +530,10 @@ const PLAYER_TEAMS: Record<string, string> = {
 
 let pointsUpdateInProgress = false;
 let lastUpdateAttempt = 0;
-const UPDATE_COOLDOWN_MS = 16 * 60 * 1000; // 16 min — respects CricAPI 15-min block window
+let isLiveMatchActive = false; // dynamically tracks if any IPL match is currently live
+const LIVE_COOLDOWN_MS  =  1 * 60 * 1000; // 1 min during live matches
+const IDLE_COOLDOWN_MS  = 16 * 60 * 1000; // 16 min when idle
+const getCooldown = () => isLiveMatchActive ? LIVE_COOLDOWN_MS : IDLE_COOLDOWN_MS;
 let pointsCache: PointsCache = loadCache();
 let lastPointsCacheReload = 0;
 
@@ -690,7 +693,7 @@ router.get("/ipl/points", async (req, res) => {
     }
 
     // Run Supabase sync + CricAPI innings fetch in background
-    if (Date.now() - lastUpdateAttempt >= UPDATE_COOLDOWN_MS) {
+    if (Date.now() - lastUpdateAttempt >= getCooldown()) {
       pointsUpdateInProgress = true;
       lastUpdateAttempt = Date.now();
       (async () => {
@@ -750,6 +753,8 @@ router.get("/ipl/points", async (req, res) => {
                   Object.values(pointsCache.supabaseScores).map(f => f.linkedIplId).filter(Boolean) as string[]
                 );
                 const liveMatches = allMatches.filter((m: any) => m.MatchStatus === "Live");
+                isLiveMatchActive = liveMatches.length > 0;
+                if (isLiveMatchActive) console.log(`[live] ${liveMatches.length} match(es) live — 1-min CricAPI cooldown active`);
                 const fallbackMatches = allMatches.filter((m: any) => {
                   if (m.MatchStatus !== "Post") return false;
                   const iplId = String(m.MatchID);
