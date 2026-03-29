@@ -550,7 +550,7 @@ export default function App() {
         {liveMatches.length === 0 && !liveLoading && (
           <div className="empty-state"><div className="big">🏟️</div><p>No IPL matches found.<br />Try refreshing.</p></div>
         )}
-        {Object.entries(grouped).map(([date, matches]) => (
+        {Object.entries(grouped).map(([date, matches]: [string, any[]]) => (
           <div key={date}>
             <div style={{ fontSize: "0.63rem", letterSpacing: "2px", textTransform: "uppercase", color: "#475569", margin: "14px 0 8px", fontWeight: 600 }}>
               {fmtDate(date)} <span style={{ color: "#334155" }}>· {matches.length} match{matches.length !== 1 ? "es" : ""}</span>
