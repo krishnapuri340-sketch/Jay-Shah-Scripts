@@ -755,29 +755,22 @@ export default function App() {
 
             {/* LIVE section */}
             {hasLiveNow && (
-              <div style={{ marginBottom: hasNextMatch ? 10 : 0 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 7 }}>
+              <div style={{ marginBottom: hasNextMatch ? 12 : 0 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
                   <span className="live-pulse-dot" />
-                  <div>
-                    {liveNowInfo.map((info, i) => (
-                      <div key={i} style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 5, marginBottom: i < liveNowInfo.length - 1 ? 3 : 0 }}>
-                        <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "0.85rem", letterSpacing: "1px", color: "#f87171" }}>LIVE NOW:</span>
-                        <span style={{ fontSize: "0.72rem", color: "#fca5a5", fontWeight: 600 }}>{info.matchLabel}</span>
-                        {info.playingTeams.filter(t2 => IPL_COLORS[t2]).map(t2 => (
-                          <span key={t2} style={{ fontSize: "0.56rem", fontWeight: 700, padding: "1px 6px", borderRadius: 4, background: IPL_COLORS[t2] + "22", border: `1px solid ${IPL_COLORS[t2]}44`, color: IPL_COLORS[t2] }}>{t2}</span>
-                        ))}
-                      </div>
-                    ))}
-                  </div>
+                  <span style={{ fontSize: "0.65rem", fontWeight: 600, color: "#f87171", letterSpacing: "0.06em" }}>LIVE</span>
+                  {liveNowInfo[0] && <span style={{ fontSize: "0.65rem", color: "var(--text-3)" }}>{liveNowInfo[0].matchLabel}</span>}
                 </div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                   {td.players.filter(p => liveNowPlaying.has(p.name)).map(p => (
-                    <div key={p.name} style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 9px", borderRadius: 8, background: "#f8717118", border: "1px solid #f8717130" }}>
-                      <span style={{ fontSize: "0.7rem" }}>{ROLE_ICONS[p.role]}</span>
-                      <span style={{ fontSize: "0.74rem", fontWeight: 600, color: "#fca5a5" }}>{p.name}</span>
-                      {p.name === t.captain && <span style={{ fontSize: "0.56rem", fontWeight: 800, color: "#d4a017", background: "rgba(212,160,23,0.18)", borderRadius: 4, padding: "1px 4px" }}>C</span>}
-                      {p.name === t.vc && <span style={{ fontSize: "0.56rem", fontWeight: 800, color: "#a78bfa", background: "rgba(167,139,250,0.12)", borderRadius: 4, padding: "1px 4px" }}>VC</span>}
-                      <span style={{ fontSize: "0.6rem", color: IPL_COLORS[p.ipl] || "#64748b", fontWeight: 700 }}>{p.ipl}</span>
+                    <div key={p.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#f87171", display: "inline-block", flexShrink: 0, boxShadow: "0 0 4px #f87171" }} />
+                        <span style={{ fontSize: "0.78rem", fontWeight: 500, color: "#fca5a5" }}>{p.name}</span>
+                        {p.name === t.captain && <span style={{ fontSize: "0.55rem", fontWeight: 700, color: "#d4a843" }}>C</span>}
+                        {p.name === t.vc && <span style={{ fontSize: "0.55rem", fontWeight: 700, color: "var(--text-3)" }}>VC</span>}
+                      </div>
+                      <span style={{ fontSize: "0.62rem", color: IPL_COLORS[p.ipl] || "var(--text-3)", fontWeight: 600 }}>{p.ipl}</span>
                     </div>
                   ))}
                 </div>
@@ -786,48 +779,32 @@ export default function App() {
 
             {/* Divider when both sections exist */}
             {hasLiveNow && hasNextMatch && (
-              <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", marginBottom: 10 }} />
+              <div style={{ borderTop: "1px solid var(--border)", marginBottom: 12 }} />
             )}
 
             {/* UPCOMING section */}
             {hasNextMatch && (
               <div>
-                <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 7 }}>
-                  <span style={{ fontSize: "0.95rem" }}>🔮</span>
-                  <div>
-                    {nextMatchInfoForTeam.map((info, i) => (
-                      <div key={i} style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 5, marginBottom: i < nextMatchInfoForTeam.length - 1 ? 3 : 0 }}>
-                        <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "0.85rem", letterSpacing: "1px", color: "#e8821a" }}>
-                          {nextMatchInfoForTeam.length > 1 ? `MATCH ${i + 1}:` : "UPCOMING:"}
-                        </span>
-                        <span style={{ fontSize: "0.72rem", color: "#cbd5e1", fontWeight: 600 }}>{info.matchLabel}</span>
-                        {info.playingTeams.filter(t2 => IPL_COLORS[t2]).map(t2 => (
-                          <span key={t2} style={{ fontSize: "0.56rem", fontWeight: 700, padding: "1px 6px", borderRadius: 4, background: IPL_COLORS[t2] + "22", border: `1px solid ${IPL_COLORS[t2]}44`, color: IPL_COLORS[t2] }}>{t2}</span>
-                        ))}
-                      </div>
-                    ))}
-                  </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", display: "inline-block", flexShrink: 0 }} />
+                  <span style={{ fontSize: "0.65rem", fontWeight: 600, color: "#4ade80", letterSpacing: "0.06em" }}>UPCOMING</span>
+                  {nextMatchInfoForTeam[0] && <span style={{ fontSize: "0.65rem", color: "var(--text-3)" }}>{nextMatchInfoForTeam[0].matchLabel}</span>}
                 </div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                   {td.players.filter(p => nextMatchPlaying.has(p.name) && !liveNowPlaying.has(p.name)).map(p => (
-                    <div key={p.name} style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 9px", borderRadius: 8, background: (IPL_COLORS[p.ipl] || "#334155") + "18", border: `1px solid ${IPL_COLORS[p.ipl] || "#334155"}35` }}>
-                      <span style={{ fontSize: "0.7rem" }}>{ROLE_ICONS[p.role]}</span>
-                      <span style={{ fontSize: "0.74rem", fontWeight: 600, color: "#f1f5f9" }}>{p.name}</span>
-                      {p.name === t.captain && <span style={{ fontSize: "0.56rem", fontWeight: 800, color: "#d4a017", background: "rgba(212,160,23,0.18)", borderRadius: 4, padding: "1px 4px" }}>C</span>}
-                      {p.name === t.vc && <span style={{ fontSize: "0.56rem", fontWeight: 800, color: "#a78bfa", background: "rgba(167,139,250,0.12)", borderRadius: 4, padding: "1px 4px" }}>VC</span>}
-                      <span style={{ fontSize: "0.6rem", color: IPL_COLORS[p.ipl] || "#64748b", fontWeight: 700 }}>{p.ipl}</span>
+                    <div key={p.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", display: "inline-block", flexShrink: 0 }} />
+                        <span style={{ fontSize: "0.78rem", fontWeight: 500, color: "var(--text-2)" }}>{p.name}</span>
+                        {p.name === t.captain && <span style={{ fontSize: "0.55rem", fontWeight: 700, color: "#d4a843" }}>C</span>}
+                        {p.name === t.vc && <span style={{ fontSize: "0.55rem", fontWeight: 700, color: "var(--text-3)" }}>VC</span>}
+                      </div>
+                      <span style={{ fontSize: "0.62rem", color: IPL_COLORS[p.ipl] || "var(--text-3)", fontWeight: 600 }}>{p.ipl}</span>
                     </div>
                   ))}
                 </div>
               </div>
             )}
-
-            {/* Legend */}
-            <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 10, marginTop: 10, fontSize: "0.6rem", color: "#475569" }}>
-              {hasLiveNow && <span style={{ display: "flex", alignItems: "center", gap: 3 }}><span style={{ width: 6, height: 6, borderRadius: "50%", background: "#f87171", display: "inline-block", boxShadow: "0 0 5px #f87171" }} />Playing now</span>}
-              {hasNextMatch && <span style={{ display: "flex", alignItems: "center", gap: 3 }}><span style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", display: "inline-block" }} />Upcoming</span>}
-              <span style={{ display: "flex", alignItems: "center", gap: 3 }}><span style={{ width: 6, height: 6, borderRadius: "50%", background: "#334155", display: "inline-block", border: "1px solid #475569" }} />Not in match</span>
-            </div>
           </div>
         )}
 
@@ -836,10 +813,10 @@ export default function App() {
             <div className="team-hname" style={{ color: t.color }}>{t.name}</div>
             <div style={{ fontSize: "0.7rem", color: "var(--text-3)", marginBottom: 4 }}>{t.owner}</div>
             <div className="team-roles">
-              {Object.entries(roleCounts).map(([role, n]) => (
+              {Object.entries(roleCounts).sort((a, b) => (b[1] as number) - (a[1] as number)).map(([role, n]) => (
                 <span key={role} className="role-badge"
                   style={{ color: ROLE_COLORS[role], borderColor: ROLE_COLORS[role] + "44", background: ROLE_COLORS[role] + "11" }}>
-                  {ROLE_ICONS[role]} {n} {role}
+                  {n} {role}
                 </span>
               ))}
             </div>
@@ -1081,7 +1058,7 @@ export default function App() {
                         <div className="player-ipl-badge" style={{ background: IPL_COLORS[p.ipl] + "33", color: IPL_COLORS[p.ipl] }}>
                           {p.ipl}
                         </div>
-                        <div className="player-name" style={isLiveNow ? { color: "#fca5a5" } : {}}>{hotPlayers.has(p.name) ? "🔥 " : ""}{p.name}{p.name === t.captain ? <span style={{ marginLeft: 5, fontSize: "0.56rem", color: "#d4a843", fontWeight: 700 }}>C</span> : p.name === t.vc ? <span style={{ marginLeft: 5, fontSize: "0.56rem", color: "#a1a1aa", fontWeight: 700 }}>VC</span> : null}</div>
+                        <div className="player-name" style={isLiveNow ? { color: "#fca5a5" } : {}}>{p.name}{p.name === t.captain ? <span style={{ marginLeft: 5, fontSize: "0.56rem", color: "#d4a843", fontWeight: 700 }}>C</span> : p.name === t.vc ? <span style={{ marginLeft: 5, fontSize: "0.56rem", color: "#a1a1aa", fontWeight: 700 }}>VC</span> : null}</div>
                         <div style={{ textAlign: "right", flexShrink: 0 }}>
                           <div className="player-pts" style={{ color: isLiveNow ? "#fca5a5" : p.adj > 0 ? t.color : "var(--text-3)" }}>{p.adj}</div>
                           {p.name === t.captain && <div className="player-pts-raw">×2</div>}
