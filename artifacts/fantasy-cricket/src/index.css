@@ -50,27 +50,28 @@ body { background: #07090f; }
 .content {
   position: relative; z-index: 1;
   max-width: 900px; margin: 0 auto;
-  padding: 0 16px 90px;
+  padding: 0 14px max(90px, calc(68px + env(safe-area-inset-bottom)));
 }
 
 /* === HEADER === */
 .header {
-  padding: 20px 0 14px;
+  padding: 14px 0 12px;
   display: flex; align-items: center; justify-content: space-between;
   border-bottom: 1px solid rgba(232,130,26,0.12);
-  margin-bottom: 22px;
-  gap: 12px;
+  margin-bottom: 18px;
+  gap: 10px;
 }
 .header-title {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 2rem; letter-spacing: 3px; color: #fff; line-height: 1;
+  font-size: 1.75rem; letter-spacing: 2px; color: #fff; line-height: 1;
 }
 .header-sub {
-  font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase;
-  color: #6b6040; margin-top: 3px;
+  font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase;
+  color: #6b6040; margin-top: 2px;
 }
 .header-right {
-  display: flex; flex-direction: column; align-items: flex-end; gap: 6px;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 5px;
+  flex-shrink: 0;
 }
 .live-pill {
   display: flex; align-items: center; gap: 6px;
@@ -105,24 +106,24 @@ body { background: #07090f; }
   background: rgba(7,9,15,0.97); backdrop-filter: blur(24px);
   border-top: 1px solid rgba(232,130,26,0.1);
   display: flex; justify-content: center;
-  padding: 10px 8px 16px; gap: 2px;
+  padding: 8px 8px env(safe-area-inset-bottom, 16px); gap: 2px;
 }
 .nav-btn {
-  flex: 1; max-width: 90px;
-  display: flex; flex-direction: column; align-items: center; gap: 4px;
-  padding: 10px 4px 8px; border-radius: 12px; border: none; cursor: pointer;
+  flex: 1; max-width: 100px; min-height: 52px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  padding: 8px 4px 6px; border-radius: 14px; border: none; cursor: pointer;
   background: transparent; color: #3d3420;
   font-family: 'DM Sans', sans-serif; font-size: 0.58rem;
-  letter-spacing: 0.8px; text-transform: uppercase; transition: all 0.2s;
+  letter-spacing: 0.8px; text-transform: uppercase; transition: all 0.18s;
   -webkit-tap-highlight-color: transparent;
 }
-.nav-btn:hover { color: #7a6540; }
+.nav-btn:active { transform: scale(0.93); }
 .nav-btn.active {
   color: #f97316;
   background: rgba(249,115,22,0.1);
 }
-.nav-btn.active .nav-icon { transform: translateY(-1px); }
-.nav-icon { font-size: 1.25rem; transition: transform 0.2s; }
+.nav-btn.active .nav-icon { transform: translateY(-2px); }
+.nav-icon { font-size: 1.3rem; transition: transform 0.18s; }
 
 /* === SECTION TITLE === */
 .sec-title {
