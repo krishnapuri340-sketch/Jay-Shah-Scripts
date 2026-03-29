@@ -1188,25 +1188,31 @@ export default function App() {
     return (
       <div>
         <div className="sec-title">IPL History</div>
-        {/* Year filter bar */}
-        <div className="hist-filter-bar">
-          <button
-            className={`hist-yr-btn${historyYear === null ? " active" : ""}`}
-            onClick={() => setHistoryYear(null)}
-          >All</button>
-          {IPL_HISTORY.map(h => (
+        {/* Year filter grid */}
+        {!s && (
+          <div className="hist-yr-grid">
             <button
-              key={h.year}
-              className={`hist-yr-btn${historyYear === h.year ? " active" : ""}`}
-              style={historyYear === h.year ? { borderColor: h.color, color: h.color } : {}}
-              onClick={() => setHistoryYear(historyYear === h.year ? null : h.year)}
-            >{h.year}</button>
-          ))}
-        </div>
+              className={`hist-yr-btn all-btn${historyYear === null ? " active" : ""}`}
+              onClick={() => setHistoryYear(null)}
+            >All Seasons</button>
+            {IPL_HISTORY.map(h => (
+              <button
+                key={h.year}
+                className={`hist-yr-btn${historyYear === h.year ? " active" : ""}`}
+                style={historyYear === h.year ? { background: h.color + "22", borderColor: h.color, color: h.color } : {}}
+                onClick={() => setHistoryYear(h.year)}
+              >{h.year}</button>
+            ))}
+          </div>
+        )}
 
         {/* DETAIL VIEW – single season */}
         {s && (
           <div>
+            {/* Back nav */}
+            <button className="hist-back-btn" onClick={() => setHistoryYear(null)}>
+              ← All Seasons
+            </button>
             {/* Champion hero card */}
             <div className="hist-hero" style={{ borderColor: s.color }}>
               <div className="hist-hero-year" style={{ color: s.color }}>Season {s.season} · {s.year}</div>
