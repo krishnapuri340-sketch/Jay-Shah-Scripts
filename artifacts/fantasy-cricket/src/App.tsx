@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 
 const FANTASY_TEAMS: Record<string, {
-  id: string; name: string; emoji: string; color: string;
+  id: string; name: string; owner: string; emoji: string; color: string;
   captain: string; vc: string;
   players: { name: string; role: string; ipl: string }[];
 }> = {
   rajveer: {
-    id: "rajveer", name: "Rajveer Puri", emoji: "🏏", color: "#f97316",
+    id: "rajveer", name: "Jay Shah Supremacy", owner: "Rajveer Puri", emoji: "🏏", color: "#f97316",
     captain: "Rajat Patidar", vc: "Axar Patel",
     players: [
       { name: "Rajat Patidar", role: "BAT", ipl: "RCB" },
@@ -30,7 +30,7 @@ const FANTASY_TEAMS: Record<string, {
     ]
   },
   mombasa: {
-    id: "mombasa", name: "Mombasa K", emoji: "⚡", color: "#eab308",
+    id: "mombasa", name: "Mombasa Kenyans", owner: "Rahul", emoji: "⚡", color: "#eab308",
     captain: "Abhishek Sharma", vc: "Sai Sudharsan",
     players: [
       { name: "Jitesh Sharma", role: "WK", ipl: "RCB" },
@@ -54,7 +54,7 @@ const FANTASY_TEAMS: Record<string, {
     ]
   },
   mumbai: {
-    id: "mumbai", name: "Mumbai Ma", emoji: "🌊", color: "#3b82f6",
+    id: "mumbai", name: "Mumbai Mavericks", owner: "Smeet", emoji: "🌊", color: "#3b82f6",
     captain: "Hardik Pandya", vc: "Sanju Samson",
     players: [
       { name: "Rishabh Pant", role: "WK", ipl: "LSG" },
@@ -78,7 +78,7 @@ const FANTASY_TEAMS: Record<string, {
     ]
   },
   ponygoat: {
-    id: "ponygoat", name: "PonyGoat", emoji: "🐐", color: "#10b981",
+    id: "ponygoat", name: "PonyGoat", owner: "Deb", emoji: "🐐", color: "#10b981",
     captain: "Sunil Narine", vc: "Jasprit Bumrah",
     players: [
       { name: "Marcus Stoinis", role: "AR", ipl: "PBKS" },
@@ -365,7 +365,7 @@ export default function App() {
       "",
       ...teamScores.map((s, i) => {
         const medal = ["🥇", "🥈", "🥉", "4️⃣"][i] ?? `${i + 1}.`;
-        return `${medal} ${s.team.name} — ${s.total} pts`;
+        return `${medal} ${s.team.name} (${s.team.owner}) — ${s.total} pts`;
       }),
       "",
       `Updated: ${lastUpdated ? lastUpdated.toLocaleTimeString() : "just now"}`,
@@ -400,35 +400,35 @@ export default function App() {
 
     // All fantasy players with points
     const allFantasyPlayers = Object.values(FANTASY_TEAMS).flatMap(t =>
-      t.players.map(p => ({ name: p.name, team: t.name, pts: playerPoints[p.name] || 0, isCap: p.name === t.captain, isVC: p.name === t.vc }))
+      t.players.map(p => ({ name: p.name, team: t.name, owner: t.owner, pts: playerPoints[p.name] || 0, isCap: p.name === t.captain, isVC: p.name === t.vc }))
     );
 
     // 1. Manager of the Season — leading team
     const leader = teamScores[0];
     if (leader.total > 0) {
-      awards.push({ trophy: "🏆", title: "Manager of the Season", winner: leader.team.name, detail: `${leader.total} pts from Top 11`, color: leader.team.color });
+      awards.push({ trophy: "🏆", title: "Manager of the Season", winner: `${leader.team.name}`, detail: `by ${leader.team.owner} · ${leader.total} pts from Top 11`, color: leader.team.color });
     }
 
     // 2. Captain Marvel — best captain (raw pts, shown as captain-adjusted)
     const captains = Object.values(FANTASY_TEAMS).map(t => ({
-      name: t.captain, team: t.name, pts: (playerPoints[t.captain] || 0) * 2
+      name: t.captain, team: t.name, owner: t.owner, pts: (playerPoints[t.captain] || 0) * 2
     })).sort((a, b) => b.pts - a.pts);
     if (captains[0].pts > 0) {
-      awards.push({ trophy: "🎖️", title: "Captain Marvel", winner: captains[0].name, detail: `${captains[0].pts} adjusted pts · ${captains[0].team}`, color: "#f97316" });
+      awards.push({ trophy: "🎖️", title: "Captain Marvel", winner: captains[0].name, detail: `${captains[0].pts} adjusted pts · ${captains[0].team} (${captains[0].owner})`, color: "#f97316" });
     }
 
     // 3. Star Player — highest raw points across all fantasy players
     const star = allFantasyPlayers.sort((a, b) => b.pts - a.pts)[0];
     if (star.pts > 0) {
-      awards.push({ trophy: "🌟", title: "Star Player", winner: star.name, detail: `${star.pts} pts · ${star.team}`, color: "#fbbf24" });
+      awards.push({ trophy: "🌟", title: "Star Player", winner: star.name, detail: `${star.pts} pts · ${star.team} (${star.owner})`, color: "#fbbf24" });
     }
 
     // 4. Hidden Gem — highest bench scorer (not in top 11 of their team)
     const benchAll = teamScores.flatMap(s =>
-      s.players.filter(p => !s.top11.has(p.name) && p.raw > 0).map(p => ({ name: p.name, team: s.team.name, pts: p.raw }))
+      s.players.filter(p => !s.top11.has(p.name) && p.raw > 0).map(p => ({ name: p.name, team: s.team.name, owner: s.team.owner, pts: p.raw }))
     ).sort((a, b) => b.pts - a.pts);
     if (benchAll.length > 0) {
-      awards.push({ trophy: "💎", title: "Hidden Gem", winner: benchAll[0].name, detail: `${benchAll[0].pts} pts on the bench · ${benchAll[0].team}`, color: "#34d399" });
+      awards.push({ trophy: "💎", title: "Hidden Gem", winner: benchAll[0].name, detail: `${benchAll[0].pts} pts on bench · ${benchAll[0].team} (${benchAll[0].owner})`, color: "#34d399" });
     }
 
     // 5. Six Machine — most sixes (fantasy players, from iplStats)
@@ -457,16 +457,16 @@ export default function App() {
 
     // 8. Vice Captain Star — best VC adjusted
     const vcs = Object.values(FANTASY_TEAMS).map(t => ({
-      name: t.vc, team: t.name, pts: Math.floor((playerPoints[t.vc] || 0) * 1.5)
+      name: t.vc, team: t.name, owner: t.owner, pts: Math.floor((playerPoints[t.vc] || 0) * 1.5)
     })).sort((a, b) => b.pts - a.pts);
     if (vcs[0].pts > 0) {
-      awards.push({ trophy: "⭐", title: "Vice Captain Star", winner: vcs[0].name, detail: `${vcs[0].pts} adjusted pts · ${vcs[0].team}`, color: "#94a3b8" });
+      awards.push({ trophy: "⭐", title: "Vice Captain Star", winner: vcs[0].name, detail: `${vcs[0].pts} adjusted pts · ${vcs[0].team} (${vcs[0].owner})`, color: "#94a3b8" });
     }
 
     // 9. Wooden Spoon — last place team (only if season has data and not all zeros)
     const lastTeam = teamScores[teamScores.length - 1];
     if (teamScores.length === 4 && lastTeam.total < teamScores[0].total) {
-      awards.push({ trophy: "🥄", title: "Wooden Spoon", winner: lastTeam.team.name, detail: `${lastTeam.total} pts · Room to improve!`, color: "#334155" });
+      awards.push({ trophy: "🥄", title: "Wooden Spoon", winner: lastTeam.team.name, detail: `by ${lastTeam.team.owner} · ${lastTeam.total} pts · Room to improve!`, color: "#334155" });
     }
 
     return awards;
@@ -522,6 +522,7 @@ export default function App() {
                   </span>
                 )}
               </div>
+              <div style={{ fontSize: "0.65rem", color: "#94a3b8", marginBottom: 1 }}>by {s.team.owner}</div>
               <div className="lb-meta">C: {s.team.captain} · VC: {s.team.vc}</div>
             </div>
             <div style={{ textAlign: "right" }}>
@@ -613,7 +614,8 @@ export default function App() {
             <button key={ft.id} className={`team-tab ${selectedTeam === ft.id ? "active" : ""}`}
               style={selectedTeam === ft.id ? { color: ft.color, borderColor: ft.color } : {}}
               onClick={() => setSelectedTeam(ft.id)}>
-              {ft.emoji} {ft.name}
+              <div>{ft.emoji} {ft.name}</div>
+              <div style={{ fontSize: "0.6rem", opacity: 0.65, marginTop: 1 }}>{ft.owner}</div>
             </button>
           ))}
         </div>
@@ -622,6 +624,7 @@ export default function App() {
           <div className="team-big-emoji">{t.emoji}</div>
           <div style={{ flex: 1 }}>
             <div className="team-hname" style={{ color: t.color }}>{t.name}</div>
+            <div style={{ fontSize: "0.7rem", color: "#94a3b8", marginBottom: 4 }}>by {t.owner}</div>
             <div className="team-roles">
               {Object.entries(roleCounts).map(([role, n]) => (
                 <span key={role} className="role-badge"
@@ -1311,7 +1314,7 @@ export default function App() {
                 <div key={name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
                   <div style={{ flex: 1 }}>
                     <span style={{ fontSize: "0.78rem", color: "#cbd5e1" }}>{name}</span>
-                    {team && <span style={{ fontSize: "0.62rem", color: "#475569", marginLeft: 6 }}>{team.name}</span>}
+                    {team && <span style={{ fontSize: "0.62rem", color: "#475569", marginLeft: 6 }}>{team.name} · {team.owner}</span>}
                   </div>
                   <span style={{ fontFamily: "'Bebas Neue'", fontSize: "1.1rem", color: "#f97316", letterSpacing: "1px" }}>{pts}</span>
                 </div>
