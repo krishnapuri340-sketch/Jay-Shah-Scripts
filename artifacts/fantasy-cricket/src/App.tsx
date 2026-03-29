@@ -365,10 +365,10 @@ export default function App() {
     fetchStats();
   }, []);
 
-  // Adaptive polling: 1 min during a live match, 15 min when idle
+  // Adaptive polling: 1 min during a live match, 5 min when idle
   const isAnyMatchLive = liveMatches.some((m: any) => m.matchStarted && !m.matchEnded);
   useEffect(() => {
-    const delay = isAnyMatchLive ? 60_000 : 15 * 60_000;
+    const delay = isAnyMatchLive ? 60_000 : 5 * 60_000;
     const ids = [
       setInterval(fetchLive, delay),
       setInterval(fetchPoints, delay),
@@ -377,6 +377,18 @@ export default function App() {
     ];
     return () => ids.forEach(clearInterval);
   }, [isAnyMatchLive]);
+
+  // Refresh when the user returns to the tab after being away
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === "visible") {
+        fetchLive();
+        fetchPoints();
+      }
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, []);
 
   const teamScores = Object.keys(FANTASY_TEAMS)
     .map(id => ({ id, ...getTeamData(id, playerPoints), team: FANTASY_TEAMS[id] }))
