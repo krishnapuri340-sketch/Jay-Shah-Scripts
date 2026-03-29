@@ -1056,7 +1056,7 @@ export default function App() {
             <>
               <div className="top11-label">Playing XI (Top 11)</div>
               <div className="players-grid">
-                {td.players.filter(p => td.top11.has(p.name)).map(p => {
+                {td.players.filter(p => td.top11.has(p.name)).sort((a, b) => b.adj - a.adj).map(p => {
                   const isExp = expandedPlayer === p.name;
                   const { isLiveNow, isUpcoming, isDimmed, glowColor } = getPlayerState(p.name, p.ipl);
                   const cardClass = [
@@ -1088,7 +1088,7 @@ export default function App() {
 
               <div className="top11-label" style={{ marginTop: 16 }}>Bench</div>
               <div className="players-grid">
-                {td.players.filter(p => !td.top11.has(p.name)).map(p => {
+                {td.players.filter(p => !td.top11.has(p.name)).sort((a, b) => b.adj - a.adj).map(p => {
                   const isExp = expandedPlayer === p.name;
                   const { isLiveNow, isUpcoming, isDimmed, glowColor } = getPlayerState(p.name, p.ipl);
                   const cardClass = [
