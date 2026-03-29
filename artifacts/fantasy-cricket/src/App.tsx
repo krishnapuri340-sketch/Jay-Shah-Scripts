@@ -276,7 +276,6 @@ export default function App() {
     { id: "fixtures", label: "Matches", icon: "📡" },
     { id: "stats", label: "Stats", icon: "📊" },
     { id: "ipl", label: "IPL", icon: "🌐" },
-    { id: "admin", label: "Admin", icon: "⚙️" },
   ];
 
   const rankLabel = (i: number) => i === 0 ? "first" : i === 1 ? "second" : i === 2 ? "third" : "";
@@ -380,22 +379,25 @@ export default function App() {
         🔄 Points auto-update every 15 min · Only Top 11 players count per team
       </div>
       {teamScores.map((s, i) => (
-        <div key={s.id} className="lb-card" onClick={() => { setSelectedTeam(s.id); setTab("teams"); }}>
+        <div key={s.id} className={`lb-card ${i === 0 ? "rank-first" : ""}`} onClick={() => { setSelectedTeam(s.id); setTab("teams"); }}>
           <div className="lb-accent" style={{ background: s.team.color }} />
           <div className="lb-inner">
-            <div className={`lb-rank ${rankLabel(i)}`}>{i + 1}</div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 28 }}>
+              {i === 0 && <span className="lb-crown">👑</span>}
+              <div className={`lb-rank ${rankLabel(i)}`}>{i + 1}</div>
+            </div>
             <div className="lb-emoji">{s.team.emoji}</div>
             <div className="lb-info">
-              <div className="lb-name">{s.team.name}</div>
+              <div className={`lb-name ${i === 0 ? "first" : ""}`}>{s.team.name}</div>
               <div className="lb-meta">C: {s.team.captain} · VC: {s.team.vc}</div>
             </div>
             <div style={{ textAlign: "right" }}>
-              <div className="lb-pts" style={{ color: s.team.color }}>{s.total}</div>
+              <div className={`lb-pts ${i === 0 ? "first" : ""}`} style={{ color: i === 0 ? "#d4a017" : s.team.color }}>{s.total}</div>
               <div className="lb-pts-label">top 11 pts</div>
             </div>
           </div>
           <div className="lb-bar">
-            <div className="lb-bar-fill" style={{ width: `${(s.total / maxPts) * 100}%`, background: s.team.color }} />
+            <div className="lb-bar-fill" style={{ width: `${(s.total / maxPts) * 100}%`, background: i === 0 ? "#d4a017" : s.team.color }} />
           </div>
         </div>
       ))}
@@ -483,7 +485,7 @@ export default function App() {
           ))}
         </div>
 
-        <div className="team-header-card">
+        <div className="team-header-card" style={{ "--team-color": t.color } as React.CSSProperties}>
           <div className="team-big-emoji">{t.emoji}</div>
           <div style={{ flex: 1 }}>
             <div className="team-hname" style={{ color: t.color }}>{t.name}</div>
@@ -1147,11 +1149,11 @@ export default function App() {
         <div className="bg-field" />
         <div className="content">
           <div className="header">
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <img
                 src={`${import.meta.env.BASE_URL}logo.jpeg`}
                 alt="Logo"
-                style={{ width: 48, height: 48, borderRadius: "50%", objectFit: "cover", border: "2px solid rgba(255,255,255,0.2)" }}
+                style={{ width: 56, height: 56, borderRadius: "50%", objectFit: "cover", border: "2px solid rgba(232,130,26,0.35)", flexShrink: 0 }}
               />
               <div>
                 <div className="header-title">IPL Fantasy</div>
@@ -1159,12 +1161,20 @@ export default function App() {
               </div>
             </div>
             <div className="header-right">
-              <div className="live-pill">
-                <div className="live-dot" />
-                {liveLoading ? "SYNCING" : "LIVE"}
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <button
+                  className={`btn-dashboard ${tab === "admin" ? "active" : ""}`}
+                  onClick={() => setTab("admin")}
+                >
+                  ⚙ Dashboard
+                </button>
+                <div className="live-pill">
+                  <div className="live-dot" />
+                  {liveLoading ? "SYNCING" : "LIVE"}
+                </div>
               </div>
-              <div className="updated-text">
-                {lastUpdated ? lastUpdated.toLocaleTimeString() : "—"}
+              <div className="updated-text" style={{ textAlign: "right" }}>
+                {lastUpdated ? `Updated ${lastUpdated.toLocaleTimeString()}` : "—"}
               </div>
             </div>
           </div>
