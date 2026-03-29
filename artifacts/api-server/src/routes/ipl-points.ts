@@ -59,6 +59,7 @@ interface InningData {
 interface ProcessedMatchData {
   points: Record<string, number>;
   innings: InningData[];
+  playerStats?: Record<string, PlayerStats>;
 }
 
 const DAILY_CALL_LIMIT = 1900; // hard cap below CricAPI's 2000/day paid tier
@@ -434,6 +435,7 @@ async function processSingleMatch(
 
   const { players: rawStats, innings } = processScorecard(scorecard);
   const points: Record<string, number> = {};
+  const playerStats: Record<string, PlayerStats> = {};
 
   for (const fantasyPlayerName of allPlayers) {
     // Team guard: skip players whose IPL team isn't playing in this match
@@ -447,12 +449,13 @@ async function processSingleMatch(
     for (const [statKey, stats] of Object.entries(rawStats)) {
       if (namesMatch(statKey, normalizedFantasy)) {
         points[fantasyPlayerName] = calcPoints(stats);
+        playerStats[fantasyPlayerName] = stats;
         break;
       }
     }
   }
 
-  return { points, innings };
+  return { points, innings, playerStats };
 }
 
 // Derived from App.tsx FANTASY_TEAMS — all 4 fantasy team rosters combined
@@ -622,13 +625,13 @@ router.get("/ipl/points", async (req, res) => {
       Object.values(pointsCache.supabaseScores || {}).map(f => f.linkedIplId).filter(Boolean) as string[]
     );
     const aggregated: Record<string, number> = {};
-    // playerMatchPoints: player → [ { matchNum, label, pts, source } ]
-    const playerMatchPoints: Record<string, Array<{ matchNum: number; label: string; pts: number; source: "official" | "live" }>> = {};
+    // playerMatchPoints: player → [ { matchNum, label, pts, source, stats? } ]
+    const playerMatchPoints: Record<string, Array<{ matchNum: number; label: string; pts: number; source: "official" | "live"; stats?: PlayerStats }>> = {};
 
-    const addMatchPoint = (player: string, matchNum: number, label: string, pts: number, source: "official" | "live") => {
+    const addMatchPoint = (player: string, matchNum: number, label: string, pts: number, source: "official" | "live", stats?: PlayerStats) => {
       aggregated[player] = (aggregated[player] || 0) + pts;
       if (!playerMatchPoints[player]) playerMatchPoints[player] = [];
-      playerMatchPoints[player].push({ matchNum, label, pts, source });
+      playerMatchPoints[player].push({ matchNum, label, pts, source, stats });
     };
 
     // 1. Official Supabase scores for completed matches
@@ -647,7 +650,8 @@ router.get("/ipl/points", async (req, res) => {
       const meta = (pointsCache.matchMetadata || {})[iplId];
       const label = meta ? `${meta.teamA} vs ${meta.teamB}` : `Match ${iplId}`;
       for (const [player, pts] of Object.entries(matchData.points || {})) {
-        addMatchPoint(player, liveMatchNum, label, pts, "live");
+        const stats = (matchData.playerStats || {})[player];
+        addMatchPoint(player, liveMatchNum, label, pts, "live", stats);
       }
       if (Object.keys(matchData.points || {}).length > 0) {
         cricapiLiveLabels.push(`${label} ★live`);

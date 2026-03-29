@@ -134,7 +134,8 @@ export default function App() {
   const [tab, setTab] = useState("home");
   const [selectedTeam, setSelectedTeam] = useState("rajveer");
   const [playerPoints, setPlayerPoints] = useState<Record<string, number>>({});
-  const [playerMatchPoints, setPlayerMatchPoints] = useState<Record<string, Array<{ matchNum: number; label: string; pts: number; source: string }>>>({});
+  interface PlayerStats { played: boolean; runs: number; balls: number; fours: number; sixes: number; duck: boolean; wickets: number; dots: number; lbwBowled: number; maidens: number; ballsBowled: number; runsConceded: number; catches: number; runOuts: number; stumpings: number; }
+  const [playerMatchPoints, setPlayerMatchPoints] = useState<Record<string, Array<{ matchNum: number; label: string; pts: number; source: string; stats?: PlayerStats }>>>({});
   const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
   const [liveMatches, setLiveMatches] = useState<any[]>([]);
   const [liveLoading, setLiveLoading] = useState(false);
@@ -713,29 +714,98 @@ export default function App() {
               ) : (
                 <>
                   <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 10 }}>
-                    {breakdown.map((entry, i) => (
-                      <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: "0.72rem", color: "#94a3b8" }}>
-                            <span style={{ color: "#64748b", marginRight: 6 }}>M{entry.matchNum}</span>
-                            {shortMatchLabel(entry.label)}
+                    {breakdown.map((entry, ei) => {
+                      const s = entry.stats;
+                      // Build categorised breakdown lines from raw stats
+                      const lines: { label: string; pts: number; color: string }[] = [];
+                      if (s) {
+                        // Playing XI
+                        lines.push({ label: "Playing XI", pts: 4, color: "#94a3b8" });
+                        // Batting
+                        if (s.runs > 0) lines.push({ label: `${s.runs} runs (${s.balls}b)`, pts: s.runs, color: "#f97316" });
+                        if (s.fours > 0) lines.push({ label: `${s.fours} fours`, pts: s.fours * 4, color: "#fb923c" });
+                        if (s.sixes > 0) lines.push({ label: `${s.sixes} sixes`, pts: s.sixes * 6, color: "#fbbf24" });
+                        if (s.duck) lines.push({ label: "Duck", pts: -2, color: "#ef4444" });
+                        const r = s.runs; const b = s.balls;
+                        if (r >= 100) lines.push({ label: "Century bonus", pts: 16, color: "#34d399" });
+                        else if (r >= 75) lines.push({ label: "75+ bonus", pts: 12, color: "#34d399" });
+                        else if (r >= 50) lines.push({ label: "Half-century bonus", pts: 8, color: "#34d399" });
+                        else if (r >= 25) lines.push({ label: "25+ bonus", pts: 4, color: "#34d399" });
+                        if (b >= 10 || r >= 20) {
+                          const sr = b > 0 ? (r / b) * 100 : 0;
+                          if (sr > 190) lines.push({ label: `SR ${sr.toFixed(0)} bonus`, pts: 8, color: "#34d399" });
+                          else if (sr > 170) lines.push({ label: `SR ${sr.toFixed(0)} bonus`, pts: 6, color: "#34d399" });
+                          else if (sr > 150) lines.push({ label: `SR ${sr.toFixed(0)} bonus`, pts: 4, color: "#34d399" });
+                          else if (sr >= 130) lines.push({ label: `SR ${sr.toFixed(0)} bonus`, pts: 2, color: "#34d399" });
+                          else if (sr >= 70 && sr <= 100) lines.push({ label: `SR ${sr.toFixed(0)} penalty`, pts: -2, color: "#ef4444" });
+                          else if (sr >= 60 && sr < 70) lines.push({ label: `SR ${sr.toFixed(0)} penalty`, pts: -4, color: "#ef4444" });
+                          else if (sr >= 50 && sr < 60) lines.push({ label: `SR ${sr.toFixed(0)} penalty`, pts: -6, color: "#ef4444" });
+                        }
+                        // Bowling
+                        if (s.wickets > 0) lines.push({ label: `${s.wickets} wickets`, pts: s.wickets * 30, color: "#60a5fa" });
+                        if (s.lbwBowled > 0) lines.push({ label: `${s.lbwBowled} LBW/Bowled`, pts: s.lbwBowled * 8, color: "#60a5fa" });
+                        if (s.dots > 0) lines.push({ label: `${s.dots} dot balls`, pts: s.dots * 2, color: "#818cf8" });
+                        if (s.maidens > 0) lines.push({ label: `${s.maidens} maidens`, pts: s.maidens * 12, color: "#818cf8" });
+                        const w = s.wickets;
+                        if (w >= 5) lines.push({ label: "5-wicket haul", pts: 16, color: "#34d399" });
+                        else if (w >= 4) lines.push({ label: "4-wicket haul", pts: 12, color: "#34d399" });
+                        else if (w >= 3) lines.push({ label: "3-wicket haul", pts: 8, color: "#34d399" });
+                        const overs = s.ballsBowled / 6;
+                        if (overs >= 2) {
+                          const eco = s.runsConceded / overs;
+                          if (eco < 5) lines.push({ label: `Eco ${eco.toFixed(1)} bonus`, pts: 8, color: "#34d399" });
+                          else if (eco < 6) lines.push({ label: `Eco ${eco.toFixed(1)} bonus`, pts: 6, color: "#34d399" });
+                          else if (eco <= 7) lines.push({ label: `Eco ${eco.toFixed(1)} bonus`, pts: 4, color: "#34d399" });
+                          else if (eco <= 8) lines.push({ label: `Eco ${eco.toFixed(1)} bonus`, pts: 2, color: "#34d399" });
+                          else if (eco >= 10 && eco <= 11) lines.push({ label: `Eco ${eco.toFixed(1)} penalty`, pts: -2, color: "#ef4444" });
+                          else if (eco > 11 && eco <= 12) lines.push({ label: `Eco ${eco.toFixed(1)} penalty`, pts: -4, color: "#ef4444" });
+                          else if (eco > 12) lines.push({ label: `Eco ${eco.toFixed(1)} penalty`, pts: -6, color: "#ef4444" });
+                        }
+                        // Fielding
+                        if (s.catches > 0) lines.push({ label: `${s.catches} catch${s.catches > 1 ? "es" : ""}`, pts: s.catches * 8, color: "#a78bfa" });
+                        if (s.catches >= 3) lines.push({ label: "3+ catch bonus", pts: 4, color: "#a78bfa" });
+                        if (s.runOuts > 0) lines.push({ label: `${s.runOuts} run out${s.runOuts > 1 ? "s" : ""}`, pts: s.runOuts * 10, color: "#a78bfa" });
+                        if (s.stumpings > 0) lines.push({ label: `${s.stumpings} stumping${s.stumpings > 1 ? "s" : ""}`, pts: s.stumpings * 12, color: "#a78bfa" });
+                      }
+                      return (
+                        <div key={ei} style={{ marginBottom: 12, paddingBottom: 10, borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: s ? 8 : 0 }}>
+                            <div style={{ fontSize: "0.72rem", color: "#94a3b8" }}>
+                              <span style={{ color: "#64748b", marginRight: 6 }}>M{entry.matchNum < 900 ? entry.matchNum : "live"}</span>
+                              {shortMatchLabel(entry.label)}
+                            </div>
+                            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                              <span style={{ fontSize: "0.58rem", padding: "1px 5px", borderRadius: 8,
+                                background: entry.source === "official" ? "rgba(52,211,153,0.1)" : "rgba(251,191,36,0.1)",
+                                color: entry.source === "official" ? "#34d399" : "#fbbf24",
+                                border: `1px solid ${entry.source === "official" ? "rgba(52,211,153,0.2)" : "rgba(251,191,36,0.2)"}` }}>
+                                {entry.source === "official" ? "✓ official" : "★ live"}
+                              </span>
+                              <span style={{ fontWeight: 700, fontSize: "0.92rem", color: entry.pts > 0 ? "#f1f5f9" : "#475569", minWidth: 32, textAlign: "right" as const }}>
+                                {entry.pts}
+                              </span>
+                            </div>
                           </div>
+                          {s && lines.length > 0 && (
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "2px 12px", padding: "6px 10px", background: "rgba(255,255,255,0.02)", borderRadius: 8 }}>
+                              {lines.map((line, li) => (
+                                <>
+                                  <span key={`l${li}`} style={{ fontSize: "0.65rem", color: "#64748b" }}>{line.label}</span>
+                                  <span key={`p${li}`} style={{ fontSize: "0.65rem", fontWeight: 600, color: line.pts >= 0 ? line.color : "#ef4444", textAlign: "right" as const }}>
+                                    {line.pts > 0 ? "+" : ""}{line.pts}
+                                  </span>
+                                </>
+                              ))}
+                            </div>
+                          )}
+                          {!s && entry.source === "official" && (
+                            <div style={{ fontSize: "0.62rem", color: "#334155", paddingLeft: 4, marginTop: 2 }}>Official score — detailed breakdown available for live matches</div>
+                          )}
                         </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <span style={{ fontSize: "0.6rem", padding: "1px 5px", borderRadius: 8,
-                            background: entry.source === "official" ? "rgba(52,211,153,0.1)" : "rgba(251,191,36,0.1)",
-                            color: entry.source === "official" ? "#34d399" : "#fbbf24",
-                            border: `1px solid ${entry.source === "official" ? "rgba(52,211,153,0.2)" : "rgba(251,191,36,0.2)"}` }}>
-                            {entry.source === "official" ? "✓ official" : "★ live"}
-                          </span>
-                          <span style={{ fontWeight: 700, fontSize: "0.88rem", color: entry.pts > 0 ? "#f1f5f9" : "#475569", minWidth: 36, textAlign: "right" }}>
-                            {entry.pts}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
-                  <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", marginTop: 10, paddingTop: 10 }}>
+                  <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", marginTop: 4, paddingTop: 10 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", color: "#64748b" }}>
                       <span>Raw total</span>
                       <span style={{ color: "#94a3b8" }}>{raw} pts</span>
