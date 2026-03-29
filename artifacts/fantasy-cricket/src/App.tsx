@@ -273,7 +273,7 @@ export default function App() {
   // Swipe refs
   const swipeStartX = useRef(0);
   const swipeStartY = useRef(0);
-  const SWIPEABLE_TABS = ["home", "teams", "fixtures", "stats"];
+  const SWIPEABLE_TABS = ["home", "teams", "fixtures", "stats", "history"];
   // PTR refs
   const pullState = useRef({ active: false, startY: 0 });
   const pullYRef = useRef(0);
@@ -717,6 +717,28 @@ export default function App() {
 
   const maxPts = teamScores[0]?.total || 1;
 
+  // IPL Season History 2008–2025
+  const IPL_HISTORY = [
+    { year: 2025, season: 18, champion: "Royal Challengers Bengaluru", runnerUp: "Punjab Kings",      color: "#EC1C24", orangeCap: "Virat Kohli",       orangeRuns: 741, purpleCap: "Jasprit Bumrah",    purpleWkts: 25, mvp: "Virat Kohli" },
+    { year: 2024, season: 17, champion: "Kolkata Knight Riders",        runnerUp: "Sunrisers Hyderabad", color: "#552A8A", orangeCap: "Virat Kohli",       orangeRuns: 741, purpleCap: "Harshal Patel",    purpleWkts: 24, mvp: "Sunil Narine" },
+    { year: 2023, season: 16, champion: "Chennai Super Kings",           runnerUp: "Gujarat Titans",     color: "#F5C518", orangeCap: "Shubman Gill",      orangeRuns: 890, purpleCap: "Mohammed Shami",   purpleWkts: 28, mvp: "Shubman Gill" },
+    { year: 2022, season: 15, champion: "Gujarat Titans",                runnerUp: "Rajasthan Royals",   color: "#A4955A", orangeCap: "Jos Buttler",       orangeRuns: 863, purpleCap: "Yuzvendra Chahal", purpleWkts: 27, mvp: "Hardik Pandya" },
+    { year: 2021, season: 14, champion: "Chennai Super Kings",           runnerUp: "Kolkata Knight Riders", color: "#F5C518", orangeCap: "Ruturaj Gaikwad", orangeRuns: 635, purpleCap: "Harshal Patel", purpleWkts: 32, mvp: "Harshal Patel" },
+    { year: 2020, season: 13, champion: "Mumbai Indians",                runnerUp: "Delhi Capitals",     color: "#004BA0", orangeCap: "KL Rahul",          orangeRuns: 670, purpleCap: "Kagiso Rabada",   purpleWkts: 30, mvp: "Jofra Archer" },
+    { year: 2019, season: 12, champion: "Mumbai Indians",                runnerUp: "Chennai Super Kings", color: "#004BA0", orangeCap: "David Warner",     orangeRuns: 692, purpleCap: "Imran Tahir",     purpleWkts: 26, mvp: "Andre Russell" },
+    { year: 2018, season: 11, champion: "Chennai Super Kings",           runnerUp: "Sunrisers Hyderabad", color: "#F5C518", orangeCap: "Kane Williamson",  orangeRuns: 735, purpleCap: "Andrew Tye",      purpleWkts: 24, mvp: "Shane Watson" },
+    { year: 2017, season: 10, champion: "Mumbai Indians",                runnerUp: "Rising Pune Supergiant", color: "#004BA0", orangeCap: "David Warner",  orangeRuns: 641, purpleCap: "Bhuvneshwar Kumar", purpleWkts: 26, mvp: "Rohit Sharma" },
+    { year: 2016, season:  9, champion: "Sunrisers Hyderabad",           runnerUp: "Royal Challengers Bangalore", color: "#E97D1B", orangeCap: "Virat Kohli", orangeRuns: 973, purpleCap: "Bhuvneshwar Kumar", purpleWkts: 23, mvp: "Virat Kohli" },
+    { year: 2015, season:  8, champion: "Mumbai Indians",                runnerUp: "Chennai Super Kings", color: "#004BA0", orangeCap: "David Warner",     orangeRuns: 562, purpleCap: "Dwayne Bravo",    purpleWkts: 26, mvp: "Rohit Sharma" },
+    { year: 2014, season:  7, champion: "Kolkata Knight Riders",         runnerUp: "Kings XI Punjab",    color: "#552A8A", orangeCap: "Robin Uthappa",     orangeRuns: 660, purpleCap: "Mohit Sharma",    purpleWkts: 23, mvp: "Manish Pandey" },
+    { year: 2013, season:  6, champion: "Mumbai Indians",                runnerUp: "Chennai Super Kings", color: "#004BA0", orangeCap: "Michael Hussey",   orangeRuns: 733, purpleCap: "Dwayne Bravo",    purpleWkts: 32, mvp: "Shane Watson" },
+    { year: 2012, season:  5, champion: "Kolkata Knight Riders",         runnerUp: "Chennai Super Kings", color: "#552A8A", orangeCap: "Chris Gayle",      orangeRuns: 733, purpleCap: "Morne Morkel",    purpleWkts: 25, mvp: "Sunil Narine" },
+    { year: 2011, season:  4, champion: "Chennai Super Kings",           runnerUp: "Royal Challengers Bangalore", color: "#F5C518", orangeCap: "Chris Gayle", orangeRuns: 608, purpleCap: "Lasith Malinga", purpleWkts: 28, mvp: "Chris Gayle" },
+    { year: 2010, season:  3, champion: "Chennai Super Kings",           runnerUp: "Mumbai Indians",     color: "#F5C518", orangeCap: "Sachin Tendulkar",  orangeRuns: 618, purpleCap: "Pragyan Ojha",    purpleWkts: 21, mvp: "Sachin Tendulkar" },
+    { year: 2009, season:  2, champion: "Deccan Chargers",               runnerUp: "Royal Challengers Bangalore", color: "#1B75BB", orangeCap: "Matthew Hayden", orangeRuns: 572, purpleCap: "RP Singh", purpleWkts: 23, mvp: "Adam Gilchrist" },
+    { year: 2008, season:  1, champion: "Rajasthan Royals",              runnerUp: "Chennai Super Kings", color: "#FF2FA9", orangeCap: "Shaun Marsh",      orangeRuns: 616, purpleCap: "Sohail Tanvir",   purpleWkts: 22, mvp: "Shane Watson" },
+  ];
+
   const NAV_ICON: Record<string, JSX.Element> = {
     home: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
@@ -738,12 +760,18 @@ export default function App() {
         <path d="M18 20V10M12 20V4M6 20v-6"/>
       </svg>
     ),
+    history: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+      </svg>
+    ),
   };
   const TABS = [
     { id: "home", label: "Leaderboard" },
     { id: "teams", label: "Teams" },
     { id: "fixtures", label: "Matches" },
     { id: "stats", label: "Stats" },
+    { id: "history", label: "History" },
   ];
 
   const rankLabel = (i: number) => i === 0 ? "first" : i === 1 ? "second" : i === 2 ? "third" : "";
@@ -775,6 +803,63 @@ export default function App() {
       .sort((a, b) => a.diff - b.diff)
       .map(({ m }) => m)
   );
+
+  const renderHistory = () => {
+    const titles: Record<string, number> = {};
+    IPL_HISTORY.forEach(s => { titles[s.champion] = (titles[s.champion] || 0) + 1; });
+    const mostTitles = Object.entries(titles).sort((a, b) => b[1] - a[1])[0];
+    return (
+      <div>
+        <div className="sec-title">IPL History</div>
+        {/* Summary pill row */}
+        <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
+          <div className="hist-pill"><span style={{ color: "#d4a843" }}>🏆</span> {mostTitles[0].split(" ").map(w => w[0]).join("")} leads with {mostTitles[1]} titles</div>
+          <div className="hist-pill"><span style={{ color: "#f97316" }}>🟠</span> Virat Kohli — most Orange Caps</div>
+          <div className="hist-pill"><span style={{ color: "#3b82f6" }}>🟣</span> CSK — most finals (10)</div>
+        </div>
+        {IPL_HISTORY.map(s => (
+          <div key={s.year} className="hist-card">
+            {/* Left accent */}
+            <div className="hist-accent" style={{ background: s.color }} />
+            <div className="hist-body">
+              {/* Top row: year + champion */}
+              <div className="hist-top">
+                <div className="hist-year">
+                  <span className="hist-year-num">{s.year}</span>
+                  <span className="hist-season">S{s.season}</span>
+                </div>
+                <div className="hist-champion-block">
+                  <div className="hist-trophy">🏆</div>
+                  <div>
+                    <div className="hist-champion" style={{ color: s.color }}>{s.champion}</div>
+                    <div className="hist-runner">↑ {s.runnerUp}</div>
+                  </div>
+                </div>
+              </div>
+              {/* Stats row */}
+              <div className="hist-stats">
+                <div className="hist-stat">
+                  <span className="hist-stat-icon" style={{ color: "#f97316" }}>🟠</span>
+                  <span className="hist-stat-name">{s.orangeCap}</span>
+                  <span className="hist-stat-val">{s.orangeRuns}r</span>
+                </div>
+                <div className="hist-stat">
+                  <span className="hist-stat-icon" style={{ color: "#a78bfa" }}>🟣</span>
+                  <span className="hist-stat-name">{s.purpleCap}</span>
+                  <span className="hist-stat-val">{s.purpleWkts}w</span>
+                </div>
+                <div className="hist-stat">
+                  <span className="hist-stat-icon">⭐</span>
+                  <span className="hist-stat-name">{s.mvp}</span>
+                  <span className="hist-stat-val" style={{ color: "#d4a843" }}>MVP</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   const renderHome = () => {
     return (
@@ -1973,6 +2058,7 @@ export default function App() {
           {tab === "teams" && renderTeams()}
           {tab === "fixtures" && renderFixtures()}
           {tab === "stats" && renderStats()}
+          {tab === "history" && renderHistory()}
           {tab === "admin" && renderAdmin()}
         </div>
 

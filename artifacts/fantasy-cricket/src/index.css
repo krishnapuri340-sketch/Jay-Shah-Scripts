@@ -442,6 +442,40 @@ body { background: var(--bg); }
 .light-mode body { background: #fafafa; }
 .light-mode .app { background: #fafafa; }
 
+/* === HISTORY TAB === */
+.hist-pill {
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 20px; padding: 4px 10px;
+  font-size: 0.7rem; color: var(--text-2); white-space: nowrap;
+  display: flex; align-items: center; gap: 5px;
+}
+.hist-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; margin-bottom: 10px;
+  display: flex; overflow: hidden;
+}
+.hist-accent { width: 5px; flex-shrink: 0; }
+.hist-body { flex: 1; padding: 12px 14px 10px; }
+.hist-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.hist-year { display: flex; flex-direction: column; align-items: center; min-width: 44px; flex-shrink: 0; }
+.hist-year-num { font-size: 1.15rem; font-weight: 700; color: var(--text); line-height: 1.1; }
+.hist-season { font-size: 0.6rem; color: var(--text-3); font-weight: 500; letter-spacing: 0.5px; }
+.hist-champion-block { display: flex; align-items: flex-start; gap: 8px; flex: 1; }
+.hist-trophy { font-size: 1rem; margin-top: 1px; flex-shrink: 0; }
+.hist-champion { font-size: 0.85rem; font-weight: 700; line-height: 1.2; }
+.hist-runner { font-size: 0.68rem; color: var(--text-3); margin-top: 2px; }
+.hist-stats {
+  display: flex; flex-direction: column; gap: 4px;
+  padding-top: 8px; border-top: 1px solid var(--border);
+}
+.hist-stat {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.7rem;
+}
+.hist-stat-icon { font-size: 0.65rem; flex-shrink: 0; }
+.hist-stat-name { color: var(--text-2); flex: 1; }
+.hist-stat-val { font-weight: 600; color: var(--text); font-size: 0.68rem; }
+
 /* === INSTALL BUTTON === */
 .btn-install {
   display: flex; align-items: center; gap: 5px;
