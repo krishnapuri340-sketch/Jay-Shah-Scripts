@@ -811,6 +811,213 @@ export default function App() {
     } catch { /* user cancelled */ }
   };
 
+  const shareTeams = async () => {
+    const W = 1080;
+    const PAD = 52;
+    const TEAM_HEADER_H = 100;
+    const PLAYER_ROW_H = 50;
+    const INTER_GAP = 16;
+    const HEADER_H = 132;
+    const teamBlockH = TEAM_HEADER_H + 11 * PLAYER_ROW_H + INTER_GAP;
+    const H = HEADER_H + 4 * teamBlockH + 60;
+
+    const canvas = document.createElement("canvas");
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext("2d")!;
+
+    // Load app logo
+    const logoImg = new Image();
+    logoImg.crossOrigin = "anonymous";
+    logoImg.src = `${import.meta.env.BASE_URL}app-icon.png`;
+    await new Promise(res => { logoImg.onload = res; logoImg.onerror = res; });
+
+    const ROLE_CLR: Record<string, string> = { BAT: "#60a5fa", BWL: "#f472b6", AR: "#34d399", WK: "#fbbf24" };
+
+    // Rounded rectangle helper (cross-browser)
+    const rrect = (x: number, y: number, w: number, h: number, r: number) => {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y);
+      ctx.arcTo(x + w, y, x + w, y + r, r); ctx.lineTo(x + w, y + h - r);
+      ctx.arcTo(x + w, y + h, x + w - r, y + h, r); ctx.lineTo(x + r, y + h);
+      ctx.arcTo(x, y + h, x, y + h - r, r); ctx.lineTo(x, y + r);
+      ctx.arcTo(x, y, x + r, y, r); ctx.closePath();
+    };
+
+    // Background
+    ctx.fillStyle = "#09090b";
+    ctx.fillRect(0, 0, W, H);
+
+    // Gold accent line (top)
+    const goldGrad = ctx.createLinearGradient(0, 0, W, 0);
+    goldGrad.addColorStop(0, "#a07832"); goldGrad.addColorStop(0.5, "#d4a843"); goldGrad.addColorStop(1, "#a07832");
+    ctx.fillStyle = goldGrad; ctx.fillRect(0, 0, W, 3);
+
+    // Header: logo + title
+    const logoR = 26, logoX = PAD + logoR, logoY = 66;
+    ctx.save();
+    ctx.beginPath(); ctx.arc(logoX, logoY, logoR, 0, Math.PI * 2); ctx.clip();
+    if (logoImg.naturalWidth > 0) ctx.drawImage(logoImg, logoX - logoR, logoY - logoR, logoR * 2, logoR * 2);
+    ctx.restore();
+
+    ctx.textAlign = "left";
+    ctx.font = "700 36px -apple-system, Arial, sans-serif";
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText("IPL Fantasy 2026", PAD + logoR * 2 + 18, 57);
+    ctx.font = "400 22px -apple-system, Arial, sans-serif";
+    ctx.fillStyle = "#52525b";
+    ctx.fillText("All Teams · Top 11 Players", PAD + logoR * 2 + 18, 84);
+
+    ctx.textAlign = "right";
+    ctx.font = "400 20px -apple-system, Arial, sans-serif";
+    ctx.fillStyle = "#3f3f46";
+    const timeStr = pointsLastUpdated?.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) ?? "–";
+    ctx.fillText(timeStr, W - PAD, 84);
+
+    ctx.strokeStyle = "#1c1c20"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(PAD, 108); ctx.lineTo(W - PAD, 108); ctx.stroke();
+
+    // Teams (leaderboard order)
+    for (let ti = 0; ti < teamScores.length; ti++) {
+      const s = teamScores[ti];
+      const t = s.team;
+      const td = getTeamData(s.id, playerPoints);
+      const blockY = HEADER_H + ti * teamBlockH;
+
+      // ── Team header row ──
+      // Left color bar
+      ctx.fillStyle = t.color;
+      ctx.fillRect(0, blockY, 6, TEAM_HEADER_H);
+
+      // Ghost rank number
+      ctx.textAlign = "left";
+      ctx.font = "100 80px -apple-system, Arial, sans-serif";
+      ctx.fillStyle = "#1c1c20";
+      ctx.fillText(String(ti + 1), PAD + 8, blockY + 84);
+
+      // Team name
+      ctx.font = "700 40px -apple-system, Arial, sans-serif";
+      ctx.fillStyle = "#e4e4e7";
+      ctx.fillText(t.name, PAD + 86, blockY + 44);
+
+      // Owner · C · VC
+      ctx.font = "400 19px -apple-system, Arial, sans-serif";
+      ctx.fillStyle = "#52525b";
+      ctx.fillText(`${t.owner}  ·  C: ${t.captain}  ·  VC: ${t.vc}`, PAD + 86, blockY + 70);
+
+      // Total pts
+      ctx.textAlign = "right";
+      ctx.font = "700 52px -apple-system, Arial, sans-serif";
+      ctx.fillStyle = t.color;
+      ctx.fillText(String(td.total), W - PAD, blockY + 52);
+      ctx.font = "400 19px -apple-system, Arial, sans-serif";
+      ctx.fillStyle = "#3f3f46";
+      ctx.fillText("pts", W - PAD, blockY + 76);
+
+      // ── Player rows (top 11) ──
+      const top11 = td.players.slice(0, 11);
+      for (let pi = 0; pi < top11.length; pi++) {
+        const p = top11[pi];
+        const py = blockY + TEAM_HEADER_H + pi * PLAYER_ROW_H;
+        const isC = p.name === t.captain;
+        const isVC = p.name === t.vc;
+
+        // Alternating row bg
+        if (pi % 2 === 0) {
+          ctx.fillStyle = "rgba(255,255,255,0.02)";
+          ctx.fillRect(6, py, W - 6, PLAYER_ROW_H);
+        }
+
+        // Row number
+        ctx.textAlign = "right";
+        ctx.font = "400 17px -apple-system, Arial, sans-serif";
+        ctx.fillStyle = "#3f3f46";
+        ctx.fillText(String(pi + 1), PAD + 6 + 26, py + 32);
+
+        // C / VC badge
+        let nx = PAD + 6 + 36;
+        if (isC || isVC) {
+          const bLabel = isC ? "C" : "VC";
+          ctx.font = "700 13px -apple-system, Arial, sans-serif";
+          const bW = ctx.measureText(bLabel).width + 12;
+          ctx.fillStyle = t.color + "28";
+          rrect(nx, py + 14, bW, 20, 4);
+          ctx.fill();
+          ctx.fillStyle = t.color;
+          ctx.textAlign = "center";
+          ctx.fillText(bLabel, nx + bW / 2, py + 27);
+          ctx.textAlign = "left";
+          nx += bW + 8;
+        }
+
+        // Player name (truncated)
+        ctx.font = `${isC ? 600 : 400} 23px -apple-system, Arial, sans-serif`;
+        ctx.fillStyle = isC ? "#f1f5f9" : pi < 6 ? "#a1a1aa" : "#52525b";
+        ctx.textAlign = "left";
+        let displayName = p.name;
+        while (ctx.measureText(displayName).width > 480 && displayName.length > 6) {
+          displayName = displayName.slice(0, -2) + "…";
+        }
+        ctx.fillText(displayName, nx, py + 32);
+
+        // Role tag (fixed position)
+        const roleColor = ROLE_CLR[p.role] || "#a1a1aa";
+        ctx.font = "600 13px -apple-system, Arial, sans-serif";
+        ctx.fillStyle = roleColor + "bb";
+        ctx.textAlign = "left";
+        ctx.fillText(p.role, 710, py + 32);
+
+        // Multiplier hint (small, above pts)
+        if (isC || isVC) {
+          ctx.textAlign = "right";
+          ctx.font = "400 13px -apple-system, Arial, sans-serif";
+          ctx.fillStyle = t.color + "88";
+          ctx.fillText(isC ? "×2" : "×1.5", W - PAD, py + 18);
+        }
+
+        // Adj pts
+        ctx.textAlign = "right";
+        ctx.font = "700 25px -apple-system, Arial, sans-serif";
+        ctx.fillStyle = p.adj > 0 ? "#e4e4e7" : "#3f3f46";
+        ctx.fillText(String(p.adj), W - PAD, py + 35);
+
+        // Row divider
+        ctx.strokeStyle = "#111114"; ctx.lineWidth = 0.5;
+        ctx.beginPath();
+        ctx.moveTo(PAD + 44, py + PLAYER_ROW_H);
+        ctx.lineTo(W - PAD, py + PLAYER_ROW_H);
+        ctx.stroke();
+      }
+
+      // Dark separator band between teams
+      if (ti < teamScores.length - 1) {
+        const sepY = blockY + teamBlockH - INTER_GAP;
+        ctx.fillStyle = "#050507";
+        ctx.fillRect(0, sepY, W, INTER_GAP);
+      }
+    }
+
+    // Gold bottom accent
+    ctx.fillStyle = goldGrad;
+    ctx.fillRect(0, H - 3, W, 3);
+
+    // Share / download
+    const blob = await new Promise<Blob | null>(res => canvas.toBlob(res, "image/png"));
+    if (!blob) return;
+    const file = new File([blob], "ipl-fantasy-teams.png", { type: "image/png" });
+    try {
+      if (navigator.share && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], title: "IPL Fantasy 2026 — All Teams" });
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = "ipl-fantasy-teams.png";
+        document.body.appendChild(a); a.click();
+        document.body.removeChild(a); URL.revokeObjectURL(url);
+        setShowToast(true); setTimeout(() => setShowToast(false), 2500);
+      }
+    } catch { /* user cancelled */ }
+  };
+
   const maxPts = teamScores[0]?.total || 1;
 
   // IPL Season History 2008–2025
@@ -1533,6 +1740,12 @@ export default function App() {
 
     return (
       <div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+          <div className="sec-title" style={{ marginBottom: 0 }}>Teams</div>
+          <button className="btn-primary" style={{ padding: "5px 11px", fontSize: "0.7rem" }} onClick={shareTeams}>
+            Share All
+          </button>
+        </div>
         <div className="team-tabs" data-no-swipe="true">
           {teamScores.map(s => {
             const ft = s.team;
