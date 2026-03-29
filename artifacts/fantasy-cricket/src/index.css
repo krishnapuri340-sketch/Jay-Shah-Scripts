@@ -442,37 +442,3 @@ body { background: var(--bg); }
 .light-mode body { background: #fafafa; }
 .light-mode .app { background: #fafafa; }
 
-/* === SEASON AWARDS === */
-.awards-header {
-  display: flex; align-items: center; justify-content: space-between;
-  cursor: pointer; padding: 4px 0 12px;
-  -webkit-tap-highlight-color: transparent;
-}
-.awards-chevron {
-  font-size: 0.65rem; color: var(--text-3);
-}
-.awards-grid {
-  display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px;
-}
-.award-card {
-  display: flex; align-items: flex-start; gap: 12px;
-  background: var(--surface); border-radius: 10px;
-  padding: 12px 14px;
-  border-left: 3px solid var(--border);
-}
-.award-trophy {
-  font-size: 1.5rem; line-height: 1; flex-shrink: 0; margin-top: 1px;
-}
-.award-body {
-  display: flex; flex-direction: column; gap: 2px; min-width: 0;
-}
-.award-title {
-  font-size: 0.62rem; font-weight: 600; text-transform: uppercase;
-  letter-spacing: 0.06em; color: var(--text-3);
-}
-.award-winner {
-  font-size: 0.9rem; font-weight: 700; color: var(--text); line-height: 1.2;
-}
-.award-detail {
-  font-size: 0.68rem; color: var(--text-2); margin-top: 1px;
-}

@@ -260,7 +260,7 @@ export default function App() {
   const [matchFilter, setMatchFilter] = useState<"upcoming" | "live" | "completed" | "all">("upcoming");
   const [teamFilter, setTeamFilter] = useState<string | null>(null);
   const [standingsOpen, setStandingsOpen] = useState(false);
-  const [awardsOpen, setAwardsOpen] = useState(false);
+
   const [rankChanges, setRankChanges] = useState<Record<string, number>>({});
   const [isDark, setIsDark] = useState(true);
   const lbContainerRef = useRef<HTMLDivElement>(null);
@@ -575,84 +575,6 @@ export default function App() {
 
   const rankLabel = (i: number) => i === 0 ? "first" : i === 1 ? "second" : i === 2 ? "third" : "";
 
-  const computeAwards = () => {
-    const hasData = Object.keys(playerPoints).length > 0;
-    if (!hasData) return [];
-
-    const awards: { trophy: string; title: string; winner: string; detail: string; color: string }[] = [];
-
-    // All fantasy players flat list with roles
-    const allPlayers = Object.values(FANTASY_TEAMS).flatMap(t =>
-      t.players.map(p => ({ name: p.name, role: p.role, team: t.name, owner: t.owner, pts: playerPoints[p.name] || 0 }))
-    );
-
-    // Sum a numeric stat field across all match entries for a player
-    const sumStat = (name: string, field: keyof NonNullable<(typeof playerMatchPoints)[string][number]["stats"]>) =>
-      (playerMatchPoints[name] || []).reduce((acc, e) => acc + ((e.stats?.[field] as number) || 0), 0);
-
-    // Best single-match pts entry for a player
-    const bestMatch = (name: string) =>
-      (playerMatchPoints[name] || []).reduce<{ pts: number; label: string } | null>(
-        (best, e) => (!best || e.pts > best.pts) ? { pts: e.pts, label: e.label } : best, null
-      );
-
-    // 1. Best Captain Performance — best single match pts (×2) among all 4 captains
-    const capBests = Object.values(FANTASY_TEAMS).map(t => {
-      const bm = bestMatch(t.captain);
-      return { name: t.captain, team: t.name, owner: t.owner, matchPts: bm ? bm.pts * 2 : 0, label: bm?.label || "" };
-    }).sort((a, b) => b.matchPts - a.matchPts);
-    if (capBests[0].matchPts > 0) {
-      awards.push({ trophy: "🎖️", title: "Best Captain Performance", winner: capBests[0].name, detail: `${capBests[0].matchPts} pts (×2) · ${capBests[0].label} · ${capBests[0].team} (${capBests[0].owner})`, color: "#f97316" });
-    }
-
-    // 2. Best Batting Performance — best single match pts among BAT role players
-    const batBests = allPlayers.filter(p => p.role === "BAT").map(p => {
-      const bm = bestMatch(p.name);
-      return { name: p.name, team: p.team, owner: p.owner, matchPts: bm ? bm.pts : 0, label: bm?.label || "" };
-    }).sort((a, b) => b.matchPts - a.matchPts);
-    if (batBests.length > 0 && batBests[0].matchPts > 0) {
-      awards.push({ trophy: "🏏", title: "Best Batting Performance", winner: batBests[0].name, detail: `${batBests[0].matchPts} pts · ${batBests[0].label} · ${batBests[0].team} (${batBests[0].owner})`, color: "#60a5fa" });
-    }
-
-    // 3. Best Bowling Performance — best single match pts among BWL role players
-    const bwlBests = allPlayers.filter(p => p.role === "BWL").map(p => {
-      const bm = bestMatch(p.name);
-      return { name: p.name, team: p.team, owner: p.owner, matchPts: bm ? bm.pts : 0, label: bm?.label || "" };
-    }).sort((a, b) => b.matchPts - a.matchPts);
-    if (bwlBests.length > 0 && bwlBests[0].matchPts > 0) {
-      awards.push({ trophy: "🎳", title: "Best Bowling Performance", winner: bwlBests[0].name, detail: `${bwlBests[0].matchPts} pts · ${bwlBests[0].label} · ${bwlBests[0].team} (${bwlBests[0].owner})`, color: "#f472b6" });
-    }
-
-    // 4. Best All-Rounder — highest total pts among AR role players
-    const ars = allPlayers.filter(p => p.role === "AR").sort((a, b) => b.pts - a.pts);
-    if (ars.length > 0 && ars[0].pts > 0) {
-      awards.push({ trophy: "🎪", title: "Best All-Rounder", winner: ars[0].name, detail: `${ars[0].pts} total pts · ${ars[0].team} (${ars[0].owner})`, color: "#c084fc" });
-    }
-
-    // 5. Most Dot Balls — across all matches (any role)
-    const dotKing = allPlayers.map(p => ({ ...p, dots: sumStat(p.name, "dots") })).sort((a, b) => b.dots - a.dots)[0];
-    if (dotKing && dotKing.dots > 0) {
-      awards.push({ trophy: "⚫", title: "Most Dot Balls", winner: dotKing.name, detail: `${dotKing.dots} dots · ${dotKing.team} (${dotKing.owner})`, color: "#818cf8" });
-    }
-
-    // 6. Most Catches — across all matches
-    const safeHands = allPlayers.map(p => ({ ...p, catches: sumStat(p.name, "catches") })).sort((a, b) => b.catches - a.catches)[0];
-    if (safeHands && safeHands.catches > 0) {
-      awards.push({ trophy: "🧤", title: "Most Catches", winner: safeHands.name, detail: `${safeHands.catches} catches · ${safeHands.team} (${safeHands.owner})`, color: "#2dd4bf" });
-    }
-
-    // 7. Flopped Captain — captain with lowest total adjusted (×2) pts (at least 2 must have scored)
-    const captains = Object.values(FANTASY_TEAMS).map(t => ({
-      name: t.captain, team: t.name, owner: t.owner, pts: (playerPoints[t.captain] || 0) * 2
-    })).sort((a, b) => b.pts - a.pts);
-    const scoringCaps = captains.filter(c => c.pts > 0);
-    if (scoringCaps.length >= 2) {
-      const flop = scoringCaps[scoringCaps.length - 1];
-      awards.push({ trophy: "😬", title: "Flopped Captain", winner: flop.name, detail: `Only ${flop.pts} adjusted pts · ${flop.team} (${flop.owner})`, color: "#475569" });
-    }
-
-    return awards;
-  };
 
   // Helper: build preview data from a list of matches
   const buildMatchPreviews = (matches: any[]) =>
@@ -682,7 +604,6 @@ export default function App() {
   );
 
   const renderHome = () => {
-    const awards = computeAwards();
     return (
     <div>
       {/* Countdown to next match */}
@@ -760,30 +681,6 @@ export default function App() {
         );
       })()}
 
-      {/* Season Awards */}
-      {awards.length > 0 && (
-        <>
-          <div className="divider" />
-          <div className="awards-header" onClick={() => setAwardsOpen(o => !o)}>
-            <div className="sec-title" style={{ margin: 0 }}>Season Awards</div>
-            <span className="awards-chevron">{awardsOpen ? "▲" : "▼"}</span>
-          </div>
-          {awardsOpen && (
-            <div className="awards-grid">
-              {awards.map((a, i) => (
-                <div key={i} className="award-card" style={{ borderLeftColor: a.color }}>
-                  <div className="award-trophy">{a.trophy}</div>
-                  <div className="award-body">
-                    <div className="award-title">{a.title}</div>
-                    <div className="award-winner">{a.winner}</div>
-                    <div className="award-detail">{a.detail}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </>
-      )}
 
     </div>
     );
