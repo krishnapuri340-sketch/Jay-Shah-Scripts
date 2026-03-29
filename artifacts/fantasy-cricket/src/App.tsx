@@ -756,14 +756,17 @@ export default function App() {
     return (
       <div>
         <div className="team-tabs">
-          {Object.values(FANTASY_TEAMS).map(ft => (
-            <button key={ft.id} className={`team-tab ${selectedTeam === ft.id ? "active" : ""}`}
-              style={selectedTeam === ft.id ? { color: ft.color, borderColor: ft.color } : {}}
-              onClick={() => setSelectedTeam(ft.id)}>
-              <div>{ft.emoji} {ft.name}</div>
-              <div style={{ fontSize: "0.6rem", opacity: 0.65, marginTop: 1 }}>{ft.owner}</div>
-            </button>
-          ))}
+          {teamScores.map(s => {
+            const ft = s.team;
+            return (
+              <button key={ft.id} className={`team-tab ${selectedTeam === ft.id ? "active" : ""}`}
+                style={selectedTeam === ft.id ? { color: ft.color, borderColor: ft.color } : {}}
+                onClick={() => setSelectedTeam(ft.id)}>
+                <div>{ft.emoji} {ft.name}</div>
+                <div style={{ fontSize: "0.6rem", opacity: 0.65, marginTop: 1 }}>{ft.owner}</div>
+              </button>
+            );
+          })}
         </div>
 
         <div className="team-header-card" style={{ "--team-color": t.color } as React.CSSProperties}>
