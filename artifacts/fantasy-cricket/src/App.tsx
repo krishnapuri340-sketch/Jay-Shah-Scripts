@@ -103,7 +103,7 @@ const FANTASY_TEAMS: Record<string, {
 };
 
 const IPL_COLORS: Record<string, string> = {
-  RCB: "#ef4444", MI: "#3b82f6", CSK: "#f59e0b", KKR: "#a855f7",
+  RCB: "#ef4444", MI: "#3b82f6", CSK: "#f59e0b", KKR: "#7c3aed",
   PBKS: "#f87171", GT: "#60a5fa", RR: "#f472b6", SRH: "#fb923c",
   LSG: "#34d399", DC: "#38bdf8"
 };
