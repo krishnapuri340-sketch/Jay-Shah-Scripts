@@ -812,19 +812,18 @@ export default function App() {
   };
 
   const shareTeams = async () => {
-    // ── Layout constants (2×2 horizontal grid) ──
+    // ── Layout: 2×2 grid, Sofascore-clean style ──
     const W = 1080;
-    const PAD = 28;
-    const COL_GAP = 14;
-    const COL_W = (W - PAD * 2 - COL_GAP) / 2;  // ~505px per column
-    const HEADER_H = 112;
-    const TOP_GAP = 14;
-    const TEAM_HDR_H = 70;
-    const PLAYER_ROW_H = 39;
-    const ROWS = 11;
-    const TEAM_BLOCK_H = TEAM_HDR_H + ROWS * PLAYER_ROW_H;  // 70 + 429 = 499
-    const ROW_GAP = 14;
-    const H = HEADER_H + TOP_GAP + TEAM_BLOCK_H + ROW_GAP + TEAM_BLOCK_H + 36;
+    const CELL_W = W / 2;            // 540px per column, full-bleed
+    const HEADER_H = 82;
+    const COLOR_BAR = 3;
+    const CELL_PAD = 28;
+    const TEAM_HDR_H = 66;
+    const SEP = 1;
+    const PLAYER_ROW_H = 30;
+    const N_PLAYERS = 11;
+    const CELL_H = COLOR_BAR + TEAM_HDR_H + SEP + N_PLAYERS * PLAYER_ROW_H + 20;
+    const H = HEADER_H + CELL_H + SEP + CELL_H + 34;
 
     const canvas = document.createElement("canvas");
     canvas.width = W; canvas.height = H;
@@ -835,181 +834,149 @@ export default function App() {
     logoImg.src = `${import.meta.env.BASE_URL}app-icon.png`;
     await new Promise(res => { logoImg.onload = res; logoImg.onerror = res; });
 
-    const ROLE_CLR: Record<string, string> = { BAT: "#60a5fa", BWL: "#f472b6", AR: "#34d399", WK: "#fbbf24" };
-
-    const rrect = (x: number, y: number, w: number, h: number, r: number) => {
-      ctx.beginPath();
-      ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y);
-      ctx.arcTo(x + w, y, x + w, y + r, r); ctx.lineTo(x + w, y + h - r);
-      ctx.arcTo(x + w, y + h, x + w - r, y + h, r); ctx.lineTo(x + r, y + h);
-      ctx.arcTo(x, y + h, x, y + h - r, r); ctx.lineTo(x, y + r);
-      ctx.arcTo(x, y, x + r, y, r); ctx.closePath();
-    };
-
-    // Background
-    ctx.fillStyle = "#09090b";
+    // ── Background ──
+    ctx.fillStyle = "#0c0c0e";
     ctx.fillRect(0, 0, W, H);
 
-    // Gold top accent
+    // Gold top bar
     const goldGrad = ctx.createLinearGradient(0, 0, W, 0);
     goldGrad.addColorStop(0, "#a07832"); goldGrad.addColorStop(0.5, "#d4a843"); goldGrad.addColorStop(1, "#a07832");
     ctx.fillStyle = goldGrad; ctx.fillRect(0, 0, W, 3);
 
     // ── Header ──
-    const logoR = 22, logoX = PAD + logoR, logoY = 58;
+    const logoR = 20, logoX = 36 + logoR, logoY = HEADER_H / 2;
     ctx.save();
     ctx.beginPath(); ctx.arc(logoX, logoY, logoR, 0, Math.PI * 2); ctx.clip();
     if (logoImg.naturalWidth > 0) ctx.drawImage(logoImg, logoX - logoR, logoY - logoR, logoR * 2, logoR * 2);
     ctx.restore();
 
     ctx.textAlign = "left";
-    ctx.font = "700 30px -apple-system, Arial, sans-serif";
-    ctx.fillStyle = "#ffffff";
-    ctx.fillText("IPL Fantasy 2026", PAD + logoR * 2 + 14, 50);
-    ctx.font = "400 18px -apple-system, Arial, sans-serif";
-    ctx.fillStyle = "#52525b";
-    ctx.fillText("All Teams · Top 11 Players", PAD + logoR * 2 + 14, 74);
-
-    ctx.textAlign = "right";
-    ctx.font = "400 17px -apple-system, Arial, sans-serif";
+    ctx.font = "600 24px -apple-system, Arial, sans-serif";
+    ctx.fillStyle = "#f4f4f5";
+    ctx.fillText("IPL Fantasy 2026", 36 + logoR * 2 + 12, logoY - 4);
+    ctx.font = "400 14px -apple-system, Arial, sans-serif";
     ctx.fillStyle = "#3f3f46";
-    const timeStr = pointsLastUpdated?.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) ?? "–";
-    ctx.fillText(timeStr, W - PAD, 74);
+    ctx.fillText("All Teams · Top 11", 36 + logoR * 2 + 12, logoY + 16);
 
-    ctx.strokeStyle = "#1c1c20"; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(PAD, 96); ctx.lineTo(W - PAD, 96); ctx.stroke();
+    const dateStr = pointsLastUpdated
+      ? pointsLastUpdated.toLocaleDateString([], { day: "numeric", month: "short" }) + " · " +
+        pointsLastUpdated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      : "–";
+    ctx.textAlign = "right";
+    ctx.font = "400 13px -apple-system, Arial, sans-serif";
+    ctx.fillStyle = "#27272a";
+    ctx.fillText(dateStr, W - 36, logoY + 6);
 
-    // Horizontal divider between the two team rows
-    const midY = HEADER_H + TOP_GAP + TEAM_BLOCK_H + ROW_GAP / 2;
+    // Thin header separator
     ctx.strokeStyle = "#18181b"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, HEADER_H); ctx.lineTo(W, HEADER_H); ctx.stroke();
+
+    // Grid dividers (cross hair)
+    ctx.strokeStyle = "#18181b"; ctx.lineWidth = 1;
+    // Vertical centre
+    ctx.beginPath(); ctx.moveTo(W / 2, HEADER_H); ctx.lineTo(W / 2, H - 34); ctx.stroke();
+    // Horizontal mid (between top and bottom row)
+    const midY = HEADER_H + CELL_H + SEP / 2;
     ctx.beginPath(); ctx.moveTo(0, midY); ctx.lineTo(W, midY); ctx.stroke();
 
-    // Vertical divider between the two columns
-    const divX = PAD + COL_W + COL_GAP / 2;
-    ctx.strokeStyle = "#18181b"; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(divX, HEADER_H + TOP_GAP); ctx.lineTo(divX, H - 36); ctx.stroke();
-
-    // ── Draw each team in 2×2 grid ──
+    // ── Draw each team ──
     for (let ti = 0; ti < teamScores.length; ti++) {
       const s = teamScores[ti];
       const t = s.team;
       const td = getTeamData(s.id, playerPoints);
+      const top11 = td.players.slice(0, N_PLAYERS);
 
       const col = ti % 2;
-      const row = Math.floor(ti / 2);
-      const xS = PAD + col * (COL_W + COL_GAP);          // column left edge
-      const xE = xS + COL_W;                              // column right edge
-      const yS = HEADER_H + TOP_GAP + row * (TEAM_BLOCK_H + ROW_GAP);  // block top
+      const gridRow = Math.floor(ti / 2);
+      const xS = col * CELL_W;
+      const xE = xS + CELL_W;
+      const xL = xS + CELL_PAD;      // inner left
+      const xR = xE - CELL_PAD;      // inner right
+      const yS = HEADER_H + gridRow * (CELL_H + SEP);
 
-      // ── Team header ──
-      // Top color accent bar
+      // ── Color accent bar ──
       ctx.fillStyle = t.color;
-      ctx.fillRect(xS, yS, COL_W, 3);
+      ctx.fillRect(xS, yS, CELL_W, COLOR_BAR);
+
+      // ── Team header (rank · name · pts) ──
+      const thY = yS + COLOR_BAR;
 
       // Ghost rank
       ctx.textAlign = "left";
-      ctx.font = "100 52px -apple-system, Arial, sans-serif";
-      ctx.fillStyle = "#1c1c20";
-      ctx.fillText(String(ti + 1), xS + 4, yS + 56);
+      ctx.font = "100 44px -apple-system, Arial, sans-serif";
+      ctx.fillStyle = "#1e1e22";
+      ctx.fillText(String(ti + 1), xL, thY + 50);
 
-      // Team name
-      ctx.font = "700 24px -apple-system, Arial, sans-serif";
+      // Team name + owner
+      ctx.font = "600 20px -apple-system, Arial, sans-serif";
       ctx.fillStyle = "#e4e4e7";
-      ctx.fillText(t.name, xS + 46, yS + 24);
-
-      // Owner
-      ctx.font = "400 13px -apple-system, Arial, sans-serif";
-      ctx.fillStyle = "#52525b";
-      ctx.fillText(t.owner, xS + 46, yS + 42);
-
-      // C / VC names (small)
-      ctx.font = "400 12px -apple-system, Arial, sans-serif";
+      ctx.fillText(t.name, xL + 38, thY + 22);
+      ctx.font = "300 12px -apple-system, Arial, sans-serif";
       ctx.fillStyle = "#3f3f46";
-      ctx.fillText(`C: ${t.captain}  VC: ${t.vc}`, xS + 46, yS + 58);
+      ctx.fillText(t.owner, xL + 38, thY + 40);
+      ctx.font = "300 11px -apple-system, Arial, sans-serif";
+      ctx.fillStyle = "#27272a";
+      ctx.fillText(`C: ${t.captain}`, xL + 38, thY + 56);
 
-      // Total pts (right-aligned)
+      // Total pts (right — the hero number)
       ctx.textAlign = "right";
-      ctx.font = "700 36px -apple-system, Arial, sans-serif";
+      ctx.font = "700 40px -apple-system, Arial, sans-serif";
       ctx.fillStyle = t.color;
-      ctx.fillText(String(td.total), xE, yS + 34);
-      ctx.font = "400 13px -apple-system, Arial, sans-serif";
-      ctx.fillStyle = "#3f3f46";
-      ctx.fillText("pts", xE, yS + 52);
+      ctx.fillText(String(td.total), xR, thY + 40);
+      ctx.font = "300 11px -apple-system, Arial, sans-serif";
+      ctx.fillStyle = t.color + "66";
+      ctx.fillText("PTS", xR, thY + 56);
 
-      // ── Player rows ──
-      const top11 = td.players.slice(0, 11);
+      // Header → players separator
+      const sepY = thY + TEAM_HDR_H;
+      ctx.strokeStyle = "#18181b"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(xS, sepY); ctx.lineTo(xE, sepY); ctx.stroke();
+
+      // ── Player rows: just name + pts ──
+      const playersY = sepY + SEP;
       for (let pi = 0; pi < top11.length; pi++) {
         const p = top11[pi];
-        const py = yS + TEAM_HDR_H + pi * PLAYER_ROW_H;
         const isC = p.name === t.captain;
         const isVC = p.name === t.vc;
+        const py = playersY + pi * PLAYER_ROW_H;
+        const midRow = py + PLAYER_ROW_H * 0.62;
 
-        // Alternating bg
-        if (pi % 2 === 0) {
-          ctx.fillStyle = "rgba(255,255,255,0.02)";
-          ctx.fillRect(xS, py, COL_W, PLAYER_ROW_H);
-        }
-
-        // Row number
-        ctx.textAlign = "right";
-        ctx.font = "400 12px -apple-system, Arial, sans-serif";
-        ctx.fillStyle = "#3f3f46";
-        ctx.fillText(String(pi + 1), xS + 18, py + 25);
-
-        // C/VC badge
-        let nx = xS + 22;
-        if (isC || isVC) {
-          const bLabel = isC ? "C" : "VC";
-          ctx.font = "700 11px -apple-system, Arial, sans-serif";
-          const bW = ctx.measureText(bLabel).width + 8;
-          ctx.fillStyle = t.color + "28";
-          rrect(nx, py + 10, bW, 17, 3);
-          ctx.fill();
-          ctx.fillStyle = t.color;
-          ctx.textAlign = "center";
-          ctx.fillText(bLabel, nx + bW / 2, py + 22);
-          ctx.textAlign = "left";
-          nx += bW + 5;
-        }
-
-        // Player name (truncated to fit column)
-        const maxNameW = COL_W - 80 - (nx - xS);
-        ctx.font = `${isC ? 600 : 400} 17px -apple-system, Arial, sans-serif`;
-        ctx.fillStyle = isC ? "#f1f5f9" : pi < 5 ? "#a1a1aa" : "#52525b";
+        // Name weight/color by importance
+        const nameWeight = isC ? "500" : "400";
+        const nameColor = isC ? "#e4e4e7" : isVC ? "#a1a1aa" : pi < 6 ? "#71717a" : "#3f3f46";
+        ctx.font = `${nameWeight} 15px -apple-system, Arial, sans-serif`;
+        ctx.fillStyle = nameColor;
         ctx.textAlign = "left";
-        let displayName = p.name;
-        while (ctx.measureText(displayName).width > maxNameW && displayName.length > 5) {
-          displayName = displayName.slice(0, -2) + "…";
+
+        // Truncate name to fit (max ~330px before pts area)
+        let dName = p.name;
+        while (ctx.measureText(dName).width > 330 && dName.length > 5) {
+          dName = dName.slice(0, -2) + "…";
         }
-        ctx.fillText(displayName, nx, py + 25);
+        ctx.fillText(dName, xL, midRow);
 
-        // Role (fixed offset from right)
-        const roleColor = ROLE_CLR[p.role] || "#a1a1aa";
-        ctx.font = "600 11px -apple-system, Arial, sans-serif";
-        ctx.fillStyle = roleColor + "aa";
-        ctx.textAlign = "right";
-        ctx.fillText(p.role, xE - 38, py + 25);
-
-        // Multiplier hint (tiny, above pts)
+        // Inline C / VC marker right after name
         if (isC || isVC) {
-          ctx.font = "400 10px -apple-system, Arial, sans-serif";
-          ctx.fillStyle = t.color + "88";
-          ctx.textAlign = "right";
-          ctx.fillText(isC ? "×2" : "×1.5", xE, py + 14);
+          const nameW = ctx.measureText(dName).width;
+          ctx.font = "700 10px -apple-system, Arial, sans-serif";
+          ctx.fillStyle = t.color + "cc";
+          ctx.fillText(isC ? " C" : " VC", xL + nameW, midRow);
         }
 
-        // Adj pts
+        // Pts (right-aligned)
         ctx.textAlign = "right";
-        ctx.font = "700 19px -apple-system, Arial, sans-serif";
-        ctx.fillStyle = p.adj > 0 ? "#e4e4e7" : "#3f3f46";
-        ctx.fillText(String(p.adj), xE, py + 27);
+        ctx.font = `${isC || isVC ? "600" : "400"} 15px -apple-system, Arial, sans-serif`;
+        ctx.fillStyle = isC ? "#e4e4e7" : isVC ? "#a1a1aa" : "#3f3f46";
+        ctx.fillText(String(p.adj), xR, midRow);
 
-        // Row divider
-        ctx.strokeStyle = "#111114"; ctx.lineWidth = 0.5;
-        ctx.beginPath();
-        ctx.moveTo(xS + 20, py + PLAYER_ROW_H);
-        ctx.lineTo(xE, py + PLAYER_ROW_H);
-        ctx.stroke();
+        // Subtle row divider (skip last)
+        if (pi < top11.length - 1) {
+          ctx.strokeStyle = "#18181b"; ctx.lineWidth = 0.5;
+          ctx.beginPath();
+          ctx.moveTo(xL, py + PLAYER_ROW_H);
+          ctx.lineTo(xR, py + PLAYER_ROW_H);
+          ctx.stroke();
+        }
       }
     }
 
