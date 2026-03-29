@@ -668,7 +668,7 @@ export default function App() {
                   </span>
                 )}
               </div>
-              <div className="lb-meta">{s.team.owner} · C: {s.team.captain}</div>
+              <div className="lb-meta">{s.team.owner} · <span style={{ color: "#d4a843" }}>C:</span> {s.team.captain} · <span style={{ color: "var(--text-2)" }}>VC:</span> {s.team.vc}</div>
             </div>
             <div style={{ textAlign: "right" }}>
               <div className={`lb-pts ${i === 0 ? "first" : ""}`} style={{ color: i === 0 ? "#d4a843" : s.team.color }}>{s.total}</div>
