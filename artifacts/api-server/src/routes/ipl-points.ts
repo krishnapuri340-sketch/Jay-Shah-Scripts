@@ -390,7 +390,12 @@ function teamNamesMatch(cricapiName: string, iplName: string): boolean {
   return false;
 }
 
-async function processSingleMatch(cricapiMatchId: string, allPlayers: string[]): Promise<ProcessedMatchData> {
+async function processSingleMatch(
+  cricapiMatchId: string,
+  allPlayers: string[],
+  homeTeam: string,
+  awayTeam: string
+): Promise<ProcessedMatchData> {
   const data = await cricapiGet("match_scorecard", { id: cricapiMatchId });
   const scorecard: any[] = data?.scorecard || [];
   if (!scorecard.length) return { points: {}, innings: [] };
@@ -399,6 +404,13 @@ async function processSingleMatch(cricapiMatchId: string, allPlayers: string[]):
   const points: Record<string, number> = {};
 
   for (const fantasyPlayerName of allPlayers) {
+    // Team guard: skip players whose IPL team isn't playing in this match
+    const teamCode = PLAYER_TEAMS[fantasyPlayerName];
+    if (teamCode) {
+      const inMatch = teamNamesMatch(homeTeam, teamCode) || teamNamesMatch(awayTeam, teamCode);
+      if (!inMatch) continue;
+    }
+
     const normalizedFantasy = normalizeName(fantasyPlayerName);
     for (const [statKey, stats] of Object.entries(rawStats)) {
       if (namesMatch(statKey, normalizedFantasy)) {
@@ -424,6 +436,38 @@ const FANTASY_PLAYER_NAMES = [
   "MS Dhoni", "Matheesha Pathirana", "Tushar Deshpande", "Nitish Kumar Reddy",
   "Heinrich Klaasen", "T Natarajan", "Jacob Duffy",
 ];
+
+// IPL 2026 team assignments — used to skip fantasy players whose team isn't in a given match
+const PLAYER_TEAMS: Record<string, string> = {
+  // RCB
+  "Rajat Patidar": "rcb", "Virat Kohli": "rcb", "Phil Salt": "rcb",
+  "Tim David": "rcb", "Bhuvneshwar Kumar": "rcb", "Jacob Duffy": "rcb",
+  "Krunal Pandya": "rcb", "Liam Livingstone": "rcb", "Jacob Bethell": "rcb",
+  // GT
+  "Shubman Gill": "gt", "Jos Buttler": "gt", "Sai Sudharsan": "gt",
+  "Mohammed Shami": "gt",
+  // RR
+  "Sanju Samson": "rr", "Riyan Parag": "rr", "Yuzvendra Chahal": "rr",
+  "Vaibhav Suryavanshi": "rr", "Dhruv Jurel": "rr",
+  // PBKS
+  "Shreyas Iyer": "pbks", "Arshdeep Singh": "pbks", "Priyansh Arya": "pbks",
+  // MI
+  "Rohit Sharma": "mi", "Jasprit Bumrah": "mi", "Hardik Pandya": "mi",
+  "Tilak Varma": "mi", "Deepak Chahar": "mi",
+  // SRH
+  "Travis Head": "srh", "Abhishek Sharma": "srh", "Ishan Kishan": "srh",
+  "Heinrich Klaasen": "srh", "Pat Cummins": "srh", "T Natarajan": "srh",
+  "Nitish Kumar Reddy": "srh",
+  // CSK
+  "MS Dhoni": "csk", "Ravindra Jadeja": "csk", "Ruturaj Gaikwad": "csk",
+  "Devon Conway": "csk", "Matheesha Pathirana": "csk", "Tushar Deshpande": "csk",
+  // DC
+  "Axar Patel": "dc", "KL Rahul": "dc", "Mitchell Starc": "dc", "Kuldeep Yadav": "dc",
+  // KKR
+  "Sunil Narine": "kkr", "Rinku Singh": "kkr", "Cameron Green": "kkr",
+  // LSG
+  "Nicholas Pooran": "lsg", "Avesh Khan": "lsg", "Rahul Tripathi": "lsg",
+};
 
 let pointsUpdateInProgress = false;
 let lastUpdateAttempt = 0;
@@ -521,7 +565,10 @@ router.get("/ipl/points", async (req, res) => {
             if (!cricapiId) continue;
 
             try {
-              const matchData = await processSingleMatch(cricapiId, FANTASY_PLAYER_NAMES);
+              const matchData = await processSingleMatch(
+                cricapiId, FANTASY_PLAYER_NAMES,
+                iplMatch.HomeTeamName || "", iplMatch.AwayTeamName || ""
+              );
               if (Object.keys(matchData.points).length > 0 || matchData.innings.length > 0) {
                 pointsCache.processedMatches[iplId] = matchData;
                 pointsCache.lastUpdated = new Date().toISOString();
