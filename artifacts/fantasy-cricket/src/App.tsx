@@ -1332,8 +1332,8 @@ export default function App() {
                 </div>
                 {/* Cap line */}
                 <div className="hist-card-caps">
-                  <span className="hist-cap-orange">🧢 {h.orangeCap.split(" ").slice(-1)[0]} {h.orangeRuns} runs</span>
-                  <span className="hist-cap-purple">🧢 {h.purpleCap.split(" ").slice(-1)[0]} {h.purpleWkts} wks</span>
+                  <span className="hist-cap-orange"><span style={{filter:"hue-rotate(175deg) saturate(3) brightness(1.1)"}}>🧢</span> {h.orangeCap.split(" ").slice(-1)[0]} {h.orangeRuns} runs</span>
+                  <span className="hist-cap-purple"><span style={{filter:"hue-rotate(60deg) saturate(2) brightness(0.9)"}}>🧢</span> {h.purpleCap.split(" ").slice(-1)[0]} {h.purpleWkts} wks</span>
                 </div>
               </div>
               <div className="hist-card-arrow">›</div>
