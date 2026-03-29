@@ -383,6 +383,33 @@ body { background: #07090f; }
 }
 .btn-theme:hover { background: rgba(255,255,255,0.1); color: #fff; }
 
+/* === LINEUP PREVIEW CARD === */
+.lineup-preview-card {
+  border-radius: 14px; margin-bottom: 12px;
+  background: rgba(12,15,22,0.95); border: 1px solid rgba(232,130,26,0.2);
+  overflow: hidden;
+}
+.lineup-preview-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 13px 14px; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s;
+}
+.lineup-preview-header:active { background: rgba(255,255,255,0.03); }
+.lineup-preview-body {
+  padding: 0 14px 14px; border-top: 1px solid rgba(232,130,26,0.1);
+  animation: slideUp 0.2s ease;
+}
+.lineup-team-row {
+  padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.lineup-team-row:last-child { border-bottom: none; }
+
+/* Light mode */
+.light-mode .lineup-preview-card { background: rgba(255,255,255,0.95); border-color: rgba(232,130,26,0.3); }
+.light-mode .lineup-preview-body { border-top-color: rgba(232,130,26,0.15); }
+.light-mode .lineup-team-row { border-bottom-color: rgba(0,0,0,0.05); }
+
 /* === COUNTDOWN CARD === */
 .countdown-card {
   border-radius: 14px; padding: 12px 14px; margin-bottom: 12px;

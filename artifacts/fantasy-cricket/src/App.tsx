@@ -118,6 +118,91 @@ const IPL_FULL_NAMES: Record<string, string> = {
 const ROLE_ICONS: Record<string, string> = { BAT: "🏏", BWL: "🎯", AR: "⚡", WK: "🧤" };
 const ROLE_COLORS: Record<string, string> = { BAT: "#60a5fa", BWL: "#f472b6", AR: "#34d399", WK: "#fbbf24" };
 
+function LineupPreviewCard({ data }: {
+  data: {
+    match: any;
+    playingTeams: string[];
+    preview: { team: typeof FANTASY_TEAMS[string]; activePlayers: { name: string; role: string; ipl: string }[] }[];
+  }
+}) {
+  const [open, setOpen] = useState(false);
+  const { match, playingTeams, preview } = data;
+  const teamInfo: any[] = match.teamInfo || [];
+  const matchLabel = teamInfo.length >= 2
+    ? `${teamInfo[0]?.shortname || ""} vs ${teamInfo[1]?.shortname || ""}`
+    : match.name;
+
+  return (
+    <div className="lineup-preview-card">
+      <div className="lineup-preview-header" onClick={() => setOpen(o => !o)}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 0 }}>
+          <span style={{ fontSize: "1.2rem" }}>🔮</span>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "1rem", letterSpacing: "1.5px", color: "#e8821a" }}>
+              NEXT MATCH LINEUP
+            </div>
+            <div style={{ fontSize: "0.62rem", color: "#64748b", marginTop: 1 }}>{matchLabel}</div>
+          </div>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }}>
+          {playingTeams.filter(t => IPL_COLORS[t]).map(t => (
+            <span key={t} style={{
+              fontSize: "0.6rem", fontWeight: 700, padding: "2px 7px",
+              borderRadius: 4, background: (IPL_COLORS[t]) + "22",
+              border: `1px solid ${IPL_COLORS[t]}55`,
+              color: IPL_COLORS[t], letterSpacing: "0.5px"
+            }}>{t}</span>
+          ))}
+          <span style={{ fontSize: "0.75rem", color: "#475569", marginLeft: 2 }}>{open ? "▲" : "▼"}</span>
+        </div>
+      </div>
+      {open && (
+        <div className="lineup-preview-body">
+          {preview.length === 0 ? (
+            <div style={{ color: "#475569", fontSize: "0.78rem", padding: "8px 0" }}>
+              No fantasy players in this match.
+            </div>
+          ) : preview.map(({ team, activePlayers }) => (
+            <div key={team.id} className="lineup-team-row">
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+                <span style={{ fontSize: "1.05rem" }}>{team.emoji}</span>
+                <span style={{ fontWeight: 700, fontSize: "0.8rem", color: "#e2e8f0" }}>{team.name}</span>
+                <span style={{ fontSize: "0.6rem", color: "#64748b" }}>by {team.owner}</span>
+                <span style={{
+                  marginLeft: "auto", fontSize: "0.6rem", fontWeight: 700,
+                  padding: "1px 8px", borderRadius: 10,
+                  background: team.color + "20", border: `1px solid ${team.color}44`,
+                  color: team.color, flexShrink: 0
+                }}>{activePlayers.length} active</span>
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                {activePlayers.map(p => {
+                  const isCap = p.name === team.captain;
+                  const isVC = p.name === team.vc;
+                  return (
+                    <div key={p.name} style={{
+                      display: "flex", alignItems: "center", gap: 4,
+                      padding: "5px 9px", borderRadius: 8,
+                      background: (IPL_COLORS[p.ipl] || "#334155") + "15",
+                      border: `1px solid ${IPL_COLORS[p.ipl] || "#334155"}30`,
+                    }}>
+                      <span style={{ fontSize: "0.7rem" }}>{ROLE_ICONS[p.role]}</span>
+                      <span style={{ fontSize: "0.74rem", fontWeight: 600, color: "#e2e8f0" }}>{p.name}</span>
+                      {isCap && <span style={{ fontSize: "0.56rem", fontWeight: 800, color: "#d4a017", background: "rgba(212,160,23,0.18)", borderRadius: 4, padding: "1px 4px", lineHeight: 1.2 }}>C</span>}
+                      {isVC && <span style={{ fontSize: "0.56rem", fontWeight: 800, color: "#94a3b8", background: "rgba(148,163,184,0.12)", borderRadius: 4, padding: "1px 4px", lineHeight: 1.2 }}>VC</span>}
+                      <span style={{ fontSize: "0.6rem", color: IPL_COLORS[p.ipl] || "#64748b", fontWeight: 700 }}>{p.ipl}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function getTeamData(teamId: string, playerPoints: Record<string, number>) {
   const team = FANTASY_TEAMS[teamId];
   const players = team.players.map(p => {
@@ -472,6 +557,33 @@ export default function App() {
     return awards;
   };
 
+  // Build upcoming lineup preview — which fantasy players are in tomorrow's match
+  const upcomingLineupPreview = (() => {
+    const upcoming = liveMatches
+      .filter((m: any) => !m.matchStarted && m.dateTimeGMT)
+      .sort((a: any, b: any) => new Date(a.dateTimeGMT).getTime() - new Date(b.dateTimeGMT).getTime())[0];
+    if (!upcoming) return null;
+    const diff = new Date(upcoming.dateTimeGMT).getTime() - Date.now();
+    // Only show within 24 hours
+    if (diff <= 0 || diff > 24 * 60 * 60 * 1000) return null;
+
+    // Extract the two playing IPL team shortnames from teamInfo
+    const teamInfo: any[] = upcoming.teamInfo || [];
+    const playingTeams = new Set(
+      teamInfo.map((ti: any) => (ti.shortname || "").toUpperCase())
+    );
+
+    if (playingTeams.size === 0) return null;
+
+    // For each fantasy team, find players whose IPL team is playing
+    const preview = Object.values(FANTASY_TEAMS).map(ft => {
+      const activePlayers = ft.players.filter(p => playingTeams.has(p.ipl.toUpperCase()));
+      return { team: ft, activePlayers };
+    }).filter(x => x.activePlayers.length > 0);
+
+    return { match: upcoming, playingTeams: [...playingTeams], preview };
+  })();
+
   const renderHome = () => {
     const awards = computeAwards();
     return (
@@ -485,6 +597,11 @@ export default function App() {
           </div>
           <div className="countdown-match">{countdown.matchName}</div>
         </div>
+      )}
+
+      {/* Upcoming lineup preview — only within 24h */}
+      {upcomingLineupPreview && (
+        <LineupPreviewCard data={upcomingLineupPreview} />
       )}
 
       <div className="sec-title">Leaderboard</div>
