@@ -146,6 +146,7 @@ body { background: var(--bg); }
   cursor: pointer; position: relative;
   -webkit-tap-highlight-color: transparent;
   transition: border-color 0.15s;
+  will-change: transform;
 }
 .lb-card:active { opacity: 0.85; }
 .lb-card.rank-first { border-color: rgba(212,168,67,0.22); }

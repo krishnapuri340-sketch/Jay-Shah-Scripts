@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
 
 const FANTASY_TEAMS: Record<string, {
   id: string; name: string; owner: string; emoji: string; color: string;
@@ -262,6 +262,8 @@ export default function App() {
   const [standingsOpen, setStandingsOpen] = useState(false);
   const [rankChanges, setRankChanges] = useState<Record<string, number>>({});
   const [isDark, setIsDark] = useState(true);
+  const lbContainerRef = useRef<HTMLDivElement>(null);
+  const prevCardTops = useRef<Record<string, number>>({});
   const [showToast, setShowToast] = useState(false);
   const [countdown, setCountdown] = useState<{ text: string; matchName: string } | null>(null);
   const fetchPoints = async () => {
@@ -420,6 +422,27 @@ export default function App() {
       }
     } catch { /* ignore storage errors */ }
   }, [playerPoints]);
+
+  // FLIP animation for leaderboard reordering
+  useLayoutEffect(() => {
+    if (!lbContainerRef.current) return;
+    const cards = Array.from(lbContainerRef.current.querySelectorAll('[data-team-id]')) as HTMLElement[];
+    cards.forEach(card => {
+      const id = card.dataset.teamId!;
+      const newTop = card.getBoundingClientRect().top;
+      const prevTop = prevCardTops.current[id];
+      if (prevTop !== undefined && Math.abs(prevTop - newTop) > 1) {
+        const delta = prevTop - newTop;
+        card.style.transition = 'none';
+        card.style.transform = `translateY(${delta}px)`;
+        card.getBoundingClientRect(); // force reflow
+        card.style.transition = 'transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        card.style.transform = '';
+        card.addEventListener('transitionend', () => { card.style.transition = ''; card.style.transform = ''; }, { once: true });
+      }
+      prevCardTops.current[id] = newTop;
+    });
+  }, [teamScores]);
 
   // Countdown to next match
   useEffect(() => {
@@ -669,8 +692,9 @@ export default function App() {
           {(liveLoading || pointsLoading) ? <span className="spinner" /> : null} Refresh
         </button>
       </div>
+      <div ref={lbContainerRef}>
       {teamScores.map((s, i) => (
-        <div key={s.id} className={`lb-card ${i === 0 ? "rank-first" : ""}`} onClick={() => { setSelectedTeam(s.id); setTab("teams"); }}>
+        <div key={s.id} data-team-id={s.id} className={`lb-card ${i === 0 ? "rank-first" : ""}`} onClick={() => { setSelectedTeam(s.id); setTab("teams"); }}>
           <div className="lb-accent" style={{ background: s.team.color }} />
           <div className="lb-inner">
             <div className={`lb-rank ${rankLabel(i)}`}>{i + 1}</div>
@@ -692,6 +716,7 @@ export default function App() {
           </div>
         </div>
       ))}
+      </div>
 
       {(() => {
         const liveNow = liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded);
