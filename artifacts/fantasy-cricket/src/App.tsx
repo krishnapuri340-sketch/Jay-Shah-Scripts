@@ -1404,7 +1404,8 @@ export default function App() {
               <img
                 src={`${import.meta.env.BASE_URL}logo.jpeg`}
                 alt="Logo"
-                style={{ width: 56, height: 56, borderRadius: "50%", objectFit: "cover", border: "2px solid rgba(232,130,26,0.35)", flexShrink: 0 }}
+                className="header-logo"
+                style={{ borderRadius: "50%", objectFit: "cover", border: "2px solid rgba(232,130,26,0.35)", flexShrink: 0 }}
               />
               <div>
                 <div className="header-title">IPL Fantasy</div>
