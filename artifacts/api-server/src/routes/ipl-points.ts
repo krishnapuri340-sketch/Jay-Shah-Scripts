@@ -844,63 +844,177 @@ router.get("/ipl/playing11", async (req, res) => {
     }
 
     const today = utcDateString();
+    let liveMatchesFound = false;
+    const todayCricapiIds: string[] = [];
+    const todayIplIds: string[] = []; // track IPL match IDs for scorecard fallback
 
-    // Collect cricapi IDs only for today's matches
-    const todayCricapiIds: string[] = Object.entries(pointsCache.matchMetadata || {})
-      .filter(([, meta]) => meta.matchDate === today)
-      .map(([iplId]) => pointsCache.cricapiMatchIds[iplId])
-      .filter(Boolean) as string[];
+    // Step 1: Fetch today's live matches directly from IPL schedule (self-sufficient)
+    try {
+      const schedRes = await fetch(
+        "https://ipl-stats-sports-mechanic.s3.ap-south-1.amazonaws.com/ipl/feeds/284-matchschedule.js",
+        { signal: AbortSignal.timeout(8000) }
+      );
+      if (schedRes.ok) {
+        const text = await schedRes.text();
+        const m = text.match(/^[A-Za-z_$][A-Za-z0-9_$]*\(([\s\S]*)\)\s*;?\s*$/);
+        if (m) {
+          const data = JSON.parse(m[1]);
+          const allMatches: any[] = data.Matchsummary || [];
+          const todayLive = allMatches.filter((match: any) =>
+            (match.GMTMatchDate || match.MatchDate || "") === today &&
+            String(match.MatchStatus || "").toLowerCase() === "live"
+          );
 
-    const confirmedFantasyNames: string[] = [];
+          if (todayLive.length > 0) liveMatchesFound = true;
 
-    for (const cricapiId of todayCricapiIds) {
-      let names: string[];
+          if (!pointsCache.matchMetadata) pointsCache.matchMetadata = {};
 
-      const cached = playing11Cache[cricapiId];
-      if (cached && Date.now() - cached.fetched < PLAYING11_CACHE_TTL) {
-        names = cached.names;
-      } else {
-        if (!CRICAPI_KEY || pointsCache.dailyHits.count >= DAILY_CALL_LIMIT) continue;
-        try {
-          const data = await cricapiGet("match_info", { id: cricapiId });
-          const raw: string[] = [];
+          for (const iplMatch of todayLive) {
+            const iplId = String(iplMatch.MatchID);
+            todayIplIds.push(iplId);
 
-          // data.players: { "Team A": [{name, ...}], "Team B": [...] }
-          if (data?.players && typeof data.players === "object" && !Array.isArray(data.players)) {
-            for (const team of Object.values(data.players) as any[]) {
-              if (Array.isArray(team)) {
-                for (const p of team) {
-                  const n = typeof p === "string" ? p : (p?.name || "");
-                  if (n) raw.push(n);
+            // Populate matchMetadata so other endpoints can use it
+            if (!pointsCache.matchMetadata[iplId]) {
+              pointsCache.matchMetadata[iplId] = {
+                matchDate: today,
+                teamA: iplMatch.HomeTeamName || "",
+                teamB: iplMatch.AwayTeamName || "",
+              };
+            }
+
+            // Use cached cricapi ID if available
+            if (pointsCache.cricapiMatchIds[iplId]) {
+              todayCricapiIds.push(pointsCache.cricapiMatchIds[iplId]);
+              continue;
+            }
+
+            // Otherwise look it up via CricAPI series endpoint
+            if (!CRICAPI_KEY || pointsCache.dailyHits.count >= DAILY_CALL_LIMIT) continue;
+            const seriesId = await findIPLSeriesId(pointsCache);
+            if (!seriesId) continue;
+            if (seriesId !== pointsCache.seriesId) pointsCache.seriesId = seriesId;
+
+            const cricapiMatches = await getSeriesMatches(seriesId);
+            const iplDate = iplMatch.GMTMatchDate || iplMatch.MatchDate || "";
+            const homeTeam = iplMatch.HomeTeamName || "";
+            const awayTeam = iplMatch.AwayTeamName || "";
+
+            for (const cm of cricapiMatches) {
+              const cmDate = (cm.date || cm.dateTimeGMT || "").split("T")[0];
+              const parts = (cm.name || "").split(" vs ");
+              if (parts.length === 2 && cmDate === iplDate) {
+                const teamA = parts[0].split(",")[0].trim();
+                const teamB = parts[1].split(",")[0].trim();
+                if ((teamNamesMatch(teamA, homeTeam) && teamNamesMatch(teamB, awayTeam)) ||
+                  (teamNamesMatch(teamA, awayTeam) && teamNamesMatch(teamB, homeTeam))) {
+                  pointsCache.cricapiMatchIds[iplId] = cm.id;
+                  saveCache(pointsCache);
+                  todayCricapiIds.push(cm.id);
+                  break;
                 }
               }
             }
           }
-          // Fallback: flat playing11 array
-          if (!raw.length && Array.isArray(data?.playing11)) {
-            for (const p of data.playing11) {
-              const n = typeof p === "string" ? p : (p?.name || "");
+        }
+      }
+    } catch { /* schedule fetch failed — return what we have */ }
+
+    const confirmedFantasyNames: string[] = [];
+
+    // Helper: match raw names list against fantasy player roster
+    const matchNames = (rawNames: string[]) => {
+      for (const fp of FANTASY_PLAYER_NAMES) {
+        if (confirmedFantasyNames.includes(fp)) continue;
+        if (rawNames.some(n => namesMatch(fp, n))) confirmedFantasyNames.push(fp);
+      }
+    };
+
+    // Source 1: Playing XI from CricAPI — try match_info first, then match_scorecard batting lineup
+    for (const cricapiId of todayCricapiIds) {
+      const cached = playing11Cache[cricapiId];
+      if (cached && Date.now() - cached.fetched < PLAYING11_CACHE_TTL) {
+        matchNames(cached.names);
+        continue;
+      }
+
+      if (!CRICAPI_KEY || pointsCache.dailyHits.count >= DAILY_CALL_LIMIT) continue;
+
+      let names: string[] = [];
+
+      // 1a: match_info — best source, full 22-player XI when available
+      try {
+        const data = await cricapiGet("match_info", { id: cricapiId });
+        const raw: string[] = [];
+        if (data?.players && typeof data.players === "object" && !Array.isArray(data.players)) {
+          for (const team of Object.values(data.players) as any[]) {
+            if (Array.isArray(team)) {
+              for (const p of team) {
+                const n = typeof p === "string" ? p : (p?.name || "");
+                if (n) raw.push(n);
+              }
+            }
+          }
+        }
+        if (!raw.length) {
+          for (const field of ["squads", "playing11"] as const) {
+            if (Array.isArray((data as any)?.[field])) {
+              for (const p of (data as any)[field]) {
+                const n = typeof p === "string" ? p : (p?.name || "");
+                if (n) raw.push(n);
+              }
+              if (raw.length) break;
+            }
+          }
+        }
+        names = raw;
+      } catch { /* fall through to scorecard */ }
+
+      // 1b: match_scorecard batting lineup — reliable fallback; batting array lists all 11 even before they bat
+      if (!names.length && pointsCache.dailyHits.count < DAILY_CALL_LIMIT) {
+        try {
+          const data = await cricapiGet("match_scorecard", { id: cricapiId });
+          const scorecard: any[] = data?.scorecard || [];
+          const raw: string[] = [];
+          for (const inning of scorecard) {
+            for (const bat of inning.batting || []) {
+              const n = bat?.batsman?.name || bat?.batsmanName || "";
+              if (n) raw.push(n);
+            }
+            for (const bowl of inning.bowling || []) {
+              const n = bowl?.bowler?.name || bowl?.bowlerName || "";
               if (n) raw.push(n);
             }
           }
-
           names = raw;
-          if (names.length) playing11Cache[cricapiId] = { names, fetched: Date.now() };
-        } catch {
-          continue;
-        }
+        } catch { /* skip */ }
       }
 
-      // Match CricAPI names against known fantasy player names
-      for (const fp of FANTASY_PLAYER_NAMES) {
-        if (confirmedFantasyNames.includes(fp)) continue;
-        if (names.some(n => namesMatch(fp, n))) confirmedFantasyNames.push(fp);
+      if (names.length) {
+        playing11Cache[cricapiId] = { names, fetched: Date.now() };
+        matchNames(names);
       }
     }
 
-    res.json({ inXI: confirmedFantasyNames, matchCount: todayCricapiIds.length });
+    // Source 2: Scorecard cache (fallback — confirms players who've appeared in innings)
+    // Uses todayIplIds collected during schedule fetch above.
+    for (const iplId of todayIplIds) {
+      const matchData = pointsCache.processedMatches[iplId];
+      if (!matchData?.innings?.length) continue;
+      const scorecardNames: string[] = [];
+      for (const inning of matchData.innings) {
+        for (const bat of inning.batting || []) {
+          if (bat.name && !bat.dnb) scorecardNames.push(bat.name);
+        }
+        for (const bowl of inning.bowling || []) {
+          if (bowl.name) scorecardNames.push(bowl.name);
+        }
+      }
+      if (scorecardNames.length) matchNames(scorecardNames);
+    }
+
+    res.json({ inXI: confirmedFantasyNames, liveMatchesFound, matchCount: todayCricapiIds.length });
   } catch (e: any) {
-    res.status(500).json({ error: e.message, inXI: [] });
+    res.status(500).json({ error: e.message, inXI: [], liveMatchesFound: false });
   }
 });
 

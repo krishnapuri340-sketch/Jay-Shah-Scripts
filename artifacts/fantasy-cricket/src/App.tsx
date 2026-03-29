@@ -256,6 +256,7 @@ export default function App() {
   const [statsCategory, setStatsCategory] = useState<"orangeCap" | "purpleCap" | "sixesLeader" | "foursLeader" | "srLeader" | "ecoLeader">("orangeCap");
   const [rankChanges, setRankChanges] = useState<Record<string, number>>({});
   const [playing11, setPlaying11] = useState<Set<string>>(new Set());
+  const [liveMatchesActive, setLiveMatchesActive] = useState(false);
   const [isDark, setIsDark] = useState(true);
   const [showToast, setShowToast] = useState(false);
   const [countdown, setCountdown] = useState<{ text: string; matchName: string } | null>(null);
@@ -349,6 +350,7 @@ export default function App() {
       if (res.ok) {
         const data = await res.json();
         setPlaying11(new Set<string>(data.inXI || []));
+        setLiveMatchesActive(!!data.liveMatchesFound);
       }
     } catch (_) {}
   };
@@ -581,15 +583,19 @@ export default function App() {
   };
 
   // Helper: build preview data from a list of matches
+  // useXI=true → apply playing XI filter (for live matches); when liveMatchesActive but XI
+  // not yet confirmed, we suppress ALL players rather than show benched ones as "active".
   const buildMatchPreviews = (matches: any[], useXI = false) =>
     matches.map((match: any) => {
       const teamInfo: any[] = match.teamInfo || [];
       const playingTeams = new Set(teamInfo.map((ti: any) => (ti.shortname || "").toUpperCase()));
       const xi11Known = useXI && playing11.size > 0;
+      const xi11Loading = useXI && liveMatchesActive && playing11.size === 0;
       const preview = Object.values(FANTASY_TEAMS).map(ft => ({
         team: ft,
         activePlayers: ft.players.filter(p => {
           if (!playingTeams.has(p.ipl.toUpperCase())) return false;
+          if (xi11Loading) return false;  // live match on, but XI not confirmed yet — hide all
           if (xi11Known) return playing11.has(p.name);
           return true;
         })
