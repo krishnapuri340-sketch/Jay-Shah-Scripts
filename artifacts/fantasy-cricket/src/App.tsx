@@ -260,6 +260,7 @@ export default function App() {
   const [matchFilter, setMatchFilter] = useState<"upcoming" | "live" | "completed" | "all">("upcoming");
   const [teamFilter, setTeamFilter] = useState<string | null>(null);
   const [standingsOpen, setStandingsOpen] = useState(false);
+  const [awardsOpen, setAwardsOpen] = useState(false);
   const [rankChanges, setRankChanges] = useState<Record<string, number>>({});
   const [isDark, setIsDark] = useState(true);
   const lbContainerRef = useRef<HTMLDivElement>(null);
@@ -566,18 +567,23 @@ export default function App() {
 
     const awards: { trophy: string; title: string; winner: string; detail: string; color: string }[] = [];
 
-    // All fantasy players with points
-    const allFantasyPlayers = Object.values(FANTASY_TEAMS).flatMap(t =>
-      t.players.map(p => ({ name: p.name, team: t.name, owner: t.owner, pts: playerPoints[p.name] || 0, isCap: p.name === t.captain, isVC: p.name === t.vc }))
+    // All fantasy players flat list
+    const allPlayers = Object.values(FANTASY_TEAMS).flatMap(t =>
+      t.players.map(p => ({ name: p.name, role: p.role, team: t.name, owner: t.owner, pts: playerPoints[p.name] || 0 }))
     );
 
-    // 1. Manager of the Season — leading team
+    // Helper: sum a stat field across all match entries for a player
+    const sumStat = (name: string, field: keyof NonNullable<(typeof playerMatchPoints)[string][number]["stats"]>) => {
+      return (playerMatchPoints[name] || []).reduce((acc, e) => acc + ((e.stats?.[field] as number) || 0), 0);
+    };
+
+    // 1. The Champion — owner with highest total team pts
     const leader = teamScores[0];
     if (leader.total > 0) {
-      awards.push({ trophy: "🏆", title: "Manager of the Season", winner: `${leader.team.name}`, detail: `by ${leader.team.owner} · ${leader.total} pts from Top 11`, color: leader.team.color });
+      awards.push({ trophy: "🏆", title: "The Champion", winner: leader.team.owner, detail: `${leader.team.name} · ${leader.total} pts from Top 11`, color: leader.team.color });
     }
 
-    // 2. Captain Marvel — best captain (raw pts, shown as captain-adjusted)
+    // 2. Captain Marvel — captain with highest adjusted (×2) pts
     const captains = Object.values(FANTASY_TEAMS).map(t => ({
       name: t.captain, team: t.name, owner: t.owner, pts: (playerPoints[t.captain] || 0) * 2
     })).sort((a, b) => b.pts - a.pts);
@@ -585,13 +591,25 @@ export default function App() {
       awards.push({ trophy: "🎖️", title: "Captain Marvel", winner: captains[0].name, detail: `${captains[0].pts} adjusted pts · ${captains[0].team} (${captains[0].owner})`, color: "#f97316" });
     }
 
-    // 3. Star Player — highest raw points across all fantasy players
-    const star = allFantasyPlayers.sort((a, b) => b.pts - a.pts)[0];
-    if (star.pts > 0) {
-      awards.push({ trophy: "🌟", title: "Star Player", winner: star.name, detail: `${star.pts} pts · ${star.team} (${star.owner})`, color: "#fbbf24" });
+    // 3. Tournament MVP — highest raw pts player across all 4 squads
+    const mvp = [...allPlayers].sort((a, b) => b.pts - a.pts)[0];
+    if (mvp.pts > 0) {
+      awards.push({ trophy: "🌟", title: "Tournament MVP", winner: mvp.name, detail: `${mvp.pts} pts · ${mvp.team} (${mvp.owner})`, color: "#fbbf24" });
     }
 
-    // 4. Hidden Gem — highest bench scorer (not in top 11 of their team)
+    // 4. Run Machine — most fantasy pts among BAT role players
+    const batters = allPlayers.filter(p => p.role === "BAT").sort((a, b) => b.pts - a.pts);
+    if (batters.length > 0 && batters[0].pts > 0) {
+      awards.push({ trophy: "🏏", title: "Run Machine", winner: batters[0].name, detail: `${batters[0].pts} fantasy pts · ${batters[0].team} (${batters[0].owner})`, color: "#60a5fa" });
+    }
+
+    // 5. All-Rounder King — highest pts among AR role players
+    const ars = allPlayers.filter(p => p.role === "AR").sort((a, b) => b.pts - a.pts);
+    if (ars.length > 0 && ars[0].pts > 0) {
+      awards.push({ trophy: "🎪", title: "All-Rounder King", winner: ars[0].name, detail: `${ars[0].pts} fantasy pts · ${ars[0].team} (${ars[0].owner})`, color: "#c084fc" });
+    }
+
+    // 6. Hidden Gem — highest bench scorer (player not in any team's top 11)
     const benchAll = teamScores.flatMap(s =>
       s.players.filter(p => !s.top11.has(p.name) && p.raw > 0).map(p => ({ name: p.name, team: s.team.name, owner: s.team.owner, pts: p.raw }))
     ).sort((a, b) => b.pts - a.pts);
@@ -599,42 +617,35 @@ export default function App() {
       awards.push({ trophy: "💎", title: "Hidden Gem", winner: benchAll[0].name, detail: `${benchAll[0].pts} pts on bench · ${benchAll[0].team} (${benchAll[0].owner})`, color: "#34d399" });
     }
 
-    // 5. Six Machine — most sixes (fantasy players, from iplStats)
-    if (iplStats?.sixesLeader) {
-      const sixers = (iplStats.sixesLeader as any[]).filter(p => p.isFantasy && p.sixes > 0);
-      if (sixers.length > 0) {
-        awards.push({ trophy: "💥", title: "Six Machine", winner: sixers[0].name, detail: `${sixers[0].sixes} sixes · ${sixers[0].runs} runs`, color: "#a855f7" });
-      }
+    // 7. Squad Goals — most even squad (lowest std-dev across top-11 pts)
+    const squadGoals = teamScores.map(s => {
+      const top11Pts = [...s.top11].map(name => playerPoints[name] || 0);
+      if (top11Pts.length < 2) return null;
+      const mean = top11Pts.reduce((a, b) => a + b, 0) / top11Pts.length;
+      const sd = Math.sqrt(top11Pts.reduce((a, b) => a + (b - mean) ** 2, 0) / top11Pts.length);
+      return { team: s.team.name, owner: s.team.owner, sd: Math.round(sd), color: s.team.color };
+    }).filter(Boolean).sort((a, b) => (a!.sd - b!.sd)) as { team: string; owner: string; sd: number; color: string }[];
+    if (squadGoals.length > 0 && teamScores[0].total > 0) {
+      awards.push({ trophy: "🤝", title: "Squad Goals", winner: squadGoals[0].owner, detail: `${squadGoals[0].team} · spread of only ±${squadGoals[0].sd} pts`, color: squadGoals[0].color });
     }
 
-    // 6. Wicket Wizard — most wickets (fantasy players, from iplStats)
-    if (iplStats?.purpleCap) {
-      const bowlers = (iplStats.purpleCap as any[]).filter(p => p.isFantasy && p.wickets > 0);
-      if (bowlers.length > 0) {
-        awards.push({ trophy: "🎳", title: "Wicket Wizard", winner: bowlers[0].name, detail: `${bowlers[0].wickets} wkts · Best: ${bowlers[0].best}`, color: "#f472b6" });
-      }
+    // 8. Dot Ball King — most dot balls across all matches
+    const dotKing = allPlayers.map(p => ({ ...p, dots: sumStat(p.name, "dots") })).sort((a, b) => b.dots - a.dots)[0];
+    if (dotKing && dotKing.dots > 0) {
+      awards.push({ trophy: "🎳", title: "Dot Ball King", winner: dotKing.name, detail: `${dotKing.dots} dot balls · ${dotKing.team} (${dotKing.owner})`, color: "#818cf8" });
     }
 
-    // 7. Run Machine — most runs (fantasy players, from iplStats)
-    if (iplStats?.orangeCap) {
-      const batters = (iplStats.orangeCap as any[]).filter(p => p.isFantasy && p.runs > 0);
-      if (batters.length > 0) {
-        awards.push({ trophy: "🏏", title: "Run Machine", winner: batters[0].name, detail: `${batters[0].runs} runs · HS: ${batters[0].hs}`, color: "#60a5fa" });
-      }
+    // 9. Safe Hands — most catches across all matches
+    const safeHands = allPlayers.map(p => ({ ...p, catches: sumStat(p.name, "catches") })).sort((a, b) => b.catches - a.catches)[0];
+    if (safeHands && safeHands.catches > 0) {
+      awards.push({ trophy: "🧤", title: "Safe Hands", winner: safeHands.name, detail: `${safeHands.catches} catches · ${safeHands.team} (${safeHands.owner})`, color: "#2dd4bf" });
     }
 
-    // 8. Vice Captain Star — best VC adjusted
-    const vcs = Object.values(FANTASY_TEAMS).map(t => ({
-      name: t.vc, team: t.name, owner: t.owner, pts: Math.floor((playerPoints[t.vc] || 0) * 1.5)
-    })).sort((a, b) => b.pts - a.pts);
-    if (vcs[0].pts > 0) {
-      awards.push({ trophy: "⭐", title: "Vice Captain Star", winner: vcs[0].name, detail: `${vcs[0].pts} adjusted pts · ${vcs[0].team} (${vcs[0].owner})`, color: "#94a3b8" });
-    }
-
-    // 9. Wooden Spoon — last place team (only if season has data and not all zeros)
-    const lastTeam = teamScores[teamScores.length - 1];
-    if (teamScores.length === 4 && lastTeam.total < teamScores[0].total) {
-      awards.push({ trophy: "🥄", title: "Wooden Spoon", winner: lastTeam.team.name, detail: `by ${lastTeam.team.owner} · ${lastTeam.total} pts · Room to improve!`, color: "#334155" });
+    // 10. Captain Flop — captain with lowest adjusted pts (among captains who have scored)
+    const flopCaps = captains.filter(c => c.pts > 0);
+    if (flopCaps.length >= 2) {
+      const flop = flopCaps[flopCaps.length - 1];
+      awards.push({ trophy: "😬", title: "Captain Flop", winner: flop.name, detail: `Only ${flop.pts} adjusted pts · ${flop.team} (${flop.owner})`, color: "#475569" });
     }
 
     return awards;
@@ -745,6 +756,31 @@ export default function App() {
           </>
         );
       })()}
+
+      {/* Season Awards */}
+      {awards.length > 0 && (
+        <>
+          <div className="divider" />
+          <div className="awards-header" onClick={() => setAwardsOpen(o => !o)}>
+            <div className="sec-title" style={{ margin: 0 }}>Season Awards</div>
+            <span className="awards-chevron">{awardsOpen ? "▲" : "▼"}</span>
+          </div>
+          {awardsOpen && (
+            <div className="awards-grid">
+              {awards.map((a, i) => (
+                <div key={i} className="award-card" style={{ borderLeftColor: a.color }}>
+                  <div className="award-trophy">{a.trophy}</div>
+                  <div className="award-body">
+                    <div className="award-title">{a.title}</div>
+                    <div className="award-winner">{a.winner}</div>
+                    <div className="award-detail">{a.detail}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
 
     </div>
     );
