@@ -315,6 +315,7 @@ function processScorecard(scorecard: any[]): { players: Record<string, PlayerSta
       const maidens = parseInt(bowl.m) || 0;
       const wides = parseInt(bowl.wd) || 0;
       const noBalls = parseInt(bowl.nb) || 0;
+      const dots = parseInt(bowl.dots || bowl.d || bowl.D || "0") || 0;
       const eco = bowl.eco || (balls > 0 ? ((runsC / (balls / 6))).toFixed(2) : "0.00");
 
       bowlingRows.push({ name, overs: String(bowl.o || "0"), maidens, runs: runsC, wickets, eco: String(eco), wides, noBalls });
@@ -324,6 +325,7 @@ function processScorecard(scorecard: any[]): { players: Record<string, PlayerSta
       p.runsConceded = (p.runsConceded || 0) + runsC;
       p.wickets = (p.wickets || 0) + wickets;
       p.maidens = (p.maidens || 0) + maidens;
+      p.dots = (p.dots || 0) + dots;
       if (!inningOvers && bowl.o) inningOvers = String(bowl.o);
     }
 
@@ -637,8 +639,12 @@ router.get("/ipl/points", async (req, res) => {
     // 1. Official Supabase scores for completed matches
     for (const fixtureData of Object.values(pointsCache.supabaseScores || {})
         .sort((a, b) => a.matchNumber - b.matchNumber)) {
+      // Look up playerStats from the linked CricAPI match if available
+      const linkedIplId = fixtureData.linkedIplId;
+      const linkedMatchData = linkedIplId ? (pointsCache.processedMatches || {})[linkedIplId] : null;
       for (const [player, pts] of Object.entries(fixtureData.points || {})) {
-        addMatchPoint(player, fixtureData.matchNumber, fixtureData.matchLabel, pts, "official");
+        const stats = linkedMatchData?.playerStats?.[player];
+        addMatchPoint(player, fixtureData.matchNumber, fixtureData.matchLabel, pts, "official", stats);
       }
     }
 
@@ -790,7 +796,7 @@ router.get("/ipl/points", async (req, res) => {
                           // For Supabase-covered matches: store innings for stats/scorecard only (points come from Supabase)
                           // For live/fallback matches: store full data including CricAPI points
                           pointsCache.processedMatches[iplId] = isSupabaseCovered
-                            ? { points: {}, innings: matchData.innings }
+                            ? { points: {}, innings: matchData.innings, playerStats: matchData.playerStats }
                             : matchData;
                           const tag = isLive ? "Live" : isSupabaseCovered ? "Innings-only" : "Fallback";
                           console.log(`[cricapi] ${tag} match ${iplId}: ${matchData.innings.length} innings, ${Object.keys(matchData.points).length} pts`);

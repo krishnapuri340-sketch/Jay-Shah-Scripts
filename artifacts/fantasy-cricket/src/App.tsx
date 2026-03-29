@@ -798,8 +798,21 @@ export default function App() {
                               ))}
                             </div>
                           )}
+                          {s && (() => {
+                            const computed = lines.reduce((a, l) => a + l.pts, 0);
+                            const diff = entry.pts - computed;
+                            if (Math.abs(diff) > 0) {
+                              return (
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "2px 12px", padding: "4px 10px 0", marginTop: 2 }}>
+                                  <span style={{ fontSize: "0.65rem", color: "#475569" }}>Dots / other</span>
+                                  <span style={{ fontSize: "0.65rem", fontWeight: 600, color: diff >= 0 ? "#818cf8" : "#ef4444", textAlign: "right" as const }}>{diff > 0 ? "+" : ""}{diff}</span>
+                                </div>
+                              );
+                            }
+                            return null;
+                          })()}
                           {!s && entry.source === "official" && (
-                            <div style={{ fontSize: "0.62rem", color: "#334155", paddingLeft: 4, marginTop: 2 }}>Official score — detailed breakdown available for live matches</div>
+                            <div style={{ fontSize: "0.62rem", color: "#475569", paddingLeft: 4, marginTop: 2 }}>Official score — stats syncing...</div>
                           )}
                         </div>
                       );
