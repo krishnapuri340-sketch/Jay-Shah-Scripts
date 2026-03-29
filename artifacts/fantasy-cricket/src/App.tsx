@@ -6,7 +6,7 @@ const FANTASY_TEAMS: Record<string, {
   players: { name: string; role: string; ipl: string }[];
 }> = {
   rajveer: {
-    id: "rajveer", name: "Jay Shah Supremacy", owner: "Rajveer Puri", emoji: "🏏", color: "#f97316",
+    id: "rajveer", name: "Jay Shah Supremacy", owner: "Raj", emoji: "🏏", color: "#f97316",
     captain: "Rajat Patidar", vc: "Axar Patel",
     players: [
       { name: "Rajat Patidar", role: "BAT", ipl: "RCB" },
