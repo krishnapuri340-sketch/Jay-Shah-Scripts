@@ -298,6 +298,8 @@ export default function App() {
       if (matches.length > 0) {
         setLiveMatches(matches);
         setDataSources(data.sources || null);
+        const hasLive = matches.some((m: any) => m.matchStarted && !m.matchEnded);
+        setMatchFilter(hasLive ? "live" : "upcoming");
       } else {
         setApiError("No IPL matches found from official sources.");
       }
@@ -1113,7 +1115,7 @@ export default function App() {
       return mx ? "M" + mx[1] : "";
     };
 
-    const activeFilter = live.length > 0 && matchFilter === "upcoming" ? "live" : matchFilter;
+    const activeFilter = matchFilter;
     const filteredMatches = liveMatches.filter((m: any) => {
       const isLiveM = m.matchStarted && !m.matchEnded;
       const isDoneM = m.matchEnded;
