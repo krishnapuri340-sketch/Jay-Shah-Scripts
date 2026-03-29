@@ -49,19 +49,13 @@ body { background: var(--bg); }
 }
 .header-logo {
   width: 38px; height: 38px; border-radius: 50%; object-fit: cover; flex-shrink: 0;
-  border: 1.5px solid rgba(212,168,67,0.35);
-  box-shadow: 0 0 0 3px rgba(212,168,67,0.08);
+  border: 1.5px solid rgba(255,255,255,0.1);
 }
 .header-title {
-  font-size: 1rem; font-weight: 700; letter-spacing: -0.02em; color: var(--text);
+  font-size: 1rem; font-weight: 700; letter-spacing: -0.02em; color: var(--text); line-height: 1.2;
 }
-.header-title-accent { color: var(--gold); }
-.header-season-badge {
-  display: inline-flex; align-items: center; margin-top: 4px;
-  background: rgba(212,168,67,0.08); border: 1px solid rgba(212,168,67,0.22);
-  color: #c9982a; font-size: 0.52rem; font-weight: 600;
-  letter-spacing: 0.1em; padding: 2px 7px; border-radius: 20px;
-  text-transform: uppercase;
+.header-season-sub {
+  font-size: 0.6rem; color: var(--text-3); margin-top: 3px; letter-spacing: 0.02em;
 }
 .header-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 .live-pill {
