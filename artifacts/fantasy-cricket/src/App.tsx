@@ -424,25 +424,39 @@ export default function App() {
     } catch { /* ignore storage errors */ }
   }, [playerPoints]);
 
-  // FLIP animation for leaderboard reordering
+  // FLIP animation — only fires when the rank order actually changes
+  const prevOrderRef = useRef<string[]>([]);
   useLayoutEffect(() => {
     if (!lbContainerRef.current) return;
+    const currentOrder = teamScores.map(s => s.id);
+    const prevOrder = prevOrderRef.current;
+    const orderChanged = prevOrder.length === currentOrder.length &&
+      currentOrder.some((id, i) => id !== prevOrder[i]);
+    if (!orderChanged) {
+      prevOrderRef.current = currentOrder;
+      // Still record positions for next comparison
+      const cards = Array.from(lbContainerRef.current.querySelectorAll('[data-team-id]')) as HTMLElement[];
+      cards.forEach(card => { prevCardTops.current[card.dataset.teamId!] = card.getBoundingClientRect().top; });
+      return;
+    }
+    // Capture new positions and animate from old ones
     const cards = Array.from(lbContainerRef.current.querySelectorAll('[data-team-id]')) as HTMLElement[];
     cards.forEach(card => {
       const id = card.dataset.teamId!;
       const newTop = card.getBoundingClientRect().top;
       const prevTop = prevCardTops.current[id];
-      if (prevTop !== undefined && Math.abs(prevTop - newTop) > 1) {
+      if (prevTop !== undefined && Math.abs(prevTop - newTop) > 2) {
         const delta = prevTop - newTop;
         card.style.transition = 'none';
         card.style.transform = `translateY(${delta}px)`;
-        card.getBoundingClientRect(); // force reflow
-        card.style.transition = 'transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        card.getBoundingClientRect();
+        card.style.transition = 'transform 0.4s ease-out';
         card.style.transform = '';
         card.addEventListener('transitionend', () => { card.style.transition = ''; card.style.transform = ''; }, { once: true });
       }
       prevCardTops.current[id] = newTop;
     });
+    prevOrderRef.current = currentOrder;
   }, [teamScores]);
 
   // Countdown to next match
