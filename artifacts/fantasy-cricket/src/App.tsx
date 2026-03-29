@@ -759,10 +759,18 @@ export default function App() {
                               const computed = lines.reduce((a, l) => a + l.pts, 0);
                               const diff = entry.pts - computed;
                               if (Math.abs(diff) > 0) {
+                                const didBowl = s.ballsBowled > 0;
+                                const residualLabel = didBowl ? "Dots & fielding / other" : "Fielding / other";
+                                const residualHint = didBowl
+                                  ? "Dot balls (2pts each) + any fielding not in API"
+                                  : "Catches (8pts), runouts (10pts), stumpings (12pts), 3-catch bonus (4pts) — fielding not in API data";
                                 return (
-                                  <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "2px 10px", padding: "3px 8px 0", marginTop: 2 }}>
-                                    <span style={{ fontSize: "0.62rem", color: "#475569" }}>Dots / other</span>
-                                    <span style={{ fontSize: "0.62rem", fontWeight: 600, color: diff >= 0 ? "#818cf8" : "#ef4444", textAlign: "right" as const }}>{diff > 0 ? "+" : ""}{diff}</span>
+                                  <div style={{ padding: "4px 8px 0", marginTop: 2 }}>
+                                    <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "2px 10px" }}>
+                                      <span style={{ fontSize: "0.62rem", color: "#475569" }}>{residualLabel}</span>
+                                      <span style={{ fontSize: "0.62rem", fontWeight: 600, color: diff >= 0 ? "#a78bfa" : "#ef4444", textAlign: "right" as const }}>{diff > 0 ? "+" : ""}{diff}</span>
+                                    </div>
+                                    <div style={{ fontSize: "0.56rem", color: "#334155", marginTop: 1, lineHeight: 1.3 }}>{residualHint}</div>
                                   </div>
                                 );
                               }
@@ -791,6 +799,42 @@ export default function App() {
                         <span>{adj} pts</span>
                       </div>
                     </div>
+                    <details style={{ marginTop: 10 }}>
+                      <summary style={{ fontSize: "0.6rem", color: "#64748b", cursor: "pointer", userSelect: "none" as const, listStyle: "none" }}>
+                        ℹ️ Scoring guide (tap to expand)
+                      </summary>
+                      <div style={{ marginTop: 6, padding: "8px 10px", background: "rgba(255,255,255,0.02)", borderRadius: 7, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "3px 12px" }}>
+                        {[
+                          ["Playing XI", "+4"],
+                          ["Run scored", "+1 each"],
+                          ["Four", "+4"],
+                          ["Six", "+6"],
+                          ["25+ runs", "+4 bonus"],
+                          ["50+ runs", "+8 bonus"],
+                          ["75+ runs", "+12 bonus"],
+                          ["100+ runs", "+16 bonus"],
+                          ["Duck (bat)", "−2"],
+                          ["SR >190", "+8"], ["SR >170", "+6"], ["SR >150", "+4"], ["SR ≥130", "+2"],
+                          ["SR 70–100", "−2"], ["SR 60–70", "−4"], ["SR <60", "−6"],
+                          ["Wicket", "+30"],
+                          ["LBW / Bowled", "+8 bonus"],
+                          ["3-wkt haul", "+8"], ["4-wkt haul", "+12"], ["5-wkt haul", "+16"],
+                          ["Dot ball", "+2"],
+                          ["Maiden over", "+12"],
+                          ["Eco <5", "+8"], ["Eco <6", "+6"], ["Eco ≤7", "+4"], ["Eco ≤8", "+2"],
+                          ["Eco 10–11", "−2"], ["Eco 11–12", "−4"], ["Eco >12", "−6"],
+                          ["Catch", "+8"],
+                          ["Run out", "+10"],
+                          ["Stumping", "+12"],
+                          ["3+ catches", "+4 bonus"],
+                        ].map(([label, val], i) => (
+                          <React.Fragment key={i}>
+                            <span style={{ fontSize: "0.57rem", color: "#475569" }}>{label}</span>
+                            <span style={{ fontSize: "0.57rem", color: val.startsWith("−") ? "#ef4444" : "#94a3b8", fontWeight: 600 }}>{val}</span>
+                          </React.Fragment>
+                        ))}
+                      </div>
+                    </details>
                   </>
                 )}
               </div>
