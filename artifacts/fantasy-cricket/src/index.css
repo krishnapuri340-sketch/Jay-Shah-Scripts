@@ -453,29 +453,30 @@ body { background: var(--bg); }
   background: var(--surface); border: 1px solid var(--border);
   border-left: 3px solid transparent;
   border-radius: 12px; margin-bottom: 8px;
-  display: flex; align-items: center; gap: 12px;
-  padding: 12px 10px 12px 14px; cursor: pointer;
-  transition: background 0.12s;
+  display: flex; align-items: stretch; gap: 0;
+  cursor: pointer; transition: background 0.12s; overflow: hidden;
 }
 .hist-card:active { background: var(--surface-2); }
 .hist-card-left {
-  display: flex; flex-direction: column; align-items: flex-start;
-  min-width: 40px; flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-width: 52px; flex-shrink: 0; padding: 12px 10px;
+  border-right: 1px solid var(--border);
 }
-.hist-card-year { font-size: 1.1rem; font-weight: 800; line-height: 1.1; }
-.hist-card-sn { font-size: 0.6rem; color: var(--text-3); font-weight: 500; letter-spacing: 0.5px; margin-top: 1px; }
-.hist-card-main { flex: 1; min-width: 0; }
-.hist-card-top { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
-.hist-card-names { min-width: 0; }
-.hist-card-champ { font-size: 0.9rem; font-weight: 800; line-height: 1.2; }
-.hist-card-runner2 { display: flex; align-items: center; gap: 4px; margin-top: 3px;
-  font-size: 0.65rem; color: var(--text-3); font-weight: 500; }
+.hist-card-year { font-size: 1.05rem; font-weight: 800; line-height: 1.1; }
+.hist-card-sn { font-size: 0.58rem; color: var(--text-3); font-weight: 500; letter-spacing: 0.4px; margin-top: 2px; }
+.hist-card-main { flex: 1; min-width: 0; padding: 11px 10px 10px; }
+.hist-card-row { display: flex; align-items: center; gap: 7px; }
+.hist-card-champ { font-size: 0.88rem; font-weight: 800; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hist-card-ru { font-size: 0.65rem; color: var(--text-3); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .hist-card-caps {
-  display: flex; gap: 10px; flex-wrap: wrap;
-  font-size: 0.65rem; color: var(--text-2); font-weight: 500;
-  padding-top: 7px; border-top: 1px solid var(--border);
+  display: flex; align-items: center; gap: 6px; flex-wrap: nowrap;
+  font-size: 0.64rem; color: var(--text-2); font-weight: 500;
+  padding-top: 8px; margin-top: 8px; border-top: 1px solid var(--border);
+  overflow: hidden; white-space: nowrap;
 }
-.hist-card-arrow { font-size: 1.1rem; color: var(--text-3); flex-shrink: 0; padding-left: 4px; }
+.hist-card-sep { color: var(--text-3); }
+.hist-card-arrow { font-size: 1rem; color: var(--text-3); flex-shrink: 0; 
+  display: flex; align-items: center; padding: 0 10px; }
 
 /* Year filter bar */
 .hist-yr-grid {

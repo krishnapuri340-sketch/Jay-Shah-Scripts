@@ -788,20 +788,20 @@ export default function App() {
   const IPL_HISTORY = [
     {
       year: 2025, season: 18, champion: "Royal Challengers Bengaluru", runnerUp: "Punjab Kings",
-      color: "#EC1C24", orangeCap: "Sai Sudarshan", orangeRuns: 759, purpleCap: "Jasprit Bumrah", purpleWkts: 25, mvp: "Sai Sudarshan",
+      color: "#EC1C24", orangeCap: "Sai Sudharsan", orangeRuns: 759, purpleCap: "Prasidh Krishna", purpleWkts: 25, mvp: "Sai Sudharsan",
       topBat: [
-        { name: "Sai Sudarshan", team: "GT", val: 759 }, { name: "Virat Kohli", team: "RCB", val: 741 },
-        { name: "Abhishek Sharma", team: "SRH", val: 550 }, { name: "Travis Head", team: "SRH", val: 530 },
-        { name: "Nicholas Pooran", team: "LSG", val: 480 }, { name: "Shreyas Iyer", team: "PBKS", val: 452 },
-        { name: "Tilak Varma", team: "MI", val: 440 }, { name: "Yashasvi Jaiswal", team: "RR", val: 430 },
-        { name: "Heinrich Klaasen", team: "SRH", val: 415 }, { name: "Quinton de Kock", team: "KKR", val: 398 },
+        { name: "Sai Sudharsan", team: "GT", val: 759 }, { name: "Suryakumar Yadav", team: "MI", val: 717 },
+        { name: "Virat Kohli", team: "RCB", val: 657 }, { name: "Shubman Gill", team: "GT", val: 650 },
+        { name: "Mitchell Marsh", team: "LSG", val: 627 }, { name: "Shreyas Iyer", team: "PBKS", val: 604 },
+        { name: "Yashasvi Jaiswal", team: "RR", val: 559 }, { name: "Prabhsimran Singh", team: "PBKS", val: 549 },
+        { name: "KL Rahul", team: "DC", val: 539 }, { name: "Jos Buttler", team: "GT", val: 538 },
       ],
       topBwl: [
-        { name: "Jasprit Bumrah", team: "MI", val: 25 }, { name: "Harshal Patel", team: "RCB", val: 22 },
-        { name: "Rashid Khan", team: "GT", val: 20 }, { name: "Bhuvneshwar Kumar", team: "SRH", val: 19 },
-        { name: "Yuzvendra Chahal", team: "RR", val: 18 }, { name: "T Natarajan", team: "SRH", val: 16 },
-        { name: "Varun Chakravarthy", team: "KKR", val: 16 }, { name: "Ravi Bishnoi", team: "LSG", val: 15 },
-        { name: "Noor Ahmad", team: "CSK", val: 14 }, { name: "Kuldeep Yadav", team: "DC", val: 13 },
+        { name: "Prasidh Krishna", team: "GT", val: 25 }, { name: "Noor Ahmad", team: "CSK", val: 24 },
+        { name: "Josh Hazlewood", team: "RCB", val: 22 }, { name: "Trent Boult", team: "MI", val: 22 },
+        { name: "Arshdeep Singh", team: "PBKS", val: 21 }, { name: "Sai Kishore", team: "GT", val: 19 },
+        { name: "Jasprit Bumrah", team: "MI", val: 18 }, { name: "Varun Chakravarthy", team: "KKR", val: 17 },
+        { name: "Krunal Pandya", team: "RCB", val: 17 }, { name: "Bhuvneshwar Kumar", team: "RCB", val: 17 },
       ],
     },
     {
@@ -1305,31 +1305,31 @@ export default function App() {
         {!s && IPL_HISTORY.map(h => {
           const champAbbr = IPL_TEAM_BADGE[h.champion]?.abbr || h.champion;
           const ruAbbr    = IPL_TEAM_BADGE[h.runnerUp]?.abbr  || h.runnerUp;
-          const ocLast    = h.orangeCap.split(" ").slice(-1)[0];
-          const pcLast    = h.purpleCap.split(" ").slice(-1)[0];
           return (
             <div key={h.year} className="hist-card" onClick={() => setHistoryYear(h.year)}
               style={{ borderLeftColor: h.color }}>
+              {/* Year column */}
               <div className="hist-card-left">
                 <div className="hist-card-year" style={{ color: h.color }}>{h.year}</div>
                 <div className="hist-card-sn">S{h.season}</div>
               </div>
+              {/* Main content */}
               <div className="hist-card-main">
-                <div className="hist-card-top">
-                  <TeamBadge name={h.champion} size={30} />
-                  <div className="hist-card-names">
-                    <div className="hist-card-champ" style={{ color: h.color }}>
-                      🏆 {champAbbr}
-                    </div>
-                    <div className="hist-card-runner2">
-                      <TeamBadge name={h.runnerUp} size={14} />
-                      <span>{ruAbbr}</span>
-                    </div>
-                  </div>
+                {/* Champion row */}
+                <div className="hist-card-row">
+                  <TeamBadge name={h.champion} size={26} />
+                  <span className="hist-card-champ" style={{ color: h.color }}>🏆 {champAbbr}</span>
                 </div>
+                {/* Runner-up row */}
+                <div className="hist-card-row" style={{ marginTop: 5 }}>
+                  <TeamBadge name={h.runnerUp} size={18} />
+                  <span className="hist-card-ru">Runner-up: {ruAbbr}</span>
+                </div>
+                {/* Cap line */}
                 <div className="hist-card-caps">
-                  <span>🟠 {ocLast} · {h.orangeRuns}</span>
-                  <span>🟣 {pcLast} · {h.purpleWkts}</span>
+                  <span>🟠 {h.orangeCap.split(" ").slice(-1)[0]} {h.orangeRuns}</span>
+                  <span className="hist-card-sep">·</span>
+                  <span>🟣 {h.purpleCap.split(" ").slice(-1)[0]} {h.purpleWkts}w</span>
                 </div>
               </div>
               <div className="hist-card-arrow">›</div>
