@@ -655,7 +655,7 @@ export default function App() {
             <div className="divider" />
             <div className="sec-title">Live Now</div>
             {liveNow.map((m: any) => (
-              <div key={m.id} className="match-card" onClick={() => { setTab("matches"); setMatchFilter("live"); }}
+              <div key={m.id} className="match-card" onClick={() => { setTab("fixtures"); setMatchFilter("live"); }}
                 style={{ cursor: "pointer" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div className="match-status" style={{ color: "var(--live)" }}>Live</div>
