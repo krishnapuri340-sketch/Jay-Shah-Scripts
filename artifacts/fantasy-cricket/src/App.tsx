@@ -667,15 +667,17 @@ export default function App() {
         </div>
       )}
 
-      <div className="sec-title">Leaderboard</div>
-      <div style={{ display: "flex", gap: 6, justifyContent: "flex-end", marginBottom: 12 }}>
-        <button className="btn-primary" style={{ padding: "5px 11px", fontSize: "0.7rem" }} onClick={shareLeaderboard}>
-          Share
-        </button>
-        <button className="btn-primary" style={{ padding: "5px 11px", fontSize: "0.7rem" }}
-          onClick={() => { fetchLive(); fetchPoints(); }} disabled={liveLoading || pointsLoading}>
-          {(liveLoading || pointsLoading) ? <span className="spinner" /> : null} Refresh
-        </button>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, marginTop: countdown ? 16 : 0 }}>
+        <div className="sec-title" style={{ marginBottom: 0 }}>Leaderboard</div>
+        <div style={{ display: "flex", gap: 6 }}>
+          <button className="btn-primary" style={{ padding: "5px 11px", fontSize: "0.7rem" }} onClick={shareLeaderboard}>
+            Share
+          </button>
+          <button className="btn-primary" style={{ padding: "5px 11px", fontSize: "0.7rem" }}
+            onClick={() => { fetchLive(); fetchPoints(); }} disabled={liveLoading || pointsLoading}>
+            {(liveLoading || pointsLoading) ? <span className="spinner" /> : null} Refresh
+          </button>
+        </div>
       </div>
       <div ref={lbContainerRef}>
       {teamScores.map((s, i) => (
