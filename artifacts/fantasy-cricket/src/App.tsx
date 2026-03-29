@@ -383,11 +383,10 @@ export default function App() {
   const maxPts = teamScores[0]?.total || 1;
 
   const TABS = [
-    { id: "home", label: "Home", icon: "🏆" },
+    { id: "home", label: "Leaderboard", icon: "🏆" },
     { id: "teams", label: "Teams", icon: "👤" },
     { id: "fixtures", label: "Matches", icon: "📡" },
     { id: "stats", label: "Stats", icon: "📊" },
-    { id: "ipl", label: "IPL", icon: "🌐" },
   ];
 
   const rankLabel = (i: number) => i === 0 ? "first" : i === 1 ? "second" : i === 2 ? "third" : "";
@@ -488,25 +487,22 @@ export default function App() {
       )}
 
       <div className="sec-title">Leaderboard</div>
-      <div className="notice" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-        <span>Points auto-update every 15 min · Only Top 11 players count per team</span>
-        <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
-          <button
-            className="btn-primary"
-            style={{ padding: "5px 10px", fontSize: "0.72rem" }}
-            onClick={shareLeaderboard}
-          >
-            📤 Share
-          </button>
-          <button
-            className="btn-primary"
-            style={{ padding: "5px 10px", fontSize: "0.72rem" }}
-            onClick={() => { fetchLive(); fetchPoints(); }}
-            disabled={liveLoading || pointsLoading}
-          >
-            {(liveLoading || pointsLoading) ? <span className="spinner" /> : "🔄"} Refresh
-          </button>
-        </div>
+      <div style={{ display: "flex", gap: 6, justifyContent: "flex-end", marginBottom: 10 }}>
+        <button
+          className="btn-primary"
+          style={{ padding: "5px 12px", fontSize: "0.72rem" }}
+          onClick={shareLeaderboard}
+        >
+          📤 Share
+        </button>
+        <button
+          className="btn-primary"
+          style={{ padding: "5px 12px", fontSize: "0.72rem" }}
+          onClick={() => { fetchLive(); fetchPoints(); }}
+          disabled={liveLoading || pointsLoading}
+        >
+          {(liveLoading || pointsLoading) ? <span className="spinner" /> : "🔄"} Refresh
+        </button>
       </div>
       {teamScores.map((s, i) => (
         <div key={s.id} className={`lb-card ${i === 0 ? "rank-first" : ""}`} onClick={() => { setSelectedTeam(s.id); setTab("teams"); }}>
@@ -790,6 +786,69 @@ export default function App() {
 
     return (
       <div>
+        <div className="sec-title">IPL 2026 Points Table</div>
+        {standingsLoading && standings.length === 0 && (
+          <div style={{ color: "#475569", fontSize: "0.78rem", padding: "8px 0" }}>⏳ Loading standings...</div>
+        )}
+        {standings.length > 0 && (
+          <div style={{ background: "rgba(15,21,32,0.9)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, overflow: "hidden", marginBottom: 20 }}>
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse" as const, fontSize: "0.7rem" }}>
+                <thead>
+                  <tr style={{ background: "rgba(255,255,255,0.03)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+                    <th style={{ textAlign: "left" as const, padding: "10px 12px", color: "#475569", fontWeight: 600, letterSpacing: "1px" }}>#</th>
+                    <th style={{ textAlign: "left" as const, padding: "10px 8px", color: "#475569", fontWeight: 600, letterSpacing: "1px" }}>TEAM</th>
+                    <th style={{ textAlign: "center" as const, padding: "10px 6px", color: "#475569", fontWeight: 600 }}>P</th>
+                    <th style={{ textAlign: "center" as const, padding: "10px 6px", color: "#475569", fontWeight: 600 }}>W</th>
+                    <th style={{ textAlign: "center" as const, padding: "10px 6px", color: "#475569", fontWeight: 600 }}>L</th>
+                    <th style={{ textAlign: "center" as const, padding: "10px 6px", color: "#475569", fontWeight: 600 }}>NR</th>
+                    <th style={{ textAlign: "center" as const, padding: "10px 6px", color: "#475569", fontWeight: 600 }}>NRR</th>
+                    <th style={{ textAlign: "center" as const, padding: "10px 8px", color: "#475569", fontWeight: 600 }}>PTS</th>
+                    <th style={{ textAlign: "center" as const, padding: "10px 8px", color: "#475569", fontWeight: 600 }}>FORM</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {standings.map((t: any, i: number) => {
+                    const color = IPL_COLORS[t.teamCode] || "#475569";
+                    const isTop4 = i < 4;
+                    return (
+                      <tr key={t.teamCode} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)", background: isTop4 ? "rgba(255,255,255,0.01)" : "transparent" }}>
+                        <td style={{ padding: "10px 12px", color: isTop4 ? "#34d399" : "#475569", fontWeight: 700 }}>{i + 1}</td>
+                        <td style={{ padding: "10px 8px" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                            <div style={{ width: 3, height: 24, borderRadius: 2, background: color, flexShrink: 0 }} />
+                            {t.teamLogo && <img src={t.teamLogo} alt={t.teamCode} style={{ width: 22, height: 22, objectFit: "contain" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />}
+                            <div>
+                              <div style={{ fontWeight: 700, color: "#e2e8f0", fontSize: "0.72rem" }}>{t.teamCode}</div>
+                              <div style={{ color: "#475569", fontSize: "0.58rem" }}>{t.for || ""}  {t.against ? `vs ${t.against}` : ""}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td style={{ textAlign: "center" as const, padding: "10px 6px", color: "#94a3b8" }}>{t.matches}</td>
+                        <td style={{ textAlign: "center" as const, padding: "10px 6px", color: "#34d399", fontWeight: 600 }}>{t.won}</td>
+                        <td style={{ textAlign: "center" as const, padding: "10px 6px", color: "#f87171" }}>{t.lost}</td>
+                        <td style={{ textAlign: "center" as const, padding: "10px 6px", color: "#64748b" }}>{t.noResult}</td>
+                        <td style={{ textAlign: "center" as const, padding: "10px 6px", color: t.nrr >= 0 ? "#34d399" : "#f87171", fontSize: "0.68rem" }}>
+                          {t.nrr >= 0 ? "+" : ""}{t.nrr.toFixed(3)}
+                        </td>
+                        <td style={{ textAlign: "center" as const, padding: "10px 8px", fontFamily: "'Bebas Neue',sans-serif", fontSize: "1.1rem", color: color, letterSpacing: "1px" }}>{t.points}</td>
+                        <td style={{ textAlign: "center" as const, padding: "10px 8px" }}>
+                          {(t.form || "").split("").map((f: string, fi: number) => (
+                            <span key={fi} style={{ display: "inline-block", width: 14, height: 14, borderRadius: "50%", background: f === "W" ? "#34d399" : f === "L" ? "#ef4444" : "#475569", margin: "0 1px", fontSize: "0.5rem", lineHeight: "14px", color: "#fff", textAlign: "center" as const }}>{f}</span>
+                          ))}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <div style={{ padding: "6px 12px", fontSize: "0.6rem", color: "#334155", borderTop: "1px solid rgba(255,255,255,0.04)" }}>
+              Top 4 qualify for playoffs · Source: IPL official feed
+            </div>
+          </div>
+        )}
+
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
           <div className="sec-title" style={{ margin: 0 }}>All IPL 2026</div>
           <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
@@ -1065,87 +1124,6 @@ export default function App() {
     );
   };
 
-  const renderIPL = () => (
-    <div>
-      <div className="sec-title">IPL 2026 Points Table</div>
-      {standingsLoading && standings.length === 0 && (
-        <div style={{ color: "#475569", fontSize: "0.78rem", padding: "8px 0" }}>⏳ Loading standings...</div>
-      )}
-      {standings.length > 0 && (
-        <div style={{ background: "rgba(15,21,32,0.9)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, overflow: "hidden", marginBottom: 20 }}>
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse" as const, fontSize: "0.7rem" }}>
-              <thead>
-                <tr style={{ background: "rgba(255,255,255,0.03)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-                  <th style={{ textAlign: "left" as const, padding: "10px 12px", color: "#475569", fontWeight: 600, letterSpacing: "1px" }}>#</th>
-                  <th style={{ textAlign: "left" as const, padding: "10px 8px", color: "#475569", fontWeight: 600, letterSpacing: "1px" }}>TEAM</th>
-                  <th style={{ textAlign: "center" as const, padding: "10px 6px", color: "#475569", fontWeight: 600 }}>P</th>
-                  <th style={{ textAlign: "center" as const, padding: "10px 6px", color: "#475569", fontWeight: 600 }}>W</th>
-                  <th style={{ textAlign: "center" as const, padding: "10px 6px", color: "#475569", fontWeight: 600 }}>L</th>
-                  <th style={{ textAlign: "center" as const, padding: "10px 6px", color: "#475569", fontWeight: 600 }}>NR</th>
-                  <th style={{ textAlign: "center" as const, padding: "10px 6px", color: "#475569", fontWeight: 600 }}>NRR</th>
-                  <th style={{ textAlign: "center" as const, padding: "10px 8px", color: "#475569", fontWeight: 600 }}>PTS</th>
-                  <th style={{ textAlign: "center" as const, padding: "10px 8px", color: "#475569", fontWeight: 600 }}>FORM</th>
-                </tr>
-              </thead>
-              <tbody>
-                {standings.map((t: any, i: number) => {
-                  const color = IPL_COLORS[t.teamCode] || "#475569";
-                  const isTop4 = i < 4;
-                  return (
-                    <tr key={t.teamCode} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)", background: isTop4 ? "rgba(255,255,255,0.01)" : "transparent" }}>
-                      <td style={{ padding: "10px 12px", color: isTop4 ? "#34d399" : "#475569", fontWeight: 700 }}>{i + 1}</td>
-                      <td style={{ padding: "10px 8px" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                          <div style={{ width: 3, height: 24, borderRadius: 2, background: color, flexShrink: 0 }} />
-                          {t.teamLogo && <img src={t.teamLogo} alt={t.teamCode} style={{ width: 22, height: 22, objectFit: "contain" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />}
-                          <div>
-                            <div style={{ fontWeight: 700, color: "#e2e8f0", fontSize: "0.72rem" }}>{t.teamCode}</div>
-                            <div style={{ color: "#475569", fontSize: "0.58rem" }}>{t.for || ""}  {t.against ? `vs ${t.against}` : ""}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td style={{ textAlign: "center" as const, padding: "10px 6px", color: "#94a3b8" }}>{t.matches}</td>
-                      <td style={{ textAlign: "center" as const, padding: "10px 6px", color: "#34d399", fontWeight: 600 }}>{t.won}</td>
-                      <td style={{ textAlign: "center" as const, padding: "10px 6px", color: "#f87171" }}>{t.lost}</td>
-                      <td style={{ textAlign: "center" as const, padding: "10px 6px", color: "#64748b" }}>{t.noResult}</td>
-                      <td style={{ textAlign: "center" as const, padding: "10px 6px", color: t.nrr >= 0 ? "#34d399" : "#f87171", fontSize: "0.68rem" }}>
-                        {t.nrr >= 0 ? "+" : ""}{t.nrr.toFixed(3)}
-                      </td>
-                      <td style={{ textAlign: "center" as const, padding: "10px 8px", fontFamily: "'Bebas Neue',sans-serif", fontSize: "1.1rem", color: color, letterSpacing: "1px" }}>{t.points}</td>
-                      <td style={{ textAlign: "center" as const, padding: "10px 8px" }}>
-                        {(t.form || "").split("").map((f: string, fi: number) => (
-                          <span key={fi} style={{ display: "inline-block", width: 14, height: 14, borderRadius: "50%", background: f === "W" ? "#34d399" : f === "L" ? "#ef4444" : "#475569", margin: "0 1px", fontSize: "0.5rem", lineHeight: "14px", color: "#fff", textAlign: "center" as const }}>{f}</span>
-                        ))}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-          {standings.length > 0 && (
-            <div style={{ padding: "6px 12px", fontSize: "0.6rem", color: "#334155", borderTop: "1px solid rgba(255,255,255,0.04)" }}>
-              Top 4 qualify for playoffs · Source: IPL official feed
-            </div>
-          )}
-        </div>
-      )}
-
-      <div className="sec-title" style={{ marginTop: 8 }}>IPL 2026 Teams</div>
-      {Object.entries(IPL_COLORS).map(([code, color]) => {
-        const allPlayers = Object.values(FANTASY_TEAMS).flatMap(t => t.players.filter(p => p.ipl === code));
-        return (
-          <div key={code} className="ipl-row">
-            <div className="ipl-team-dot" style={{ background: color }} />
-            <span className="ipl-code">{code}</span>
-            <span className="ipl-team-name">{IPL_FULL_NAMES[code]}</span>
-            <span style={{ fontSize: "0.7rem", color: "#475569" }}>{allPlayers.length} picked</span>
-          </div>
-        );
-      })}
-    </div>
-  );
 
   const renderAdmin = () => {
     const completedCount = liveMatches.filter((m: any) => m.matchEnded).length;
@@ -1327,7 +1305,6 @@ export default function App() {
           {tab === "teams" && renderTeams()}
           {tab === "fixtures" && renderFixtures()}
           {tab === "stats" && renderStats()}
-          {tab === "ipl" && renderIPL()}
           {tab === "admin" && renderAdmin()}
         </div>
 

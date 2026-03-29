@@ -463,3 +463,38 @@ body { background: #07090f; }
 .light-mode .chart-legend-item { color: #5a4a30; }
 .light-mode .stats-cat-btn { background: rgba(255,255,255,0.8); border-color: rgba(0,0,0,0.08); color: #9a7050; }
 .light-mode .btn-primary { background: rgba(232,130,26,0.1); border-color: rgba(232,130,26,0.3); color: #c86400; }
+.light-mode .match-score { color: #5a4030; }
+.light-mode .match-status { color: #9a7050; }
+.light-mode .match-venue { color: #9a8060; }
+.light-mode .player-pts-raw { color: #9a7050; }
+.light-mode .player-ipl-badge { opacity: 0.85; }
+.light-mode .top11-row { color: #2a1c08; }
+.light-mode .empty-state { color: #9a8060; }
+.light-mode .live-pill { background: rgba(52,211,153,0.12); border-color: rgba(52,211,153,0.3); color: #057a55; }
+.light-mode .live-dot { background: #057a55; }
+.light-mode .stat-lbl { color: #9a8060; }
+.light-mode .content { background: transparent; }
+/* Fixtures / IPL table in light mode */
+.light-mode .match-card span[style*="color: #e2e8f0"],
+.light-mode .match-card div[style*="color: #e2e8f0"] { color: #1a1208 !important; }
+.light-mode .match-card span[style*="color: #64748b"],
+.light-mode .match-card div[style*="color: #64748b"] { color: #7a6040 !important; }
+.light-mode .match-card span[style*="color: #334155"],
+.light-mode .match-card div[style*="color: #334155"] { color: #8a7050 !important; }
+.light-mode .match-card span[style*="color: #475569"],
+.light-mode .match-card div[style*="color: #475569"] { color: #9a8060 !important; }
+/* Standings table in light mode */
+.light-mode table { background: rgba(255,255,255,0.9); }
+.light-mode table th { color: #9a8060 !important; background: rgba(232,130,26,0.05) !important; }
+.light-mode table tr { border-color: rgba(0,0,0,0.06) !important; background: rgba(255,255,255,0.5) !important; }
+.light-mode table td[style*="color: #e2e8f0"] { color: #1a1208 !important; }
+.light-mode table td[style*="color: #94a3b8"] { color: #7a6040 !important; }
+.light-mode table td[style*="color: #475569"] { color: #9a8060 !important; }
+.light-mode table div[style*="color: #e2e8f0"] { color: #1a1208 !important; }
+.light-mode table div[style*="color: #475569"] { color: #9a8060 !important; }
+.light-mode div[style*="color: #334155"] { color: #9a8060; }
+/* Awards in light mode */
+.light-mode div[style*="color: #475569"][style*="fontSize: \"0.6rem\""] { color: #9a8060 !important; }
+/* Date labels in fixtures */
+.light-mode div[style*="letterSpacing"][style*="color: #475569"] { color: #9a7050 !important; }
+.light-mode div[style*="letterSpacing"][style*="color: #334155"] { color: #7a6040 !important; }
