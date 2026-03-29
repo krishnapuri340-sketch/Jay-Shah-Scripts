@@ -515,7 +515,6 @@ export default function App() {
           <div className="lb-accent" style={{ background: s.team.color }} />
           <div className="lb-inner">
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 28 }}>
-              {i === 0 && <span className="lb-crown">👑</span>}
               <div className={`lb-rank ${rankLabel(i)}`}>{i + 1}</div>
             </div>
             <div className="lb-emoji">{s.team.emoji}</div>
@@ -540,64 +539,6 @@ export default function App() {
           </div>
         </div>
       ))}
-
-      {/* Points history chart */}
-      {matchHistory.some(t => t.points.length > 0) && (() => {
-        const allMatches = matchHistory[0]?.points || [];
-        const maxCum = Math.max(...matchHistory.flatMap(t => t.points.map(p => p.cum)), 1);
-        const W = 320; const H = 110; const PAD = 28;
-        const chartW = W - PAD * 2; const chartH = H - PAD;
-        const n = allMatches.length;
-        const xPos = (i: number) => n === 1 ? PAD + chartW / 2 : PAD + (i / (n - 1)) * chartW;
-        const yPos = (v: number) => PAD / 2 + (1 - v / maxCum) * chartH;
-        return (
-          <div className="chart-wrap">
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-              <span className="sec-title" style={{ fontSize: "1rem", marginBottom: 0 }}>Points Race</span>
-              <div className="chart-legend">
-                {matchHistory.map(t => (
-                  <div key={t.teamId} className="chart-legend-item">
-                    <div className="chart-legend-dot" style={{ background: t.color }} />
-                    {t.emoji} {t.points[t.points.length - 1]?.cum ?? 0}
-                  </div>
-                ))}
-              </div>
-            </div>
-            <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} style={{ overflow: "visible" }}>
-              {/* Grid lines */}
-              {[0.25, 0.5, 0.75, 1].map(f => (
-                <line key={f} x1={PAD} x2={W - PAD} y1={yPos(f * maxCum)} y2={yPos(f * maxCum)}
-                  stroke="rgba(255,255,255,0.04)" strokeWidth={1} />
-              ))}
-              {/* Match labels on x-axis */}
-              {allMatches.map((m, i) => (
-                <text key={i} x={xPos(i)} y={H - 4} textAnchor="middle"
-                  fontSize={8} fill="rgba(255,255,255,0.25)">{m.label}</text>
-              ))}
-              {/* Team lines and dots */}
-              {matchHistory.map(team => {
-                if (team.points.length === 0) return null;
-                if (team.points.length === 1) {
-                  return (
-                    <circle key={team.teamId}
-                      cx={xPos(0)} cy={yPos(team.points[0].cum)} r={5}
-                      fill={team.color} opacity={0.9} />
-                  );
-                }
-                const path = team.points.map((p, i) => `${i === 0 ? "M" : "L"}${xPos(i)},${yPos(p.cum)}`).join(" ");
-                return (
-                  <g key={team.teamId}>
-                    <path d={path} stroke={team.color} strokeWidth={2} fill="none" strokeLinejoin="round" strokeLinecap="round" opacity={0.85} />
-                    {team.points.map((p, i) => (
-                      <circle key={i} cx={xPos(i)} cy={yPos(p.cum)} r={3.5} fill={team.color} opacity={0.9} />
-                    ))}
-                  </g>
-                );
-              })}
-            </svg>
-          </div>
-        );
-      })()}
 
       {liveMatches.length > 0 && (() => {
         const recentOrLive = [
