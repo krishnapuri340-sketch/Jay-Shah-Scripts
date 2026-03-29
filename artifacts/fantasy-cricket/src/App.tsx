@@ -1049,12 +1049,7 @@ export default function App() {
                           ...(isPlayingNext ? { boxShadow: `0 0 0 1.5px ${IPL_COLORS[p.ipl] || t.color}55, 0 4px 16px ${IPL_COLORS[p.ipl] || t.color}18` } : {})
                         }}
                         onClick={() => setExpandedPlayer(isExp ? null : p.name)}>
-                        <div className="playing-badge" />
-                        {isPlayingNext && (
-                          <div style={{ position: "absolute", top: 7, right: 9, display: "flex", alignItems: "center", gap: 2 }}>
-                            <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#4ade80", display: "inline-block", boxShadow: "0 0 5px #4ade80" }} />
-                          </div>
-                        )}
+                        {(!hasNextMatch || isPlayingNext) && <div className="playing-badge" />}
                         <div className="player-ipl-badge" style={{ background: IPL_COLORS[p.ipl] + (isPlayingNext ? "44" : "33"), color: IPL_COLORS[p.ipl] + (isDimmed ? "88" : "") }}>
                           {p.ipl}
                         </div>
