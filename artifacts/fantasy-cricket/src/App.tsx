@@ -1652,7 +1652,7 @@ export default function App() {
                 className="header-logo"
               />
               <div>
-                <div className="header-title">IPL Fantasy</div>
+                <div className="header-title"><span className="header-title-accent">IPL</span> Fantasy</div>
                 <div className="header-season-badge">2026 Season</div>
               </div>
             </div>
