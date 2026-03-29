@@ -1272,7 +1272,7 @@ export default function App() {
                   <span className="hist-hero-aval">{s.orangeRuns} runs</span>
                 </div>
                 <div className="hist-hero-award">
-                  <span style={{ fontSize: "0.65rem", color: "#7c3aed" }}><span style={{filter:"hue-rotate(270deg) saturate(4) brightness(0.6)"}}>🧢</span> Purple Cap</span>
+                  <span style={{ fontSize: "0.65rem", color: "#7c3aed" }}><span style={{filter:"hue-rotate(55deg) saturate(5) brightness(0.5)"}}>🧢</span> Purple Cap</span>
                   <span className="hist-hero-aname">{s.purpleCap}</span>
                   <span className="hist-hero-aval">{s.purpleWkts} wkts</span>
                 </div>
@@ -1297,7 +1297,7 @@ export default function App() {
                 ))}
               </div>
               <div className="hist-top10-col">
-                <div className="hist-top10-hdr" style={{ color: "#7c3aed" }}><span style={{filter:"hue-rotate(270deg) saturate(4) brightness(0.6)"}}>🧢</span> Top Wicket-takers</div>
+                <div className="hist-top10-hdr" style={{ color: "#7c3aed" }}><span style={{filter:"hue-rotate(55deg) saturate(5) brightness(0.5)"}}>🧢</span> Top Wicket-takers</div>
                 {s.topBwl.map((p, i) => (
                   <div key={i} className="hist-top10-row">
                     <span className="hist-rk">{i + 1}</span>
@@ -1340,7 +1340,7 @@ export default function App() {
                 {/* Cap line */}
                 <div className="hist-card-caps">
                   <span className="hist-cap-orange"><span style={{filter:"hue-rotate(175deg) saturate(3) brightness(1.1)"}}>🧢</span> {h.orangeCap.split(" ").slice(-1)[0]} {h.orangeRuns} runs</span>
-                  <span className="hist-cap-purple"><span style={{filter:"hue-rotate(270deg) saturate(4) brightness(0.6)"}}>🧢</span> {h.purpleCap.split(" ").slice(-1)[0]} {h.purpleWkts} wks</span>
+                  <span className="hist-cap-purple"><span style={{filter:"hue-rotate(55deg) saturate(5) brightness(0.5)"}}>🧢</span> {h.purpleCap.split(" ").slice(-1)[0]} {h.purpleWkts} wks</span>
                 </div>
               </div>
               <div className="hist-card-arrow">›</div>
