@@ -347,6 +347,7 @@ export default function App() {
   // Swipe refs
   const swipeStartX = useRef(0);
   const swipeStartY = useRef(0);
+  const swipeBlocked = useRef(false);
   const SWIPEABLE_TABS = ["home", "teams", "fixtures", "stats", "history"];
   // PTR refs
   const pullState = useRef({ active: false, startY: 0 });
@@ -1225,7 +1226,7 @@ export default function App() {
 
         {/* Year filter grid */}
         {!s && (
-          <div className="hist-yr-grid">
+          <div className="hist-yr-grid" data-no-swipe="true">
             <button
               className={`hist-yr-btn all-btn${historyYear === null ? " active" : ""}`}
               onClick={() => setHistoryYear(null)}
@@ -1509,7 +1510,7 @@ export default function App() {
 
     return (
       <div>
-        <div className="team-tabs">
+        <div className="team-tabs" data-no-swipe="true">
           {teamScores.map(s => {
             const ft = s.team;
             return (
@@ -2261,7 +2262,7 @@ export default function App() {
           ))}
         </div>
 
-        <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 8, marginBottom: 12, marginLeft: -16, marginRight: -16, paddingLeft: 16, paddingRight: 16 }}>
+        <div data-no-swipe="true" style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 8, marginBottom: 12, marginLeft: -16, marginRight: -16, paddingLeft: 16, paddingRight: 16 }}>
           {STAT_CATS.map(c => (
             <button key={c.id} onClick={() => { setStatsCategory(c.id); setStatsExpanded(false); }} className={`stats-cat-btn ${statsCategory === c.id ? "active" : ""}`}>
               {c.label}
@@ -2482,8 +2483,13 @@ export default function App() {
   const handleSwipeStart = (e: React.TouchEvent) => {
     swipeStartX.current = e.touches[0].clientX;
     swipeStartY.current = e.touches[0].clientY;
+    // Block tab-swipe if the touch started inside a no-swipe zone
+    // (horizontally-scrollable inner containers)
+    const target = e.target as HTMLElement;
+    swipeBlocked.current = !!target.closest("[data-no-swipe]");
   };
   const handleSwipeEnd = (e: React.TouchEvent) => {
+    if (swipeBlocked.current) { swipeBlocked.current = false; return; }
     const dx = e.changedTouches[0].clientX - swipeStartX.current;
     const dy = e.changedTouches[0].clientY - swipeStartY.current;
     // Must be a clearly horizontal swipe: min 70px horizontal, and horizontal
