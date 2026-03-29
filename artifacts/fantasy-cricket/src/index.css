@@ -252,6 +252,29 @@ body { background: #07090f; }
   width: 6px; height: 6px; border-radius: 50%; background: #4ade80;
   box-shadow: 0 0 6px rgba(74,222,128,0.5);
 }
+.playing-badge.live-badge {
+  background: #f87171;
+  box-shadow: 0 0 8px rgba(248,113,113,0.7);
+  animation: livePulse 1.4s ease-in-out infinite;
+}
+@keyframes livePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(1.4); }
+}
+.player-card.live-now {
+  border-color: rgba(248,113,113,0.25) !important;
+  background: rgba(20,8,8,0.92);
+}
+.player-card.live-now:hover { border-color: rgba(248,113,113,0.4) !important; }
+.live-pulse-dot {
+  display: inline-block; width: 9px; height: 9px; border-radius: 50%;
+  background: #f87171; box-shadow: 0 0 8px rgba(248,113,113,0.6);
+  animation: livePulse 1.4s ease-in-out infinite; flex-shrink: 0;
+}
+.team-next-match-banner.has-live {
+  border-color: rgba(248,113,113,0.2);
+  background: linear-gradient(135deg, rgba(248,113,113,0.04) 0%, rgba(12,10,8,0.95) 60%);
+}
 
 /* === MATCH CARDS === */
 .match-card {

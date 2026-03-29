@@ -567,29 +567,32 @@ export default function App() {
     return awards;
   };
 
-  // All upcoming matches within the next 24 hours — handles single matches and double-headers
-  const upcomingLineupPreviews = (() => {
-    const now = Date.now();
-    const window24h = 24 * 60 * 60 * 1000;
-    const upcomingMatches = liveMatches
-      .filter((m: any) => !m.matchStarted && m.dateTimeGMT)
-      .map((m: any) => ({ m, diff: new Date(m.dateTimeGMT).getTime() - now }))
-      .filter(({ diff }) => diff > 0 && diff <= window24h)
-      .sort((a, b) => a.diff - b.diff)
-      .map(({ m }) => m);
-
-    return upcomingMatches.map((match: any) => {
+  // Helper: build preview data from a list of matches
+  const buildMatchPreviews = (matches: any[]) =>
+    matches.map((match: any) => {
       const teamInfo: any[] = match.teamInfo || [];
-      const playingTeams = new Set(
-        teamInfo.map((ti: any) => (ti.shortname || "").toUpperCase())
-      );
-      const preview = Object.values(FANTASY_TEAMS).map(ft => {
-        const activePlayers = ft.players.filter(p => playingTeams.has(p.ipl.toUpperCase()));
-        return { team: ft, activePlayers };
-      }).filter(x => x.activePlayers.length > 0);
+      const playingTeams = new Set(teamInfo.map((ti: any) => (ti.shortname || "").toUpperCase()));
+      const preview = Object.values(FANTASY_TEAMS).map(ft => ({
+        team: ft,
+        activePlayers: ft.players.filter(p => playingTeams.has(p.ipl.toUpperCase()))
+      })).filter(x => x.activePlayers.length > 0);
       return { match, playingTeams: [...playingTeams], preview };
     }).filter(item => item.playingTeams.length > 0);
-  })();
+
+  // Currently LIVE matches (started, not ended)
+  const liveMatchPreviews = buildMatchPreviews(
+    liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded)
+  );
+
+  // All upcoming matches within the next 24 hours — handles double-headers
+  const upcomingLineupPreviews = buildMatchPreviews(
+    liveMatches
+      .filter((m: any) => !m.matchStarted && m.dateTimeGMT)
+      .map((m: any) => ({ m, diff: new Date(m.dateTimeGMT).getTime() - Date.now() }))
+      .filter(({ diff }) => diff > 0 && diff <= 24 * 60 * 60 * 1000)
+      .sort((a, b) => a.diff - b.diff)
+      .map(({ m }) => m)
+  );
 
   const renderHome = () => {
     const awards = computeAwards();
@@ -726,21 +729,30 @@ export default function App() {
       return acc;
     }, {});
 
-    // Compute which of this team's players are playing in an upcoming match (within 24h)
-    const nextMatchPlaying = new Set<string>();
-    const nextMatchInfoForTeam: { matchLabel: string; playingTeams: string[] }[] = [];
-    upcomingLineupPreviews.forEach(lp => {
-      const myPlayers = lp.preview.find(x => x.team.id === selectedTeam);
-      if (myPlayers && myPlayers.activePlayers.length > 0) {
-        myPlayers.activePlayers.forEach(p => nextMatchPlaying.add(p.name));
-        const ti: any[] = lp.match.teamInfo || [];
-        const matchLabel = ti.length >= 2
-          ? `${ti[0]?.shortname || ""} vs ${ti[1]?.shortname || ""}`
-          : lp.match.name;
-        nextMatchInfoForTeam.push({ matchLabel, playingTeams: lp.playingTeams });
-      }
-    });
+    // Helper: extract match label + players for this team from a preview list
+    const extractForTeam = (previews: typeof upcomingLineupPreviews) => {
+      const playing = new Set<string>();
+      const infos: { matchLabel: string; playingTeams: string[] }[] = [];
+      previews.forEach(lp => {
+        const myPlayers = lp.preview.find(x => x.team.id === selectedTeam);
+        if (myPlayers && myPlayers.activePlayers.length > 0) {
+          myPlayers.activePlayers.forEach(p => playing.add(p.name));
+          const ti: any[] = lp.match.teamInfo || [];
+          const matchLabel = ti.length >= 2
+            ? `${ti[0]?.shortname || ""} vs ${ti[1]?.shortname || ""}`
+            : lp.match.name;
+          infos.push({ matchLabel, playingTeams: lp.playingTeams });
+        }
+      });
+      return { playing, infos };
+    };
+
+    const { playing: liveNowPlaying, infos: liveNowInfo } = extractForTeam(liveMatchPreviews);
+    const { playing: nextMatchPlaying, infos: nextMatchInfoForTeam } = extractForTeam(upcomingLineupPreviews);
+
+    const hasLiveNow = liveNowPlaying.size > 0;
     const hasNextMatch = nextMatchPlaying.size > 0;
+    const hasAnyContext = hasLiveNow || hasNextMatch;
 
     return (
       <div>
@@ -755,59 +767,84 @@ export default function App() {
           ))}
         </div>
 
-        {/* Upcoming match banner — only when a match is within 24h */}
-        {hasNextMatch && (
-          <div className="team-next-match-banner">
-            <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 8 }}>
-              <span style={{ fontSize: "1rem" }}>🔮</span>
-              <div>
-                {nextMatchInfoForTeam.map((info, i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: i < nextMatchInfoForTeam.length - 1 ? 3 : 0 }}>
-                    <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "0.9rem", letterSpacing: "1px", color: "#e8821a" }}>
-                      {nextMatchInfoForTeam.length > 1 ? `MATCH ${i + 1}: ` : "PLAYING NEXT: "}
-                    </span>
-                    <span style={{ fontSize: "0.72rem", color: "#cbd5e1", fontWeight: 600 }}>{info.matchLabel}</span>
-                    {info.playingTeams.filter(t2 => IPL_COLORS[t2]).map(t2 => (
-                      <span key={t2} style={{
-                        fontSize: "0.56rem", fontWeight: 700, padding: "1px 6px", borderRadius: 4,
-                        background: IPL_COLORS[t2] + "22", border: `1px solid ${IPL_COLORS[t2]}44`, color: IPL_COLORS[t2]
-                      }}>{t2}</span>
+        {/* Match status banner — shows LIVE and/or UPCOMING players */}
+        {hasAnyContext && (
+          <div className={`team-next-match-banner ${hasLiveNow ? "has-live" : ""}`}>
+
+            {/* LIVE section */}
+            {hasLiveNow && (
+              <div style={{ marginBottom: hasNextMatch ? 10 : 0 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 7 }}>
+                  <span className="live-pulse-dot" />
+                  <div>
+                    {liveNowInfo.map((info, i) => (
+                      <div key={i} style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 5, marginBottom: i < liveNowInfo.length - 1 ? 3 : 0 }}>
+                        <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "0.85rem", letterSpacing: "1px", color: "#f87171" }}>LIVE NOW:</span>
+                        <span style={{ fontSize: "0.72rem", color: "#fca5a5", fontWeight: 600 }}>{info.matchLabel}</span>
+                        {info.playingTeams.filter(t2 => IPL_COLORS[t2]).map(t2 => (
+                          <span key={t2} style={{ fontSize: "0.56rem", fontWeight: 700, padding: "1px 6px", borderRadius: 4, background: IPL_COLORS[t2] + "22", border: `1px solid ${IPL_COLORS[t2]}44`, color: IPL_COLORS[t2] }}>{t2}</span>
+                        ))}
+                      </div>
                     ))}
                   </div>
-                ))}
-              </div>
-            </div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
-              {td.players
-                .filter(p => nextMatchPlaying.has(p.name))
-                .map(p => {
-                  const isCap = p.name === t.captain;
-                  const isVC = p.name === t.vc;
-                  return (
-                    <div key={p.name} style={{
-                      display: "flex", alignItems: "center", gap: 4,
-                      padding: "5px 9px", borderRadius: 8,
-                      background: (IPL_COLORS[p.ipl] || "#334155") + "18",
-                      border: `1px solid ${IPL_COLORS[p.ipl] || "#334155"}35`,
-                    }}>
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                  {td.players.filter(p => liveNowPlaying.has(p.name)).map(p => (
+                    <div key={p.name} style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 9px", borderRadius: 8, background: "#f8717118", border: "1px solid #f8717130" }}>
                       <span style={{ fontSize: "0.7rem" }}>{ROLE_ICONS[p.role]}</span>
-                      <span style={{ fontSize: "0.74rem", fontWeight: 600, color: "#f1f5f9" }}>{p.name}</span>
-                      {isCap && <span style={{ fontSize: "0.56rem", fontWeight: 800, color: "#d4a017", background: "rgba(212,160,23,0.18)", borderRadius: 4, padding: "1px 4px" }}>C</span>}
-                      {isVC && <span style={{ fontSize: "0.56rem", fontWeight: 800, color: "#a78bfa", background: "rgba(167,139,250,0.12)", borderRadius: 4, padding: "1px 4px" }}>VC</span>}
+                      <span style={{ fontSize: "0.74rem", fontWeight: 600, color: "#fca5a5" }}>{p.name}</span>
+                      {p.name === t.captain && <span style={{ fontSize: "0.56rem", fontWeight: 800, color: "#d4a017", background: "rgba(212,160,23,0.18)", borderRadius: 4, padding: "1px 4px" }}>C</span>}
+                      {p.name === t.vc && <span style={{ fontSize: "0.56rem", fontWeight: 800, color: "#a78bfa", background: "rgba(167,139,250,0.12)", borderRadius: 4, padding: "1px 4px" }}>VC</span>}
                       <span style={{ fontSize: "0.6rem", color: IPL_COLORS[p.ipl] || "#64748b", fontWeight: 700 }}>{p.ipl}</span>
                     </div>
-                  );
-                })}
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8, fontSize: "0.6rem", color: "#475569" }}>
-              <span style={{ display: "flex", alignItems: "center", gap: 3 }}>
-                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", display: "inline-block" }} />
-                Playing tonight
-              </span>
-              <span style={{ display: "flex", alignItems: "center", gap: 3 }}>
-                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#334155", display: "inline-block", border: "1px solid #475569" }} />
-                Not in this match
-              </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Divider when both sections exist */}
+            {hasLiveNow && hasNextMatch && (
+              <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", marginBottom: 10 }} />
+            )}
+
+            {/* UPCOMING section */}
+            {hasNextMatch && (
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 7 }}>
+                  <span style={{ fontSize: "0.95rem" }}>🔮</span>
+                  <div>
+                    {nextMatchInfoForTeam.map((info, i) => (
+                      <div key={i} style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 5, marginBottom: i < nextMatchInfoForTeam.length - 1 ? 3 : 0 }}>
+                        <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "0.85rem", letterSpacing: "1px", color: "#e8821a" }}>
+                          {nextMatchInfoForTeam.length > 1 ? `MATCH ${i + 1}:` : "UPCOMING:"}
+                        </span>
+                        <span style={{ fontSize: "0.72rem", color: "#cbd5e1", fontWeight: 600 }}>{info.matchLabel}</span>
+                        {info.playingTeams.filter(t2 => IPL_COLORS[t2]).map(t2 => (
+                          <span key={t2} style={{ fontSize: "0.56rem", fontWeight: 700, padding: "1px 6px", borderRadius: 4, background: IPL_COLORS[t2] + "22", border: `1px solid ${IPL_COLORS[t2]}44`, color: IPL_COLORS[t2] }}>{t2}</span>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                  {td.players.filter(p => nextMatchPlaying.has(p.name) && !liveNowPlaying.has(p.name)).map(p => (
+                    <div key={p.name} style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 9px", borderRadius: 8, background: (IPL_COLORS[p.ipl] || "#334155") + "18", border: `1px solid ${IPL_COLORS[p.ipl] || "#334155"}35` }}>
+                      <span style={{ fontSize: "0.7rem" }}>{ROLE_ICONS[p.role]}</span>
+                      <span style={{ fontSize: "0.74rem", fontWeight: 600, color: "#f1f5f9" }}>{p.name}</span>
+                      {p.name === t.captain && <span style={{ fontSize: "0.56rem", fontWeight: 800, color: "#d4a017", background: "rgba(212,160,23,0.18)", borderRadius: 4, padding: "1px 4px" }}>C</span>}
+                      {p.name === t.vc && <span style={{ fontSize: "0.56rem", fontWeight: 800, color: "#a78bfa", background: "rgba(167,139,250,0.12)", borderRadius: 4, padding: "1px 4px" }}>VC</span>}
+                      <span style={{ fontSize: "0.6rem", color: IPL_COLORS[p.ipl] || "#64748b", fontWeight: 700 }}>{p.ipl}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Legend */}
+            <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 10, marginTop: 10, fontSize: "0.6rem", color: "#475569" }}>
+              {hasLiveNow && <span style={{ display: "flex", alignItems: "center", gap: 3 }}><span style={{ width: 6, height: 6, borderRadius: "50%", background: "#f87171", display: "inline-block", boxShadow: "0 0 5px #f87171" }} />Playing now</span>}
+              {hasNextMatch && <span style={{ display: "flex", alignItems: "center", gap: 3 }}><span style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", display: "inline-block" }} />Upcoming</span>}
+              <span style={{ display: "flex", alignItems: "center", gap: 3 }}><span style={{ width: 6, height: 6, borderRadius: "50%", background: "#334155", display: "inline-block", border: "1px solid #475569" }} />Not in match</span>
             </div>
           </div>
         )}
@@ -1033,28 +1070,42 @@ export default function App() {
             );
           };
 
+          // Per-player state helper
+          const getPlayerState = (name: string, ipl: string) => {
+            const isLiveNow = hasLiveNow && liveNowPlaying.has(name);
+            const isUpcoming = hasNextMatch && nextMatchPlaying.has(name) && !isLiveNow;
+            const isDimmed = hasAnyContext && !isLiveNow && !isUpcoming;
+            const glowColor = isLiveNow ? "#f87171" : isUpcoming ? (IPL_COLORS[ipl] || "#4ade80") : null;
+            return { isLiveNow, isUpcoming, isDimmed, glowColor };
+          };
+
           return (
             <>
               <div className="top11-label">Playing XI (Top 11)</div>
               <div className="players-grid">
                 {td.players.filter(p => td.top11.has(p.name)).map(p => {
                   const isExp = expandedPlayer === p.name;
-                  const isPlayingNext = hasNextMatch && nextMatchPlaying.has(p.name);
-                  const isDimmed = hasNextMatch && !nextMatchPlaying.has(p.name);
+                  const { isLiveNow, isUpcoming, isDimmed, glowColor } = getPlayerState(p.name, p.ipl);
+                  const cardClass = [
+                    "player-card",
+                    p.name === t.captain ? "is-c" : p.name === t.vc ? "is-vc" : "",
+                    isExp ? "player-expanded" : "",
+                    isLiveNow ? "live-now" : isUpcoming ? "playing-next" : isDimmed ? "not-playing-next" : ""
+                  ].filter(Boolean).join(" ");
                   return (
                     <React.Fragment key={p.name}>
-                      <div className={`player-card ${p.name === t.captain ? "is-c" : p.name === t.vc ? "is-vc" : ""} ${isExp ? "player-expanded" : ""} ${isPlayingNext ? "playing-next" : ""} ${isDimmed ? "not-playing-next" : ""}`}
-                        style={{
-                          cursor: "pointer",
-                          ...(isPlayingNext ? { boxShadow: `0 0 0 1.5px ${IPL_COLORS[p.ipl] || t.color}55, 0 4px 16px ${IPL_COLORS[p.ipl] || t.color}18` } : {})
-                        }}
+                      <div className={cardClass}
+                        style={{ cursor: "pointer", ...(glowColor ? { boxShadow: `0 0 0 1.5px ${glowColor}55, 0 4px 16px ${glowColor}18` } : {}) }}
                         onClick={() => setExpandedPlayer(isExp ? null : p.name)}>
-                        {(!hasNextMatch || isPlayingNext) && <div className="playing-badge" />}
-                        <div className="player-ipl-badge" style={{ background: IPL_COLORS[p.ipl] + (isPlayingNext ? "44" : "33"), color: IPL_COLORS[p.ipl] + (isDimmed ? "88" : "") }}>
+                        {/* Dot indicator */}
+                        {!hasAnyContext && <div className="playing-badge" />}
+                        {isLiveNow && <div className="playing-badge live-badge" />}
+                        {isUpcoming && <div className="playing-badge" />}
+                        <div className="player-ipl-badge" style={{ background: IPL_COLORS[p.ipl] + (isLiveNow || isUpcoming ? "44" : isDimmed ? "22" : "33"), color: IPL_COLORS[p.ipl] + (isDimmed ? "88" : "") }}>
                           {p.ipl}
                         </div>
-                        <div className="player-name" style={isDimmed ? { color: "#4a5568" } : {}}>{hotPlayers.has(p.name) ? "🔥 " : ""}{p.name}</div>
-                        <div className="player-pts" style={{ color: isDimmed ? "#374151" : (p.adj > 0 ? t.color : "#475569") }}>{p.adj}</div>
+                        <div className="player-name" style={isDimmed ? { color: "#4a5568" } : isLiveNow ? { color: "#fca5a5" } : {}}>{hotPlayers.has(p.name) ? "🔥 " : ""}{p.name}</div>
+                        <div className="player-pts" style={{ color: isDimmed ? "#374151" : isLiveNow ? "#fca5a5" : (p.adj > 0 ? t.color : "#475569") }}>{p.adj}</div>
                         {p.name === t.captain && <div className="player-pts-raw">raw: {p.raw} × 2</div>}
                         {p.name === t.vc && <div className="player-pts-raw">raw: {p.raw} × 1.5</div>}
                         <div style={{ fontSize: "0.55rem", color: "#475569", marginTop: 2 }}>{isExp ? "▲ hide" : "▼ details"}</div>
@@ -1069,26 +1120,24 @@ export default function App() {
               <div className="players-grid">
                 {td.players.filter(p => !td.top11.has(p.name)).map(p => {
                   const isExp = expandedPlayer === p.name;
-                  const isPlayingNext = hasNextMatch && nextMatchPlaying.has(p.name);
-                  const isDimmed = hasNextMatch && !nextMatchPlaying.has(p.name);
+                  const { isLiveNow, isUpcoming, isDimmed, glowColor } = getPlayerState(p.name, p.ipl);
+                  const cardClass = [
+                    "player-card benched",
+                    isExp ? "player-expanded" : "",
+                    isLiveNow ? "live-now" : isUpcoming ? "playing-next" : isDimmed ? "not-playing-next" : ""
+                  ].filter(Boolean).join(" ");
                   return (
                     <React.Fragment key={p.name}>
-                      <div className={`player-card benched ${isExp ? "player-expanded" : ""} ${isPlayingNext ? "playing-next" : ""} ${isDimmed ? "not-playing-next" : ""}`}
-                        style={{
-                          cursor: "pointer",
-                          ...(isPlayingNext ? { boxShadow: `0 0 0 1.5px ${IPL_COLORS[p.ipl] || t.color}55, 0 4px 14px ${IPL_COLORS[p.ipl] || t.color}15`, opacity: 1 } : {})
-                        }}
+                      <div className={cardClass}
+                        style={{ cursor: "pointer", ...(glowColor ? { boxShadow: `0 0 0 1.5px ${glowColor}55, 0 4px 14px ${glowColor}15`, opacity: 1 } : {}) }}
                         onClick={() => setExpandedPlayer(isExp ? null : p.name)}>
-                        {isPlayingNext && (
-                          <div style={{ position: "absolute", top: 7, right: 9 }}>
-                            <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#4ade80", display: "inline-block", boxShadow: "0 0 5px #4ade80" }} />
-                          </div>
-                        )}
-                        <div className="player-ipl-badge" style={{ background: IPL_COLORS[p.ipl] + (isPlayingNext ? "33" : "22"), color: IPL_COLORS[p.ipl] + (isDimmed ? "66" : "88") }}>
+                        {isLiveNow && <div className="playing-badge live-badge" />}
+                        {isUpcoming && <div className="playing-badge" />}
+                        <div className="player-ipl-badge" style={{ background: IPL_COLORS[p.ipl] + (isLiveNow || isUpcoming ? "33" : "22"), color: IPL_COLORS[p.ipl] + (isDimmed ? "66" : "88") }}>
                           {p.ipl}
                         </div>
-                        <div className="player-name" style={{ color: isDimmed ? "#374151" : (isPlayingNext ? "#94a3b8" : "#64748b") }}>{p.name}</div>
-                        <div className="player-pts" style={{ color: isDimmed ? "#2d3748" : (isPlayingNext ? "#64748b" : "#475569") }}>{p.adj}</div>
+                        <div className="player-name" style={{ color: isDimmed ? "#374151" : isLiveNow ? "#fca5a5" : isUpcoming ? "#94a3b8" : "#64748b" }}>{p.name}</div>
+                        <div className="player-pts" style={{ color: isDimmed ? "#2d3748" : isLiveNow ? "#fca5a5" : "#475569" }}>{p.adj}</div>
                         <div style={{ fontSize: "0.55rem", color: "#475569", marginTop: 2 }}>{isExp ? "▲ hide" : "▼ details"}</div>
                       </div>
                       {isExp && renderBreakdown(p)}
