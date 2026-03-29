@@ -1322,7 +1322,7 @@ export default function App() {
                 <div className="hist-card-row">
                   <TeamBadge name={h.champion} size={24} />
                   <span className="hist-card-champ" style={{ color: h.color }}>{champAbbr}</span>
-                  <span className="hist-card-tag-winner">Winner</span>
+                  <span className="hist-card-tag-winner">Champions</span>
                 </div>
                 {/* Runner-up row */}
                 <div className="hist-card-row" style={{ marginTop: 5 }}>
