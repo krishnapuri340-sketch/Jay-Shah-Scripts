@@ -489,12 +489,24 @@ export default function App() {
   }, [playerPoints]);
 
   // FLIP animation — only fires when the rank order actually changes
+  // lbReady suppresses the animation during the initial load to prevent the "reshuffle on open" effect
   const prevOrderRef = useRef<string[]>([]);
+  const lbReady = useRef(false);
+
+  // Mark the leaderboard as ready one animation frame after the first complete data load
+  useEffect(() => {
+    if (!pointsLoading && !liveLoading && !lbReady.current) {
+      const id = requestAnimationFrame(() => { lbReady.current = true; });
+      return () => cancelAnimationFrame(id);
+    }
+  }, [pointsLoading, liveLoading]);
+
   useLayoutEffect(() => {
     if (!lbContainerRef.current) return;
     const currentOrder = teamScores.map(s => s.id);
     const prevOrder = prevOrderRef.current;
-    const orderChanged = prevOrder.length === currentOrder.length &&
+    const orderChanged = lbReady.current &&
+      prevOrder.length === currentOrder.length &&
       currentOrder.some((id, i) => id !== prevOrder[i]);
     if (!orderChanged) {
       prevOrderRef.current = currentOrder;
