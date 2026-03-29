@@ -647,21 +647,16 @@ export default function App() {
         </div>
       ))}
 
-      {liveMatches.length > 0 && (() => {
-        const recentOrLive = [
-          ...liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded),
-          ...liveMatches.filter((m: any) => m.matchEnded),
-        ].slice(0, 3);
-        if (recentOrLive.length === 0) return null;
+      {(() => {
+        const liveNow = liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded);
+        if (liveNow.length === 0) return null;
         return (
           <>
             <div className="divider" />
-            <div className="sec-title">{liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded).length > 0 ? "Live Now" : "Recent Results"}</div>
-            {recentOrLive.map((m: any) => (
+            <div className="sec-title">Live Now</div>
+            {liveNow.map((m: any) => (
               <div key={m.id} className="match-card">
-                <div className="match-status" style={{ color: m.matchEnded ? "var(--text-3)" : "var(--live)" }}>
-                  {m.matchEnded ? "Completed" : "Live"}
-                </div>
+                <div className="match-status" style={{ color: "var(--live)" }}>Live</div>
                 <div className="match-name">{m.name}</div>
                 {(m.score || []).map((s: any, i: number) => (
                   <div key={i} className="match-score" style={{ marginTop: 3 }}>
@@ -669,7 +664,6 @@ export default function App() {
                     {s.summary || (s.r != null ? `${s.r}/${s.w} (${s.o} ov)` : "")}
                   </div>
                 ))}
-                {m.matchEnded && m.status && <div style={{ fontSize: "0.68rem", color: "var(--blue)", marginTop: 5 }}>{m.status}</div>}
                 <div className="match-venue">{m.venue || ""}</div>
               </div>
             ))}
