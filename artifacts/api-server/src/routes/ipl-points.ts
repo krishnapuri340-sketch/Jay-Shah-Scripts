@@ -65,11 +65,12 @@ interface ProcessedMatchData {
 const DAILY_CALL_LIMIT = 1900; // hard cap below CricAPI's 2000/day paid tier
 
 // ── AuctionRoom / Supabase integration ─────────────────────────────────────
-const SUPABASE_URL = "https://ldwqrdlipzqsnpljqyhk.supabase.co/rest/v1";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxkd3FyZGxpcHpxc25wbGpxeWhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4NDkwMDgsImV4cCI6MjA4ODQyNTAwOH0.jEhev-CwAyv_aDFV1HaJ_AN7RGRIuazZ_GZHA3y6Gh8";
+const SUPABASE_URL = process.env.SUPABASE_URL ?? "https://ldwqrdlipzqsnpljqyhk.supabase.co/rest/v1";
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 const IPL_TOURNAMENT_ID = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
 
 async function supabaseGet(table: string, params: Record<string, string> = {}): Promise<any[]> {
+  if (!SUPABASE_ANON_KEY) throw new Error("SUPABASE_ANON_KEY not set");
   const url = new URL(`${SUPABASE_URL}/${table}`);
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
   const res = await fetch(url.toString(), {
