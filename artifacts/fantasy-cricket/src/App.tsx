@@ -491,11 +491,33 @@ export default function App() {
 
   const maxPts = teamScores[0]?.total || 1;
 
+  const NAV_ICON: Record<string, JSX.Element> = {
+    home: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M8 21h8M12 17v4M17 3h3v5c0 2.5-1.5 4-4 4M7 3H4v5c0 2.5 1.5 4 4 4"/><path d="M7 3h10v8a5 5 0 0 1-10 0V3z"/>
+      </svg>
+    ),
+    teams: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="9" cy="7" r="3"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75M21 21v-2a4 4 0 0 0-3-3.87"/>
+      </svg>
+    ),
+    fixtures: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+      </svg>
+    ),
+    stats: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M18 20V10M12 20V4M6 20v-6"/>
+      </svg>
+    ),
+  };
   const TABS = [
-    { id: "home", label: "Leaderboard", icon: "🏆" },
-    { id: "teams", label: "Teams", icon: "👤" },
-    { id: "fixtures", label: "Matches", icon: "📡" },
-    { id: "stats", label: "Stats", icon: "📊" },
+    { id: "home", label: "Leaderboard" },
+    { id: "teams", label: "Teams" },
+    { id: "fixtures", label: "Matches" },
+    { id: "stats", label: "Stats" },
   ];
 
   const rankLabel = (i: number) => i === 0 ? "first" : i === 1 ? "second" : i === 2 ? "third" : "";
@@ -1656,12 +1678,15 @@ export default function App() {
         </div>
 
         <nav className="nav">
-          {TABS.map(t => (
-            <button key={t.id} className={`nav-btn ${tab === t.id ? "active" : ""}`} onClick={() => setTab(t.id)}>
-              <span className="nav-icon">{t.icon}</span>
-              {t.label}
-            </button>
-          ))}
+          {TABS.map(t => {
+            const isActive = tab === t.id;
+            return (
+              <button key={t.id} className={`nav-btn ${isActive ? "active" : ""}`} onClick={() => setTab(t.id)}>
+                <span className="nav-icon">{NAV_ICON[t.id]}</span>
+                {t.label}
+              </button>
+            );
+          })}
         </nav>
       </div>
     </>
