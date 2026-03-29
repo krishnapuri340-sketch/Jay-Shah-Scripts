@@ -812,20 +812,24 @@ export default function App() {
   };
 
   const shareTeams = async () => {
+    // ── Layout constants (2×2 horizontal grid) ──
     const W = 1080;
-    const PAD = 52;
-    const TEAM_HEADER_H = 100;
-    const PLAYER_ROW_H = 50;
-    const INTER_GAP = 16;
-    const HEADER_H = 132;
-    const teamBlockH = TEAM_HEADER_H + 11 * PLAYER_ROW_H + INTER_GAP;
-    const H = HEADER_H + 4 * teamBlockH + 60;
+    const PAD = 28;
+    const COL_GAP = 14;
+    const COL_W = (W - PAD * 2 - COL_GAP) / 2;  // ~505px per column
+    const HEADER_H = 112;
+    const TOP_GAP = 14;
+    const TEAM_HDR_H = 70;
+    const PLAYER_ROW_H = 39;
+    const ROWS = 11;
+    const TEAM_BLOCK_H = TEAM_HDR_H + ROWS * PLAYER_ROW_H;  // 70 + 429 = 499
+    const ROW_GAP = 14;
+    const H = HEADER_H + TOP_GAP + TEAM_BLOCK_H + ROW_GAP + TEAM_BLOCK_H + 36;
 
     const canvas = document.createElement("canvas");
     canvas.width = W; canvas.height = H;
     const ctx = canvas.getContext("2d")!;
 
-    // Load app logo
     const logoImg = new Image();
     logoImg.crossOrigin = "anonymous";
     logoImg.src = `${import.meta.env.BASE_URL}app-icon.png`;
@@ -833,7 +837,6 @@ export default function App() {
 
     const ROLE_CLR: Record<string, string> = { BAT: "#60a5fa", BWL: "#f472b6", AR: "#34d399", WK: "#fbbf24" };
 
-    // Rounded rectangle helper (cross-browser)
     const rrect = (x: number, y: number, w: number, h: number, r: number) => {
       ctx.beginPath();
       ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y);
@@ -847,152 +850,166 @@ export default function App() {
     ctx.fillStyle = "#09090b";
     ctx.fillRect(0, 0, W, H);
 
-    // Gold accent line (top)
+    // Gold top accent
     const goldGrad = ctx.createLinearGradient(0, 0, W, 0);
     goldGrad.addColorStop(0, "#a07832"); goldGrad.addColorStop(0.5, "#d4a843"); goldGrad.addColorStop(1, "#a07832");
     ctx.fillStyle = goldGrad; ctx.fillRect(0, 0, W, 3);
 
-    // Header: logo + title
-    const logoR = 26, logoX = PAD + logoR, logoY = 66;
+    // ── Header ──
+    const logoR = 22, logoX = PAD + logoR, logoY = 58;
     ctx.save();
     ctx.beginPath(); ctx.arc(logoX, logoY, logoR, 0, Math.PI * 2); ctx.clip();
     if (logoImg.naturalWidth > 0) ctx.drawImage(logoImg, logoX - logoR, logoY - logoR, logoR * 2, logoR * 2);
     ctx.restore();
 
     ctx.textAlign = "left";
-    ctx.font = "700 36px -apple-system, Arial, sans-serif";
+    ctx.font = "700 30px -apple-system, Arial, sans-serif";
     ctx.fillStyle = "#ffffff";
-    ctx.fillText("IPL Fantasy 2026", PAD + logoR * 2 + 18, 57);
-    ctx.font = "400 22px -apple-system, Arial, sans-serif";
+    ctx.fillText("IPL Fantasy 2026", PAD + logoR * 2 + 14, 50);
+    ctx.font = "400 18px -apple-system, Arial, sans-serif";
     ctx.fillStyle = "#52525b";
-    ctx.fillText("All Teams · Top 11 Players", PAD + logoR * 2 + 18, 84);
+    ctx.fillText("All Teams · Top 11 Players", PAD + logoR * 2 + 14, 74);
 
     ctx.textAlign = "right";
-    ctx.font = "400 20px -apple-system, Arial, sans-serif";
+    ctx.font = "400 17px -apple-system, Arial, sans-serif";
     ctx.fillStyle = "#3f3f46";
     const timeStr = pointsLastUpdated?.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) ?? "–";
-    ctx.fillText(timeStr, W - PAD, 84);
+    ctx.fillText(timeStr, W - PAD, 74);
 
     ctx.strokeStyle = "#1c1c20"; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(PAD, 108); ctx.lineTo(W - PAD, 108); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(PAD, 96); ctx.lineTo(W - PAD, 96); ctx.stroke();
 
-    // Teams (leaderboard order)
+    // Horizontal divider between the two team rows
+    const midY = HEADER_H + TOP_GAP + TEAM_BLOCK_H + ROW_GAP / 2;
+    ctx.strokeStyle = "#18181b"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, midY); ctx.lineTo(W, midY); ctx.stroke();
+
+    // Vertical divider between the two columns
+    const divX = PAD + COL_W + COL_GAP / 2;
+    ctx.strokeStyle = "#18181b"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(divX, HEADER_H + TOP_GAP); ctx.lineTo(divX, H - 36); ctx.stroke();
+
+    // ── Draw each team in 2×2 grid ──
     for (let ti = 0; ti < teamScores.length; ti++) {
       const s = teamScores[ti];
       const t = s.team;
       const td = getTeamData(s.id, playerPoints);
-      const blockY = HEADER_H + ti * teamBlockH;
 
-      // ── Team header row ──
-      // Left color bar
+      const col = ti % 2;
+      const row = Math.floor(ti / 2);
+      const xS = PAD + col * (COL_W + COL_GAP);          // column left edge
+      const xE = xS + COL_W;                              // column right edge
+      const yS = HEADER_H + TOP_GAP + row * (TEAM_BLOCK_H + ROW_GAP);  // block top
+
+      // ── Team header ──
+      // Top color accent bar
       ctx.fillStyle = t.color;
-      ctx.fillRect(0, blockY, 6, TEAM_HEADER_H);
+      ctx.fillRect(xS, yS, COL_W, 3);
 
-      // Ghost rank number
+      // Ghost rank
       ctx.textAlign = "left";
-      ctx.font = "100 80px -apple-system, Arial, sans-serif";
+      ctx.font = "100 52px -apple-system, Arial, sans-serif";
       ctx.fillStyle = "#1c1c20";
-      ctx.fillText(String(ti + 1), PAD + 8, blockY + 84);
+      ctx.fillText(String(ti + 1), xS + 4, yS + 56);
 
       // Team name
-      ctx.font = "700 40px -apple-system, Arial, sans-serif";
+      ctx.font = "700 24px -apple-system, Arial, sans-serif";
       ctx.fillStyle = "#e4e4e7";
-      ctx.fillText(t.name, PAD + 86, blockY + 44);
+      ctx.fillText(t.name, xS + 46, yS + 24);
 
-      // Owner · C · VC
-      ctx.font = "400 19px -apple-system, Arial, sans-serif";
+      // Owner
+      ctx.font = "400 13px -apple-system, Arial, sans-serif";
       ctx.fillStyle = "#52525b";
-      ctx.fillText(`${t.owner}  ·  C: ${t.captain}  ·  VC: ${t.vc}`, PAD + 86, blockY + 70);
+      ctx.fillText(t.owner, xS + 46, yS + 42);
 
-      // Total pts
-      ctx.textAlign = "right";
-      ctx.font = "700 52px -apple-system, Arial, sans-serif";
-      ctx.fillStyle = t.color;
-      ctx.fillText(String(td.total), W - PAD, blockY + 52);
-      ctx.font = "400 19px -apple-system, Arial, sans-serif";
+      // C / VC names (small)
+      ctx.font = "400 12px -apple-system, Arial, sans-serif";
       ctx.fillStyle = "#3f3f46";
-      ctx.fillText("pts", W - PAD, blockY + 76);
+      ctx.fillText(`C: ${t.captain}  VC: ${t.vc}`, xS + 46, yS + 58);
 
-      // ── Player rows (top 11) ──
+      // Total pts (right-aligned)
+      ctx.textAlign = "right";
+      ctx.font = "700 36px -apple-system, Arial, sans-serif";
+      ctx.fillStyle = t.color;
+      ctx.fillText(String(td.total), xE, yS + 34);
+      ctx.font = "400 13px -apple-system, Arial, sans-serif";
+      ctx.fillStyle = "#3f3f46";
+      ctx.fillText("pts", xE, yS + 52);
+
+      // ── Player rows ──
       const top11 = td.players.slice(0, 11);
       for (let pi = 0; pi < top11.length; pi++) {
         const p = top11[pi];
-        const py = blockY + TEAM_HEADER_H + pi * PLAYER_ROW_H;
+        const py = yS + TEAM_HDR_H + pi * PLAYER_ROW_H;
         const isC = p.name === t.captain;
         const isVC = p.name === t.vc;
 
-        // Alternating row bg
+        // Alternating bg
         if (pi % 2 === 0) {
           ctx.fillStyle = "rgba(255,255,255,0.02)";
-          ctx.fillRect(6, py, W - 6, PLAYER_ROW_H);
+          ctx.fillRect(xS, py, COL_W, PLAYER_ROW_H);
         }
 
         // Row number
         ctx.textAlign = "right";
-        ctx.font = "400 17px -apple-system, Arial, sans-serif";
+        ctx.font = "400 12px -apple-system, Arial, sans-serif";
         ctx.fillStyle = "#3f3f46";
-        ctx.fillText(String(pi + 1), PAD + 6 + 26, py + 32);
+        ctx.fillText(String(pi + 1), xS + 18, py + 25);
 
-        // C / VC badge
-        let nx = PAD + 6 + 36;
+        // C/VC badge
+        let nx = xS + 22;
         if (isC || isVC) {
           const bLabel = isC ? "C" : "VC";
-          ctx.font = "700 13px -apple-system, Arial, sans-serif";
-          const bW = ctx.measureText(bLabel).width + 12;
+          ctx.font = "700 11px -apple-system, Arial, sans-serif";
+          const bW = ctx.measureText(bLabel).width + 8;
           ctx.fillStyle = t.color + "28";
-          rrect(nx, py + 14, bW, 20, 4);
+          rrect(nx, py + 10, bW, 17, 3);
           ctx.fill();
           ctx.fillStyle = t.color;
           ctx.textAlign = "center";
-          ctx.fillText(bLabel, nx + bW / 2, py + 27);
+          ctx.fillText(bLabel, nx + bW / 2, py + 22);
           ctx.textAlign = "left";
-          nx += bW + 8;
+          nx += bW + 5;
         }
 
-        // Player name (truncated)
-        ctx.font = `${isC ? 600 : 400} 23px -apple-system, Arial, sans-serif`;
-        ctx.fillStyle = isC ? "#f1f5f9" : pi < 6 ? "#a1a1aa" : "#52525b";
+        // Player name (truncated to fit column)
+        const maxNameW = COL_W - 80 - (nx - xS);
+        ctx.font = `${isC ? 600 : 400} 17px -apple-system, Arial, sans-serif`;
+        ctx.fillStyle = isC ? "#f1f5f9" : pi < 5 ? "#a1a1aa" : "#52525b";
         ctx.textAlign = "left";
         let displayName = p.name;
-        while (ctx.measureText(displayName).width > 480 && displayName.length > 6) {
+        while (ctx.measureText(displayName).width > maxNameW && displayName.length > 5) {
           displayName = displayName.slice(0, -2) + "…";
         }
-        ctx.fillText(displayName, nx, py + 32);
+        ctx.fillText(displayName, nx, py + 25);
 
-        // Role tag (fixed position)
+        // Role (fixed offset from right)
         const roleColor = ROLE_CLR[p.role] || "#a1a1aa";
-        ctx.font = "600 13px -apple-system, Arial, sans-serif";
-        ctx.fillStyle = roleColor + "bb";
-        ctx.textAlign = "left";
-        ctx.fillText(p.role, 710, py + 32);
+        ctx.font = "600 11px -apple-system, Arial, sans-serif";
+        ctx.fillStyle = roleColor + "aa";
+        ctx.textAlign = "right";
+        ctx.fillText(p.role, xE - 38, py + 25);
 
-        // Multiplier hint (small, above pts)
+        // Multiplier hint (tiny, above pts)
         if (isC || isVC) {
-          ctx.textAlign = "right";
-          ctx.font = "400 13px -apple-system, Arial, sans-serif";
+          ctx.font = "400 10px -apple-system, Arial, sans-serif";
           ctx.fillStyle = t.color + "88";
-          ctx.fillText(isC ? "×2" : "×1.5", W - PAD, py + 18);
+          ctx.textAlign = "right";
+          ctx.fillText(isC ? "×2" : "×1.5", xE, py + 14);
         }
 
         // Adj pts
         ctx.textAlign = "right";
-        ctx.font = "700 25px -apple-system, Arial, sans-serif";
+        ctx.font = "700 19px -apple-system, Arial, sans-serif";
         ctx.fillStyle = p.adj > 0 ? "#e4e4e7" : "#3f3f46";
-        ctx.fillText(String(p.adj), W - PAD, py + 35);
+        ctx.fillText(String(p.adj), xE, py + 27);
 
         // Row divider
         ctx.strokeStyle = "#111114"; ctx.lineWidth = 0.5;
         ctx.beginPath();
-        ctx.moveTo(PAD + 44, py + PLAYER_ROW_H);
-        ctx.lineTo(W - PAD, py + PLAYER_ROW_H);
+        ctx.moveTo(xS + 20, py + PLAYER_ROW_H);
+        ctx.lineTo(xE, py + PLAYER_ROW_H);
         ctx.stroke();
-      }
-
-      // Dark separator band between teams
-      if (ti < teamScores.length - 1) {
-        const sepY = blockY + teamBlockH - INTER_GAP;
-        ctx.fillStyle = "#050507";
-        ctx.fillRect(0, sepY, W, INTER_GAP);
       }
     }
 
@@ -1597,8 +1614,11 @@ export default function App() {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, marginTop: countdown ? 16 : 0 }}>
         <div className="sec-title" style={{ marginBottom: 0 }}>Leaderboard</div>
         <div style={{ display: "flex", gap: 6 }}>
-          <button className="btn-primary" style={{ padding: "5px 11px", fontSize: "0.7rem" }} onClick={shareLeaderboard}>
-            Share
+          <button className="btn-primary" style={{ padding: "6px 10px", display: "flex", alignItems: "center", gap: 5 }} onClick={shareLeaderboard} title="Share leaderboard">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>
+            </svg>
+            <span style={{ fontSize: "0.68rem" }}>Share</span>
           </button>
           <button className="btn-primary" style={{ padding: "5px 11px", fontSize: "0.7rem" }}
             onClick={() => { fetchLive(); fetchPoints(); }} disabled={liveLoading || pointsLoading}>
@@ -1742,8 +1762,11 @@ export default function App() {
       <div>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
           <div className="sec-title" style={{ marginBottom: 0 }}>Teams</div>
-          <button className="btn-primary" style={{ padding: "5px 11px", fontSize: "0.7rem" }} onClick={shareTeams}>
-            Share All
+          <button className="btn-primary" style={{ padding: "6px 10px", display: "flex", alignItems: "center", gap: 5 }} onClick={shareTeams} title="Share all teams">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>
+            </svg>
+            <span style={{ fontSize: "0.68rem" }}>Share</span>
           </button>
         </div>
         <div className="team-tabs" data-no-swipe="true">
