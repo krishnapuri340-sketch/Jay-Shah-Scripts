@@ -232,6 +232,7 @@ export default function App() {
   interface PlayerStats { played: boolean; runs: number; balls: number; fours: number; sixes: number; duck: boolean; wickets: number; dots: number; lbwBowled: number; maidens: number; ballsBowled: number; runsConceded: number; catches: number; runOuts: number; stumpings: number; }
   const [playerMatchPoints, setPlayerMatchPoints] = useState<Record<string, Array<{ matchNum: number; label: string; pts: number; source: string; stats?: PlayerStats }>>>({});
   const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
+  const [expandedAdminPlayer, setExpandedAdminPlayer] = useState<string | null>(null);
   const [liveMatches, setLiveMatches] = useState<any[]>([]);
   const [liveLoading, setLiveLoading] = useState(false);
   const [pointsLoading, setPointsLoading] = useState(false);
@@ -1619,7 +1620,7 @@ export default function App() {
             )}
             {pointsLastUpdated && (
               <div style={{ fontSize: "0.65rem", color: "#334155" }}>
-                Points last updated: {pointsLastUpdated.toLocaleTimeString()} · Auto-refreshes every 15 min
+                Points last updated: {pointsLastUpdated.toLocaleTimeString()} · Auto-refreshes every 5 min
               </div>
             )}
           </div>
@@ -1636,13 +1637,46 @@ export default function App() {
           ) : (
             Object.entries(playerPoints).sort((a, b) => b[1] - a[1]).map(([name, pts]) => {
               const team = Object.values(FANTASY_TEAMS).find(t => t.players.some(p => p.name === name));
+              const isExp = expandedAdminPlayer === name;
+              const matches = playerMatchPoints[name] || [];
+              const isCap = Object.values(FANTASY_TEAMS).some(t => t.captain === name);
+              const isVC = Object.values(FANTASY_TEAMS).some(t => t.vc === name);
               return (
-                <div key={name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                  <div style={{ flex: 1 }}>
-                    <span style={{ fontSize: "0.78rem", color: "#cbd5e1" }}>{name}</span>
-                    {team && <span style={{ fontSize: "0.62rem", color: "#475569", marginLeft: 6 }}>{team.name} · {team.owner}</span>}
+                <div key={name} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                  <div
+                    onClick={() => setExpandedAdminPlayer(isExp ? null : name)}
+                    style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 0", cursor: "pointer" }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                        <span style={{ fontSize: "0.78rem", color: "#cbd5e1" }}>{name}</span>
+                        {isCap && <span style={{ fontSize: "0.52rem", fontWeight: 700, color: "#d4a843", background: "rgba(212,168,67,0.12)", borderRadius: 3, padding: "1px 4px" }}>C</span>}
+                        {isVC && <span style={{ fontSize: "0.52rem", fontWeight: 700, color: "#a1a1aa", background: "rgba(161,161,170,0.1)", borderRadius: 3, padding: "1px 4px" }}>VC</span>}
+                      </div>
+                      {team && <div style={{ fontSize: "0.6rem", color: "#475569", marginTop: 1 }}>{team.name} · {team.owner}</div>}
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ fontFamily: "'Bebas Neue'", fontSize: "1.1rem", color: "#f97316", letterSpacing: "1px" }}>{pts}</span>
+                      {matches.length > 0 && <span style={{ fontSize: "0.6rem", color: "#475569" }}>{isExp ? "▲" : "▼"}</span>}
+                    </div>
                   </div>
-                  <span style={{ fontFamily: "'Bebas Neue'", fontSize: "1.1rem", color: "#f97316", letterSpacing: "1px" }}>{pts}</span>
+                  {isExp && matches.length > 0 && (
+                    <div style={{ marginBottom: 8, padding: "8px 10px", background: "rgba(255,255,255,0.02)", borderRadius: 8, display: "flex", flexDirection: "column" as const, gap: 5 }}>
+                      {matches.map((m, i) => (
+                        <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.72rem" }}>
+                          <div>
+                            <span style={{ color: "var(--text-2)" }}>{m.label}</span>
+                            {m.source === "official" && <span style={{ marginLeft: 5, fontSize: "0.55rem", color: "#34d399", background: "rgba(52,211,153,0.1)", borderRadius: 3, padding: "1px 4px" }}>official</span>}
+                            {(m.source || "").includes("live") && <span style={{ marginLeft: 5, fontSize: "0.55rem", color: "#fbbf24", background: "rgba(251,191,36,0.1)", borderRadius: 3, padding: "1px 4px" }}>live</span>}
+                          </div>
+                          <span style={{ fontWeight: 700, color: m.pts > 0 ? "#f97316" : "var(--text-3)" }}>{m.pts > 0 ? "+" : ""}{m.pts}</span>
+                        </div>
+                      ))}
+                      <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", marginTop: 2, paddingTop: 5, display: "flex", justifyContent: "space-between", fontSize: "0.72rem", fontWeight: 700 }}>
+                        <span style={{ color: "var(--text-3)" }}>Total (raw)</span>
+                        <span style={{ color: "#f97316" }}>{matches.reduce((s, m) => s + m.pts, 0)}</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })
