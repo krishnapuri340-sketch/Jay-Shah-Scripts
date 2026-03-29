@@ -254,6 +254,7 @@ export default function App() {
   const [statsLoading, setStatsLoading] = useState(false);
   const [statsFilter, setStatsFilter] = useState<"all" | "fantasy">("all");
   const [statsCategory, setStatsCategory] = useState<"orangeCap" | "purpleCap" | "sixesLeader" | "foursLeader" | "srLeader" | "ecoLeader">("orangeCap");
+  const [statsExpanded, setStatsExpanded] = useState(false);
   const [matchFilter, setMatchFilter] = useState<"upcoming" | "live" | "completed" | "all">("upcoming");
   const [standingsOpen, setStandingsOpen] = useState(false);
   const [rankChanges, setRankChanges] = useState<Record<string, number>>({});
@@ -1418,7 +1419,7 @@ export default function App() {
 
         <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
           {(["all", "fantasy"] as const).map(f => (
-            <button key={f} onClick={() => setStatsFilter(f)}
+            <button key={f} onClick={() => { setStatsFilter(f); setStatsExpanded(false); }}
               style={{ flex: 1, padding: "8px 0", borderRadius: 10, border: "1px solid", fontSize: "0.68rem", fontWeight: 500, cursor: "pointer", fontFamily: "inherit",
                 background: statsFilter === f ? "var(--surface-2)" : "transparent",
                 borderColor: statsFilter === f ? "var(--border-2)" : "var(--border)",
@@ -1430,7 +1431,7 @@ export default function App() {
 
         <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 8, marginBottom: 12, marginLeft: -16, marginRight: -16, paddingLeft: 16, paddingRight: 16 }}>
           {STAT_CATS.map(c => (
-            <button key={c.id} onClick={() => setStatsCategory(c.id)} className={`stats-cat-btn ${statsCategory === c.id ? "active" : ""}`}>
+            <button key={c.id} onClick={() => { setStatsCategory(c.id); setStatsExpanded(false); }} className={`stats-cat-btn ${statsCategory === c.id ? "active" : ""}`}>
               {c.label}
             </button>
           ))}
@@ -1444,17 +1445,27 @@ export default function App() {
             {iplStats.matchesProcessed === 0 ? "Stats will appear once match innings data is synced." : `No ${statsFilter === "fantasy" ? "fantasy " : ""}players found.`}
           </div>
         )}
-        {entries.length > 0 && (
-          <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden", marginBottom: 12 }}>
-            <div style={{ padding: "12px 14px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text)" }}>
-                {STAT_CATS.find(c => c.id === cat)?.sub}
+        {entries.length > 0 && (() => {
+          const visible = statsExpanded ? entries : entries.slice(0, 10);
+          const hasMore = entries.length > 10;
+          return (
+            <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden", marginBottom: 12 }}>
+              <div style={{ padding: "12px 14px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text)" }}>
+                  {STAT_CATS.find(c => c.id === cat)?.sub}
+                </div>
+                <div style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{iplStats.matchesProcessed} matches</div>
               </div>
-              <div style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{iplStats.matchesProcessed} matches</div>
+              {visible.map((e: any, i: number) => renderStatRow(e, i, cat))}
+              {hasMore && (
+                <button onClick={() => setStatsExpanded(x => !x)}
+                  style={{ width: "100%", padding: "11px 0", background: "transparent", border: "none", borderTop: "1px solid var(--border)", cursor: "pointer", fontSize: "0.68rem", color: "var(--text-3)", fontFamily: "inherit" }}>
+                  {statsExpanded ? `Show less` : `Show all ${entries.length}`}
+                </button>
+              )}
             </div>
-            {entries.slice(0, 20).map((e: any, i: number) => renderStatRow(e, i, cat))}
-          </div>
-        )}
+          );
+        })()}
 
         {iplStats && (
           <div style={{ fontSize: "0.6rem", color: "var(--text-3)", textAlign: "center" as const, padding: "4px 0" }}>
