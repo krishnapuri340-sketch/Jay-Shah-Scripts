@@ -56,6 +56,7 @@ body { background: var(--bg); }
 .header-logo-inner {
   width: 100%; height: 100%; border-radius: 50%; overflow: hidden; background: var(--bg);
   padding: 1px;
+  animation: spinRing 2.4s linear infinite reverse;
 }
 .header-logo {
   width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;
