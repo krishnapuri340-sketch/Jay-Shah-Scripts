@@ -249,7 +249,8 @@ body { background: var(--bg); }
 .player-card.is-vc::after { }
 .player-ipl-badge {
   display: inline-block; font-size: 0.54rem; font-weight: 700; letter-spacing: 0.04em;
-  padding: 2px 6px; border-radius: 4px; white-space: nowrap; flex-shrink: 0;
+  padding: 2px 0; border-radius: 4px; white-space: nowrap; flex-shrink: 0;
+  width: 34px; text-align: center;
 }
 .player-name {
   font-size: 0.85rem; font-weight: 500; color: var(--text); flex: 1; min-width: 0;
