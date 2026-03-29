@@ -263,9 +263,22 @@ export default function App() {
 
   const [rankChanges, setRankChanges] = useState<Record<string, number>>({});
   const [isDark, setIsDark] = useState(true);
+  const [sparkTip, setSparkTip] = useState<{ label: string; pts: number } | null>(null);
+  const [pullY, setPullY] = useState(0);
   const lbContainerRef = useRef<HTMLDivElement>(null);
   const prevCardTops = useRef<Record<string, number>>({});
   const [showToast, setShowToast] = useState(false);
+  // Swipe refs
+  const swipeStartX = useRef(0);
+  const swipeStartY = useRef(0);
+  const SWIPEABLE_TABS = ["home", "teams", "fixtures", "stats"];
+  // PTR refs
+  const pullState = useRef({ active: false, startY: 0 });
+  const pullYRef = useRef(0);
+  const PULL_THRESHOLD = 72;
+  const sparkTipTimer = useRef<ReturnType<typeof setTimeout>>();
+  // Always-fresh ref to refresh fn (avoids stale closure in PTR listener)
+  const refreshFnRef = useRef(() => {});
   const [countdown, setCountdown] = useState<{ text: string; matchName: string } | null>(null);
   const fetchPoints = async () => {
     if (pointsLoading) return;
@@ -393,6 +406,43 @@ export default function App() {
     };
     document.addEventListener("visibilitychange", onVisible);
     return () => document.removeEventListener("visibilitychange", onVisible);
+  }, []);
+
+  // Keep refreshFnRef up-to-date every render so PTR always calls the latest version
+  useEffect(() => { refreshFnRef.current = () => { fetchLive(); fetchPoints(); }; });
+
+  // Pull-to-refresh via native touch listeners (needs passive:true so it doesn't block scroll)
+  useEffect(() => {
+    const onStart = (e: TouchEvent) => {
+      pullState.current.active = window.scrollY <= 0;
+      pullState.current.startY = e.touches[0].clientY;
+    };
+    const onMove = (e: TouchEvent) => {
+      if (!pullState.current.active) return;
+      const dy = e.touches[0].clientY - pullState.current.startY;
+      if (dy <= 0) { pullState.current.active = false; pullYRef.current = 0; setPullY(0); return; }
+      const dx = Math.abs(e.touches[0].clientX - pullState.current.startY);
+      if (dx > 30) { pullState.current.active = false; pullYRef.current = 0; setPullY(0); return; }
+      const clamped = Math.min(dy * 0.45, PULL_THRESHOLD);
+      pullYRef.current = clamped;
+      setPullY(clamped);
+    };
+    const onEnd = () => {
+      if (pullState.current.active && pullYRef.current >= PULL_THRESHOLD - 5) {
+        refreshFnRef.current();
+      }
+      pullState.current.active = false;
+      pullYRef.current = 0;
+      setPullY(0);
+    };
+    document.addEventListener("touchstart", onStart, { passive: true });
+    document.addEventListener("touchmove", onMove, { passive: true });
+    document.addEventListener("touchend", onEnd, { passive: true });
+    return () => {
+      document.removeEventListener("touchstart", onStart);
+      document.removeEventListener("touchmove", onMove);
+      document.removeEventListener("touchend", onEnd);
+    };
   }, []);
 
   const teamScores = Object.keys(FANTASY_TEAMS)
@@ -700,13 +750,25 @@ export default function App() {
     const ms = (playerMatchPoints[name] || []).slice(-5);
     if (ms.length === 0) return null;
     const maxPts = Math.max(...ms.map(m => m.pts), 1);
-    const BAR_W = 3, GAP = 2, H = 10;
-    const W = ms.length * BAR_W + (ms.length - 1) * GAP;
+    const BAR_W = 4, GAP = 2, H = 10, HIT_W = 10;
+    const W = ms.length * (BAR_W + GAP) - GAP;
+    const handleBarTap = (e: React.MouseEvent | React.TouchEvent, m: typeof ms[0]) => {
+      e.stopPropagation();
+      clearTimeout(sparkTipTimer.current);
+      setSparkTip({ label: m.label, pts: m.pts });
+      sparkTipTimer.current = setTimeout(() => setSparkTip(null), 2500);
+    };
     return (
-      <svg width={W} height={H} style={{ display: "block", marginTop: 3, flexShrink: 0, opacity: 0.75 }}>
+      <svg width={W} height={H} style={{ display: "block", marginTop: 3, flexShrink: 0, opacity: 0.8 }}>
         {ms.map((m, i) => {
           const barH = Math.max(2, Math.round((m.pts / maxPts) * H));
-          return <rect key={i} x={i * (BAR_W + GAP)} y={H - barH} width={BAR_W} height={barH} rx={1} fill={m.pts > 0 ? color : "#334155"} />;
+          const x = i * (BAR_W + GAP);
+          return (
+            <g key={i} onClick={(e) => handleBarTap(e, m)} style={{ cursor: "pointer" }}>
+              <rect x={x} y={H - barH} width={BAR_W} height={barH} rx={1} fill={m.pts > 0 ? color : "#334155"} />
+              <rect x={Math.max(0, x - 3)} y={0} width={HIT_W} height={H} fill="transparent" />
+            </g>
+          );
         })}
       </svg>
     );
@@ -1697,10 +1759,38 @@ export default function App() {
     );
   };
 
+  // Swipe gesture handlers (attached to the app wrapper)
+  const handleSwipeStart = (e: React.TouchEvent) => {
+    swipeStartX.current = e.touches[0].clientX;
+    swipeStartY.current = e.touches[0].clientY;
+  };
+  const handleSwipeEnd = (e: React.TouchEvent) => {
+    const dx = e.changedTouches[0].clientX - swipeStartX.current;
+    const dy = e.changedTouches[0].clientY - swipeStartY.current;
+    if (Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx) * 0.65) return;
+    const idx = SWIPEABLE_TABS.indexOf(tab);
+    if (idx === -1) return;
+    if (dx < 0 && idx < SWIPEABLE_TABS.length - 1) setTab(SWIPEABLE_TABS[idx + 1]);
+    if (dx > 0 && idx > 0) setTab(SWIPEABLE_TABS[idx - 1]);
+  };
+
   return (
     <>
       {showToast && <div className="share-toast">✓ Copied to clipboard!</div>}
-      <div className={`app${isDark ? "" : " light-mode"}`}>
+      {sparkTip && (
+        <div className="spark-tip">
+          {sparkTip.pts > 0 ? `+${sparkTip.pts}` : "0"} pts · {sparkTip.label}
+        </div>
+      )}
+      {pullY > 0 && (
+        <div className="ptr-indicator" style={{ opacity: Math.min(pullY / PULL_THRESHOLD, 1) }}>
+          {pullY >= PULL_THRESHOLD - 5 ? "↑ Release to refresh" : "↓ Pull to refresh"}
+        </div>
+      )}
+      <div className={`app${isDark ? "" : " light-mode"}`}
+        onTouchStart={handleSwipeStart}
+        onTouchEnd={handleSwipeEnd}
+      >
         <div className="bg-field" />
         <div className="content">
           <div className="header">
