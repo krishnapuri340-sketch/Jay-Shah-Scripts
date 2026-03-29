@@ -1188,6 +1188,34 @@ export default function App() {
     return (
       <div>
         <div className="sec-title">IPL History</div>
+
+        {/* TROPHY CABINET — always visible above filters */}
+        {!s && (
+          <div className="hist-cabinet">
+            <div className="hist-cabinet-title">🏆 Trophy Cabinet</div>
+            <div className="hist-cabinet-rows">
+              {titleBoard.map(([team, count]) => {
+                const b = IPL_TEAM_BADGE[team] || { abbr: "?", bg: "#444", fg: "#fff" };
+                const barW = Math.round((count / titleBoard[0][1]) * 100);
+                return (
+                  <div key={team} className="hist-cabinet-row">
+                    <TeamBadge name={team} size={28} />
+                    <div className="hist-cabinet-info">
+                      <div className="hist-cabinet-name">{team}</div>
+                      <div className="hist-cabinet-bar-wrap">
+                        <div className="hist-cabinet-bar" style={{ width: `${barW}%`, background: b.bg }} />
+                      </div>
+                    </div>
+                    <div className="hist-cabinet-count" style={{ color: b.bg === "#F5C518" ? "#a37e00" : b.bg }}>
+                      {count}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Year filter grid */}
         {!s && (
           <div className="hist-yr-grid">
@@ -1273,80 +1301,41 @@ export default function App() {
           </div>
         )}
 
-        {/* TROPHY CABINET */}
-        {!s && (
-          <div className="hist-cabinet">
-            <div className="hist-cabinet-title">🏆 Trophy Cabinet</div>
-            <div className="hist-cabinet-rows">
-              {titleBoard.map(([team, count]) => {
-                const b = IPL_TEAM_BADGE[team] || { abbr: "?", bg: "#444", fg: "#fff" };
-                const barW = Math.round((count / titleBoard[0][1]) * 100);
-                return (
-                  <div key={team} className="hist-cabinet-row">
-                    <TeamBadge name={team} size={28} />
-                    <div className="hist-cabinet-info">
-                      <div className="hist-cabinet-name">{team}</div>
-                      <div className="hist-cabinet-bar-wrap">
-                        <div className="hist-cabinet-bar" style={{ width: `${barW}%`, background: b.bg }} />
-                      </div>
-                    </div>
-                    <div className="hist-cabinet-count" style={{ color: b.bg === "#F5C518" ? "#a37e00" : b.bg }}>
-                      {count}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
         {/* ALL SEASONS compact list */}
-        {!s && IPL_HISTORY.map(h => (
-          <div
-            key={h.year}
-            className="hist-card"
-            onClick={() => setHistoryYear(h.year)}
-            style={{ cursor: "pointer" }}
-          >
-            <div className="hist-accent" style={{ background: h.color }} />
-            <div className="hist-body">
-              <div className="hist-top">
-                <div className="hist-year">
-                  <span className="hist-year-num">{h.year}</span>
-                  <span className="hist-season">S{h.season}</span>
-                </div>
-                <div className="hist-champion-block">
-                  <TeamBadge name={h.champion} size={34} />
-                  <div>
-                    <div className="hist-champion" style={{ color: h.color }}>🏆 {h.champion}</div>
-                    <div className="hist-runner" style={{ display:"flex", alignItems:"center", gap:4 }}>
+        {!s && IPL_HISTORY.map(h => {
+          const champAbbr = IPL_TEAM_BADGE[h.champion]?.abbr || h.champion;
+          const ruAbbr    = IPL_TEAM_BADGE[h.runnerUp]?.abbr  || h.runnerUp;
+          const ocLast    = h.orangeCap.split(" ").slice(-1)[0];
+          const pcLast    = h.purpleCap.split(" ").slice(-1)[0];
+          return (
+            <div key={h.year} className="hist-card" onClick={() => setHistoryYear(h.year)}
+              style={{ borderLeftColor: h.color }}>
+              <div className="hist-card-left">
+                <div className="hist-card-year" style={{ color: h.color }}>{h.year}</div>
+                <div className="hist-card-sn">S{h.season}</div>
+              </div>
+              <div className="hist-card-main">
+                <div className="hist-card-top">
+                  <TeamBadge name={h.champion} size={30} />
+                  <div className="hist-card-names">
+                    <div className="hist-card-champ" style={{ color: h.color }}>
+                      🏆 {champAbbr}
+                    </div>
+                    <div className="hist-card-runner2">
                       <TeamBadge name={h.runnerUp} size={14} />
-                      <span>{h.runnerUp}</span>
+                      <span>{ruAbbr}</span>
                     </div>
                   </div>
                 </div>
-              </div>
-              <div className="hist-stats">
-                <div className="hist-stat">
-                  <span className="hist-stat-icon">🟠</span>
-                  <span className="hist-stat-name">{h.orangeCap}</span>
-                  <span className="hist-stat-val">{h.orangeRuns}r</span>
-                </div>
-                <div className="hist-stat">
-                  <span className="hist-stat-icon">🟣</span>
-                  <span className="hist-stat-name">{h.purpleCap}</span>
-                  <span className="hist-stat-val">{h.purpleWkts}w</span>
-                </div>
-                <div className="hist-stat">
-                  <span className="hist-stat-icon">⭐</span>
-                  <span className="hist-stat-name">{h.mvp}</span>
-                  <span className="hist-stat-val" style={{ color: "#d4a843" }}>MVP</span>
+                <div className="hist-card-caps">
+                  <span>🟠 {ocLast} · {h.orangeRuns}</span>
+                  <span>🟣 {pcLast} · {h.purpleWkts}</span>
                 </div>
               </div>
+              <div className="hist-card-arrow">›</div>
             </div>
-            <div style={{ display:"flex", alignItems:"center", paddingRight: 12, color: "var(--text-3)" }}>›</div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     );
   };

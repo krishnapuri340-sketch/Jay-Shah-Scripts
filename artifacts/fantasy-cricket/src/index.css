@@ -451,30 +451,31 @@ body { background: var(--bg); }
 }
 .hist-card {
   background: var(--surface); border: 1px solid var(--border);
-  border-radius: 14px; margin-bottom: 10px;
-  display: flex; overflow: hidden;
+  border-left: 3px solid transparent;
+  border-radius: 12px; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 10px 12px 14px; cursor: pointer;
+  transition: background 0.12s;
 }
-.hist-accent { width: 5px; flex-shrink: 0; }
-.hist-body { flex: 1; padding: 12px 14px 10px; }
-.hist-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
-.hist-year { display: flex; flex-direction: column; align-items: center; min-width: 44px; flex-shrink: 0; }
-.hist-year-num { font-size: 1.15rem; font-weight: 700; color: var(--text); line-height: 1.1; }
-.hist-season { font-size: 0.6rem; color: var(--text-3); font-weight: 500; letter-spacing: 0.5px; }
-.hist-champion-block { display: flex; align-items: flex-start; gap: 8px; flex: 1; }
-.hist-trophy { font-size: 1rem; margin-top: 1px; flex-shrink: 0; }
-.hist-champion { font-size: 0.85rem; font-weight: 700; line-height: 1.2; }
-.hist-runner { font-size: 0.68rem; color: var(--text-3); margin-top: 2px; }
-.hist-stats {
-  display: flex; flex-direction: column; gap: 4px;
-  padding-top: 8px; border-top: 1px solid var(--border);
+.hist-card:active { background: var(--surface-2); }
+.hist-card-left {
+  display: flex; flex-direction: column; align-items: flex-start;
+  min-width: 40px; flex-shrink: 0;
 }
-.hist-stat {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 0.7rem;
+.hist-card-year { font-size: 1.1rem; font-weight: 800; line-height: 1.1; }
+.hist-card-sn { font-size: 0.6rem; color: var(--text-3); font-weight: 500; letter-spacing: 0.5px; margin-top: 1px; }
+.hist-card-main { flex: 1; min-width: 0; }
+.hist-card-top { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+.hist-card-names { min-width: 0; }
+.hist-card-champ { font-size: 0.9rem; font-weight: 800; line-height: 1.2; }
+.hist-card-runner2 { display: flex; align-items: center; gap: 4px; margin-top: 3px;
+  font-size: 0.65rem; color: var(--text-3); font-weight: 500; }
+.hist-card-caps {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  font-size: 0.65rem; color: var(--text-2); font-weight: 500;
+  padding-top: 7px; border-top: 1px solid var(--border);
 }
-.hist-stat-icon { font-size: 0.65rem; flex-shrink: 0; }
-.hist-stat-name { color: var(--text-2); flex: 1; }
-.hist-stat-val { font-weight: 600; color: var(--text); font-size: 0.68rem; }
+.hist-card-arrow { font-size: 1.1rem; color: var(--text-3); flex-shrink: 0; padding-left: 4px; }
 
 /* Year filter bar */
 .hist-yr-grid {
