@@ -1270,7 +1270,7 @@ export default function App() {
                   <span className="hist-hero-aval">{s.purpleWkts} wkts</span>
                 </div>
                 <div className="hist-hero-award">
-                  <span style={{ fontSize: "0.65rem", color: "#d4a843" }}>⭐ MVP</span>
+                  <span style={{ fontSize: "0.65rem", color: "#d4a843" }}><span style={{filter:"sepia(1) saturate(4) hue-rotate(5deg) brightness(1.1)"}}>🧢</span> MVP</span>
                   <span className="hist-hero-aname">{s.mvp}</span>
                   <span className="hist-hero-aval" style={{ color: "#d4a843" }}>Player of Tournament</span>
                 </div>
