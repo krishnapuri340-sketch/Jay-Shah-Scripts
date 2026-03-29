@@ -196,8 +196,16 @@ function calcPoints(p: PlayerStats): number {
   return pts;
 }
 
+// Known spelling variants from IPL/CricAPI data feeds → canonical fantasy-roster spelling
+const NAME_ALIASES: Record<string, string> = {
+  "varun chakaravarthy": "varun chakravarthy",   // IPL S3 feed typo
+  "varun chakraborty":   "varun chakravarthy",   // alternate transliteration
+  "t natarajan":         "t natarajan",           // keep short form consistent
+};
+
 function normalizeName(name: string): string {
-  return name.toLowerCase().replace(/[^a-z ]/g, "").replace(/\s+/g, " ").trim();
+  const base = name.toLowerCase().replace(/[^a-z ]/g, "").replace(/\s+/g, " ").trim();
+  return NAME_ALIASES[base] ?? base;
 }
 
 function namesMatch(a: string, b: string): boolean {
@@ -490,7 +498,7 @@ const PLAYER_TEAMS: Record<string, string> = {
   // RCB
   "Rajat Patidar": "rcb", "Phil Salt": "rcb", "Tim David": "rcb",
   "Bhuvneshwar Kumar": "rcb", "Krunal Pandya": "rcb", "Jacob Bethell": "rcb",
-  "Jitesh Sharma": "rcb", "Venkatesh Iyer": "rcb", "Virat Kohli": "rcb",
+  "Jitesh Sharma": "rcb", "Virat Kohli": "rcb",
   // GT
   "Shubman Gill": "gt", "Jos Buttler": "gt", "Sai Sudharsan": "gt",
   "Mohammed Siraj": "gt", "Prasidh Krishna": "gt", "Rashid Khan": "gt",
@@ -520,7 +528,7 @@ const PLAYER_TEAMS: Record<string, string> = {
   // KKR
   "Sunil Narine": "kkr", "Rinku Singh": "kkr", "Cameron Green": "kkr",
   "Varun Chakravarthy": "kkr", "Ajinkya Rahane": "kkr", "Finn Allen": "kkr",
-  "Tim Seifert": "kkr",
+  "Tim Seifert": "kkr", "Venkatesh Iyer": "kkr",
   // LSG
   "Nicholas Pooran": "lsg", "Mohammed Shami": "lsg", "Aiden Markram": "lsg",
   "Rishabh Pant": "lsg", "Mitchell Marsh": "lsg",
