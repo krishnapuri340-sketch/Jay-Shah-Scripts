@@ -419,9 +419,11 @@ function teamNamesMatch(cricapiName: string, iplName: string): boolean {
     lsg: ["lucknow", "lsg"],
   };
   const ca = cricapiName.toLowerCase();
-  const ia = iplName.toLowerCase();
+  const ia = iplName.toLowerCase().trim();
   for (const aliases of Object.values(shortCodes)) {
-    if (aliases.some(a => ca.includes(a)) && aliases.some(a => ia.includes(a))) return true;
+    const sideA = aliases.some(a => ca.includes(a.trim()));
+    const sideB = aliases.some(a => ia.includes(a.trim())) || aliases.some(a => a.trim() === ia);
+    if (sideA && sideB) return true;
   }
   return false;
 }

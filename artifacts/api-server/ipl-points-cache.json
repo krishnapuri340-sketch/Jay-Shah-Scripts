@@ -541,22 +541,25 @@
     },
     "2418": {
       "points": {
-        "Cameron Green": 20,
-        "Ajinkya Rahane": 99,
-        "Finn Allen": 89
+        "Cameron Green": 38,
+        "Ajinkya Rahane": 121,
+        "Trent Boult": 2,
+        "Hardik Pandya": -2,
+        "Finn Allen": 89,
+        "Jasprit Bumrah": 4
       },
       "innings": [
         {
           "name": "Kolkata Knight Riders Inning 1",
-          "total": "94/1 (7.4 ov)",
+          "total": "121/2 (10.1 ov)",
           "batting": [
             {
               "name": "Ajinkya Rahane",
-              "runs": 47,
-              "balls": 24,
+              "runs": 59,
+              "balls": 30,
               "fours": 3,
-              "sixes": 4,
-              "sr": "195.83",
+              "sixes": 5,
+              "sr": "196.67",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -574,11 +577,22 @@
             },
             {
               "name": "Cameron Green",
-              "runs": 10,
-              "balls": 5,
-              "fours": 0,
+              "runs": 18,
+              "balls": 10,
+              "fours": 1,
               "sixes": 1,
-              "sr": "200",
+              "sr": "180",
+              "dismissal": "catch",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Angkrish Raghuvanshi",
+              "runs": 7,
+              "balls": 4,
+              "fours": 1,
+              "sixes": 0,
+              "sr": "175",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -587,9 +601,9 @@
           "bowling": [
             {
               "name": "Trent Boult",
-              "overs": "1",
+              "overs": "2",
               "maidens": 0,
-              "runs": 10,
+              "runs": 20,
               "wickets": 0,
               "eco": "10",
               "wides": 2,
@@ -607,12 +621,12 @@
             },
             {
               "name": "AM Ghazanfar",
-              "overs": "1.4",
+              "overs": "2.1",
               "maidens": 0,
-              "runs": 21,
+              "runs": 30,
               "wickets": 0,
-              "eco": "12.6",
-              "wides": 0,
+              "eco": "13.8",
+              "wides": 1,
               "noBalls": 0
             },
             {
@@ -627,11 +641,11 @@
             },
             {
               "name": "Shardul Thakur",
-              "overs": "1",
+              "overs": "2",
               "maidens": 0,
-              "runs": 10,
-              "wickets": 1,
-              "eco": "10",
+              "runs": 19,
+              "wickets": 2,
+              "eco": "9.5",
               "wides": 0,
               "noBalls": 0
             },
@@ -651,9 +665,9 @@
       "playerStats": {
         "Cameron Green": {
           "played": true,
-          "runs": 10,
-          "balls": 5,
-          "fours": 0,
+          "runs": 18,
+          "balls": 10,
+          "fours": 1,
           "sixes": 1,
           "duck": false,
           "wickets": 0,
@@ -668,10 +682,10 @@
         },
         "Ajinkya Rahane": {
           "played": true,
-          "runs": 47,
-          "balls": 24,
+          "runs": 59,
+          "balls": 30,
           "fours": 3,
-          "sixes": 4,
+          "sixes": 5,
           "duck": false,
           "wickets": 0,
           "dots": 0,
@@ -679,6 +693,40 @@
           "maidens": 0,
           "ballsBowled": 0,
           "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "stumpings": 0
+        },
+        "Trent Boult": {
+          "played": true,
+          "runs": 0,
+          "balls": 0,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 12,
+          "runsConceded": 20,
+          "catches": 0,
+          "runOuts": 0,
+          "stumpings": 0
+        },
+        "Hardik Pandya": {
+          "played": true,
+          "runs": 0,
+          "balls": 0,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 12,
+          "runsConceded": 29,
           "catches": 0,
           "runOuts": 0,
           "stumpings": 0
@@ -696,6 +744,23 @@
           "maidens": 0,
           "ballsBowled": 0,
           "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "stumpings": 0
+        },
+        "Jasprit Bumrah": {
+          "played": true,
+          "runs": 0,
+          "balls": 0,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 6,
+          "runsConceded": 11,
           "catches": 0,
           "runOuts": 0,
           "stumpings": 0
@@ -1329,9 +1394,9 @@
       "teamB": "Delhi Capitals"
     }
   },
-  "lastUpdated": "2026-03-29T00:52:03.046Z",
+  "lastUpdated": null,
   "dailyHits": {
     "date": "2026-03-29",
-    "count": 19
+    "count": 21
   }
 }
