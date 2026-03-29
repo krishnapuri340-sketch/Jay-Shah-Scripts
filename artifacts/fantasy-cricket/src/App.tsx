@@ -256,6 +256,7 @@ export default function App() {
   const [statsCategory, setStatsCategory] = useState<"orangeCap" | "purpleCap" | "sixesLeader" | "foursLeader" | "srLeader" | "ecoLeader">("orangeCap");
   const [statsExpanded, setStatsExpanded] = useState(false);
   const [matchFilter, setMatchFilter] = useState<"upcoming" | "live" | "completed" | "all">("upcoming");
+  const [teamFilter, setTeamFilter] = useState<string | null>(null);
   const [standingsOpen, setStandingsOpen] = useState(false);
   const [rankChanges, setRankChanges] = useState<Record<string, number>>({});
   const [isDark, setIsDark] = useState(true);
@@ -1155,9 +1156,14 @@ export default function App() {
     const filteredMatches = liveMatches.filter((m: any) => {
       const isLiveM = m.matchStarted && !m.matchEnded;
       const isDoneM = m.matchEnded;
-      if (activeFilter === "live") return isLiveM;
-      if (activeFilter === "upcoming") return !m.matchStarted && !m.matchEnded;
-      if (activeFilter === "completed") return isDoneM;
+      if (activeFilter === "live" && !isLiveM) return false;
+      if (activeFilter === "upcoming" && (m.matchStarted || m.matchEnded)) return false;
+      if (activeFilter === "completed" && !isDoneM) return false;
+      if (teamFilter) {
+        const inTeamInfo = (m.teamInfo || []).some((ti: any) => ti.shortname === teamFilter);
+        const inName = (m.name || "").toLowerCase().includes(teamFilter.toLowerCase());
+        return inTeamInfo || inName;
+      }
       return true;
     });
     const filteredGrouped = filteredMatches.reduce((acc: Record<string, any[]>, m: any) => {
@@ -1192,8 +1198,11 @@ export default function App() {
                   {standings.map((t: any, i: number) => {
                     const color = IPL_COLORS[t.teamCode] || "var(--text-3)";
                     const isTop4 = i < 4;
+                    const isSelected = teamFilter === t.teamCode;
                     return (
-                      <tr key={t.teamCode} style={{ borderBottom: "1px solid var(--border)" }}>
+                      <tr key={t.teamCode}
+                        onClick={() => setTeamFilter(isSelected ? null : t.teamCode)}
+                        style={{ borderBottom: "1px solid var(--border)", cursor: "pointer", background: isSelected ? color + "14" : "transparent", transition: "background 0.15s" }}>
                         <td style={{ padding: "8px 12px", color: isTop4 ? "#22c55e" : "var(--text-3)", fontWeight: 700 }}>{i + 1}</td>
                         <td style={{ padding: "8px 8px" }}>
                           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -1219,6 +1228,16 @@ export default function App() {
           </div>
         )}
 
+        {/* Team filter chip */}
+        {teamFilter && (
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 10px", borderRadius: 20, background: (IPL_COLORS[teamFilter] || "#888") + "18", border: `1px solid ${IPL_COLORS[teamFilter] || "#888"}44`, fontSize: "0.68rem", fontWeight: 600, color: IPL_COLORS[teamFilter] || "var(--text)" }}>
+              {teamFilter} matches
+              <button onClick={() => setTeamFilter(null)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0, marginLeft: 2, lineHeight: 1, color: "inherit", opacity: 0.6, fontSize: "0.75rem" }}>✕</button>
+            </div>
+          </div>
+        )}
+
         {/* Filter bar */}
         <div style={{ display: "flex", gap: 6, marginBottom: 16 }}>
           {(["live", "upcoming", "completed", "all"] as const).map(f => {
@@ -1240,7 +1259,7 @@ export default function App() {
         {apiError && <div className="notice" style={{ background: "rgba(239,68,68,0.08)", borderColor: "rgba(239,68,68,0.2)", color: "#f87171", marginBottom: 12 }}>{apiError}</div>}
         {filteredMatches.length === 0 && (
           <div style={{ textAlign: "center" as const, color: "var(--text-3)", fontSize: "0.78rem", padding: "32px 0" }}>
-            {activeFilter === "live" ? "No live matches right now" : activeFilter === "upcoming" ? "No upcoming matches" : "No matches"}
+            {teamFilter ? `No ${activeFilter === "all" ? "" : activeFilter + " "}matches for ${teamFilter}` : activeFilter === "live" ? "No live matches right now" : activeFilter === "upcoming" ? "No upcoming matches" : "No matches"}
           </div>
         )}
         {Object.entries(filteredGrouped).map(([date, matches]: [string, any[]]) => (
