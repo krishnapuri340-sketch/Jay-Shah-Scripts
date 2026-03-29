@@ -740,9 +740,9 @@ router.get("/ipl/points", async (req, res) => {
                 const fallbackMatches = allMatches.filter((m: any) => {
                   if (m.MatchStatus !== "Post") return false;
                   const iplId = String(m.MatchID);
-                  if (supabaseLinkedNow.has(iplId)) return false; // covered by Supabase
                   const cached = pointsCache.processedMatches[iplId];
-                  return !cached || !cached.innings?.length; // needs innings or points
+                  // Always fetch innings for stats/scorecard display, even if Supabase has points
+                  return !cached || !cached.innings?.length;
                 });
                 const needsCricapi = [...liveMatches, ...fallbackMatches].slice(0, 3);
 
@@ -782,9 +782,14 @@ router.get("/ipl/points", async (req, res) => {
                           iplMatch.HomeTeamName || "", iplMatch.AwayTeamName || ""
                         );
                         if (matchData.innings.length > 0 || Object.keys(matchData.points).length > 0) {
-                          // Store full data (points + innings) — Supabase will override points when ready
-                          pointsCache.processedMatches[iplId] = matchData;
-                          console.log(`[cricapi] ${isLive ? "Live" : "Fallback"} match ${iplId}: ${Object.keys(matchData.points).length} player points`);
+                          const isSupabaseCovered = supabaseLinkedNow.has(iplId);
+                          // For Supabase-covered matches: store innings for stats/scorecard only (points come from Supabase)
+                          // For live/fallback matches: store full data including CricAPI points
+                          pointsCache.processedMatches[iplId] = isSupabaseCovered
+                            ? { points: {}, innings: matchData.innings }
+                            : matchData;
+                          const tag = isLive ? "Live" : isSupabaseCovered ? "Innings-only" : "Fallback";
+                          console.log(`[cricapi] ${tag} match ${iplId}: ${matchData.innings.length} innings, ${Object.keys(matchData.points).length} pts`);
                           saveCache(pointsCache);
                         }
                       } catch (e: any) {
