@@ -54,12 +54,12 @@ body { background: var(--bg); }
   content: '';
   position: absolute; inset: 0; border-radius: 50%;
   background: conic-gradient(var(--gold) 0deg, rgba(212,168,67,0.08) 120deg, var(--gold) 240deg, rgba(212,168,67,0.08) 360deg);
-  animation: spinRing 2.4s linear infinite;
+  animation: spinRing 8s linear infinite;
   z-index: 0;
 }
 .header-logo-inner {
-  position: absolute; inset: 2px; border-radius: 50%; overflow: hidden;
-  background: var(--bg); z-index: 1;
+  position: absolute; inset: 1.5px; border-radius: 50%; overflow: hidden;
+  background: transparent; z-index: 1;
 }
 .header-logo {
   width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;
