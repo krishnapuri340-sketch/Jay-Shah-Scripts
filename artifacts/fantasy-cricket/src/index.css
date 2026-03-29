@@ -499,10 +499,9 @@ body { background: var(--bg); }
 }
 .hist-hero-year { font-size: 0.7rem; font-weight: 600; margin-bottom: 6px; }
 .hist-hero-champion {
-  font-size: 1.35rem; font-weight: 800; display: flex; align-items: center; gap: 8px; margin-bottom: 4px;
+  display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
 }
-.hist-hero-trophy { font-size: 1.1rem; }
-.hist-hero-runner { font-size: 0.72rem; color: var(--text-3); margin-bottom: 14px; }
+.hist-hero-runner { font-size: 0.72rem; color: var(--text-3); margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
 .hist-hero-awards { display: flex; gap: 6px; flex-wrap: wrap; }
 .hist-hero-award {
   flex: 1; min-width: 90px;

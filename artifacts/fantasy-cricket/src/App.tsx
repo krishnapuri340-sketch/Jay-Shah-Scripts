@@ -225,6 +225,44 @@ function getTeamData(teamId: string, playerPoints: Record<string, number>) {
   return { total, players, top11 };
 }
 
+// IPL team badge config — abbreviation + primary/secondary color
+const IPL_TEAM_BADGE: Record<string, { abbr: string; bg: string; fg: string }> = {
+  "Rajasthan Royals":              { abbr: "RR",   bg: "#FF2FA9", fg: "#fff" },
+  "Chennai Super Kings":           { abbr: "CSK",  bg: "#F5C518", fg: "#000" },
+  "Deccan Chargers":               { abbr: "DCH",  bg: "#1B75BB", fg: "#fff" },
+  "Kolkata Knight Riders":         { abbr: "KKR",  bg: "#3A225D", fg: "#FFD700" },
+  "Mumbai Indians":                { abbr: "MI",   bg: "#004BA0", fg: "#fff" },
+  "Sunrisers Hyderabad":           { abbr: "SRH",  bg: "#E97D1B", fg: "#fff" },
+  "Royal Challengers Bangalore":   { abbr: "RCB",  bg: "#EC1C24", fg: "#fff" },
+  "Royal Challengers Bengaluru":   { abbr: "RCB",  bg: "#EC1C24", fg: "#fff" },
+  "Rising Pune Supergiant":        { abbr: "RPS",  bg: "#1BAAE1", fg: "#fff" },
+  "Gujarat Titans":                { abbr: "GT",   bg: "#1B2133", fg: "#A4955A" },
+  "Delhi Capitals":                { abbr: "DC",   bg: "#0078BC", fg: "#fff" },
+  "Delhi Daredevils":              { abbr: "DD",   bg: "#D71920", fg: "#fff" },
+  "Punjab Kings":                  { abbr: "PBKS", bg: "#AA0000", fg: "#fff" },
+  "Kings XI Punjab":               { abbr: "KXIP", bg: "#AA0000", fg: "#fff" },
+  "Lucknow Super Giants":          { abbr: "LSG",  bg: "#00B4D8", fg: "#fff" },
+};
+// Abbreviation → team name (for top-10 rows)
+const ABBR_TO_TEAM: Record<string, string> = {
+  RR:"Rajasthan Royals", CSK:"Chennai Super Kings", DCH:"Deccan Chargers",
+  KKR:"Kolkata Knight Riders", MI:"Mumbai Indians", SRH:"Sunrisers Hyderabad",
+  RCB:"Royal Challengers Bengaluru", RPS:"Rising Pune Supergiant", GT:"Gujarat Titans",
+  DC:"Delhi Capitals", DD:"Delhi Daredevils", PBKS:"Punjab Kings", KXIP:"Kings XI Punjab",
+  LSG:"Lucknow Super Giants", PWI:"Pune Warriors",
+};
+function TeamBadge({ name, size = 32 }: { name: string; size?: number }) {
+  const b = IPL_TEAM_BADGE[name] || IPL_TEAM_BADGE[ABBR_TO_TEAM[name]] || { abbr: name.slice(0,2).toUpperCase(), bg:"#444", fg:"#fff" };
+  const fs = b.abbr.length >= 4 ? size * 0.27 : b.abbr.length === 3 ? size * 0.3 : size * 0.35;
+  return (
+    <div style={{ width:size, height:size, borderRadius:"50%", background:b.bg,
+      display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0,
+      border:"1.5px solid rgba(255,255,255,0.12)", }}>
+      <span style={{ color:b.fg, fontSize:fs, fontWeight:800, letterSpacing:"-0.3px", lineHeight:1 }}>{b.abbr}</span>
+    </div>
+  );
+}
+
 export default function App() {
   const [tab, setTab] = useState("home");
   const [historyYear, setHistoryYear] = useState<number | null>(null);
@@ -1139,10 +1177,16 @@ export default function App() {
             <div className="hist-hero" style={{ borderColor: s.color }}>
               <div className="hist-hero-year" style={{ color: s.color }}>Season {s.season} · {s.year}</div>
               <div className="hist-hero-champion">
-                <span className="hist-hero-trophy">🏆</span>
-                <span style={{ color: s.color }}>{s.champion}</span>
+                <TeamBadge name={s.champion} size={42} />
+                <div>
+                  <div style={{ color: s.color, fontSize: "1.1rem", fontWeight: 800, lineHeight: 1.2 }}>🏆 {s.champion}</div>
+                  <div style={{ fontSize: "0.7rem", color: "var(--text-3)", marginTop: 2 }}>IPL {s.year} Champion</div>
+                </div>
               </div>
-              <div className="hist-hero-runner">Runner-up: {s.runnerUp}</div>
+              <div className="hist-hero-runner">
+                <TeamBadge name={s.runnerUp} size={20} />
+                <span>Runner-up: {s.runnerUp}</span>
+              </div>
               <div className="hist-hero-awards">
                 <div className="hist-hero-award">
                   <span style={{ fontSize: "0.65rem", color: "#f97316" }}>🟠 Orange Cap</span>
@@ -1168,8 +1212,8 @@ export default function App() {
                 {s.topBat.map((p, i) => (
                   <div key={i} className="hist-top10-row">
                     <span className="hist-rk">{i + 1}</span>
+                    <TeamBadge name={p.team} size={20} />
                     <span className="hist-pname">{p.name}</span>
-                    <span className="hist-ptm">{p.team}</span>
                     <span className="hist-pval">{p.val}r</span>
                   </div>
                 ))}
@@ -1179,8 +1223,8 @@ export default function App() {
                 {s.topBwl.map((p, i) => (
                   <div key={i} className="hist-top10-row">
                     <span className="hist-rk">{i + 1}</span>
+                    <TeamBadge name={p.team} size={20} />
                     <span className="hist-pname">{p.name}</span>
-                    <span className="hist-ptm">{p.team}</span>
                     <span className="hist-pval">{p.val}w</span>
                   </div>
                 ))}
@@ -1205,10 +1249,13 @@ export default function App() {
                   <span className="hist-season">S{h.season}</span>
                 </div>
                 <div className="hist-champion-block">
-                  <div className="hist-trophy">🏆</div>
+                  <TeamBadge name={h.champion} size={34} />
                   <div>
-                    <div className="hist-champion" style={{ color: h.color }}>{h.champion}</div>
-                    <div className="hist-runner">↑ {h.runnerUp}</div>
+                    <div className="hist-champion" style={{ color: h.color }}>🏆 {h.champion}</div>
+                    <div className="hist-runner" style={{ display:"flex", alignItems:"center", gap:4 }}>
+                      <TeamBadge name={h.runnerUp} size={14} />
+                      <span>{h.runnerUp}</span>
+                    </div>
                   </div>
                 </div>
               </div>
