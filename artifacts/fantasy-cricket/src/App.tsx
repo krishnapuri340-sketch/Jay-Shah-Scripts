@@ -348,6 +348,7 @@ export default function App() {
   const swipeStartX = useRef(0);
   const swipeStartY = useRef(0);
   const swipeBlocked = useRef(false);
+  const pointsRetryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const SWIPEABLE_TABS = ["home", "teams", "fixtures", "stats", "history"];
   // PTR refs
   const pullState = useRef({ active: false, startY: 0 });
@@ -361,6 +362,8 @@ export default function App() {
     if (pointsLoading) return;
     setPointsLoading(true);
     setPointsError(null);
+    // Clear any pending retry
+    if (pointsRetryTimer.current) { clearTimeout(pointsRetryTimer.current); pointsRetryTimer.current = null; }
     try {
       const res = await fetch("/api/ipl/points");
       if (!res.ok) throw new Error(`Server error: ${res.status}`);
@@ -368,7 +371,8 @@ export default function App() {
       if (data.error && !data.playerPoints) {
         setPointsError(data.error);
       } else {
-        setPlayerPoints(data.playerPoints || {});
+        const pp = data.playerPoints || {};
+        setPlayerPoints(pp);
         setPlayerMatchPoints(data.playerMatchPoints || {});
         setProcessedMatches(data.processedMatches || []);
         setPointsUpdating(data.updating || false);
@@ -376,9 +380,21 @@ export default function App() {
         setNextAttempt(data.nextAttempt || null);
         if (data.dailyHits) setDailyHits(data.dailyHits);
         setPointsLastUpdated(new Date());
+        // If data came back empty (server still syncing on startup), retry quickly
+        if (Object.keys(pp).length === 0) {
+          pointsRetryTimer.current = setTimeout(() => {
+            pointsRetryTimer.current = null;
+            fetchPoints();
+          }, 4000);
+        }
       }
     } catch (e: any) {
       setPointsError("Points fetch failed: " + (e.message || "Unknown error"));
+      // Retry on network failure too
+      pointsRetryTimer.current = setTimeout(() => {
+        pointsRetryTimer.current = null;
+        fetchPoints();
+      }, 5000);
     }
     setPointsLoading(false);
   };
@@ -451,6 +467,11 @@ export default function App() {
       if (isCompleted) fetchScorecard(matchId);
     }
   };
+
+  // Cleanup retry timer on unmount
+  useEffect(() => {
+    return () => { if (pointsRetryTimer.current) clearTimeout(pointsRetryTimer.current); };
+  }, []);
 
   // Initial fetch on mount
   useEffect(() => {
@@ -1396,7 +1417,9 @@ export default function App() {
               <div className="lb-meta">{s.team.owner} · <span style={{ color: "#d4a843" }}>C:</span> {s.team.captain} · <span style={{ color: "var(--text-2)" }}>VC:</span> {s.team.vc}</div>
             </div>
             <div style={{ textAlign: "right" }}>
-              <div className={`lb-pts ${i === 0 ? "first" : ""}`} style={{ color: s.team.color }}>{s.total}</div>
+              <div className={`lb-pts ${i === 0 ? "first" : ""}`} style={{ color: Object.keys(playerPoints).length === 0 ? "var(--text-3)" : s.team.color }}>
+                {Object.keys(playerPoints).length === 0 ? "—" : s.total}
+              </div>
               <div className="lb-pts-label">pts</div>
             </div>
           </div>
@@ -1538,7 +1561,9 @@ export default function App() {
             </div>
           </div>
           <div style={{ textAlign: "right" }}>
-            <div className="team-htotal" style={{ color: t.color }}>{td.total}</div>
+            <div className="team-htotal" style={{ color: Object.keys(playerPoints).length === 0 ? "var(--text-3)" : t.color }}>
+              {Object.keys(playerPoints).length === 0 ? "—" : td.total}
+            </div>
             <div className="team-hlabel">total pts</div>
           </div>
         </div>
