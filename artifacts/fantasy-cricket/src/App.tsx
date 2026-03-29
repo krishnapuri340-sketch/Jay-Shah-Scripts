@@ -278,11 +278,93 @@ export default function App() {
 
   const rankLabel = (i: number) => i === 0 ? "first" : i === 1 ? "second" : i === 2 ? "third" : "";
 
-  const renderHome = () => (
+  const computeAwards = () => {
+    const hasData = Object.keys(playerPoints).length > 0;
+    if (!hasData) return [];
+
+    const awards: { trophy: string; title: string; winner: string; detail: string; color: string }[] = [];
+
+    // All fantasy players with points
+    const allFantasyPlayers = Object.values(FANTASY_TEAMS).flatMap(t =>
+      t.players.map(p => ({ name: p.name, team: t.name, pts: playerPoints[p.name] || 0, isCap: p.name === t.captain, isVC: p.name === t.vc }))
+    );
+
+    // 1. Manager of the Season — leading team
+    const leader = teamScores[0];
+    if (leader.total > 0) {
+      awards.push({ trophy: "🏆", title: "Manager of the Season", winner: leader.team.name, detail: `${leader.total} pts from Top 11`, color: leader.team.color });
+    }
+
+    // 2. Captain Marvel — best captain (raw pts, shown as captain-adjusted)
+    const captains = Object.values(FANTASY_TEAMS).map(t => ({
+      name: t.captain, team: t.name, pts: (playerPoints[t.captain] || 0) * 2
+    })).sort((a, b) => b.pts - a.pts);
+    if (captains[0].pts > 0) {
+      awards.push({ trophy: "🎖️", title: "Captain Marvel", winner: captains[0].name, detail: `${captains[0].pts} adjusted pts · ${captains[0].team}`, color: "#f97316" });
+    }
+
+    // 3. Star Player — highest raw points across all fantasy players
+    const star = allFantasyPlayers.sort((a, b) => b.pts - a.pts)[0];
+    if (star.pts > 0) {
+      awards.push({ trophy: "🌟", title: "Star Player", winner: star.name, detail: `${star.pts} pts · ${star.team}`, color: "#fbbf24" });
+    }
+
+    // 4. Hidden Gem — highest bench scorer (not in top 11 of their team)
+    const benchAll = teamScores.flatMap(s =>
+      s.players.filter(p => !s.top11.has(p.name) && p.raw > 0).map(p => ({ name: p.name, team: s.team.name, pts: p.raw }))
+    ).sort((a, b) => b.pts - a.pts);
+    if (benchAll.length > 0) {
+      awards.push({ trophy: "💎", title: "Hidden Gem", winner: benchAll[0].name, detail: `${benchAll[0].pts} pts on the bench · ${benchAll[0].team}`, color: "#34d399" });
+    }
+
+    // 5. Six Machine — most sixes (fantasy players, from iplStats)
+    if (iplStats?.sixesLeader) {
+      const sixers = (iplStats.sixesLeader as any[]).filter(p => p.isFantasy && p.sixes > 0);
+      if (sixers.length > 0) {
+        awards.push({ trophy: "💥", title: "Six Machine", winner: sixers[0].name, detail: `${sixers[0].sixes} sixes · ${sixers[0].runs} runs`, color: "#a855f7" });
+      }
+    }
+
+    // 6. Wicket Wizard — most wickets (fantasy players, from iplStats)
+    if (iplStats?.purpleCap) {
+      const bowlers = (iplStats.purpleCap as any[]).filter(p => p.isFantasy && p.wickets > 0);
+      if (bowlers.length > 0) {
+        awards.push({ trophy: "🎳", title: "Wicket Wizard", winner: bowlers[0].name, detail: `${bowlers[0].wickets} wkts · Best: ${bowlers[0].best}`, color: "#f472b6" });
+      }
+    }
+
+    // 7. Run Machine — most runs (fantasy players, from iplStats)
+    if (iplStats?.orangeCap) {
+      const batters = (iplStats.orangeCap as any[]).filter(p => p.isFantasy && p.runs > 0);
+      if (batters.length > 0) {
+        awards.push({ trophy: "🏏", title: "Run Machine", winner: batters[0].name, detail: `${batters[0].runs} runs · HS: ${batters[0].hs}`, color: "#60a5fa" });
+      }
+    }
+
+    // 8. Vice Captain Star — best VC adjusted
+    const vcs = Object.values(FANTASY_TEAMS).map(t => ({
+      name: t.vc, team: t.name, pts: Math.floor((playerPoints[t.vc] || 0) * 1.5)
+    })).sort((a, b) => b.pts - a.pts);
+    if (vcs[0].pts > 0) {
+      awards.push({ trophy: "⭐", title: "Vice Captain Star", winner: vcs[0].name, detail: `${vcs[0].pts} adjusted pts · ${vcs[0].team}`, color: "#94a3b8" });
+    }
+
+    // 9. Wooden Spoon — last place team (only if season has data and not all zeros)
+    const lastTeam = teamScores[teamScores.length - 1];
+    if (teamScores.length === 4 && lastTeam.total < teamScores[0].total) {
+      awards.push({ trophy: "🥄", title: "Wooden Spoon", winner: lastTeam.team.name, detail: `${lastTeam.total} pts · Room to improve!`, color: "#334155" });
+    }
+
+    return awards;
+  };
+
+  const renderHome = () => {
+    const awards = computeAwards();
+    return (
     <div>
       <div className="sec-title">Leaderboard</div>
       <div className="notice">
-        🔄 Points auto-update every 15 min from live API. Season tracking is live!
+        🔄 Points auto-update every 15 min · Only Top 11 players count per team
       </div>
       {teamScores.map((s, i) => (
         <div key={s.id} className="lb-card" onClick={() => { setSelectedTeam(s.id); setTab("teams"); }}>
@@ -296,7 +378,7 @@ export default function App() {
             </div>
             <div style={{ textAlign: "right" }}>
               <div className="lb-pts" style={{ color: s.team.color }}>{s.total}</div>
-              <div className="lb-pts-label">pts</div>
+              <div className="lb-pts-label">top 11 pts</div>
             </div>
           </div>
           <div className="lb-bar">
@@ -334,8 +416,29 @@ export default function App() {
           </>
         );
       })()}
+
+      {awards.length > 0 && (
+        <>
+          <div className="divider" />
+          <div className="sec-title">🏅 Season Awards</div>
+          <div style={{ display: "flex", flexDirection: "column" as const, gap: 8, marginBottom: 8 }}>
+            {awards.map((a, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, background: "rgba(15,21,32,0.9)", border: `1px solid ${a.color}22`, borderLeft: `3px solid ${a.color}`, borderRadius: 12, padding: "10px 14px" }}>
+                <div style={{ fontSize: "1.5rem", flexShrink: 0, lineHeight: 1 }}>{a.trophy}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: "0.6rem", color: "#475569", fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase" as const, marginBottom: 2 }}>{a.title}</div>
+                  <div style={{ fontSize: "0.82rem", fontWeight: 700, color: a.color, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{a.winner}</div>
+                  <div style={{ fontSize: "0.65rem", color: "#475569", marginTop: 1 }}>{a.detail}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{ fontSize: "0.6rem", color: "#334155", textAlign: "center" as const, paddingBottom: 8 }}>Awards update as the season progresses</div>
+        </>
+      )}
     </div>
-  );
+    );
+  };
 
   const renderTeams = () => {
     const t = FANTASY_TEAMS[selectedTeam];
