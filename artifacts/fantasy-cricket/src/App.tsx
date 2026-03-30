@@ -3272,40 +3272,128 @@ export default function App() {
               Your passcode must be exactly 4 digits and is used to log in to your account.{currentUser === "rajveer" ? " As commissioner, you can manage all members." : ""}
             </div>
           </div>
-          <div style={{ display: "flex", flexDirection: "column" as const, gap: 10 }}>
+          <div style={{ display: "flex", flexDirection: "column" as const, gap: 2 }}>
             {Object.values(FANTASY_TEAMS)
               .filter(ft => currentUser === "rajveer" || ft.id === currentUser)
-              .map(ft => (
-              <div key={ft.id} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ fontSize: "1rem" }}>{ft.emoji}</span>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: "0.7rem", fontWeight: 600, color: ft.color }}>{ft.owner}</div>
-                  <div style={{ fontSize: "0.58rem", color: "#52525b" }}>{ft.name}</div>
-                </div>
-                {pinEditTarget === ft.id ? (
-                  <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="\d{4}"
-                      maxLength={4}
-                      value={pinEditVal}
-                      onChange={e => setPinEditVal(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                      placeholder="0000"
-                      style={{ width: 52, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8, padding: "4px 8px", color: "#e4e4e7", fontSize: "0.8rem", fontFamily: "inherit", textAlign: "center" as const, letterSpacing: "3px" }}
-                      autoFocus
-                    />
-                    <button onClick={() => handleSavePin(ft.id)} style={{ background: `${ft.color}22`, border: `1px solid ${ft.color}50`, borderRadius: 8, padding: "4px 10px", cursor: "pointer", color: ft.color, fontSize: "0.65rem", fontFamily: "inherit", fontWeight: 600 }}>Save</button>
-                    <button onClick={() => { setPinEditTarget(null); setPinEditVal(""); }} style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 8, padding: "4px 8px", cursor: "pointer", color: "#52525b", fontSize: "0.65rem", fontFamily: "inherit" }}>✕</button>
+              .map((ft, idx) => {
+                const isEditing = pinEditTarget === ft.id;
+                return (
+                  <div key={ft.id}>
+                    {/* divider between entries */}
+                    {idx > 0 && <div style={{ height: 1, background: "rgba(255,255,255,0.04)", margin: "10px 0" }} />}
+
+                    {isEditing ? (
+                      /* ── Edit mode: expanded card ── */
+                      <div style={{ padding: "4px 0 8px" }}>
+                        {/* User identity */}
+                        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
+                          <span style={{ fontSize: "1.1rem" }}>{ft.emoji}</span>
+                          <div>
+                            <div style={{ fontSize: "0.72rem", fontWeight: 700, color: ft.color }}>{ft.owner}</div>
+                            <div style={{ fontSize: "0.6rem", color: "#475569" }}>{ft.name}</div>
+                          </div>
+                        </div>
+
+                        {/* 4-box PIN entry */}
+                        <div style={{ position: "relative" }}>
+                          <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+                            {[0, 1, 2, 3].map(i => {
+                              const char = pinEditVal[i] || "";
+                              const isActive = pinEditVal.length === i;
+                              return (
+                                <div key={i} style={{
+                                  width: 48, height: 56,
+                                  display: "flex", alignItems: "center", justifyContent: "center",
+                                  border: `1.5px solid ${isActive ? ft.color : char ? `${ft.color}60` : "rgba(255,255,255,0.1)"}`,
+                                  borderRadius: 12,
+                                  background: char ? `${ft.color}12` : "rgba(255,255,255,0.03)",
+                                  fontSize: "1.6rem",
+                                  color: ft.color,
+                                  transition: "all 0.15s ease",
+                                  boxShadow: isActive ? `0 0 0 3px ${ft.color}25` : "none",
+                                }}>
+                                  {char ? "•" : ""}
+                                </div>
+                              );
+                            })}
+                          </div>
+                          {/* transparent overlay input that captures keystrokes */}
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            pattern="\d{4}"
+                            maxLength={4}
+                            value={pinEditVal}
+                            onChange={e => setPinEditVal(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                            autoFocus
+                            style={{
+                              position: "absolute", inset: 0, opacity: 0,
+                              cursor: "text", width: "100%", height: "100%",
+                            }}
+                          />
+                        </div>
+
+                        {/* Actions */}
+                        <div style={{ display: "flex", gap: 8, marginTop: 16, justifyContent: "center" }}>
+                          <button
+                            onClick={() => handleSavePin(ft.id)}
+                            disabled={pinEditVal.length !== 4}
+                            style={{
+                              flex: 1, maxWidth: 120,
+                              background: pinEditVal.length === 4 ? `${ft.color}22` : "rgba(255,255,255,0.04)",
+                              border: `1px solid ${pinEditVal.length === 4 ? `${ft.color}60` : "rgba(255,255,255,0.07)"}`,
+                              borderRadius: 10, padding: "9px 0", cursor: pinEditVal.length === 4 ? "pointer" : "default",
+                              color: pinEditVal.length === 4 ? ft.color : "#3f3f46",
+                              fontSize: "0.72rem", fontFamily: "inherit", fontWeight: 700,
+                              letterSpacing: "0.5px", transition: "all 0.15s ease",
+                            }}>
+                            Save
+                          </button>
+                          <button
+                            onClick={() => { setPinEditTarget(null); setPinEditVal(""); }}
+                            style={{
+                              flex: 1, maxWidth: 100,
+                              background: "transparent",
+                              border: "1px solid rgba(255,255,255,0.07)",
+                              borderRadius: 10, padding: "9px 0", cursor: "pointer",
+                              color: "#52525b", fontSize: "0.72rem", fontFamily: "inherit",
+                              transition: "all 0.15s ease",
+                            }}>
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      /* ── Idle row ── */
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <span style={{ fontSize: "1rem" }}>{ft.emoji}</span>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: "0.7rem", fontWeight: 600, color: ft.color }}>{ft.owner}</div>
+                          <div style={{ fontSize: "0.58rem", color: "#3f3f46" }}>{ft.name}</div>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <span style={{ fontSize: "0.8rem", letterSpacing: "4px", color: "#27272a", fontFamily: "monospace", lineHeight: 1 }}>••••</span>
+                          <button
+                            onClick={() => { setPinEditTarget(ft.id); setPinEditVal(userPins[ft.id] || ""); }}
+                            style={{
+                              background: "transparent",
+                              border: `1px solid rgba(255,255,255,0.08)`,
+                              borderRadius: 8, padding: "5px 12px", cursor: "pointer",
+                              color: "#52525b", fontSize: "0.65rem", fontFamily: "inherit",
+                              fontWeight: 600, letterSpacing: "0.3px",
+                              transition: "border-color 0.15s, color 0.15s",
+                            }}
+                            onMouseEnter={e => { (e.target as HTMLButtonElement).style.borderColor = `${ft.color}50`; (e.target as HTMLButtonElement).style.color = ft.color; }}
+                            onMouseLeave={e => { (e.target as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.08)"; (e.target as HTMLButtonElement).style.color = "#52525b"; }}
+                          >
+                            Change
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                    <span style={{ fontSize: "0.75rem", letterSpacing: "3px", color: "#3f3f46", fontFamily: "monospace" }}>••••</span>
-                    <button onClick={() => { setPinEditTarget(ft.id); setPinEditVal(userPins[ft.id] || ""); }} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, padding: "4px 10px", cursor: "pointer", color: "#71717a", fontSize: "0.65rem", fontFamily: "inherit" }}>Change</button>
-                  </div>
-                )}
-              </div>
-            ))}
+                );
+              })}
           </div>
         </div>
         {currentUser === "rajveer" && <div style={{ background: "rgba(15,21,32,0.9)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: 16, marginBottom: 16 }}>
