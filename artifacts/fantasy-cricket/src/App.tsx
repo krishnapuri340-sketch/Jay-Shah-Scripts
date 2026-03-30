@@ -3118,11 +3118,11 @@ export default function App() {
           const PRED_OWNERS = ["rajveer","mombasa","mumbai","ponygoat"] as const;
           const sortedMatches = [...liveMatches]
             .filter((m: any) => m.homeTeamCode && m.awayTeamCode)
-            .map((m: any) => {
-              const numMatch = ((m.name || "").match(/^(\d+)(?:st|nd|rd|th)\s+Match/i) || [])[1];
-              return { ...m, matchNum: numMatch ? parseInt(numMatch) : 999 };
+            .sort((a: any, b: any) => {
+              if (a.dateTimeGMT && b.dateTimeGMT) return new Date(a.dateTimeGMT).getTime() - new Date(b.dateTimeGMT).getTime();
+              return (a.id || 0) - (b.id || 0);
             })
-            .sort((a: any, b: any) => a.matchNum - b.matchNum);
+            .map((m: any, idx: number) => ({ ...m, matchNum: idx + 1 }));
 
           const ownerScores: Record<string, number> = Object.fromEntries(PRED_OWNERS.map(id => [id, 0]));
           sortedMatches.forEach((m: any) => {
