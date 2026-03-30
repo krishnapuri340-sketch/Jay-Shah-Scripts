@@ -3,9 +3,9 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg: #09090b;
-  --surface: #141417;
-  --surface-2: #1e1e24;
+  --bg: #080c14;
+  --surface: #111828;
+  --surface-2: #1a2238;
   --border: rgba(255,255,255,0.08);
   --border-2: rgba(255,255,255,0.16);
   --text: #ffffff;
@@ -52,7 +52,7 @@ body { background: var(--bg); }
   border-bottom: 1px solid var(--border);
   margin-bottom: 24px;
   gap: 10px;
-  background: linear-gradient(180deg, rgba(9,9,11,0.9) 0%, rgba(9,9,11,0) 100%);
+  background: linear-gradient(180deg, rgba(8,12,20,0.9) 0%, rgba(8,12,20,0) 100%);
 }
 .header-logo-ring {
   position: relative; width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
@@ -121,7 +121,7 @@ body { background: var(--bg); }
 /* === BOTTOM NAV === */
 .nav {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
-  background: rgba(15,15,18,0.85); backdrop-filter: blur(20px) saturate(1.5);
+  background: rgba(8,12,20,0.88); backdrop-filter: blur(20px) saturate(1.6);
   border-top: 1px solid var(--border);
   display: flex; justify-content: center;
   padding: 0 0 env(safe-area-inset-bottom, 0px);

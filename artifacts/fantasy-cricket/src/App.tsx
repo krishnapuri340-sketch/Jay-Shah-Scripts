@@ -304,7 +304,7 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
     return (
       <div style={{
         position: "fixed", inset: 0, zIndex: 1000,
-        background: "#09090b",
+        background: "#080c14",
         display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center",
         overflow: "hidden",
       }}>
@@ -376,7 +376,7 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 1000,
-      background: "#09090b",
+      background: "#080c14",
       display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center",
       overflow: "hidden", padding: "0 24px",
     }}>
@@ -951,7 +951,7 @@ export default function App() {
     await new Promise(res => { logoImg.onload = res; logoImg.onerror = res; });
 
     // — Background —
-    ctx.fillStyle = "#09090b";
+    ctx.fillStyle = "#080c14";
     ctx.fillRect(0, 0, W, H);
 
     // Gold top line (thin, tasteful)
