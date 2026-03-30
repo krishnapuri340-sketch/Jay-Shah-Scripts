@@ -302,7 +302,7 @@ export default function App() {
   const [tab, setTab] = useState("home");
   const [historyYear, setHistoryYear] = useState<number | null>(null);
   const [selectedTeam, setSelectedTeam] = useState("rajveer");
-  const [teamMatchFilter, setTeamMatchFilter] = useState<"all" | "home" | "away">("all");
+  const [fixtureHomeAwayFilter, setFixtureHomeAwayFilter] = useState<"all" | "home" | "away">("all");
   const [playerPoints, setPlayerPoints] = useState<Record<string, number>>({});
   interface PlayerStats { played: boolean; runs: number; balls: number; fours: number; sixes: number; duck: boolean; wickets: number; dots: number; lbwBowled: number; maidens: number; ballsBowled: number; runsConceded: number; catches: number; runOuts: number; stumpings: number; }
   const [playerMatchPoints, setPlayerMatchPoints] = useState<Record<string, Array<{ matchNum: number; label: string; pts: number; source: string; stats?: PlayerStats }>>>({});
@@ -546,31 +546,8 @@ export default function App() {
   // Adaptive polling: 1 min during a live match, 5 min when idle
   const isAnyMatchLive = liveMatches.some((m: any) => m.matchStarted && !m.matchEnded);
 
-  // Build match-name → homeTeamCode lookup from the fixtures list
-  const labelToHomeCode = useMemo(() => {
-    const m = new Map<string, string>();
-    for (const match of liveMatches) {
-      if (match.homeTeamCode && match.name) m.set(match.name, match.homeTeamCode);
-    }
-    return m;
-  }, [liveMatches]);
-
-  // Compute filtered player points for the selected team based on home/away filter
-  const filteredPlayerPoints = useMemo<Record<string, number>>(() => {
-    if (teamMatchFilter === "all") return playerPoints;
-    const result: Record<string, number> = { ...playerPoints };
-    const team = FANTASY_TEAMS[selectedTeam];
-    for (const p of team.players) {
-      const entries = playerMatchPoints[p.name] || [];
-      const kept = entries.filter(e => {
-        const homeCode = labelToHomeCode.get(e.label);
-        if (!homeCode) return false;
-        return teamMatchFilter === "home" ? homeCode === p.ipl : homeCode !== p.ipl;
-      });
-      result[p.name] = kept.reduce((s, e) => s + e.pts, 0);
-    }
-    return result;
-  }, [teamMatchFilter, playerPoints, playerMatchPoints, selectedTeam, labelToHomeCode]);
+  // Reset home/away sub-filter whenever the team filter is changed
+  useEffect(() => { setFixtureHomeAwayFilter("all"); }, [teamFilter]);
 
   useEffect(() => {
     const delay = isAnyMatchLive ? 60_000 : 5 * 60_000;
@@ -1823,7 +1800,7 @@ export default function App() {
 
   const renderTeams = () => {
     const t = FANTASY_TEAMS[selectedTeam];
-    const td = getTeamData(selectedTeam, filteredPlayerPoints);
+    const td = getTeamData(selectedTeam, playerPoints);
     const roleCounts = td.players.reduce((acc: Record<string, number>, p) => {
       acc[p.role] = (acc[p.role] || 0) + 1;
       return acc;
@@ -1896,25 +1873,8 @@ export default function App() {
             <div className="team-htotal" style={{ color: Object.keys(playerPoints).length === 0 ? "var(--text-3)" : t.color }}>
               {Object.keys(playerPoints).length === 0 ? "—" : td.total}
             </div>
-            <div className="team-hlabel">{teamMatchFilter === "home" ? "home pts" : teamMatchFilter === "away" ? "away pts" : "total pts"}</div>
+            <div className="team-hlabel">total pts</div>
           </div>
-        </div>
-
-        {/* Home / Away filter pills */}
-        <div data-no-swipe="true" style={{ display: "flex", gap: 6, marginBottom: 12 }}>
-          {(["all", "home", "away"] as const).map(f => (
-            <button key={f} onClick={() => { setTeamMatchFilter(f); setExpandedPlayer(null); }}
-              style={{
-                padding: "4px 12px", borderRadius: 20, fontSize: "0.65rem", fontWeight: 600,
-                border: `1px solid ${teamMatchFilter === f ? t.color : "var(--border)"}`,
-                background: teamMatchFilter === f ? t.color + "22" : "transparent",
-                color: teamMatchFilter === f ? t.color : "var(--text-2)",
-                cursor: "pointer", transition: "all 0.15s",
-                letterSpacing: "0.04em", textTransform: "uppercase" as const,
-              }}>
-              {f === "all" ? "All" : f === "home" ? "🏠 Home" : "✈️ Away"}
-            </button>
-          ))}
         </div>
 
         {/* Match status banner — shows LIVE and/or UPCOMING players */}
@@ -1977,12 +1937,7 @@ export default function App() {
         {(() => {
           const renderBreakdown = (p: { name: string; raw: number; adj: number; role: string; ipl: string }) => {
             const playerName = p.name;
-            const allEntries = playerMatchPoints[playerName] || [];
-            const breakdown = teamMatchFilter === "all" ? allEntries : allEntries.filter(e => {
-              const homeCode = labelToHomeCode.get(e.label);
-              if (!homeCode) return false;
-              return teamMatchFilter === "home" ? homeCode === p.ipl : homeCode !== p.ipl;
-            });
+            const breakdown = playerMatchPoints[playerName] || [];
             const isCap = playerName === t.captain;
             const isVC = playerName === t.vc;
             const inTop11 = td.top11.has(playerName);
@@ -2301,7 +2256,10 @@ export default function App() {
       if (teamFilter) {
         const inTeamInfo = (m.teamInfo || []).some((ti: any) => ti.shortname === teamFilter);
         const inName = (m.name || "").toLowerCase().includes(teamFilter.toLowerCase());
-        return inTeamInfo || inName;
+        if (!inTeamInfo && !inName) return false;
+        if (fixtureHomeAwayFilter === "home") return m.homeTeamCode === teamFilter;
+        if (fixtureHomeAwayFilter === "away") return m.homeTeamCode !== teamFilter;
+        return true;
       }
       return true;
     });
@@ -2386,15 +2344,34 @@ export default function App() {
           </div>
         )}
 
-        {/* Team filter chip */}
-        {teamFilter && (
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 10px", borderRadius: 20, background: (IPL_COLORS[teamFilter] || "#888") + "18", border: `1px solid ${IPL_COLORS[teamFilter] || "#888"}44`, fontSize: "0.68rem", fontWeight: 600, color: IPL_COLORS[teamFilter] || "var(--text)" }}>
-              {teamFilter} matches
-              <button onClick={() => setTeamFilter(null)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0, marginLeft: 2, lineHeight: 1, color: "inherit", opacity: 0.6, fontSize: "0.75rem" }}>✕</button>
+        {/* Team filter chip + Home/Away sub-pills */}
+        {teamFilter && (() => {
+          const tc = IPL_COLORS[teamFilter] || "#888";
+          return (
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 10px", borderRadius: 20, background: tc + "18", border: `1px solid ${tc}44`, fontSize: "0.68rem", fontWeight: 600, color: tc }}>
+                  {teamFilter} matches
+                  <button onClick={() => setTeamFilter(null)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0, marginLeft: 2, lineHeight: 1, color: "inherit", opacity: 0.6, fontSize: "0.75rem" }}>✕</button>
+                </div>
+              </div>
+              <div data-no-swipe="true" style={{ display: "flex", gap: 6 }}>
+                {([["all","All"], ["home","🏠 Home"], ["away","✈️ Away"]] as const).map(([f, label]) => (
+                  <button key={f} onClick={() => setFixtureHomeAwayFilter(f)}
+                    style={{
+                      padding: "4px 14px", borderRadius: 20, fontSize: "0.63rem", fontWeight: 600,
+                      border: `1px solid ${fixtureHomeAwayFilter === f ? tc : "var(--border)"}`,
+                      background: fixtureHomeAwayFilter === f ? tc + "22" : "transparent",
+                      color: fixtureHomeAwayFilter === f ? tc : "var(--text-3)",
+                      cursor: "pointer", fontFamily: "inherit",
+                    }}>
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Filter bar */}
         <div style={{ display: "flex", gap: 6, marginBottom: 16 }}>
@@ -2437,6 +2414,7 @@ export default function App() {
               const sc = scorecards[matchIdStr];
               const isLoadingSc = scorecardLoading === matchIdStr;
 
+              const isHome = teamFilter ? m.homeTeamCode === teamFilter : null;
               return (
                 <div key={m.id} className="match-card" style={{ cursor: "pointer" }}
                   onClick={() => toggleMatch(String(m.id), isDone || isLive)}>
@@ -2446,6 +2424,16 @@ export default function App() {
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       {mNum && <div style={{ fontSize: "0.7rem", color: "var(--text-3)", fontWeight: 600 }}>{mNum}</div>}
+                      {isHome !== null && (
+                        <div style={{
+                          fontSize: "0.55rem", fontWeight: 700, padding: "1px 6px", borderRadius: 8, letterSpacing: "0.06em",
+                          background: isHome ? "rgba(52,211,153,0.12)" : "rgba(148,163,184,0.1)",
+                          color: isHome ? "#34d399" : "#94a3b8",
+                          border: `1px solid ${isHome ? "rgba(52,211,153,0.25)" : "rgba(148,163,184,0.2)"}`,
+                        }}>
+                          {isHome ? "HOME" : "AWAY"}
+                        </div>
+                      )}
                       {(isDone || isLive) && <span style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{isExpanded ? "▲" : "▼"}</span>}
                     </div>
                   </div>
