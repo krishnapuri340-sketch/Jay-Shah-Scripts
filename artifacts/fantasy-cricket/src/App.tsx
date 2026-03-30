@@ -2464,7 +2464,7 @@ export default function App() {
                 onClick={() => setBenchOpen(o => !o)}
                 style={{
                   display: "flex", alignItems: "center", justifyContent: "space-between",
-                  width: "100%", marginTop: 16, padding: "12px 14px",
+                  width: "100%", marginTop: 16, marginBottom: 32, padding: "12px 14px",
                   background: "var(--surface)", border: "1px solid var(--border)",
                   borderRadius: 10, cursor: "pointer", fontFamily: "inherit",
                   color: "var(--text-3)", userSelect: "none",
