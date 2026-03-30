@@ -442,6 +442,7 @@ export default function App() {
   interface PlayerStats { played: boolean; runs: number; balls: number; fours: number; sixes: number; duck: boolean; wickets: number; dots: number; lbwBowled: number; maidens: number; ballsBowled: number; runsConceded: number; catches: number; runOuts: number; stumpings: number; }
   const [playerMatchPoints, setPlayerMatchPoints] = useState<Record<string, Array<{ matchNum: number; label: string; pts: number; source: string; stats?: PlayerStats }>>>({});
   const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
+  const [benchOpen, setBenchOpen] = useState(false);
   const [expandedAdminPlayer, setExpandedAdminPlayer] = useState<string | null>(null);
   const [adminBreakdownOpen, setAdminBreakdownOpen] = useState(false);
   const [liveMatches, setLiveMatches] = useState<any[]>([]);
@@ -2459,40 +2460,46 @@ export default function App() {
                 })}
               </div>
 
-              <div className="top11-label" style={{ marginTop: 16 }}>Bench</div>
-              <div className="players-grid">
-                {td.players.filter(p => !td.top11.has(p.name)).sort((a, b) => b.adj - a.adj).map(p => {
-                  const isExp = expandedPlayer === p.name;
-                  const { isLiveNow, isUpcoming, isDimmed, glowColor } = getPlayerState(p.name, p.ipl);
-                  const cardClass = [
-                    "player-card benched",
-                    p.name === t.captain ? "is-c" : p.name === t.vc ? "is-vc" : "",
-                    isExp ? "player-expanded" : "",
-                    isLiveNow ? "live-now" : isUpcoming ? "playing-next" : isDimmed ? "not-playing-next" : ""
-                  ].filter(Boolean).join(" ");
-                  return (
-                    <React.Fragment key={p.name}>
-                      <div className={cardClass}
-                        onClick={() => setExpandedPlayer(isExp ? null : p.name)}>
-                        {isLiveNow ? <div className="playing-badge live-badge" /> : <div className="playing-badge" style={{ background: isUpcoming ? "#4ade80" : "transparent" }} />}
-                        <div className="player-ipl-badge" style={{ background: IPL_COLORS[p.ipl] + "22", color: IPL_COLORS[p.ipl] + "99" }}>
-                          {p.ipl}
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div className="player-name" style={isLiveNow ? { color: "#fca5a5" } : {}}>{p.name}{p.name === t.captain ? <span style={{ marginLeft: 5, fontSize: "0.56rem", color: "#d4a843", fontWeight: 700 }}>C</span> : p.name === t.vc ? <span style={{ marginLeft: 5, fontSize: "0.56rem", color: "#a1a1aa", fontWeight: 700 }}>VC</span> : null}</div>
-                          <Sparkline name={p.name} color={t.color + "88"} />
-                        </div>
-                        <div style={{ textAlign: "right", flexShrink: 0 }}>
-                          <div className="player-pts" style={{ color: isLiveNow ? "#fca5a5" : "var(--text-3)" }}>{p.adj}</div>
-                          {p.name === t.captain && <div className="player-pts-raw">×2</div>}
-                          {p.name === t.vc && <div className="player-pts-raw">×1.5</div>}
-                        </div>
-                      </div>
-                      {isExp && renderBreakdown(p)}
-                    </React.Fragment>
-                  );
-                })}
+              <div className="top11-label" style={{ marginTop: 16, cursor: "pointer", userSelect: "none", display: "flex", alignItems: "center", justifyContent: "space-between" }}
+                onClick={() => setBenchOpen(o => !o)}>
+                <span>Bench</span>
+                <span style={{ fontSize: "0.6rem", color: "var(--text-3)", display: "inline-block", transition: "transform 0.2s", transform: benchOpen ? "rotate(180deg)" : "none" }}>▼</span>
               </div>
+              {benchOpen && (
+                <div className="players-grid">
+                  {td.players.filter(p => !td.top11.has(p.name)).sort((a, b) => b.adj - a.adj).map(p => {
+                    const isExp = expandedPlayer === p.name;
+                    const { isLiveNow, isUpcoming, isDimmed, glowColor } = getPlayerState(p.name, p.ipl);
+                    const cardClass = [
+                      "player-card benched",
+                      p.name === t.captain ? "is-c" : p.name === t.vc ? "is-vc" : "",
+                      isExp ? "player-expanded" : "",
+                      isLiveNow ? "live-now" : isUpcoming ? "playing-next" : isDimmed ? "not-playing-next" : ""
+                    ].filter(Boolean).join(" ");
+                    return (
+                      <React.Fragment key={p.name}>
+                        <div className={cardClass}
+                          onClick={() => setExpandedPlayer(isExp ? null : p.name)}>
+                          {isLiveNow ? <div className="playing-badge live-badge" /> : <div className="playing-badge" style={{ background: isUpcoming ? "#4ade80" : "transparent" }} />}
+                          <div className="player-ipl-badge" style={{ background: IPL_COLORS[p.ipl] + "22", color: IPL_COLORS[p.ipl] + "99" }}>
+                            {p.ipl}
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div className="player-name" style={isLiveNow ? { color: "#fca5a5" } : {}}>{p.name}{p.name === t.captain ? <span style={{ marginLeft: 5, fontSize: "0.56rem", color: "#d4a843", fontWeight: 700 }}>C</span> : p.name === t.vc ? <span style={{ marginLeft: 5, fontSize: "0.56rem", color: "#a1a1aa", fontWeight: 700 }}>VC</span> : null}</div>
+                            <Sparkline name={p.name} color={t.color + "88"} />
+                          </div>
+                          <div style={{ textAlign: "right", flexShrink: 0 }}>
+                            <div className="player-pts" style={{ color: isLiveNow ? "#fca5a5" : "var(--text-3)" }}>{p.adj}</div>
+                            {p.name === t.captain && <div className="player-pts-raw">×2</div>}
+                            {p.name === t.vc && <div className="player-pts-raw">×1.5</div>}
+                          </div>
+                        </div>
+                        {isExp && renderBreakdown(p)}
+                      </React.Fragment>
+                    );
+                  })}
+                </div>
+              )}
             </>
           );
         })()}
