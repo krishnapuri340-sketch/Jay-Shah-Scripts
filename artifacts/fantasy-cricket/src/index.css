@@ -763,6 +763,13 @@ body { background: var(--bg); }
 }
 .light-mode .hist-cabinet-bar-wrap { background: rgba(0,0,0,0.07); }
 
+/* Leaderboard — hardcoded dark colors need explicit overrides */
+.light-mode .lb-name.first { color: var(--text); }
+.light-mode .lb-rank.second { color: var(--text-2); }
+.light-mode .lb-rank.third { color: #92400e; }
+.light-mode .lb-pts-label { color: var(--text-3); }
+.light-mode .lb-meta { color: var(--text-2); }
+
 /* User chip */
 .light-mode .user-chip { background: rgba(0,0,0,0.04); }
 .light-mode .user-chip-logout {
