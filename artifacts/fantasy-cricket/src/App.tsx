@@ -1790,33 +1790,32 @@ export default function App() {
                 {/* Row 2: match prediction — labelled like PICKS */}
                 {hasIntel && (
                   <div style={{ display: "flex", flexDirection: "column" as const, gap: 5 }}>
-                    {/* Header row: label + winner */}
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    {/* Header row: label + predicted winner logo + code only */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <span style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em", flexShrink: 0 }}>MATCH PREDICTION</span>
                       {pred.pick ? (
                         <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                          <img src={TEAM_LOGO_CDN[pred.pick]} alt={pred.pick} style={{ width: 14, height: 14, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                          <img src={TEAM_LOGO_CDN[pred.pick]} alt={pred.pick} style={{ width: 15, height: 15, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
                           <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--gold)" }}>{pred.pick}</span>
-                          <span style={{ fontSize: "0.58rem", color: "var(--text-3)" }}>· {pred.reason.toLowerCase()}</span>
                         </div>
                       ) : (
                         <span style={{ fontSize: "0.6rem", color: "var(--text-3)", fontStyle: "italic" }}>{pred.reason}</span>
                       )}
                     </div>
-                    {/* Sub-line: H2H + avg score */}
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, paddingLeft: 0, flexWrap: "wrap" as const }}>
+                    {/* Sub-line: H2H + ground avg */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" as const }}>
                       {h2h && (
                         <span style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>
+                          <span style={{ opacity: 0.5, marginRight: 4 }}>H2H</span>
                           <span style={{ fontWeight: 600, color: h2h.aWins >= h2h.bWins ? "var(--text-2)" : "var(--text-3)" }}>{nextM.homeTeamCode} {h2h.aWins}</span>
                           <span style={{ margin: "0 3px" }}>–</span>
                           <span style={{ fontWeight: 600, color: h2h.bWins > h2h.aWins ? "var(--text-2)" : "var(--text-3)" }}>{h2h.bWins} {nextM.awayTeamCode}</span>
-                          <span style={{ opacity: 0.4, marginLeft: 3, fontSize: "0.56rem" }}>H2H</span>
                         </span>
                       )}
                       {vd && (
                         <span style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>
-                          · avg <span style={{ fontWeight: 600, color: "var(--text-2)" }}>~{vd.avg}</span>
-                          <span style={{ opacity: 0.5, marginLeft: 4 }}>{vd.note}</span>
+                          Ground avg score (batting first) –&nbsp;<span style={{ fontWeight: 600, color: "var(--text-2)" }}>{vd.avg}</span>
+                          <span style={{ opacity: 0.5, marginLeft: 6 }}>{vd.note}</span>
                         </span>
                       )}
                     </div>
