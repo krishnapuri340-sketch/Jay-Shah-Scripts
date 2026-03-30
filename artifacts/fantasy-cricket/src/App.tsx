@@ -1766,52 +1766,68 @@ export default function App() {
             const vd = VENUE_AVG[nextM.venue || ""];
             const pred = predictNextMatch(nextM.homeTeamCode, nextM.awayTeamCode);
             const hasIntel = h2h || vd;
+            const sortedStakes = [...stakes].filter(s => s.count > 0).sort((a, b) => b.count - a.count);
             return (
-              <div style={{ borderTop: "1px solid var(--border)", paddingTop: 9, display: "flex", flexDirection: "column" as const, gap: 7 }}>
-                {/* Compact row: stakes + H2H + venue all inline */}
-                <div style={{ display: "flex", alignItems: "center", gap: 0, flexWrap: "wrap" as const, rowGap: 5 }}>
-                  {/* Owner stakes chips */}
-                  {stakes.some(s => s.count > 0) && (
-                    <div style={{ display: "flex", gap: 8, marginRight: 12 }}>
-                      {stakes.map(s => (
-                        <span key={s.owner} style={{ fontSize: "0.65rem", fontWeight: 700, color: s.count > 0 ? s.color : "var(--text-3)" }}>
-                          {s.owner}<span style={{ fontWeight: 400, color: "var(--text-3)", fontSize: "0.6rem", marginLeft: 2 }}>{s.count}</span>
+              <div style={{ borderTop: "1px solid var(--border)", paddingTop: 9, display: "flex", flexDirection: "column" as const, gap: 0 }}>
+                {/* Row 1: picks sorted by count desc */}
+                {sortedStakes.length > 0 && (
+                  <div style={{ display: "flex", alignItems: "baseline", gap: 14, paddingBottom: 8 }}>
+                    <span style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em", flexShrink: 0 }}>PICKS</span>
+                    <div style={{ display: "flex", gap: 12, flexWrap: "wrap" as const }}>
+                      {sortedStakes.map((s, i) => (
+                        <span key={s.owner} style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
+                          <span style={{
+                            fontSize: i === 0 ? "0.78rem" : i === 1 ? "0.7rem" : "0.63rem",
+                            fontWeight: 700,
+                            color: s.color,
+                            transition: "font-size 0.15s"
+                          }}>{s.owner}</span>
+                          <span style={{
+                            fontSize: i === 0 ? "0.68rem" : "0.6rem",
+                            fontWeight: i === 0 ? 600 : 400,
+                            color: i === 0 ? "var(--text-2)" : "var(--text-3)"
+                          }}>{s.count}</span>
                         </span>
                       ))}
                     </div>
-                  )}
-                  {/* H2H inline */}
-                  {h2h && (
-                    <span style={{ fontSize: "0.63rem", color: "var(--text-3)" }}>
-                      <span style={{ fontWeight: 600, color: h2h.aWins >= h2h.bWins ? "var(--text-2)" : "var(--text-3)" }}>{nextM.homeTeamCode} {h2h.aWins}</span>
-                      <span style={{ margin: "0 3px" }}>–</span>
-                      <span style={{ fontWeight: 600, color: h2h.bWins > h2h.aWins ? "var(--text-2)" : "var(--text-3)" }}>{h2h.bWins} {nextM.awayTeamCode}</span>
-                      <span style={{ opacity: 0.5, marginLeft: 3 }}>H2H</span>
-                    </span>
-                  )}
-                  {/* Venue inline */}
-                  {vd && (
-                    <span style={{ fontSize: "0.6rem", color: "var(--text-3)", marginLeft: h2h ? 10 : 0 }}>
-                      · ~{vd.avg} avg
-                      <span style={{ opacity: 0.6, marginLeft: 4 }}>{vd.note}</span>
-                    </span>
-                  )}
-                </div>
-                {/* Prediction pill — slim single line */}
+                  </div>
+                )}
+                {/* Divider */}
+                {sortedStakes.length > 0 && hasIntel && (
+                  <div style={{ borderTop: "1px solid var(--border)", marginBottom: 8 }} />
+                )}
+                {/* Row 2: H2H · venue · prediction — all sleek inline */}
                 {hasIntel && (
-                  pred.pick ? (
-                    <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                      <span style={{ fontSize: "0.58rem", color: "var(--text-3)" }}>💡</span>
-                      <img src={TEAM_LOGO_CDN[pred.pick]} alt={pred.pick} style={{ width: 14, height: 14, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                      <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--gold)" }}>{pred.pick}</span>
-                      <span style={{ fontSize: "0.58rem", color: "var(--text-3)" }}>
-                        {pred.reason.toLowerCase()}
-                        {h2h && ` · ${pred.pick === nextM.homeTeamCode ? `${h2h.aWins}-${h2h.bWins}` : `${h2h.bWins}-${h2h.aWins}`} H2H`}
-                      </span>
+                  <div style={{ display: "flex", flexDirection: "column" as const, gap: 5 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" as const }}>
+                      {h2h && (
+                        <span style={{ fontSize: "0.63rem", color: "var(--text-3)" }}>
+                          <span style={{ fontWeight: 600, color: h2h.aWins >= h2h.bWins ? "var(--text-2)" : "var(--text-3)" }}>{nextM.homeTeamCode} {h2h.aWins}</span>
+                          <span style={{ margin: "0 3px" }}>–</span>
+                          <span style={{ fontWeight: 600, color: h2h.bWins > h2h.aWins ? "var(--text-2)" : "var(--text-3)" }}>{h2h.bWins} {nextM.awayTeamCode}</span>
+                          <span style={{ opacity: 0.45, marginLeft: 3, fontSize: "0.58rem" }}>H2H</span>
+                        </span>
+                      )}
+                      {vd && (
+                        <span style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>
+                          ~{vd.avg} avg
+                          <span style={{ opacity: 0.55, marginLeft: 4 }}>{vd.note}</span>
+                        </span>
+                      )}
                     </div>
-                  ) : (
-                    <span style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>⚖️ {pred.reason}</span>
-                  )
+                    {pred.pick ? (
+                      <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                        <span style={{ fontSize: "0.58rem" }}>💡</span>
+                        <img src={TEAM_LOGO_CDN[pred.pick]} alt={pred.pick} style={{ width: 14, height: 14, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                        <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--gold)" }}>{pred.pick}</span>
+                        <span style={{ fontSize: "0.58rem", color: "var(--text-3)" }}>
+                          {pred.reason.toLowerCase()}{h2h && ` · ${pred.pick === nextM.homeTeamCode ? `${h2h.aWins}-${h2h.bWins}` : `${h2h.bWins}-${h2h.aWins}`} H2H`}
+                        </span>
+                      </div>
+                    ) : (
+                      <span style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>⚖️ {pred.reason}</span>
+                    )}
+                  </div>
                 )}
               </div>
             );
