@@ -3251,13 +3251,25 @@ export default function App() {
                         <div style={{ padding: "16px 12px", fontSize: "0.72rem", color: "var(--text-3)", textAlign: "center" as const }}>All matches completed — see archive above</div>
                       )}
                       {visibleCurrent.map((m: any, idx: number) => renderRow(m, idx === visibleCurrent.length - 1 && !hasMoreCurrent))}
-                      {hasMoreCurrent && (
-                        <button
-                          onClick={() => setPredVisibleCount(c => c + 10)}
-                          style={{ width: "100%", padding: "10px 0", background: "transparent", border: "none", borderTop: "1px solid var(--border)", cursor: "pointer", fontSize: "0.68rem", color: "var(--text-3)", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
-                          <span>Show {Math.min(10, currentMatches.length - predVisibleCount)} more</span>
-                          <span style={{ fontSize: "0.7rem" }}>▼</span>
-                        </button>
+                      {(hasMoreCurrent || predVisibleCount > 10) && (
+                        <div style={{ display: "flex", borderTop: "1px solid var(--border)" }}>
+                          {predVisibleCount > 10 && (
+                            <button
+                              onClick={() => setPredVisibleCount(c => Math.max(10, c - 10))}
+                              style={{ flex: 1, padding: "10px 0", background: "transparent", border: "none", borderRight: hasMoreCurrent ? "1px solid var(--border)" : "none", cursor: "pointer", fontSize: "0.68rem", color: "var(--text-3)", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
+                              <span style={{ fontSize: "0.7rem" }}>▲</span>
+                              <span>Show less</span>
+                            </button>
+                          )}
+                          {hasMoreCurrent && (
+                            <button
+                              onClick={() => setPredVisibleCount(c => c + 10)}
+                              style={{ flex: 1, padding: "10px 0", background: "transparent", border: "none", cursor: "pointer", fontSize: "0.68rem", color: "var(--text-3)", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
+                              <span>Show {Math.min(10, currentMatches.length - predVisibleCount)} more</span>
+                              <span style={{ fontSize: "0.7rem" }}>▼</span>
+                            </button>
+                          )}
+                        </div>
                       )}
                     </div>
 
