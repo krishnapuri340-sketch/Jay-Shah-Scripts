@@ -1,4 +1,5 @@
 import { Router, type IRouter } from "express";
+import { fetchMatchOverview } from "./ipl-points";
 
 const router: IRouter = Router();
 
@@ -194,6 +195,15 @@ router.get("/ipl/matches", async (req, res) => {
 
     cache = { data: response, timestamp: Date.now() };
     res.json(response);
+
+    // Pre-warm scorecard overview cache for completed matches in the background
+    // so the first user click on any match scorecard is instant
+    const completedIds = allMatches
+      .filter((m: any) => m.matchEnded)
+      .map((m: any) => m.id);
+    for (const id of completedIds) {
+      fetchMatchOverview(id, true).catch(() => {});
+    }
   } catch (err: any) {
     req.log.error({ err }, "Failed to fetch IPL matches");
     res.status(500).json({ error: "Failed to fetch match data", matches: [] });

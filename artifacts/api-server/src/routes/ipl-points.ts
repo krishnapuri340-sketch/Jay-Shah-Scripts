@@ -1058,39 +1058,69 @@ router.get("/ipl/playing11", async (req, res) => {
   }
 });
 
+// Cache for match overview fetches from S3
+// Completed matches: cached indefinitely (result never changes)
+// Live matches: cached 30 s (score updates frequently)
+const summaryCache = new Map<string, { data: any; timestamp: number; isCompleted: boolean }>();
+
+export async function fetchMatchOverview(matchId: string, isCompleted: boolean): Promise<any> {
+  const entry = summaryCache.get(matchId);
+  const ttl = isCompleted ? Infinity : 30_000;
+  if (entry && (isCompleted || Date.now() - entry.timestamp < ttl)) {
+    return entry.data;
+  }
+
+  try {
+    const sumRes = await fetch(
+      `https://ipl-stats-sports-mechanic.s3.ap-south-1.amazonaws.com/ipl/feeds/${matchId}-matchsummary.js`,
+      {
+        headers: { "User-Agent": "Mozilla/5.0 (compatible; IPLFetcher/1.0)" },
+        signal: AbortSignal.timeout(4000),
+      }
+    );
+    if (!sumRes.ok) return entry?.data ?? null;
+    const text = await sumRes.text();
+    const m = text.match(/^[A-Za-z_$][A-Za-z0-9_$]*\(([\s\S]*)\)\s*;?\s*$/);
+    if (!m) return entry?.data ?? null;
+    const raw = JSON.parse(m[1]);
+    const ms = (raw.MatchSummary || [])[0] || {};
+    const overview = {
+      result: ms.Comments || "",
+      toss: ms.TossDetails || "",
+      venue: ms.GroundName || "",
+      team1: ms.Team1 || ms.FirstBattingTeam || "",
+      team2: ms.Team2 || ms.SecondBattingTeam || "",
+      score1: ms["1Summary"] || "",
+      score2: ms["2Summary"] || "",
+      umpires: [ms.Umpire1Name, ms.Umpire2Name].filter(Boolean).join(", "),
+      referee: ms.Referee || "",
+    };
+    summaryCache.set(matchId, { data: overview, timestamp: Date.now(), isCompleted });
+    return overview;
+  } catch (_) {
+    return entry?.data ?? null;
+  }
+}
+
 router.get("/ipl/scorecard/:matchId", async (req, res) => {
   const { matchId } = req.params;
   const cached = pointsCache.processedMatches[matchId];
   const innings = cached?.innings || [];
+  const isCompleted = !!cached;   // if it's in our points cache it's been processed → done
 
-  // Fetch match overview from IPL S3 matchsummary
-  let overview: any = null;
-  try {
-    const sumRes = await fetch(
-      `https://ipl-stats-sports-mechanic.s3.ap-south-1.amazonaws.com/ipl/feeds/${matchId}-matchsummary.js`,
-      { signal: AbortSignal.timeout(8000) }
-    );
-    if (sumRes.ok) {
-      const text = await sumRes.text();
-      const m = text.match(/^[A-Za-z_$][A-Za-z0-9_$]*\(([\s\S]*)\)\s*;?\s*$/);
-      if (m) {
-        const data = JSON.parse(m[1]);
-        const ms = (data.MatchSummary || [])[0] || {};
-        overview = {
-          result: ms.Comments || "",
-          toss: ms.TossDetails || "",
-          venue: ms.GroundName || "",
-          team1: ms.Team1 || ms.FirstBattingTeam || "",
-          team2: ms.Team2 || ms.SecondBattingTeam || "",
-          score1: ms["1Summary"] || "",
-          score2: ms["2Summary"] || "",
-          umpires: [ms.Umpire1Name, ms.Umpire2Name].filter(Boolean).join(", "),
-          referee: ms.Referee || "",
-        };
-      }
-    }
-  } catch (_) {}
+  // Return innings immediately from in-memory cache while overview fetches in parallel
+  const overviewPromise = fetchMatchOverview(matchId, isCompleted);
 
+  // If we already have a cached summary, respond instantly; otherwise wait (max 4 s)
+  const cachedEntry = summaryCache.get(matchId);
+  if (cachedEntry) {
+    res.json({ matchId, overview: cachedEntry.data, innings, hasScorecard: innings.length > 0 });
+    // Still refresh in background if live
+    if (!isCompleted) overviewPromise.catch(() => {});
+    return;
+  }
+
+  const overview = await overviewPromise;
   res.json({ matchId, overview, innings, hasScorecard: innings.length > 0 });
 });
 

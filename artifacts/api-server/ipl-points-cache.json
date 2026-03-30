@@ -1029,7 +1029,7 @@
       "innings": [
         {
           "name": "Chennai Super Kings Inning 1",
-          "total": "12/3 (3.1 ov)",
+          "total": "22/3 (4.0 ov)",
           "batting": [
             {
               "name": "Sanju Samson",
@@ -1077,11 +1077,11 @@
             },
             {
               "name": "Sarfaraz Khan",
-              "runs": 0,
-              "balls": 0,
-              "fours": 0,
-              "sixes": 0,
-              "sr": "0.00",
+              "runs": 10,
+              "balls": 5,
+              "fours": 1,
+              "sixes": 1,
+              "sr": "200",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -1100,12 +1100,12 @@
             },
             {
               "name": "Nandre Burger",
-              "overs": "1.1",
+              "overs": "2",
               "maidens": 0,
-              "runs": 3,
+              "runs": 14,
               "wickets": 2,
-              "eco": "2.6",
-              "wides": 1,
+              "eco": "7",
+              "wides": 2,
               "noBalls": 0
             }
           ]
@@ -1800,6 +1800,6 @@
   "lastUpdated": "2026-03-29T18:00:26.567Z",
   "dailyHits": {
     "date": "2026-03-30",
-    "count": 43
+    "count": 51
   }
 }
