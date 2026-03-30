@@ -511,12 +511,7 @@ export default function App() {
   const [standingsOpen, setStandingsOpen] = useState(false);
   const [intelOpen, setIntelOpen] = useState(false);
   const [expandedPredMatchId, setExpandedPredMatchId] = useState<string | null>(null);
-  const [predictions, setPredictions] = useState<Record<string, Record<string, string | null>>>(() => {
-    try { return JSON.parse(localStorage.getItem('ipl-predictions-2026') || '{}'); } catch { return {}; }
-  });
-  useEffect(() => {
-    localStorage.setItem('ipl-predictions-2026', JSON.stringify(predictions));
-  }, [predictions]);
+  const [predictions, setPredictions] = useState<Record<string, Record<string, string | null>>>({});
 
   const [rankChanges, setRankChanges] = useState<Record<string, number>>({});
   const [isDark, setIsDark] = useState(true);
@@ -655,6 +650,13 @@ export default function App() {
     setStatsLoading(false);
   };
 
+  const fetchPredictions = async () => {
+    try {
+      const res = await fetch("/api/ipl/predictions");
+      if (res.ok) setPredictions(await res.json());
+    } catch (_) {}
+  };
+
   const toggleMatch = (matchId: string, isCompleted: boolean) => {
     if (expandedMatchId === matchId) {
       setExpandedMatchId(null);
@@ -676,6 +678,7 @@ export default function App() {
     fetchPoints();
     fetchStandings();
     fetchStats();
+    fetchPredictions();
   }, [currentUser]);
 
   // Register service worker for push notifications
@@ -742,12 +745,13 @@ export default function App() {
   useEffect(() => { setFixtureHomeAwayFilter("all"); }, [teamFilter]);
 
   useEffect(() => {
-    const delay = isAnyMatchLive ? 60_000 : 5 * 60_000;
+    const delay = isAnyMatchLive ? 60_000 : 90_000;
     const ids = [
       setInterval(fetchLive, delay),
       setInterval(fetchPoints, delay),
       setInterval(fetchStandings, delay),
       setInterval(fetchStats, delay),
+      setInterval(fetchPredictions, delay),
     ];
     return () => ids.forEach(clearInterval);
   }, [isAnyMatchLive]);
@@ -2818,10 +2822,16 @@ export default function App() {
                                       {[m.homeTeamCode, m.awayTeamCode].map((code: string) => (
                                         <button key={code} onClick={e => {
                                           e.stopPropagation();
+                                          const newPick = pick === code ? null : code;
                                           setPredictions(prev => ({
                                             ...prev,
-                                            [matchIdStr]: { ...(prev[matchIdStr] || {}), [ownerId]: pick === code ? null : code }
+                                            [matchIdStr]: { ...(prev[matchIdStr] || {}), [ownerId]: newPick }
                                           }));
+                                          fetch(`/api/ipl/predictions/${encodeURIComponent(matchIdStr)}`, {
+                                            method: "POST",
+                                            headers: { "Content-Type": "application/json" },
+                                            body: JSON.stringify({ ownerId, pick: newPick }),
+                                          }).then(r => r.json()).then(d => { if (d.predictions) setPredictions(d.predictions); }).catch(() => {});
                                         }} style={{
                                           flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 2,
                                           padding: "3px 2px", borderRadius: 6, cursor: "pointer", border: "1px solid",

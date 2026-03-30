@@ -1,5 +1,20 @@
 import { Router, type IRouter } from "express";
+import { readFileSync, writeFileSync, existsSync } from "fs";
+import { join } from "path";
 import { fetchMatchOverview } from "./ipl-points";
+
+// ── Shared predictions store ──────────────────────────────────────────────────
+const PRED_FILE = join(process.cwd(), "ipl-predictions.json");
+type PredStore = Record<string, Record<string, string | null>>;
+
+function loadPreds(): PredStore {
+  try { if (existsSync(PRED_FILE)) return JSON.parse(readFileSync(PRED_FILE, "utf8")); } catch {}
+  return {};
+}
+function savePreds(data: PredStore) {
+  try { writeFileSync(PRED_FILE, JSON.stringify(data)); } catch {}
+}
+let predsCache: PredStore = loadPreds();
 
 const router: IRouter = Router();
 
@@ -270,6 +285,22 @@ router.get("/ipl/standings", async (req, res) => {
     req.log.error({ err }, "Failed to fetch standings");
     return res.status(500).json({ standings: [] });
   }
+});
+
+// GET /api/ipl/predictions → returns all picks
+router.get("/ipl/predictions", (_req, res) => {
+  res.json(predsCache);
+});
+
+// POST /api/ipl/predictions/:matchId → { ownerId, pick }
+router.post("/ipl/predictions/:matchId", (req, res) => {
+  const { matchId } = req.params;
+  const { ownerId, pick } = req.body as { ownerId?: string; pick?: string | null };
+  if (!matchId || !ownerId) return res.status(400).json({ error: "matchId and ownerId required" });
+  if (!predsCache[matchId]) predsCache[matchId] = {};
+  predsCache[matchId][ownerId] = pick ?? null;
+  savePreds(predsCache);
+  return res.json({ ok: true, predictions: predsCache });
 });
 
 export default router;
