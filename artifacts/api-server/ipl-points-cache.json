@@ -1026,12 +1026,12 @@
         "Shivam Dube": 16,
         "Ruturaj Gaikwad": 8,
         "Sanju Samson": 14,
-        "Ravindra Jadeja": 64
+        "Ravindra Jadeja": 68
       },
       "innings": [
         {
           "name": "Chennai Super Kings Inning 1",
-          "total": "54/6 (9.3 ov)",
+          "total": "64/7 (10.3 ov)",
           "batting": [
             {
               "name": "Sanju Samson",
@@ -1090,13 +1090,13 @@
             },
             {
               "name": "Kartik Sharma",
-              "runs": 16,
-              "balls": 13,
+              "runs": 18,
+              "balls": 15,
               "fours": 0,
               "sixes": 1,
-              "sr": "123.08",
-              "dismissal": "not out",
-              "notOut": true,
+              "sr": "120",
+              "dismissal": "lbw",
+              "notOut": false,
               "dnb": false
             },
             {
@@ -1112,11 +1112,11 @@
             },
             {
               "name": "Jamie Overton",
-              "runs": 1,
-              "balls": 2,
+              "runs": 9,
+              "balls": 6,
               "fours": 0,
-              "sixes": 0,
-              "sr": "50",
+              "sixes": 1,
+              "sr": "150",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -1145,12 +1145,12 @@
             },
             {
               "name": "Brijesh Sharma",
-              "overs": "1",
+              "overs": "1.3",
               "maidens": 0,
-              "runs": 6,
-              "wickets": 0,
-              "eco": "6",
-              "wides": 1,
+              "runs": 10,
+              "wickets": 1,
+              "eco": "6.7",
+              "wides": 2,
               "noBalls": 0
             },
             {
@@ -1175,11 +1175,11 @@
             },
             {
               "name": "Ravindra Jadeja",
-              "overs": "1.3",
+              "overs": "2",
               "maidens": 0,
-              "runs": 7,
+              "runs": 14,
               "wickets": 2,
-              "eco": "4.7",
+              "eco": "7",
               "wides": 0,
               "noBalls": 0
             }
@@ -1249,8 +1249,8 @@
           "dots": 0,
           "lbwBowled": 0,
           "maidens": 0,
-          "ballsBowled": 9,
-          "runsConceded": 7,
+          "ballsBowled": 12,
+          "runsConceded": 14,
           "catches": 0,
           "runOuts": 0,
           "stumpings": 0
@@ -1909,6 +1909,6 @@
   "lastUpdated": "2026-03-29T18:00:26.567Z",
   "dailyHits": {
     "date": "2026-03-30",
-    "count": 89
+    "count": 101
   }
 }
