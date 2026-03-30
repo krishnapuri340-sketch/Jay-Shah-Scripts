@@ -1026,7 +1026,7 @@
         "Shivam Dube": 16,
         "Ruturaj Gaikwad": 8,
         "Sanju Samson": 14,
-        "Yashasvi Jaiswal": 17,
+        "Yashasvi Jaiswal": 16,
         "Ravindra Jadeja": 68,
         "Khaleel Ahmed": 4
       },
@@ -1222,12 +1222,12 @@
         },
         {
           "name": "Rajasthan Royals Inning 1",
-          "total": "24/0 (2.2 ov)",
+          "total": "26/0 (2.4 ov)",
           "batting": [
             {
               "name": "Yashasvi Jaiswal",
-              "runs": 9,
-              "balls": 9,
+              "runs": 10,
+              "balls": 10,
               "fours": 1,
               "sixes": 0,
               "sr": "100",
@@ -1237,11 +1237,11 @@
             },
             {
               "name": "Vaibhav Sooryavanshi",
-              "runs": 15,
-              "balls": 5,
+              "runs": 16,
+              "balls": 6,
               "fours": 2,
               "sixes": 1,
-              "sr": "300",
+              "sr": "266.67",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -1250,11 +1250,11 @@
           "bowling": [
             {
               "name": "Matt Henry",
-              "overs": "1.2",
+              "overs": "1.4",
               "maidens": 0,
-              "runs": 19,
+              "runs": 21,
               "wickets": 0,
-              "eco": "14.2",
+              "eco": "12.6",
               "wides": 0,
               "noBalls": 0
             },
@@ -1325,8 +1325,8 @@
         },
         "Yashasvi Jaiswal": {
           "played": true,
-          "runs": 9,
-          "balls": 9,
+          "runs": 10,
+          "balls": 10,
           "fours": 1,
           "sixes": 0,
           "duck": false,
@@ -2028,6 +2028,6 @@
   "lastUpdated": "2026-03-29T18:00:26.567Z",
   "dailyHits": {
     "date": "2026-03-30",
-    "count": 209
+    "count": 211
   }
 }
