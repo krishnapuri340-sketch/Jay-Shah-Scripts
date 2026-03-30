@@ -778,6 +778,13 @@ export default function App() {
     return () => ids.forEach(clearInterval);
   }, [isAnyMatchLive]);
 
+  // Fast-poll predictions when the Predictions view is open (picks can change up until match starts)
+  useEffect(() => {
+    if (!(tab === "stats" && statsFilter === "predictions")) return;
+    const id = setInterval(fetchPredictions, 30_000);
+    return () => clearInterval(id);
+  }, [tab, statsFilter]);
+
   // Refresh when the user returns to the tab after being away
   useEffect(() => {
     const onVisible = () => {
@@ -3110,9 +3117,12 @@ export default function App() {
               {/* Match table */}
               <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden", marginBottom: 12 }}>
                 {/* Header */}
-                <div style={{ display: "grid", gridTemplateColumns: "34px 1fr repeat(4, 36px)", padding: "8px 12px", borderBottom: "1px solid var(--border)", background: "rgba(255,255,255,0.02)" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "34px 1fr repeat(4, 36px)", padding: "8px 12px", borderBottom: "1px solid var(--border)", background: "rgba(255,255,255,0.02)", alignItems: "center" }}>
                   <div style={{ fontSize: "0.56rem", color: "var(--text-3)", fontWeight: 700, letterSpacing: "0.08em" }}>#</div>
-                  <div style={{ fontSize: "0.56rem", color: "var(--text-3)", fontWeight: 700, letterSpacing: "0.08em" }}>MATCH</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                    <span style={{ fontSize: "0.56rem", color: "var(--text-3)", fontWeight: 700, letterSpacing: "0.08em" }}>MATCH</span>
+                    <span style={{ fontSize: "0.5rem", background: "rgba(167,139,250,0.12)", color: "#a78bfa", borderRadius: 4, padding: "1px 5px" }}>live picks</span>
+                  </div>
                   {PRED_OWNERS.map(id => (
                     <div key={id} style={{ fontSize: "0.56rem", color: FANTASY_TEAMS[id].color, fontWeight: 700, textAlign: "center" as const }}>
                       {FANTASY_TEAMS[id].owner.slice(0,3).toUpperCase()}
@@ -3130,23 +3140,27 @@ export default function App() {
                   const isNil = m.matchNum <= 3;
                   const isDone = m.matchEnded;
                   const isLive = m.matchStarted && !m.matchEnded;
+                  const isUpcoming = !m.matchStarted;
                   const winner = isDone ? getMatchWinner(m) : null;
                   const preds = predictions[String(m.id)] || {};
                   const isLast = idx === sortedMatches.length - 1;
+                  const picksIn = !isNil ? PRED_OWNERS.filter(id => preds[id]).length : 0;
 
                   return (
-                    <div key={m.id} style={{ display: "grid", gridTemplateColumns: "34px 1fr repeat(4, 36px)", padding: "8px 12px", borderBottom: isLast ? "none" : "1px solid var(--border)", alignItems: "center", opacity: !isDone && !isLive ? 0.5 : 1 }}>
+                    <div key={m.id} style={{ display: "grid", gridTemplateColumns: "34px 1fr repeat(4, 36px)", padding: "8px 12px", borderBottom: isLast ? "none" : "1px solid var(--border)", alignItems: "center" }}>
                       <div style={{ fontSize: "0.65rem", fontWeight: 700, color: isLive ? "var(--live)" : "var(--text-3)" }}>
                         {m.matchNum === 999 ? "?" : `M${m.matchNum}`}
                       </div>
                       <div style={{ minWidth: 0 }}>
-                        <div style={{ fontSize: "0.68rem", fontWeight: 600, color: "var(--text-2)", whiteSpace: "nowrap" as const }}>
+                        <div style={{ fontSize: "0.68rem", fontWeight: 600, whiteSpace: "nowrap" as const }}>
                           <span style={{ color: winner === m.homeTeamCode ? "#22c55e" : "var(--text-2)" }}>{m.homeTeamCode}</span>
                           <span style={{ color: "var(--text-3)", padding: "0 3px", fontSize: "0.55rem" }}>vs</span>
                           <span style={{ color: winner === m.awayTeamCode ? "#22c55e" : "var(--text-2)" }}>{m.awayTeamCode}</span>
                         </div>
                         {isNil && <div style={{ fontSize: "0.5rem", color: "var(--text-3)", fontStyle: "italic" }}>no predictions</div>}
                         {isLive && <div style={{ fontSize: "0.5rem", color: "var(--live)" }}>● Live</div>}
+                        {isUpcoming && !isNil && picksIn > 0 && <div style={{ fontSize: "0.5rem", color: "#a78bfa" }}>{picksIn}/4 picked</div>}
+                        {isUpcoming && !isNil && picksIn === 0 && <div style={{ fontSize: "0.5rem", color: "var(--text-3)" }}>open</div>}
                       </div>
                       {PRED_OWNERS.map(id => {
                         if (isNil) return (
@@ -3154,16 +3168,22 @@ export default function App() {
                         );
                         const pick = preds[id] || null;
                         if (!pick) return (
-                          <div key={id} style={{ textAlign: "center" as const, fontSize: "0.6rem", color: "var(--text-3)" }}>—</div>
+                          <div key={id} style={{ textAlign: "center" as const, fontSize: "0.65rem", color: "var(--text-3)" }}>
+                            {isUpcoming ? <span style={{ opacity: 0.4 }}>?</span> : "—"}
+                          </div>
                         );
                         const isCorrect = !!winner && winner !== "tie" && pick === winner;
                         const isWrong = !!winner && winner !== "tie" && pick !== winner;
+                        const isPending = !isDone && !isLive;
                         return (
                           <div key={id} style={{ textAlign: "center" as const }}>
-                            <div style={{ fontSize: "0.58rem", fontWeight: 700, color: isCorrect ? "#22c55e" : isWrong ? "#f87171" : "var(--text-2)", lineHeight: 1.2 }}>{pick}</div>
+                            <div style={{
+                              fontSize: "0.58rem", fontWeight: 700, lineHeight: 1.2,
+                              color: isCorrect ? "#22c55e" : isWrong ? "#f87171" : isPending ? "#a78bfa" : "var(--text-2)"
+                            }}>{pick}</div>
                             {isCorrect && <div style={{ fontSize: "0.6rem", color: "#22c55e", lineHeight: 1 }}>✓</div>}
                             {isWrong && <div style={{ fontSize: "0.6rem", color: "#f87171", lineHeight: 1 }}>✗</div>}
-                            {!isDone && pick && <div style={{ fontSize: "0.5rem", color: "var(--text-3)", lineHeight: 1 }}>•</div>}
+                            {isLive && pick && <div style={{ fontSize: "0.48rem", color: "var(--text-3)", lineHeight: 1 }}>locked</div>}
                           </div>
                         );
                       })}
@@ -3172,7 +3192,7 @@ export default function App() {
                 })}
               </div>
               <div style={{ fontSize: "0.58rem", color: "var(--text-3)", textAlign: "center" as const, padding: "2px 0 8px" }}>
-                Matches 1–3 had no predictions · +1 for each correct pick
+                Matches 1–3 had no predictions · +1 for each correct pick · picks refresh every 30s
               </div>
             </>
           );
