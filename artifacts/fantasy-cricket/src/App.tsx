@@ -3250,28 +3250,27 @@ export default function App() {
                       {currentMatches.length === 0 && sortedMatches.length > 0 && (
                         <div style={{ padding: "16px 12px", fontSize: "0.72rem", color: "var(--text-3)", textAlign: "center" as const }}>All matches completed — see archive above</div>
                       )}
-                      {visibleCurrent.map((m: any, idx: number) => renderRow(m, idx === visibleCurrent.length - 1 && !hasMoreCurrent))}
-                      {(hasMoreCurrent || predVisibleCount > 10) && (
-                        <div style={{ display: "flex", borderTop: "1px solid var(--border)" }}>
-                          {predVisibleCount > 10 && (
-                            <button
-                              onClick={() => setPredVisibleCount(c => Math.max(10, c - 10))}
-                              style={{ flex: 1, padding: "10px 0", background: "transparent", border: "none", borderRight: hasMoreCurrent ? "1px solid var(--border)" : "none", cursor: "pointer", fontSize: "0.68rem", color: "var(--text-3)", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
-                              <span style={{ fontSize: "0.7rem" }}>▲</span>
-                              <span>Show less</span>
-                            </button>
-                          )}
-                          {hasMoreCurrent && (
-                            <button
-                              onClick={() => setPredVisibleCount(c => c + 10)}
-                              style={{ flex: 1, padding: "10px 0", background: "transparent", border: "none", cursor: "pointer", fontSize: "0.68rem", color: "var(--text-3)", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
-                              <span>Show {Math.min(10, currentMatches.length - predVisibleCount)} more</span>
-                              <span style={{ fontSize: "0.7rem" }}>▼</span>
-                            </button>
-                          )}
-                        </div>
-                      )}
+                      {visibleCurrent.map((m: any, idx: number) => renderRow(m, idx === visibleCurrent.length - 1))}
                     </div>
+                    {(hasMoreCurrent || predVisibleCount > 10) && (
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 2px 2px" }}>
+                        {predVisibleCount > 10 ? (
+                          <button onClick={() => setPredVisibleCount(c => Math.max(10, c - 10))}
+                            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", borderRadius: 20, padding: "5px 12px", cursor: "pointer", fontSize: "0.63rem", color: "var(--text-3)", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 4 }}>
+                            <span>↑</span><span>Less</span>
+                          </button>
+                        ) : <div />}
+                        <span style={{ fontSize: "0.58rem", color: "var(--text-3)" }}>
+                          {Math.min(predVisibleCount, currentMatches.length)} of {currentMatches.length}
+                        </span>
+                        {hasMoreCurrent ? (
+                          <button onClick={() => setPredVisibleCount(c => c + 10)}
+                            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", borderRadius: 20, padding: "5px 12px", cursor: "pointer", fontSize: "0.63rem", color: "var(--text-3)", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 4 }}>
+                            <span>More</span><span>↓</span>
+                          </button>
+                        ) : <div />}
+                      </div>
+                    )}
 
                     <div style={{ fontSize: "0.58rem", color: "var(--text-3)", textAlign: "center" as const, padding: "2px 0 8px" }}>
                       Matches 1–3 had no predictions · +1 for each correct pick · picks refresh every 30s
