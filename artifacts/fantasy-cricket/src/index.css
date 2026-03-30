@@ -616,9 +616,9 @@ body { background: var(--bg); }
 
 /* Nav */
 .light-mode .nav {
-  background: rgba(255,255,255,0.92);
+  background: rgba(244,241,236,0.94);
   border-top: 1px solid var(--border);
-  box-shadow: 0 -2px 16px rgba(0,0,0,0.07);
+  box-shadow: 0 -2px 16px rgba(0,0,0,0.06);
 }
 .light-mode .nav-btn { color: #94a3b8; }
 .light-mode .nav-btn.active { color: var(--gold); }
