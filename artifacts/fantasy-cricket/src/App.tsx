@@ -410,54 +410,131 @@ function LoginScreen({ onLogin, pins }: { onLogin: (id: string) => void; pins: R
   if (sel) {
     const ft = FANTASY_TEAMS[sel];
     return (
-      <div style={{ position: "fixed", inset: 0, background: "#09090b", display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 24 }}>
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 1000,
+        background: "#09090b",
+        display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center",
+        overflow: "hidden",
+      }}>
+        <style>{`
+          @keyframes login-fade-up { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
+          @keyframes glow-pulse { 0%,100% { opacity:0.55; } 50% { opacity:0.85; } }
+          @keyframes pin-shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(6px)} }
+          .pin-dot-fill { transition: background 0.15s, border-color 0.15s, transform 0.15s; }
+          .pin-dot-fill.filled { transform: scale(1.15); }
+          .num-key { transition: background 0.12s, transform 0.08s; }
+          .num-key:active { transform: scale(0.92); }
+        `}</style>
+
+        {/* Ambient glow */}
+        <div style={{ position: "absolute", top: -80, left: "50%", transform: "translateX(-50%)", width: 340, height: 340, borderRadius: "50%", background: `radial-gradient(circle, ${ft.color}22 0%, transparent 70%)`, animation: "glow-pulse 3s ease-in-out infinite", pointerEvents: "none" }} />
+
         <button onClick={() => { setSel(null); setEntered(""); setWrong(false); }}
-          style={{ position: "absolute", top: 20, left: 18, background: "none", border: "none", color: "#52525b", fontSize: "0.75rem", cursor: "pointer", fontFamily: "inherit" }}>← Back</button>
-        <div style={{ width: 54, height: 54, borderRadius: 16, background: `${ft.color}18`, border: `2px solid ${ft.color}60`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem", marginBottom: 10 }}>{ft.emoji}</div>
-        <div style={{ fontSize: "1rem", fontWeight: 700, color: ft.color, marginBottom: 2 }}>{ft.owner}</div>
-        <div style={{ fontSize: "0.65rem", color: "#52525b", marginBottom: 30 }}>{ft.name}</div>
-        <div className={shake ? "pin-shake" : ""} style={{ display: "flex", gap: 14, marginBottom: wrong ? 8 : 32 }}>
-          {[0,1,2,3].map(i => (
-            <div key={i} style={{ width: 14, height: 14, borderRadius: "50%", background: i < entered.length ? ft.color : "transparent", border: `2px solid ${i < entered.length ? ft.color : "#3f3f46"}`, transition: "all 0.12s" }} />
-          ))}
-        </div>
-        {wrong && <div style={{ fontSize: "0.65rem", color: "#ef4444", marginBottom: 20 }}>Wrong PIN — try again</div>}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, width: "100%", maxWidth: 240 }}>
-          {["1","2","3","4","5","6","7","8","9","","0","⌫"].map((k, i) => (
-            k === "" ? <div key={i} /> :
-            <button key={i} onClick={() => k === "⌫" ? back() : digit(k)} style={{
-              background: k === "⌫" ? "rgba(239,68,68,0.07)" : "rgba(255,255,255,0.05)",
-              border: `1px solid ${k === "⌫" ? "rgba(239,68,68,0.2)" : "rgba(255,255,255,0.07)"}`,
-              borderRadius: 12, padding: "15px 8px", fontSize: "1.1rem", fontWeight: 600,
-              color: k === "⌫" ? "#ef4444" : "#e4e4e7", cursor: "pointer", fontFamily: "inherit",
-            }}>{k}</button>
-          ))}
+          style={{ position: "absolute", top: 22, left: 20, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "6px 14px", color: "#71717a", fontSize: "0.72rem", cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 5 }}>
+          ← Back
+        </button>
+
+        <div style={{ animation: "login-fade-up 0.35s ease-out", display: "flex", flexDirection: "column" as const, alignItems: "center" }}>
+          {/* Avatar */}
+          <div style={{ position: "relative", marginBottom: 18 }}>
+            <div style={{ width: 80, height: 80, borderRadius: 24, background: `${ft.color}15`, border: `2px solid ${ft.color}55`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "2.2rem", boxShadow: `0 0 32px ${ft.color}30` }}>
+              {ft.emoji}
+            </div>
+          </div>
+
+          <div style={{ fontSize: "1.35rem", fontWeight: 800, color: "#fafafa", letterSpacing: "-0.02em", marginBottom: 4 }}>{ft.owner}</div>
+          <div style={{ fontSize: "0.65rem", color: ft.color, letterSpacing: "0.06em", fontWeight: 600, marginBottom: 2, opacity: 0.85 }}>{ft.name}</div>
+          <div style={{ fontSize: "0.58rem", color: "#52525b", letterSpacing: "0.1em", marginBottom: 36 }}>ENTER YOUR PIN</div>
+
+          {/* PIN dots */}
+          <div className={shake ? "pin-dot-shake" : ""} style={{ display: "flex", gap: 18, marginBottom: wrong ? 10 : 40, animation: shake ? "pin-shake 0.55s ease" : "none" }}>
+            {[0,1,2,3].map(i => (
+              <div key={i} className={`pin-dot-fill ${i < entered.length ? "filled" : ""}`} style={{
+                width: 16, height: 16, borderRadius: "50%",
+                background: i < entered.length ? ft.color : "transparent",
+                border: `2.5px solid ${i < entered.length ? ft.color : "#3f3f46"}`,
+                boxShadow: i < entered.length ? `0 0 10px ${ft.color}60` : "none",
+              }} />
+            ))}
+          </div>
+
+          {wrong && <div style={{ fontSize: "0.65rem", color: "#f87171", marginBottom: 18, letterSpacing: "0.04em" }}>✕ Wrong PIN — try again</div>}
+
+          {/* Numpad */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, width: "100%", maxWidth: 260 }}>
+            {["1","2","3","4","5","6","7","8","9","","0","⌫"].map((k, i) => (
+              k === "" ? <div key={i} /> :
+              <button key={i} className="num-key" onClick={() => k === "⌫" ? back() : digit(k)} style={{
+                background: k === "⌫" ? "rgba(248,113,113,0.07)" : "rgba(255,255,255,0.04)",
+                border: `1px solid ${k === "⌫" ? "rgba(248,113,113,0.25)" : "rgba(255,255,255,0.08)"}`,
+                borderRadius: 14, padding: "17px 8px", fontSize: k === "⌫" ? "1rem" : "1.2rem", fontWeight: 600,
+                color: k === "⌫" ? "#f87171" : "#e4e4e7", cursor: "pointer", fontFamily: "inherit",
+              }}>{k}</button>
+            ))}
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: "#09090b", display: "flex", flexDirection: "column" as const, alignItems: "center", zIndex: 1000, padding: "0 20px" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, paddingTop: 56, marginBottom: 44 }}>
-        <div style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(212,168,67,0.12)", border: "1.5px solid #d4a843", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.2rem" }}>🏏</div>
-        <div>
-          <div style={{ fontSize: "1.05rem", fontWeight: 800, color: "#fafafa", letterSpacing: "-0.02em" }}>IPL Fantasy</div>
-          <div style={{ fontSize: "0.58rem", color: "#52525b", letterSpacing: "0.1em" }}>2026 SEASON</div>
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 1000,
+      background: "#09090b",
+      display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center",
+      overflow: "hidden", padding: "0 24px",
+    }}>
+      <style>{`
+        @keyframes login-fade-up { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes logo-glow { 0%,100% { box-shadow: 0 0 24px rgba(212,168,67,0.25); } 50% { box-shadow: 0 0 42px rgba(212,168,67,0.45); } }
+        @keyframes team-card-in { from { opacity:0; transform:scale(0.94) translateY(10px); } to { opacity:1; transform:scale(1) translateY(0); } }
+        .team-card { transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease !important; }
+        .team-card:active { transform: scale(0.97) !important; }
+      `}</style>
+
+      {/* Background radial */}
+      <div style={{ position: "absolute", top: -120, left: "50%", transform: "translateX(-50%)", width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(212,168,67,0.07) 0%, transparent 65%)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", bottom: -80, left: "50%", transform: "translateX(-50%)", width: 360, height: 360, borderRadius: "50%", background: "radial-gradient(circle, rgba(99,102,241,0.05) 0%, transparent 65%)", pointerEvents: "none" }} />
+
+      {/* Logo */}
+      <div style={{ animation: "login-fade-up 0.3s ease-out", display: "flex", flexDirection: "column" as const, alignItems: "center", marginBottom: 40 }}>
+        <div style={{ width: 56, height: 56, borderRadius: 18, background: "rgba(212,168,67,0.1)", border: "1.5px solid rgba(212,168,67,0.45)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.6rem", marginBottom: 14, animation: "logo-glow 3s ease-in-out infinite" }}>🏏</div>
+        <div style={{ fontSize: "1.55rem", fontWeight: 900, color: "#fafafa", letterSpacing: "-0.035em", lineHeight: 1.1 }}>IPL Fantasy</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6 }}>
+          <div style={{ width: 24, height: 1, background: "rgba(212,168,67,0.3)" }} />
+          <div style={{ fontSize: "0.58rem", color: "#d4a843", letterSpacing: "0.18em", fontWeight: 600, opacity: 0.7 }}>2026 SEASON</div>
+          <div style={{ width: 24, height: 1, background: "rgba(212,168,67,0.3)" }} />
         </div>
       </div>
-      <div style={{ fontSize: "0.58rem", letterSpacing: "0.12em", color: "#52525b", textTransform: "uppercase" as const, marginBottom: 18 }}>Who are you?</div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, width: "100%", maxWidth: 340 }}>
-        {Object.values(FANTASY_TEAMS).map(ft => (
-          <button key={ft.id} onClick={() => setSel(ft.id)} style={{
-            background: `${ft.color}0c`, border: `1.5px solid ${ft.color}35`, borderRadius: 16,
-            padding: "22px 14px", cursor: "pointer", fontFamily: "inherit", textAlign: "center" as const,
+
+      {/* Label */}
+      <div style={{ fontSize: "0.58rem", letterSpacing: "0.14em", color: "#52525b", textTransform: "uppercase" as const, marginBottom: 16, animation: "login-fade-up 0.35s ease-out" }}>
+        Select your team
+      </div>
+
+      {/* Team cards */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, width: "100%", maxWidth: 360 }}>
+        {Object.values(FANTASY_TEAMS).map((ft, idx) => (
+          <button key={ft.id} className="team-card" onClick={() => setSel(ft.id)} style={{
+            background: `linear-gradient(145deg, ${ft.color}10 0%, ${ft.color}06 100%)`,
+            border: `1.5px solid ${ft.color}30`,
+            borderRadius: 20, padding: "22px 14px 20px",
+            cursor: "pointer", fontFamily: "inherit", textAlign: "center" as const,
+            boxShadow: `0 4px 20px ${ft.color}12`,
+            animation: `team-card-in 0.4s ease-out ${idx * 0.06 + 0.1}s both`,
           }}>
-            <div style={{ fontSize: "1.7rem", marginBottom: 7 }}>{ft.emoji}</div>
-            <div style={{ fontSize: "0.78rem", fontWeight: 700, color: ft.color, marginBottom: 3 }}>{ft.owner}</div>
-            <div style={{ fontSize: "0.58rem", color: "#71717a", lineHeight: 1.35 }}>{ft.name}</div>
+            <div style={{ width: 52, height: 52, borderRadius: 16, background: `${ft.color}14`, border: `1.5px solid ${ft.color}40`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.7rem", margin: "0 auto 12px", boxShadow: `0 0 18px ${ft.color}20` }}>
+              {ft.emoji}
+            </div>
+            <div style={{ fontSize: "0.88rem", fontWeight: 800, color: ft.color, marginBottom: 4, letterSpacing: "-0.01em" }}>{ft.owner}</div>
+            <div style={{ fontSize: "0.58rem", color: "#71717a", lineHeight: 1.4, letterSpacing: "0.01em" }}>{ft.name}</div>
           </button>
         ))}
+      </div>
+
+      {/* Footer */}
+      <div style={{ position: "absolute", bottom: 24, fontSize: "0.55rem", color: "#3f3f46", letterSpacing: "0.06em" }}>
+        IPL 2026 · Private League
       </div>
     </div>
   );
