@@ -1,106 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-
-const FANTASY_TEAMS: Record<string, {
-  id: string; name: string; owner: string; emoji: string; color: string;
-  captain: string; vc: string;
-  players: { name: string; role: string; ipl: string }[];
-}> = {
-  rajveer: {
-    id: "rajveer", name: "Jay Shah Supremacy", owner: "Raj", emoji: "🏏", color: "#f97316",
-    captain: "Rajat Patidar", vc: "Axar Patel",
-    players: [
-      { name: "Rajat Patidar", role: "BAT", ipl: "RCB" },
-      { name: "Axar Patel", role: "AR", ipl: "DC" },
-      { name: "Shubman Gill", role: "BAT", ipl: "GT" },
-      { name: "Jos Buttler", role: "WK", ipl: "GT" },
-      { name: "Yuzvendra Chahal", role: "BWL", ipl: "PBKS" },
-      { name: "Jacob Bethell", role: "AR", ipl: "RCB" },
-      { name: "Bhuvneshwar Kumar", role: "BWL", ipl: "RCB" },
-      { name: "Shreyas Iyer", role: "BAT", ipl: "PBKS" },
-      { name: "Cameron Green", role: "AR", ipl: "KKR" },
-      { name: "Nicholas Pooran", role: "WK", ipl: "LSG" },
-      { name: "Phil Salt", role: "WK", ipl: "RCB" },
-      { name: "Krunal Pandya", role: "AR", ipl: "RCB" },
-      { name: "Priyansh Arya", role: "BAT", ipl: "PBKS" },
-      { name: "Vaibhav Suryavanshi", role: "BAT", ipl: "RR" },
-      { name: "Dhruv Jurel", role: "WK", ipl: "RR" },
-      { name: "Mohammed Shami", role: "BWL", ipl: "LSG" },
-      { name: "Tim David", role: "BAT", ipl: "RCB" },
-      { name: "Deepak Chahar", role: "BWL", ipl: "MI" }
-    ]
-  },
-  mombasa: {
-    id: "mombasa", name: "Mombasa Kenyans", owner: "Rahul", emoji: "⚡", color: "#eab308",
-    captain: "Abhishek Sharma", vc: "Sai Sudharsan",
-    players: [
-      { name: "Jitesh Sharma", role: "WK", ipl: "RCB" },
-      { name: "Varun Chakravarthy", role: "BWL", ipl: "KKR" },
-      { name: "Marco Jansen", role: "AR", ipl: "PBKS" },
-      { name: "Arshdeep Singh", role: "BWL", ipl: "PBKS" },
-      { name: "Shivam Dube", role: "AR", ipl: "CSK" },
-      { name: "Riyan Parag", role: "BAT", ipl: "RR" },
-      { name: "Abhishek Sharma", role: "AR", ipl: "SRH" },
-      { name: "Prabhsimran Singh", role: "WK", ipl: "PBKS" },
-      { name: "Nehal Wadhera", role: "BAT", ipl: "PBKS" },
-      { name: "Shimron Hetmyer", role: "BAT", ipl: "RR" },
-      { name: "Sai Sudharsan", role: "BAT", ipl: "GT" },
-      { name: "Will Jacks", role: "AR", ipl: "MI" },
-      { name: "Prasidh Krishna", role: "BWL", ipl: "GT" },
-      { name: "Aiden Markram", role: "AR", ipl: "LSG" },
-      { name: "Rashid Khan", role: "AR", ipl: "GT" },
-      { name: "Ajinkya Rahane", role: "BAT", ipl: "KKR" },
-      { name: "Trent Boult", role: "BWL", ipl: "MI" },
-      { name: "Tilak Varma", role: "AR", ipl: "MI" }
-    ]
-  },
-  mumbai: {
-    id: "mumbai", name: "Mumbai Mavericks", owner: "Smeet", emoji: "🌊", color: "#3b82f6",
-    captain: "Hardik Pandya", vc: "Sanju Samson",
-    players: [
-      { name: "Rishabh Pant", role: "WK", ipl: "LSG" },
-      { name: "Dewald Brevis", role: "BAT", ipl: "CSK" },
-      { name: "Rohit Sharma", role: "BAT", ipl: "MI" },
-      { name: "Sherfane Rutherford", role: "BAT", ipl: "MI" },
-      { name: "Rinku Singh", role: "BAT", ipl: "KKR" },
-      { name: "Heinrich Klaasen", role: "WK", ipl: "SRH" },
-      { name: "Nitish Rana", role: "BAT", ipl: "DC" },
-      { name: "Ruturaj Gaikwad", role: "WK", ipl: "CSK" },
-      { name: "Lungi Ngidi", role: "BWL", ipl: "DC" },
-      { name: "Mohammed Siraj", role: "BWL", ipl: "GT" },
-      { name: "Harshal Patel", role: "BWL", ipl: "SRH" },
-      { name: "Tristan Stubbs", role: "BAT", ipl: "DC" },
-      { name: "Sanju Samson", role: "WK", ipl: "CSK" },
-      { name: "Prashant Veer", role: "AR", ipl: "CSK" },
-      { name: "Ishan Kishan", role: "WK", ipl: "SRH" },
-      { name: "Hardik Pandya", role: "AR", ipl: "MI" },
-      { name: "Finn Allen", role: "BAT", ipl: "KKR" },
-      { name: "Venkatesh Iyer", role: "AR", ipl: "RCB" }
-    ]
-  },
-  ponygoat: {
-    id: "ponygoat", name: "PonyGoat", owner: "Deb", emoji: "🐐", color: "#10b981",
-    captain: "Sunil Narine", vc: "Jasprit Bumrah",
-    players: [
-      { name: "Marcus Stoinis", role: "AR", ipl: "PBKS" },
-      { name: "Yashasvi Jaiswal", role: "BAT", ipl: "RR" },
-      { name: "Tim Seifert", role: "WK", ipl: "KKR" },
-      { name: "Virat Kohli", role: "BAT", ipl: "RCB" },
-      { name: "Shashank Singh", role: "AR", ipl: "PBKS" },
-      { name: "Sunil Narine", role: "AR", ipl: "KKR" },
-      { name: "Suryakumar Yadav", role: "BAT", ipl: "MI" },
-      { name: "Jasprit Bumrah", role: "BWL", ipl: "MI" },
-      { name: "Ravindra Jadeja", role: "AR", ipl: "RR" },
-      { name: "Travis Head", role: "BAT", ipl: "SRH" },
-      { name: "KL Rahul", role: "WK", ipl: "DC" },
-      { name: "Ryan Rickelton", role: "WK", ipl: "MI" },
-      { name: "Mitchell Marsh", role: "AR", ipl: "LSG" },
-      { name: "Khaleel Ahmed", role: "BWL", ipl: "CSK" },
-      { name: "Kuldeep Yadav", role: "BWL", ipl: "DC" },
-      { name: "Washington Sundar", role: "AR", ipl: "GT" },
-      { name: "T Natarajan", role: "BWL", ipl: "DC" }
-    ]
-  }
-};
+import { FANTASY_TEAMS } from "./teams";
+import { applyMultiplier, getTeamData } from "./utils";
 
 const IPL_COLORS: Record<string, string> = {
   RCB: "#ef4444", MI: "#3b82f6", CSK: "#f59e0b", KKR: "#7c3aed",
@@ -213,17 +113,6 @@ function LineupPreviewCard({ data, matchIndex = 0, totalMatches = 1 }: {
   );
 }
 
-function getTeamData(teamId: string, playerPoints: Record<string, number>) {
-  const team = FANTASY_TEAMS[teamId];
-  const players = team.players.map(p => {
-    const raw = playerPoints[p.name] || 0;
-    const adj = p.name === team.captain ? raw * 2 : p.name === team.vc ? Math.floor(raw * 1.5) : raw;
-    return { ...p, raw, adj };
-  }).sort((a, b) => b.adj - a.adj);
-  const top11 = new Set(players.slice(0, 11).map(p => p.name));
-  const total = players.filter(p => top11.has(p.name)).reduce((s, p) => s + p.adj, 0);
-  return { total, players, top11 };
-}
 
 // IPL team badge config — abbreviation + primary/secondary color
 const IPL_TEAM_BADGE: Record<string, { abbr: string; bg: string; fg: string }> = {
@@ -387,25 +276,28 @@ function loadPins(): Record<string, string> {
 }
 function savePins(p: Record<string, string>) { localStorage.setItem("ipl-pins-2026", JSON.stringify(p)); }
 
-function LoginScreen({ onLogin, pins }: { onLogin: (id: string) => void; pins: Record<string, string> }) {
+function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string) => Promise<boolean> }) {
   const [sel, setSel] = useState<string | null>(null);
   const [entered, setEntered] = useState("");
   const [shake, setShake] = useState(false);
   const [wrong, setWrong] = useState(false);
+  const [checking, setChecking] = useState(false);
 
-  const digit = (d: string) => {
-    if (entered.length >= 4) return;
+  const digit = async (d: string) => {
+    if (entered.length >= 4 || checking) return;
     const next = entered + d;
     setEntered(next);
     if (next.length === 4) {
-      if (next === pins[sel!]) { onLogin(sel!); }
-      else {
+      setChecking(true);
+      const ok = await onValidate(sel!, next);
+      setChecking(false);
+      if (!ok) {
         setShake(true); setWrong(true);
         setTimeout(() => { setShake(false); setEntered(""); setWrong(false); }, 700);
       }
     }
   };
-  const back = () => setEntered(e => e.slice(0, -1));
+  const back = () => { if (!checking) setEntered(e => e.slice(0, -1)); };
 
   if (sel) {
     const ft = FANTASY_TEAMS[sel];
@@ -460,8 +352,10 @@ function LoginScreen({ onLogin, pins }: { onLogin: (id: string) => void; pins: R
 
           {wrong && <div style={{ fontSize: "0.65rem", color: "#f87171", marginBottom: 18, letterSpacing: "0.04em" }}>✕ Wrong PIN — try again</div>}
 
+          {checking && <div style={{ fontSize: "0.62rem", color: "#71717a", marginBottom: 12, letterSpacing: "0.06em" }}>Checking…</div>}
+
           {/* Numpad */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 72px)", gap: 12, width: "fit-content" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 72px)", gap: 12, width: "fit-content", opacity: checking ? 0.4 : 1, pointerEvents: checking ? "none" : "auto" }}>
             {["1","2","3","4","5","6","7","8","9","","0","⌫"].map((k, i) => (
               k === "" ? <div key={i} /> :
               <button key={i} className="num-key" onClick={() => k === "⌫" ? back() : digit(k)} style={{
@@ -617,6 +511,21 @@ export default function App() {
   const [pinEditVal, setPinEditVal] = useState("");
   const handleLogin = (userId: string) => { localStorage.setItem("ipl-current-user", userId); setCurrentUser(userId); setTab("home"); };
   const handleLogout = () => { localStorage.removeItem("ipl-current-user"); setCurrentUser(null); };
+  const handleValidate = async (userId: string, pin: string): Promise<boolean> => {
+    try {
+      const res = await fetch("/api/ipl/pins/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, pin }),
+      });
+      if (res.ok) { handleLogin(userId); return true; }
+      return false;
+    } catch {
+      // Fallback to locally cached PINs if server is unreachable
+      if (pin === userPins[userId]) { handleLogin(userId); return true; }
+      return false;
+    }
+  };
   const handleSavePin = async (uid: string) => {
     if (!/^\d{4}$/.test(pinEditVal)) return;
     const updated = { ...userPins, [uid]: pinEditVal };
@@ -625,7 +534,7 @@ export default function App() {
     try {
       await fetch(`/api/ipl/pins/${encodeURIComponent(uid)}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-Owner-Id": "rajveer" },
         body: JSON.stringify({ pin: pinEditVal }),
       });
     } catch (_) {}
@@ -778,7 +687,7 @@ export default function App() {
 
   const fetchPins = async () => {
     try {
-      const res = await fetch("/api/ipl/pins");
+      const res = await fetch("/api/ipl/pins", { headers: { "X-Owner-Id": "rajveer" } });
       if (res.ok) {
         const serverPins = await res.json();
         const merged = { ...DEFAULT_PINS, ...serverPins };
@@ -802,8 +711,6 @@ export default function App() {
     return () => { if (pointsRetryTimer.current) clearTimeout(pointsRetryTimer.current); };
   }, []);
 
-  // Fetch PINs from server once on mount (before login, so login screen uses correct PINs)
-  useEffect(() => { fetchPins(); }, []);
 
   // Initial fetch — runs on mount AND whenever the user logs in
   useEffect(() => {
@@ -1015,9 +922,7 @@ export default function App() {
         for (const player of team.players) {
           const entry = (playerMatchPoints[player.name] || []).find(e => e.matchNum === matchNum);
           if (entry) {
-            let p = entry.pts;
-            if (player.name === team.captain) p *= 2;
-            else if (player.name === team.vc) p = Math.floor(p * 1.5);
+            const p = applyMultiplier(entry.pts, player.name === team.captain, player.name === team.vc);
             pts += p;
           }
         }
@@ -3500,7 +3405,7 @@ export default function App() {
             </button>
             <button className="btn-danger" onClick={async () => {
               if (confirm("Reset all cached points? Points will re-sync from AuctionRoom.")) {
-                await fetch("/api/ipl/points/reset", { method: "POST" });
+                await fetch("/api/ipl/points/reset", { method: "POST", headers: { "X-Owner-Id": "rajveer" } });
                 setPlayerPoints({});
                 setProcessedMatches([]);
                 setTimeout(fetchPoints, 500);
@@ -3540,7 +3445,7 @@ export default function App() {
     if (dx > 0 && idx > 0) setTab(SWIPEABLE_TABS[idx - 1]);
   };
 
-  if (!currentUser) return <LoginScreen onLogin={handleLogin} pins={userPins} />;
+  if (!currentUser) return <LoginScreen onValidate={handleValidate} />;
 
   return (
     <>

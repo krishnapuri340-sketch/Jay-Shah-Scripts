@@ -337,13 +337,58 @@ router.post("/ipl/predictions/:matchId", (req, res) => {
   return res.json({ ok: true, predictions: predsCache });
 });
 
-// GET /api/ipl/pins → returns all PINs
-router.get("/ipl/pins", (_req, res) => {
+// ── PIN rate limiter ───────────────────────────────────────────────────────────
+const pinAttempts = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_MAX = 5;
+const RATE_LIMIT_WINDOW = 60_000; // 60 s
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const rec = pinAttempts.get(ip);
+  if (!rec || now > rec.resetAt) {
+    pinAttempts.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
+    return true;
+  }
+  if (rec.count >= RATE_LIMIT_MAX) return false;
+  rec.count++;
+  return true;
+}
+// Prune stale entries every 5 min
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, rec] of pinAttempts.entries()) {
+    if (now > rec.resetAt) pinAttempts.delete(ip);
+  }
+}, 5 * 60_000);
+
+function ownerOnly(req: any, res: any): boolean {
+  if (req.headers["x-owner-id"] !== "rajveer") {
+    res.status(403).json({ error: "Forbidden" });
+    return false;
+  }
+  return true;
+}
+
+// GET /api/ipl/pins → returns all PINs (admin only)
+router.get("/ipl/pins", (req, res) => {
+  if (!ownerOnly(req, res)) return;
   res.json(pinsCache);
 });
 
-// POST /api/ipl/pins/:userId → { pin } — update one user's PIN
+// POST /api/ipl/pins/validate → { userId, pin } — validate PIN (rate-limited)
+router.post("/ipl/pins/validate", (req, res) => {
+  const ip = String(req.headers["x-forwarded-for"] || req.socket.remoteAddress || "unknown");
+  if (!checkRateLimit(ip)) return res.status(429).json({ error: "Too many attempts — try again in a minute" });
+  const { userId, pin } = req.body as { userId?: string; pin?: string };
+  if (!userId || !pin) return res.status(400).json({ error: "userId and pin required" });
+  const correct = pinsCache[userId];
+  if (!correct || pin !== correct) return res.status(401).json({ error: "Invalid PIN" });
+  return res.json({ ok: true, userId });
+});
+
+// POST /api/ipl/pins/:userId → { pin } — update one user's PIN (admin only)
 router.post("/ipl/pins/:userId", (req, res) => {
+  if (!ownerOnly(req, res)) return;
   const { userId } = req.params;
   const { pin } = req.body as { pin?: string };
   if (!userId || !pin || !/^\d{4}$/.test(pin)) return res.status(400).json({ error: "userId and 4-digit pin required" });

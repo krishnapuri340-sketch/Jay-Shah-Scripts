@@ -135,7 +135,16 @@ function loadCache(): PointsCache {
   return empty;
 }
 
+const PROCESSED_MATCHES_MAX = 74;
+function pruneProcessedMatches(cache: PointsCache): void {
+  const keys = Object.keys(cache.processedMatches || {});
+  if (keys.length <= PROCESSED_MATCHES_MAX) return;
+  const toRemove = keys.slice(0, keys.length - PROCESSED_MATCHES_MAX);
+  for (const k of toRemove) delete cache.processedMatches[k];
+}
+
 function saveCache(cache: PointsCache) {
+  pruneProcessedMatches(cache);
   try { writeFileSync(CACHE_FILE, JSON.stringify(cache, null, 2)); } catch (_) {}
 }
 
@@ -1262,7 +1271,8 @@ export async function refreshLiveMatches(liveIplIds: string[]): Promise<void> {
   }
 }
 
-router.post("/ipl/points/reset", async (_req, res) => {
+router.post("/ipl/points/reset", async (req, res) => {
+  if (req.headers["x-owner-id"] !== "rajveer") return res.status(403).json({ error: "Forbidden" });
   pointsCache = {
     seriesId: null, cricapiMatchIds: {}, processedMatches: {},
     supabaseScores: {}, playerIdMap: {}, matchMetadata: {},
