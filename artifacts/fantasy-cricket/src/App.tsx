@@ -463,33 +463,6 @@ function LoginScreen({ onLogin, pins }: { onLogin: (id: string) => void; pins: R
   );
 }
 
-const TRIVIA_QUESTIONS = [
-  { q: "Who holds the record for the highest individual score in IPL history (175*)?", options: ["Virender Sehwag", "AB de Villiers", "Chris Gayle", "Brendon McCullum"], correct: 2 },
-  { q: "Which team won the very first IPL title in 2008?", options: ["Chennai Super Kings", "Mumbai Indians", "Rajasthan Royals", "Kings XI Punjab"], correct: 2 },
-  { q: "Which IPL franchise has won the most titles (5 times)?", options: ["Chennai Super Kings", "Mumbai Indians", "Kolkata Knight Riders", "Sunrisers Hyderabad"], correct: 1 },
-  { q: "Who smashed 6 sixes in a single over at the 2007 T20 World Cup?", options: ["Chris Gayle", "Yuvraj Singh", "MS Dhoni", "Rohit Sharma"], correct: 1 },
-  { q: "Who is the all-time leading run scorer in IPL history?", options: ["Rohit Sharma", "David Warner", "Virat Kohli", "Shikhar Dhawan"], correct: 2 },
-  { q: "Who has taken the most wickets in IPL history?", options: ["Lasith Malinga", "Dwayne Bravo", "Amit Mishra", "Yuzvendra Chahal"], correct: 1 },
-  { q: "What nickname is Chris Gayle known by in T20 cricket?", options: ["Galaxy Boss", "Universe Boss", "Planet Boss", "Galaxy King"], correct: 1 },
-  { q: "IPL was founded and first organized by which person?", options: ["N. Srinivasan", "Jay Shah", "Lalit Modi", "Sourav Ganguly"], correct: 2 },
-  { q: "Which cricketer is nicknamed 'Hitman'?", options: ["Virat Kohli", "MS Dhoni", "Rohit Sharma", "Hardik Pandya"], correct: 2 },
-  { q: "Who hit the fastest IPL century (off 30 balls)?", options: ["Virat Kohli", "Chris Gayle", "AB de Villiers", "KL Rahul"], correct: 1 },
-  { q: "Who took the first hat-trick in IPL history?", options: ["Lasith Malinga", "Amit Mishra", "RP Singh", "Irfan Pathan"], correct: 1 },
-  { q: "The 'Duckworth-Lewis-Stern' method is used in cricket for what purpose?", options: ["Ranking teams", "Calculating player ratings", "Revised targets in rain-affected matches", "Deciding toss outcomes"], correct: 2 },
-  { q: "Which team plays their home games at the Wankhede Stadium?", options: ["Chennai Super Kings", "Delhi Capitals", "Mumbai Indians", "Rajasthan Royals"], correct: 2 },
-  { q: "What colour jersey does Chennai Super Kings wear?", options: ["Blue", "Red", "Yellow", "Purple"], correct: 2 },
-  { q: "Who captained India to their 2011 ODI World Cup victory?", options: ["Sourav Ganguly", "Rahul Dravid", "MS Dhoni", "Virat Kohli"], correct: 2 },
-  { q: "In T20, a batsman is out for zero runs — this is called a?", options: ["Blob", "Dot", "Duck", "Nil"], correct: 2 },
-  { q: "Which bowler famously dismissed Sachin Tendulkar for a duck in the 2003 World Cup final?", options: ["Brett Lee", "Glenn McGrath", "Shane Warne", "Jason Gillespie"], correct: 1 },
-  { q: "What does 'LBW' stand for in cricket?", options: ["Left Bat Wicket", "Leg Before Wicket", "Low Back Wide", "Leg Ball Wide"], correct: 1 },
-  { q: "Which country invented the T20 format of cricket?", options: ["Australia", "India", "West Indies", "England"], correct: 3 },
-  { q: "Virat Kohli has won the IPL Orange Cap how many times?", options: ["3", "4", "5", "6"], correct: 3 },
-  { q: "MS Dhoni is known for which iconic on-field role besides batting?", options: ["Spin bowling", "Wicket-keeping", "Opening the batting", "Left-arm pace"], correct: 1 },
-  { q: "Which IPL team is nicknamed 'Purple Brigade'?", options: ["Kolkata Knight Riders", "Sunrisers Hyderabad", "Royal Challengers Bengaluru", "Punjab Kings"], correct: 1 },
-  { q: "'Mankading' in cricket refers to which type of dismissal?", options: ["Hit wicket", "Run out by the bowler at the non-striker end", "Obstructing the field", "Handled the ball"], correct: 1 },
-  { q: "Who was the first player to win the IPL 'Emerging Player' award?", options: ["KL Rahul", "Rishabh Pant", "Sanju Samson", "Shreyas Iyer"], correct: 1 },
-];
-
 export default function App() {
   const [tab, setTab] = useState("home");
   const [historyYear, setHistoryYear] = useState<number | null>(null);
@@ -530,7 +503,6 @@ export default function App() {
   const [statsExpanded, setStatsExpanded] = useState(false);
   const [predArchiveOpen, setPredArchiveOpen] = useState(false);
   const [predVisibleCount, setPredVisibleCount] = useState(10);
-  const [triviaModal, setTriviaModal] = useState<{ qIdx: number; selected: number | null; showResult: boolean; confetti: boolean } | null>(null);
   const [matchFilter, setMatchFilter] = useState<"upcoming" | "live" | "completed" | "all">("upcoming");
   const [teamFilter, setTeamFilter] = useState<Set<string>>(new Set());
   const toggleTeamFilter = (code: string) => setTeamFilter(prev => {
@@ -570,13 +542,7 @@ export default function App() {
   const [userPins, setUserPins] = useState<Record<string, string>>(loadPins);
   const [pinEditTarget, setPinEditTarget] = useState<string | null>(null);
   const [pinEditVal, setPinEditVal] = useState("");
-  const handleLogin = (userId: string) => {
-    localStorage.setItem("ipl-current-user", userId);
-    setCurrentUser(userId);
-    setTab("home");
-    const qIdx = Math.floor(Math.random() * TRIVIA_QUESTIONS.length);
-    setTriviaModal({ qIdx, selected: null, showResult: false, confetti: false });
-  };
+  const handleLogin = (userId: string) => { localStorage.setItem("ipl-current-user", userId); setCurrentUser(userId); setTab("home"); };
   const handleLogout = () => { localStorage.removeItem("ipl-current-user"); setCurrentUser(null); };
   const handleSavePin = async (uid: string) => {
     if (!/^\d{4}$/.test(pinEditVal)) return;
@@ -3352,138 +3318,6 @@ export default function App() {
   };
 
 
-  const renderTriviaModal = () => {
-    if (!triviaModal) return null;
-    const q = TRIVIA_QUESTIONS[triviaModal.qIdx];
-    const { selected, showResult, confetti } = triviaModal;
-    const isCorrect = selected === q.correct;
-    const OPTION_LABELS = ["A", "B", "C", "D"];
-    const CONFETTI_COLORS = ["#f97316","#22c55e","#60a5fa","#d4a843","#a855f7","#f43f5e","#facc15"];
-    const dismiss = () => setTriviaModal(null);
-
-    return (
-      <>
-        <style>{`
-          @keyframes confetti-fall {
-            0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-          }
-          @keyframes trivia-pop {
-            0%   { transform: scale(0.88); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-          }
-          @keyframes correct-pulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
-            50%       { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
-          }
-        `}</style>
-
-        {/* Confetti particles */}
-        {confetti && Array.from({ length: 48 }).map((_, i) => (
-          <div key={i} style={{
-            position: "fixed",
-            left: `${Math.random() * 100}%`,
-            top: "-10px",
-            width: `${6 + Math.random() * 8}px`,
-            height: `${6 + Math.random() * 8}px`,
-            borderRadius: Math.random() > 0.5 ? "50%" : "2px",
-            background: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
-            animation: `confetti-fall ${1.2 + Math.random() * 1.5}s ${Math.random() * 0.6}s ease-in forwards`,
-            zIndex: 9999,
-            pointerEvents: "none",
-          }} />
-        ))}
-
-        {/* Backdrop */}
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.72)", zIndex: 900, backdropFilter: "blur(4px)" }} onClick={dismiss} />
-
-        {/* Card */}
-        <div style={{
-          position: "fixed", left: "50%", top: "50%",
-          transform: "translate(-50%, -50%)",
-          zIndex: 901, width: "min(92vw, 380px)",
-          background: "#111113", border: "1px solid rgba(255,255,255,0.08)",
-          borderRadius: 20, padding: "24px 20px 20px",
-          animation: "trivia-pop 0.25s ease-out",
-        }}>
-          {/* Header */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: "1.2rem" }}>🏏</span>
-              <div>
-                <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "var(--gold)", letterSpacing: "0.08em" }}>CRICKET TRIVIA</div>
-                <div style={{ fontSize: "0.55rem", color: "var(--text-3)" }}>Answer to continue</div>
-              </div>
-            </div>
-            <button onClick={dismiss} style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, padding: "4px 10px", cursor: "pointer", color: "var(--text-3)", fontSize: "0.63rem", fontFamily: "inherit" }}>
-              Skip
-            </button>
-          </div>
-
-          {/* Question */}
-          <div style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text)", lineHeight: 1.45, marginBottom: 16, minHeight: 52 }}>
-            {q.q}
-          </div>
-
-          {/* Options */}
-          <div style={{ display: "flex", flexDirection: "column" as const, gap: 8 }}>
-            {q.options.map((opt, i) => {
-              const isSelected = selected === i;
-              const isThisCorrect = i === q.correct;
-              let bg = "rgba(255,255,255,0.03)";
-              let border = "1px solid rgba(255,255,255,0.07)";
-              let color = "var(--text-2)";
-              if (showResult) {
-                if (isThisCorrect) { bg = "rgba(34,197,94,0.12)"; border = "1px solid rgba(34,197,94,0.5)"; color = "#22c55e"; }
-                else if (isSelected && !isThisCorrect) { bg = "rgba(248,113,113,0.1)"; border = "1px solid rgba(248,113,113,0.4)"; color = "#f87171"; }
-              } else if (isSelected) {
-                bg = "rgba(212,168,67,0.1)"; border = "1px solid rgba(212,168,67,0.4)"; color = "var(--gold)";
-              }
-              return (
-                <button key={i}
-                  disabled={showResult}
-                  onClick={() => {
-                    if (showResult) return;
-                    const correct = i === q.correct;
-                    setTriviaModal(m => m ? { ...m, selected: i, showResult: true, confetti: correct } : null);
-                    if (correct) setTimeout(() => setTriviaModal(null), 2200);
-                  }}
-                  style={{
-                    display: "flex", alignItems: "center", gap: 10,
-                    background: bg, border, borderRadius: 10,
-                    padding: "10px 12px", cursor: showResult ? "default" : "pointer",
-                    fontFamily: "inherit", textAlign: "left" as const,
-                    animation: showResult && isThisCorrect ? "correct-pulse 0.6s ease" : "none",
-                    transition: "background 0.2s, border 0.2s",
-                  }}>
-                  <span style={{ width: 22, height: 22, borderRadius: 6, background: "rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.6rem", fontWeight: 800, color, flexShrink: 0 }}>
-                    {OPTION_LABELS[i]}
-                  </span>
-                  <span style={{ fontSize: "0.75rem", color, lineHeight: 1.3 }}>{opt}</span>
-                  {showResult && isThisCorrect && <span style={{ marginLeft: "auto", fontSize: "0.85rem" }}>✓</span>}
-                  {showResult && isSelected && !isThisCorrect && <span style={{ marginLeft: "auto", fontSize: "0.85rem" }}>✗</span>}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Result footer */}
-          {showResult && (
-            <div style={{ marginTop: 14, textAlign: "center" as const }}>
-              {isCorrect ? (
-                <div style={{ fontSize: "0.75rem", color: "#22c55e", fontWeight: 600 }}>🎉 Correct! Nice one.</div>
-              ) : (
-                <button onClick={dismiss} style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: "8px 20px", cursor: "pointer", color: "var(--text-2)", fontSize: "0.72rem", fontFamily: "inherit" }}>
-                  Continue →
-                </button>
-              )}
-            </div>
-          )}
-        </div>
-      </>
-    );
-  };
-
   const renderAdmin = () => {
     const completedCount = liveMatches.filter((m: any) => m.matchEnded).length;
     const liveCount = liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded).length;
@@ -3740,7 +3574,6 @@ export default function App() {
 
   return (
     <>
-      {renderTriviaModal()}
       {showToast && <div className="share-toast">✓ Copied to clipboard!</div>}
       {sparkTip && (
         <div className="spark-tip">
