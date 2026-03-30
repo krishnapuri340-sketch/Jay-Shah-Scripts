@@ -3135,7 +3135,9 @@ export default function App() {
                 ) : (
                   <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
                     <span style={{ fontSize: "0.75rem", letterSpacing: "3px", color: "#3f3f46", fontFamily: "monospace" }}>••••</span>
-                    <button onClick={() => { setPinEditTarget(ft.id); setPinEditVal(userPins[ft.id] || ""); }} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, padding: "4px 10px", cursor: "pointer", color: "#71717a", fontSize: "0.65rem", fontFamily: "inherit" }}>Change</button>
+                    {ft.id === currentUser && (
+                      <button onClick={() => { setPinEditTarget(ft.id); setPinEditVal(userPins[ft.id] || ""); }} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, padding: "4px 10px", cursor: "pointer", color: "#71717a", fontSize: "0.65rem", fontFamily: "inherit" }}>Change</button>
+                    )}
                   </div>
                 )}
               </div>
