@@ -3157,10 +3157,7 @@ export default function App() {
                 {/* Header */}
                 <div style={{ display: "grid", gridTemplateColumns: "34px 1fr repeat(4, 36px)", padding: "8px 12px", borderBottom: "1px solid var(--border)", background: "rgba(255,255,255,0.02)", alignItems: "center" }}>
                   <div style={{ fontSize: "0.56rem", color: "var(--text-3)", fontWeight: 700, letterSpacing: "0.08em" }}>#</div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                    <span style={{ fontSize: "0.56rem", color: "var(--text-3)", fontWeight: 700, letterSpacing: "0.08em" }}>MATCH</span>
-                    <span style={{ fontSize: "0.5rem", background: "rgba(255,255,255,0.05)", color: "var(--text-3)", borderRadius: 4, padding: "1px 5px" }}>live picks</span>
-                  </div>
+                  <div style={{ fontSize: "0.56rem", color: "var(--text-3)", fontWeight: 700, letterSpacing: "0.08em" }}>MATCH</div>
                   {PRED_OWNERS.map(id => (
                     <div key={id} style={{ fontSize: "0.56rem", color: FANTASY_TEAMS[id].color, fontWeight: 700, textAlign: "center" as const }}>
                       {FANTASY_TEAMS[id].owner.slice(0,3).toUpperCase()}
