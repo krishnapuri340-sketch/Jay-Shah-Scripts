@@ -501,6 +501,8 @@ export default function App() {
   const [statsFilter, setStatsFilter] = useState<"all" | "fantasy" | "predictions">("all");
   const [statsCategory, setStatsCategory] = useState<"orangeCap" | "purpleCap" | "sixesLeader" | "foursLeader" | "srLeader" | "ecoLeader">("orangeCap");
   const [statsExpanded, setStatsExpanded] = useState(false);
+  const [predArchiveOpen, setPredArchiveOpen] = useState(false);
+  const [predVisibleCount, setPredVisibleCount] = useState(10);
   const [matchFilter, setMatchFilter] = useState<"upcoming" | "live" | "completed" | "all">("upcoming");
   const [teamFilter, setTeamFilter] = useState<Set<string>>(new Set());
   const toggleTeamFilter = (code: string) => setTeamFilter(prev => {
@@ -3153,34 +3155,32 @@ export default function App() {
               </div>
 
               {/* Match table */}
-              <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden", marginBottom: 12 }}>
-                {/* Header */}
-                <div style={{ display: "grid", gridTemplateColumns: "34px 1fr repeat(4, 36px)", padding: "8px 12px", borderBottom: "1px solid var(--border)", background: "rgba(255,255,255,0.02)", alignItems: "center" }}>
-                  <div style={{ fontSize: "0.56rem", color: "var(--text-3)", fontWeight: 700, letterSpacing: "0.08em" }}>#</div>
-                  <div style={{ fontSize: "0.56rem", color: "var(--text-3)", fontWeight: 700, letterSpacing: "0.08em" }}>MATCH</div>
-                  {PRED_OWNERS.map(id => (
-                    <div key={id} style={{ fontSize: "0.56rem", color: FANTASY_TEAMS[id].color, fontWeight: 700, textAlign: "center" as const }}>
-                      {FANTASY_TEAMS[id].owner.slice(0,3).toUpperCase()}
-                    </div>
-                  ))}
-                </div>
+              {(() => {
+                const archiveMatches = sortedMatches.filter((m: any) => m.matchEnded);
+                const currentMatches = sortedMatches.filter((m: any) => !m.matchEnded);
+                const visibleCurrent = currentMatches.slice(0, predVisibleCount);
+                const hasMoreCurrent = currentMatches.length > predVisibleCount;
 
-                {sortedMatches.length === 0 && (
-                  <div style={{ padding: "20px 12px", fontSize: "0.75rem", color: "var(--text-3)", textAlign: "center" as const }}>
-                    Matches loading...
+                const tableHeader = (
+                  <div style={{ display: "grid", gridTemplateColumns: "34px 1fr repeat(4, 36px)", padding: "8px 12px", borderBottom: "1px solid var(--border)", background: "rgba(255,255,255,0.02)", alignItems: "center" }}>
+                    <div style={{ fontSize: "0.56rem", color: "var(--text-3)", fontWeight: 700, letterSpacing: "0.08em" }}>#</div>
+                    <div style={{ fontSize: "0.56rem", color: "var(--text-3)", fontWeight: 700, letterSpacing: "0.08em" }}>MATCH</div>
+                    {PRED_OWNERS.map(id => (
+                      <div key={id} style={{ fontSize: "0.56rem", color: FANTASY_TEAMS[id].color, fontWeight: 700, textAlign: "center" as const }}>
+                        {FANTASY_TEAMS[id].owner.slice(0,3).toUpperCase()}
+                      </div>
+                    ))}
                   </div>
-                )}
+                );
 
-                {sortedMatches.map((m: any, idx: number) => {
+                const renderRow = (m: any, isLast: boolean) => {
                   const isNil = m.matchNum <= 3;
                   const isDone = m.matchEnded;
                   const isLive = m.matchStarted && !m.matchEnded;
                   const isUpcoming = !m.matchStarted;
                   const winner = isDone ? getMatchWinner(m) : null;
                   const preds = predictions[String(m.id)] || {};
-                  const isLast = idx === sortedMatches.length - 1;
                   const picksIn = !isNil ? PRED_OWNERS.filter(id => preds[id]).length : 0;
-
                   return (
                     <div key={m.id} style={{ display: "grid", gridTemplateColumns: "34px 1fr repeat(4, 36px)", padding: "8px 12px", borderBottom: isLast ? "none" : "1px solid var(--border)", alignItems: "center" }}>
                       <div style={{ fontSize: "0.65rem", fontWeight: 700, color: isLive ? "var(--live)" : "var(--text-3)" }}>
@@ -3198,9 +3198,7 @@ export default function App() {
                         {isUpcoming && !isNil && picksIn === 0 && <div style={{ fontSize: "0.5rem", color: "var(--text-3)" }}>open</div>}
                       </div>
                       {PRED_OWNERS.map(id => {
-                        if (isNil) return (
-                          <div key={id} style={{ textAlign: "center" as const, fontSize: "0.6rem", color: "var(--text-3)" }}>—</div>
-                        );
+                        if (isNil) return <div key={id} style={{ textAlign: "center" as const, fontSize: "0.6rem", color: "var(--text-3)" }}>—</div>;
                         const pick = preds[id] || null;
                         if (!pick) return (
                           <div key={id} style={{ textAlign: "center" as const, fontSize: "0.65rem", color: "var(--text-3)" }}>
@@ -3212,10 +3210,7 @@ export default function App() {
                         const isPending = !isDone && !isLive;
                         return (
                           <div key={id} style={{ textAlign: "center" as const }}>
-                            <div style={{
-                              fontSize: "0.58rem", fontWeight: 700, lineHeight: 1.2,
-                              color: isCorrect ? "#22c55e" : isWrong ? "#f87171" : isPending ? "var(--text-3)" : "var(--text-2)"
-                            }}>{pick}</div>
+                            <div style={{ fontSize: "0.58rem", fontWeight: 700, lineHeight: 1.2, color: isCorrect ? "#22c55e" : isWrong ? "#f87171" : isPending ? "var(--text-3)" : "var(--text-2)" }}>{pick}</div>
                             {isCorrect && <div style={{ fontSize: "0.6rem", color: "#22c55e", lineHeight: 1 }}>✓</div>}
                             {isWrong && <div style={{ fontSize: "0.6rem", color: "#f87171", lineHeight: 1 }}>✗</div>}
                             {isLive && pick && <div style={{ fontSize: "0.48rem", color: "var(--text-3)", lineHeight: 1 }}>locked</div>}
@@ -3224,11 +3219,54 @@ export default function App() {
                       })}
                     </div>
                   );
-                })}
-              </div>
-              <div style={{ fontSize: "0.58rem", color: "var(--text-3)", textAlign: "center" as const, padding: "2px 0 8px" }}>
-                Matches 1–3 had no predictions · +1 for each correct pick · picks refresh every 30s
-              </div>
+                };
+
+                return (
+                  <>
+                    {/* Archive section — all completed matches */}
+                    {archiveMatches.length > 0 && (
+                      <div style={{ marginBottom: 10 }}>
+                        <button
+                          onClick={() => setPredArchiveOpen(o => !o)}
+                          style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: "transparent", border: "1px solid var(--border)", borderRadius: predArchiveOpen ? "10px 10px 0 0" : 10, padding: "7px 12px", cursor: "pointer", color: "var(--text-3)", fontSize: "0.65rem", fontFamily: "inherit", marginBottom: 0 }}>
+                          <span style={{ fontSize: "0.7rem" }}>{predArchiveOpen ? "▲" : "▼"}</span>
+                          {predArchiveOpen ? "Hide" : "Show"} {archiveMatches.length} completed match{archiveMatches.length !== 1 ? "es" : ""}
+                        </button>
+                        {predArchiveOpen && (
+                          <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderTop: "none", borderRadius: "0 0 10px 10px", overflow: "hidden", opacity: 0.55, marginBottom: 10 }}>
+                            {tableHeader}
+                            {archiveMatches.map((m: any, idx: number) => renderRow(m, idx === archiveMatches.length - 1))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Current / upcoming matches */}
+                    <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden", marginBottom: 4 }}>
+                      {tableHeader}
+                      {currentMatches.length === 0 && sortedMatches.length === 0 && (
+                        <div style={{ padding: "20px 12px", fontSize: "0.75rem", color: "var(--text-3)", textAlign: "center" as const }}>Matches loading...</div>
+                      )}
+                      {currentMatches.length === 0 && sortedMatches.length > 0 && (
+                        <div style={{ padding: "16px 12px", fontSize: "0.72rem", color: "var(--text-3)", textAlign: "center" as const }}>All matches completed — see archive above</div>
+                      )}
+                      {visibleCurrent.map((m: any, idx: number) => renderRow(m, idx === visibleCurrent.length - 1 && !hasMoreCurrent))}
+                      {hasMoreCurrent && (
+                        <button
+                          onClick={() => setPredVisibleCount(c => c + 10)}
+                          style={{ width: "100%", padding: "10px 0", background: "transparent", border: "none", borderTop: "1px solid var(--border)", cursor: "pointer", fontSize: "0.68rem", color: "var(--text-3)", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
+                          <span>Show {Math.min(10, currentMatches.length - predVisibleCount)} more</span>
+                          <span style={{ fontSize: "0.7rem" }}>▼</span>
+                        </button>
+                      )}
+                    </div>
+
+                    <div style={{ fontSize: "0.58rem", color: "var(--text-3)", textAlign: "center" as const, padding: "2px 0 8px" }}>
+                      Matches 1–3 had no predictions · +1 for each correct pick · picks refresh every 30s
+                    </div>
+                  </>
+                );
+              })()}
             </>
           );
         })() : (
