@@ -784,20 +784,36 @@ export default function App() {
     setNotifStatus('default');
   };
 
-  // Adaptive polling: 1 min during a live match, 5 min when idle
+  // Adaptive polling — split by data freshness needs:
+  //   Live status (fetchLive, standings): 20 s  — free IPL API, needs to be fast
+  //   Points / stats:                     60 s  — server only recalculates every 60 s (CricAPI cooldown)
+  //   Idle (no live match):               60 min — nothing is changing
   const isAnyMatchLive = liveMatches.some((m: any) => m.matchStarted && !m.matchEnded);
 
   // Reset home/away sub-filter whenever the team filter is changed
   useEffect(() => { setFixtureHomeAwayFilter("all"); }, [teamFilter]);
 
   useEffect(() => {
-    const delay = isAnyMatchLive ? 30_000 : 60 * 60_000;
+    const idleDelay   = 60 * 60_000; // 60 min when nothing is live
+    const liveStatus  = 20_000;       // 20 s — match status / scorecard
+    const livePoints  = 60_000;       // 60 s — matches server CricAPI cooldown
+    if (!isAnyMatchLive) {
+      const ids = [
+        setInterval(fetchLive,        idleDelay),
+        setInterval(fetchPoints,      idleDelay),
+        setInterval(fetchStandings,   idleDelay),
+        setInterval(fetchStats,       idleDelay),
+        setInterval(fetchPredictions, idleDelay),
+      ];
+      return () => ids.forEach(clearInterval);
+    }
+    // Live match — faster status, slower points (server cooldown aligned)
     const ids = [
-      setInterval(fetchLive, delay),
-      setInterval(fetchPoints, delay),
-      setInterval(fetchStandings, delay),
-      setInterval(fetchStats, delay),
-      setInterval(fetchPredictions, delay),
+      setInterval(fetchLive,        liveStatus),
+      setInterval(fetchStandings,   liveStatus),
+      setInterval(fetchPoints,      livePoints),
+      setInterval(fetchStats,       livePoints),
+      setInterval(fetchPredictions, livePoints),
     ];
     return () => ids.forEach(clearInterval);
   }, [isAnyMatchLive]);
