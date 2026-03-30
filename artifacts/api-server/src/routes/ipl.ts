@@ -3,13 +3,14 @@ import { readFileSync, writeFileSync, existsSync } from "fs";
 import { join } from "path";
 import { fetchMatchOverview, refreshLiveMatches } from "./ipl-points";
 
-// ── Shared predictions store ──────────────────────────────────────────────────
+// ── Shared data stores ────────────────────────────────────────────────────────
 const _cwd2 = process.cwd();
-const PRED_FILE = existsSync(join(_cwd2, "artifacts/api-server"))
-  ? join(_cwd2, "artifacts/api-server/ipl-predictions.json")
-  : join(_cwd2, "ipl-predictions.json");
-type PredStore = Record<string, Record<string, string | null>>;
+const _dataDir = existsSync(join(_cwd2, "artifacts/api-server"))
+  ? join(_cwd2, "artifacts/api-server")
+  : _cwd2;
 
+const PRED_FILE = join(_dataDir, "ipl-predictions.json");
+type PredStore = Record<string, Record<string, string | null>>;
 function loadPreds(): PredStore {
   try { if (existsSync(PRED_FILE)) return JSON.parse(readFileSync(PRED_FILE, "utf8")); } catch {}
   return {};
@@ -18,6 +19,18 @@ function savePreds(data: PredStore) {
   try { writeFileSync(PRED_FILE, JSON.stringify(data)); } catch {}
 }
 let predsCache: PredStore = loadPreds();
+
+const PINS_FILE = join(_dataDir, "ipl-pins.json");
+const DEFAULT_PINS: Record<string, string> = { rajveer: "1111", mombasa: "2222", mumbai: "3333", ponygoat: "4444" };
+type PinStore = Record<string, string>;
+function loadServerPins(): PinStore {
+  try { if (existsSync(PINS_FILE)) return { ...DEFAULT_PINS, ...JSON.parse(readFileSync(PINS_FILE, "utf8")) }; } catch {}
+  return { ...DEFAULT_PINS };
+}
+function saveServerPins(data: PinStore) {
+  try { writeFileSync(PINS_FILE, JSON.stringify(data)); } catch {}
+}
+let pinsCache: PinStore = loadServerPins();
 
 const router: IRouter = Router();
 
@@ -322,6 +335,21 @@ router.post("/ipl/predictions/:matchId", (req, res) => {
   predsCache[matchId][ownerId] = pick ?? null;
   savePreds(predsCache);
   return res.json({ ok: true, predictions: predsCache });
+});
+
+// GET /api/ipl/pins → returns all PINs
+router.get("/ipl/pins", (_req, res) => {
+  res.json(pinsCache);
+});
+
+// POST /api/ipl/pins/:userId → { pin } — update one user's PIN
+router.post("/ipl/pins/:userId", (req, res) => {
+  const { userId } = req.params;
+  const { pin } = req.body as { pin?: string };
+  if (!userId || !pin || !/^\d{4}$/.test(pin)) return res.status(400).json({ error: "userId and 4-digit pin required" });
+  pinsCache[userId] = pin;
+  saveServerPins(pinsCache);
+  return res.json({ ok: true });
 });
 
 export default router;

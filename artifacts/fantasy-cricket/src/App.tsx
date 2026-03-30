@@ -542,11 +542,18 @@ export default function App() {
   const [pinEditVal, setPinEditVal] = useState("");
   const handleLogin = (userId: string) => { localStorage.setItem("ipl-current-user", userId); setCurrentUser(userId); setTab("home"); };
   const handleLogout = () => { localStorage.removeItem("ipl-current-user"); setCurrentUser(null); };
-  const handleSavePin = (uid: string) => {
+  const handleSavePin = async (uid: string) => {
     if (!/^\d{4}$/.test(pinEditVal)) return;
     const updated = { ...userPins, [uid]: pinEditVal };
     setUserPins(updated); savePins(updated);
     setPinEditTarget(null); setPinEditVal("");
+    try {
+      await fetch(`/api/ipl/pins/${encodeURIComponent(uid)}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pin: pinEditVal }),
+      });
+    } catch (_) {}
   };
 
   const fetchPoints = async () => {
@@ -657,6 +664,18 @@ export default function App() {
     } catch (_) {}
   };
 
+  const fetchPins = async () => {
+    try {
+      const res = await fetch("/api/ipl/pins");
+      if (res.ok) {
+        const serverPins = await res.json();
+        const merged = { ...DEFAULT_PINS, ...serverPins };
+        setUserPins(merged);
+        savePins(merged);
+      }
+    } catch (_) {}
+  };
+
   const toggleMatch = (matchId: string, isCompleted: boolean) => {
     if (expandedMatchId === matchId) {
       setExpandedMatchId(null);
@@ -670,6 +689,9 @@ export default function App() {
   useEffect(() => {
     return () => { if (pointsRetryTimer.current) clearTimeout(pointsRetryTimer.current); };
   }, []);
+
+  // Fetch PINs from server once on mount (before login, so login screen uses correct PINs)
+  useEffect(() => { fetchPins(); }, []);
 
   // Initial fetch — runs on mount AND whenever the user logs in
   useEffect(() => {
