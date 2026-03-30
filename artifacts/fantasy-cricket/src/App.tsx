@@ -275,6 +275,32 @@ const ABBR_TO_TEAM: Record<string, string> = {
   DC:"Delhi Capitals", DD:"Delhi Daredevils", PBKS:"Punjab Kings", KXIP:"Kings XI Punjab",
   LSG:"Lucknow Super Giants", PWI:"Pune Warriors", GL:"Gujarat Lions",
 };
+function getMatchWinner(m: any): string | null {
+  if (!m.matchEnded || !m.status) return null;
+  const s = m.status.toLowerCase();
+  if (s.includes("no result") || s.includes("abandoned")) return null;
+  if (s.includes("tied") || s.includes(" tie")) return "tie";
+  const wonIdx = s.indexOf(" won ");
+  if (wonIdx === -1) return null;
+  const before = s.slice(0, wonIdx);
+  if (m.teamInfo) {
+    for (const ti of m.teamInfo) {
+      if (ti.name && before.includes(ti.name.toLowerCase())) return ti.shortname;
+    }
+  }
+  const codeNames: Record<string, string[]> = {
+    MI: ["mumbai indians"], KKR: ["kolkata knight riders"],
+    RCB: ["royal challengers bengaluru", "royal challengers bangalore"],
+    CSK: ["chennai super kings"], SRH: ["sunrisers hyderabad"],
+    RR: ["rajasthan royals"], PBKS: ["punjab kings", "kings xi punjab"],
+    GT: ["gujarat titans"], LSG: ["lucknow super giants"], DC: ["delhi capitals"],
+  };
+  for (const [code, names] of Object.entries(codeNames)) {
+    if (names.some(n => before.includes(n))) return code;
+  }
+  return null;
+}
+
 function TeamBadge({ name, size = 32 }: { name: string; size?: number }) {
   const b = IPL_TEAM_BADGE[name] || IPL_TEAM_BADGE[ABBR_TO_TEAM[name]] || { abbr: name.slice(0,2).toUpperCase(), bg:"#444", fg:"#fff" };
   const logoUrl = TEAM_LOGO_CDN[b.abbr];
@@ -344,6 +370,12 @@ export default function App() {
     return next;
   });
   const [standingsOpen, setStandingsOpen] = useState(false);
+  const [predictions, setPredictions] = useState<Record<string, Record<string, string | null>>>(() => {
+    try { return JSON.parse(localStorage.getItem('ipl-predictions-2026') || '{}'); } catch { return {}; }
+  });
+  useEffect(() => {
+    localStorage.setItem('ipl-predictions-2026', JSON.stringify(predictions));
+  }, [predictions]);
 
   const [rankChanges, setRankChanges] = useState<Record<string, number>>({});
   const [isDark, setIsDark] = useState(true);
@@ -1650,19 +1682,43 @@ export default function App() {
     <div>
       {/* Countdown to next match */}
       {countdown && (
-        <div className="countdown-card">
-          <div>
-            <div className="countdown-timer">{countdown.text}</div>
-            <div className="countdown-label">Next Match</div>
+        <div className="countdown-card" style={{ flexDirection: "column", alignItems: "stretch", gap: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div>
+              <div className="countdown-timer">{countdown.text}</div>
+              <div className="countdown-label">Next Match</div>
+            </div>
+            <div style={{ textAlign: "right" }}>
+              <div className="countdown-match">{countdown.matchName}</div>
+              {countdown.venue && (
+                <div style={{ fontSize: "0.6rem", color: "var(--text-3)", marginTop: 3 }}>
+                  🏟 {countdown.venue}{countdown.homeTeam ? ` (${countdown.homeTeam})` : ""}
+                </div>
+              )}
+            </div>
           </div>
-          <div style={{ textAlign: "right" }}>
-            <div className="countdown-match">{countdown.matchName}</div>
-            {countdown.venue && (
-              <div style={{ fontSize: "0.6rem", color: "var(--text-3)", marginTop: 3 }}>
-                🏟 {countdown.venue}{countdown.homeTeam ? ` (${countdown.homeTeam})` : ""}
+          {(() => {
+            const nextM = liveMatches.filter((m: any) => !m.matchStarted && m.dateTimeGMT)
+              .sort((a: any, b: any) => new Date(a.dateTimeGMT).getTime() - new Date(b.dateTimeGMT).getTime())[0];
+            if (!nextM?.homeTeamCode || !nextM?.awayTeamCode) return null;
+            const stakes = Object.values(FANTASY_TEAMS).map(ft => ({
+              owner: ft.owner, color: ft.color,
+              count: ft.players.filter((p: any) => p.ipl === nextM.homeTeamCode || p.ipl === nextM.awayTeamCode).length
+            }));
+            if (stakes.every(s => s.count === 0)) return null;
+            return (
+              <div style={{ borderTop: "1px solid var(--border)", paddingTop: 8, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" as const }}>
+                <span style={{ fontSize: "0.57rem", color: "var(--text-3)", flexShrink: 0, letterSpacing: "0.04em" }}>PICKS IN THIS MATCH</span>
+                <div style={{ display: "flex", gap: 10 }}>
+                  {stakes.map(s => (
+                    <span key={s.owner} style={{ fontSize: "0.68rem", fontWeight: 700, color: s.count > 0 ? s.color : "var(--text-3)" }}>
+                      {s.owner} <span style={{ fontWeight: 400, fontSize: "0.6rem" }}>{s.count}</span>
+                    </span>
+                  ))}
+                </div>
               </div>
-            )}
-          </div>
+            );
+          })()}
         </div>
       )}
 
@@ -2479,6 +2535,84 @@ export default function App() {
                       🏟 {m.venue}{m.homeTeamCode ? ` (${m.homeTeamCode})` : ""}
                     </div>
                   )}
+
+                  {/* Prediction section */}
+                  {m.homeTeamCode && m.awayTeamCode && (() => {
+                    const PRED_OWNERS = ["rajveer","mombasa","mumbai","ponygoat"] as const;
+                    const preds = predictions[matchIdStr] || {};
+                    const winner = isDone ? getMatchWinner(m) : null;
+                    const isLocked = m.matchStarted;
+                    const correctCount = winner && winner !== "tie"
+                      ? PRED_OWNERS.filter(id => preds[id] === winner).length : 0;
+                    const anyPick = PRED_OWNERS.some(id => preds[id]);
+                    if (isDone && !anyPick) return null;
+                    return (
+                      <div onClick={e => e.stopPropagation()} style={{ marginTop: 10, borderTop: "1px solid var(--border)", paddingTop: 8 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                          <span style={{ fontSize: "0.57rem", color: "var(--text-3)", fontWeight: 600, letterSpacing: "0.06em" }}>
+                            {isLocked ? (isDone ? "PREDICTIONS" : "🔒 LOCKED") : "PREDICT WINNER"}
+                          </span>
+                          {isDone && winner && winner !== "tie" && anyPick && (
+                            <span style={{ fontSize: "0.57rem", color: "var(--text-3)" }}>
+                              {winner} won · {correctCount}/4 ✓
+                            </span>
+                          )}
+                          {isDone && winner === "tie" && (
+                            <span style={{ fontSize: "0.57rem", color: "var(--text-3)" }}>Tied</span>
+                          )}
+                        </div>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
+                          {PRED_OWNERS.map(ownerId => {
+                            const ft = FANTASY_TEAMS[ownerId];
+                            const pick = preds[ownerId] || null;
+                            const isCorrect = !!winner && winner !== "tie" && pick === winner;
+                            const isWrong = !!winner && winner !== "tie" && pick !== null && pick !== winner;
+                            return (
+                              <div key={ownerId} style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 7px", borderRadius: 8, background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)" }}>
+                                <span style={{ fontSize: "0.6rem", color: ft.color, fontWeight: 700, minWidth: 30, flexShrink: 0 }}>{ft.owner}</span>
+                                {isLocked ? (
+                                  <div style={{ display: "flex", alignItems: "center", gap: 3, flex: 1 }}>
+                                    {pick ? (
+                                      <>
+                                        <img src={TEAM_LOGO_CDN[pick]} alt={pick} style={{ width: 14, height: 14, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                                        <span style={{ fontSize: "0.62rem", fontWeight: 600, color: isCorrect ? "#22c55e" : isWrong ? "#f87171" : "var(--text-2)" }}>{pick}</span>
+                                        {isCorrect && <span style={{ fontSize: "0.65rem", color: "#22c55e" }}>✓</span>}
+                                        {isWrong && <span style={{ fontSize: "0.65rem", color: "#f87171" }}>✗</span>}
+                                      </>
+                                    ) : (
+                                      <span style={{ fontSize: "0.6rem", color: "var(--text-3)", fontStyle: "italic" }}>—</span>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <div style={{ display: "flex", gap: 3, flex: 1 }}>
+                                    {[m.homeTeamCode, m.awayTeamCode].map((code: string) => (
+                                      <button key={code} onClick={() => {
+                                        setPredictions(prev => ({
+                                          ...prev,
+                                          [matchIdStr]: { ...(prev[matchIdStr] || {}), [ownerId]: pick === code ? null : code }
+                                        }));
+                                      }} style={{
+                                        flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 2,
+                                        padding: "3px 2px", borderRadius: 6, cursor: "pointer", border: "1px solid",
+                                        fontFamily: "inherit", fontSize: "0.58rem", fontWeight: 600,
+                                        background: pick === code ? `${ft.color}22` : "transparent",
+                                        borderColor: pick === code ? ft.color : "var(--border)",
+                                        color: pick === code ? "var(--text)" : "var(--text-3)",
+                                        transition: "all 0.15s",
+                                      }}>
+                                        <img src={TEAM_LOGO_CDN[code]} alt={code} style={{ width: 11, height: 11, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                                        <span>{code}</span>
+                                      </button>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })()}
 
                   {isExpanded && (
                     <div style={{ marginTop: 12, borderTop: "1px solid var(--border)", paddingTop: 12 }}
