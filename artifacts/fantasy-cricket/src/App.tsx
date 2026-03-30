@@ -2129,6 +2129,10 @@ export default function App() {
         </div>
 
         <div className="team-header-card" style={{ "--team-color": t.color } as React.CSSProperties}>
+          <div style={{ position: "relative", width: 52, height: 52, borderRadius: "50%", border: `2px solid ${t.color}60`, overflow: "hidden", flexShrink: 0, boxShadow: `0 0 0 3px ${t.color}18` }}>
+            <img src={`${import.meta.env.BASE_URL}avatars/${t.avatar}`} alt={t.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center center", display: "block" }} />
+            <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "radial-gradient(circle, transparent 42%, rgba(8,12,20,0.75) 72%, rgba(8,12,20,0.97) 100%)" }} />
+          </div>
           <div style={{ flex: 1 }}>
             <div className="team-hname" style={{ color: t.color }}>{t.name}</div>
             <div style={{ fontSize: "0.7rem", color: "var(--text-3)", marginBottom: 4 }}>{t.owner}</div>
