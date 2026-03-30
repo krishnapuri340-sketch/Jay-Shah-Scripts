@@ -657,11 +657,48 @@ export default function App() {
     setStatsLoading(false);
   };
 
+  const PRED_CACHE_KEY = "ipl-predictions-2026";
+  const loadLocalPreds = (): Record<string, Record<string, string | null>> => {
+    try { return JSON.parse(localStorage.getItem(PRED_CACHE_KEY) || "{}"); } catch { return {}; }
+  };
+  const saveLocalPreds = (data: Record<string, Record<string, string | null>>) => {
+    try { localStorage.setItem(PRED_CACHE_KEY, JSON.stringify(data)); } catch {}
+  };
+
   const fetchPredictions = async () => {
     try {
       const res = await fetch("/api/ipl/predictions");
-      if (res.ok) setPredictions(await res.json());
-    } catch (_) {}
+      if (res.ok) {
+        const server: Record<string, Record<string, string | null>> = await res.json();
+        // Merge: local cache fills in any gaps if server lost data
+        const local = loadLocalPreds();
+        const merged: Record<string, Record<string, string | null>> = { ...local };
+        Object.entries(server).forEach(([matchId, picks]) => {
+          merged[matchId] = { ...(merged[matchId] || {}), ...picks };
+        });
+        // If server was missing data we have locally, push it back
+        const serverIsEmpty = Object.keys(server).length === 0 && Object.keys(local).length > 0;
+        if (serverIsEmpty) {
+          Object.entries(local).forEach(([matchId, picks]) => {
+            Object.entries(picks).forEach(([ownerId, pick]) => {
+              if (pick) {
+                fetch(`/api/ipl/predictions/${encodeURIComponent(matchId)}`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ ownerId, pick }),
+                }).catch(() => {});
+              }
+            });
+          });
+        }
+        saveLocalPreds(merged);
+        setPredictions(merged);
+      }
+    } catch (_) {
+      // On network failure, use local cache
+      const local = loadLocalPreds();
+      if (Object.keys(local).length > 0) setPredictions(local);
+    }
   };
 
   const fetchPins = async () => {
@@ -2852,15 +2889,16 @@ export default function App() {
                                         <button key={code} onClick={e => {
                                           e.stopPropagation();
                                           const newPick = pick === code ? null : code;
-                                          setPredictions(prev => ({
-                                            ...prev,
-                                            [matchIdStr]: { ...(prev[matchIdStr] || {}), [ownerId]: newPick }
-                                          }));
+                                          setPredictions(prev => {
+                                            const updated = { ...prev, [matchIdStr]: { ...(prev[matchIdStr] || {}), [ownerId]: newPick } };
+                                            saveLocalPreds(updated);
+                                            return updated;
+                                          });
                                           fetch(`/api/ipl/predictions/${encodeURIComponent(matchIdStr)}`, {
                                             method: "POST",
                                             headers: { "Content-Type": "application/json" },
                                             body: JSON.stringify({ ownerId, pick: newPick }),
-                                          }).then(r => r.json()).then(d => { if (d.predictions) setPredictions(d.predictions); }).catch(() => {});
+                                          }).then(r => r.json()).then(d => { if (d.predictions) { saveLocalPreds(d.predictions); setPredictions(d.predictions); } }).catch(() => {});
                                         }} style={{
                                           flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 2,
                                           padding: "3px 2px", borderRadius: 6, cursor: "pointer", border: "1px solid",
