@@ -304,7 +304,7 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
     return (
       <div style={{
         position: "fixed", inset: 0, zIndex: 1000,
-        background: "rgba(8,12,20,0.84)",
+        background: "#080c14",
         display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center",
         overflow: "hidden",
       }}>
@@ -376,7 +376,7 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 1000,
-      background: "rgba(8,12,20,0.82)",
+      background: "#080c14",
       display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center",
       overflow: "hidden", padding: "0 24px",
     }}>
