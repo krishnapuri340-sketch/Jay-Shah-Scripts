@@ -408,13 +408,14 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
             background: `linear-gradient(160deg, ${ft.color}12 0%, rgba(8,12,20,0.85) 100%)`,
             border: `1px solid ${ft.color}35`,
             borderRadius: 24, padding: "28px 16px 24px",
-            cursor: "pointer", fontFamily: "inherit", textAlign: "center" as const,
+            cursor: "pointer", fontFamily: "inherit",
+            display: "flex", flexDirection: "column" as const, alignItems: "center",
             boxShadow: `0 8px 24px rgba(0,0,0,0.4)`,
             animation: `team-card-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) ${idx * 0.08 + 0.1}s both`,
             backdropFilter: "blur(12px)",
           }}>
-            <div style={{ width: 64, height: 64, borderRadius: "50%", border: `2px solid ${ft.color}70`, overflow: "hidden", margin: "0 auto 14px", boxShadow: `0 0 0 3px ${ft.color}20` }}>
-              <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <div style={{ width: 64, height: 64, borderRadius: "50%", border: `2px solid ${ft.color}70`, overflow: "hidden", marginBottom: 14, boxShadow: `0 0 0 3px ${ft.color}20`, flexShrink: 0 }}>
+              <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 15%" }} />
             </div>
             <div style={{ fontSize: "1rem", fontWeight: 800, color: "#ffffff", marginBottom: 5, letterSpacing: "-0.02em" }}>{ft.owner}</div>
             <div style={{ fontSize: "0.62rem", color: ft.color, fontWeight: 600, lineHeight: 1.4, letterSpacing: "0.04em", opacity: 0.9 }}>{ft.name}</div>
