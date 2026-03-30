@@ -361,7 +361,7 @@ export default function App() {
   const sparkTipTimer = useRef<ReturnType<typeof setTimeout>>();
   // Always-fresh ref to refresh fn (avoids stale closure in PTR listener)
   const refreshFnRef = useRef(() => {});
-  const [countdown, setCountdown] = useState<{ text: string; matchName: string } | null>(null);
+  const [countdown, setCountdown] = useState<{ text: string; matchName: string; venue?: string; homeTeam?: string } | null>(null);
   const fetchPoints = async () => {
     if (pointsLoading) return;
     setPointsLoading(true);
@@ -709,7 +709,8 @@ export default function App() {
       const text = days > 0
         ? `${days}D ${String(hrs).padStart(2,"0")}H ${String(mins).padStart(2,"0")}M`
         : `${String(hrs).padStart(2,"0")}:${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
-      setCountdown({ text, matchName: upcoming.name });
+      const homeTeam = upcoming.teamInfo?.[0]?.shortname || "";
+      setCountdown({ text, matchName: upcoming.name, venue: upcoming.venue || "", homeTeam });
     };
     update();
     const id = setInterval(update, 1000);
@@ -1644,7 +1645,14 @@ export default function App() {
             <div className="countdown-timer">{countdown.text}</div>
             <div className="countdown-label">Next Match</div>
           </div>
-          <div className="countdown-match">{countdown.matchName}</div>
+          <div style={{ textAlign: "right" }}>
+            <div className="countdown-match">{countdown.matchName}</div>
+            {countdown.venue && (
+              <div style={{ fontSize: "0.6rem", color: "var(--text-3)", marginTop: 3 }}>
+                🏟 {countdown.venue}{countdown.homeTeam ? ` (${countdown.homeTeam})` : ""}
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -1731,7 +1739,11 @@ export default function App() {
                   </div>
                 ))}
                 {m.toss && <div style={{ fontSize: "0.65rem", color: "var(--text-2)", marginTop: 5 }}>{m.toss}</div>}
-                <div className="match-venue">{m.venue || ""}</div>
+                {m.venue && (
+                  <div className="match-venue">
+                    🏟 {m.venue}{m.teamInfo?.[0]?.shortname ? ` (${m.teamInfo[0].shortname})` : ""}
+                  </div>
+                )}
               </div>
             ))}
           </>
@@ -2408,7 +2420,11 @@ export default function App() {
                   ))}
                   {isDone && m.status && <div style={{ fontSize: "0.68rem", color: "var(--blue)", marginTop: 5 }}>{m.status}</div>}
                   {isLive && m.toss && <div style={{ fontSize: "0.65rem", color: "var(--text-2)", marginTop: 5 }}>{m.toss}</div>}
-                  {m.venue && <div className="match-venue">{m.venue}</div>}
+                  {m.venue && (
+                    <div className="match-venue">
+                      🏟 {m.venue}{m.teamInfo?.[0]?.shortname ? ` (${m.teamInfo[0].shortname})` : ""}
+                    </div>
+                  )}
 
                   {isExpanded && (
                     <div style={{ marginTop: 12, borderTop: "1px solid var(--border)", paddingTop: 12 }}

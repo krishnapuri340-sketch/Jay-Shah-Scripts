@@ -1023,32 +1023,43 @@
     },
     "2419": {
       "points": {
-        "Ruturaj Gaikwad": 5,
+        "Ruturaj Gaikwad": 6,
         "Sanju Samson": 14
       },
       "innings": [
         {
           "name": "Chennai Super Kings Inning 1",
-          "total": "7/0 (1.4 ov)",
+          "total": "8/1 (2.2 ov)",
           "batting": [
             {
               "name": "Sanju Samson",
               "runs": 6,
-              "balls": 6,
+              "balls": 7,
               "fours": 1,
               "sixes": 0,
-              "sr": "100",
+              "sr": "85.71",
+              "dismissal": "bowled",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Ruturaj Gaikwad",
+              "runs": 2,
+              "balls": 7,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "28.57",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
             },
             {
-              "name": "Ruturaj Gaikwad",
-              "runs": 1,
-              "balls": 4,
+              "name": "Ayush Mhatre",
+              "runs": 0,
+              "balls": 0,
               "fours": 0,
               "sixes": 0,
-              "sr": "25",
+              "sr": "0.00",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -1057,22 +1068,22 @@
           "bowling": [
             {
               "name": "Jofra Archer",
-              "overs": "1",
+              "overs": "1.2",
               "maidens": 0,
               "runs": 6,
               "wickets": 0,
-              "eco": "6",
+              "eco": "4.5",
               "wides": 0,
               "noBalls": 0
             },
             {
               "name": "Nandre Burger",
-              "overs": "0.4",
+              "overs": "1",
               "maidens": 0,
-              "runs": 1,
-              "wickets": 0,
-              "eco": "1.5",
-              "wides": 0,
+              "runs": 3,
+              "wickets": 1,
+              "eco": "3",
+              "wides": 1,
               "noBalls": 0
             }
           ]
@@ -1081,8 +1092,8 @@
       "playerStats": {
         "Ruturaj Gaikwad": {
           "played": true,
-          "runs": 1,
-          "balls": 4,
+          "runs": 2,
+          "balls": 7,
           "fours": 0,
           "sixes": 0,
           "duck": false,
@@ -1099,7 +1110,7 @@
         "Sanju Samson": {
           "played": true,
           "runs": 6,
-          "balls": 6,
+          "balls": 7,
           "fours": 1,
           "sixes": 0,
           "duck": false,
@@ -1767,6 +1778,6 @@
   "lastUpdated": "2026-03-29T18:00:26.567Z",
   "dailyHits": {
     "date": "2026-03-30",
-    "count": 23
+    "count": 29
   }
 }
