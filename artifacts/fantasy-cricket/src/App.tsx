@@ -796,7 +796,7 @@ export default function App() {
   useEffect(() => {
     const idleDelay   = 60 * 60_000; // 60 min when nothing is live
     const liveStatus  = 20_000;       // 20 s — match status / scorecard
-    const livePoints  = 60_000;       // 60 s — matches server CricAPI cooldown
+    const livePoints  = 45_000;       // 45 s — aligned with server CricAPI cooldown
     if (!isAnyMatchLive) {
       const ids = [
         setInterval(fetchLive,        idleDelay),

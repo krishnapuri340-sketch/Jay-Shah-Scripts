@@ -553,7 +553,7 @@ const PLAYER_TEAMS: Record<string, string> = {
 let pointsUpdateInProgress = false;
 let lastUpdateAttempt = 0;
 let isLiveMatchActive = false; // dynamically tracks if any IPL match is currently live
-const LIVE_COOLDOWN_MS  =  1 * 60 * 1000; // 1 min during live matches
+const LIVE_COOLDOWN_MS  = 45 * 1000;       // 45 s during live matches (safe for 2000/day limit)
 const IDLE_COOLDOWN_MS  = 16 * 60 * 1000; // 16 min when idle
 const getCooldown = () => isLiveMatchActive ? LIVE_COOLDOWN_MS : IDLE_COOLDOWN_MS;
 let pointsCache: PointsCache = loadCache();
