@@ -2,6 +2,7 @@ export type FantasyPlayer = { name: string; role: string; ipl: string };
 export type FantasyTeam = {
   id: string; name: string; owner: string; emoji: string; color: string;
   avatar: string;
+  avatarPosition?: string;
   captain: string; vc: string;
   players: FantasyPlayer[];
 };
@@ -9,7 +10,7 @@ export type FantasyTeam = {
 export const FANTASY_TEAMS: Record<string, FantasyTeam> = {
   rajveer: {
     id: "rajveer", name: "Jay Shah Supremacy", owner: "Raj", emoji: "🏏", color: "#f97316",
-    avatar: "raj.jpeg",
+    avatar: "raj.jpeg", avatarPosition: "center center",
     captain: "Rajat Patidar", vc: "Axar Patel",
     players: [
       { name: "Rajat Patidar", role: "BAT", ipl: "RCB" },
@@ -34,7 +35,7 @@ export const FANTASY_TEAMS: Record<string, FantasyTeam> = {
   },
   mombasa: {
     id: "mombasa", name: "Mombasa Kenyans", owner: "Rahul", emoji: "⚡", color: "#eab308",
-    avatar: "rahul.jpeg",
+    avatar: "rahul.jpeg", avatarPosition: "center 30%",
     captain: "Abhishek Sharma", vc: "Sai Sudharsan",
     players: [
       { name: "Jitesh Sharma", role: "WK", ipl: "RCB" },
@@ -59,7 +60,7 @@ export const FANTASY_TEAMS: Record<string, FantasyTeam> = {
   },
   mumbai: {
     id: "mumbai", name: "Mumbai Mavericks", owner: "Smeet", emoji: "🌊", color: "#3b82f6",
-    avatar: "smeet.jpeg",
+    avatar: "smeet.jpeg", avatarPosition: "center 35%",
     captain: "Hardik Pandya", vc: "Sanju Samson",
     players: [
       { name: "Rishabh Pant", role: "WK", ipl: "LSG" },
@@ -84,7 +85,7 @@ export const FANTASY_TEAMS: Record<string, FantasyTeam> = {
   },
   ponygoat: {
     id: "ponygoat", name: "PonyGoat", owner: "Deb", emoji: "🐐", color: "#10b981",
-    avatar: "deb.jpeg",
+    avatar: "deb.jpeg", avatarPosition: "center 30%",
     captain: "Sunil Narine", vc: "Jasprit Bumrah",
     players: [
       { name: "Marcus Stoinis", role: "AR", ipl: "PBKS" },
