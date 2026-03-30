@@ -669,13 +669,14 @@ export default function App() {
     return () => { if (pointsRetryTimer.current) clearTimeout(pointsRetryTimer.current); };
   }, []);
 
-  // Initial fetch on mount
+  // Initial fetch — runs on mount AND whenever the user logs in
   useEffect(() => {
+    if (!currentUser) return;
     fetchLive();
     fetchPoints();
     fetchStandings();
     fetchStats();
-  }, []);
+  }, [currentUser]);
 
   // Register service worker for push notifications
   useEffect(() => {
