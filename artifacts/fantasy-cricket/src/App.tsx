@@ -557,8 +557,6 @@ export default function App() {
   const [notifStatus, setNotifStatus] = useState<'unsupported' | 'default' | 'granted' | 'denied'>('unsupported');
   const swRegRef = useRef<ServiceWorkerRegistration | null>(null);
   const [pointsLoading, setPointsLoading] = useState(false);
-  const [liveAlertsEnabled, setLiveAlertsEnabled] = useState(false);
-  const [liveAlertsLoading, setLiveAlertsLoading] = useState(false);
   const [pointsUpdating, setPointsUpdating] = useState(false);
   const [pendingMatches, setPendingMatches] = useState(0);
   const [nextAttempt, setNextAttempt] = useState<string | null>(null);
@@ -991,13 +989,6 @@ export default function App() {
     return () => clearInterval(id);
   }, [liveMatches]);
 
-  useEffect(() => {
-    if (tab !== "admin") return;
-    fetch("/api/push/live-alerts")
-      .then(r => r.json())
-      .then(d => setLiveAlertsEnabled(d.enabled))
-      .catch(() => {});
-  }, [tab]);
 
   // Hot players: scored >= 25 pts in most recent match
   const hotPlayers = new Set<string>(
@@ -3506,27 +3497,6 @@ export default function App() {
             <button className="btn-primary" style={{ background: "rgba(96,165,250,0.1)", borderColor: "rgba(96,165,250,0.3)", color: "#60a5fa" }}
               onClick={fetchPoints} disabled={pointsLoading}>
               {pointsLoading ? <span className="spinner" /> : "⚡"} Fetch Points
-            </button>
-            <button
-              className="btn-primary"
-              style={{
-                background: liveAlertsEnabled ? "rgba(34,197,94,0.15)" : "rgba(255,255,255,0.04)",
-                borderColor: liveAlertsEnabled ? "rgba(34,197,94,0.5)" : "rgba(255,255,255,0.1)",
-                color: liveAlertsEnabled ? "var(--live)" : "var(--text-2)",
-                minWidth: 160,
-              }}
-              disabled={liveAlertsLoading}
-              onClick={async () => {
-                setLiveAlertsLoading(true);
-                try {
-                  const res = await fetch("/api/push/live-alerts/toggle", { method: "POST" });
-                  const d = await res.json();
-                  setLiveAlertsEnabled(d.enabled);
-                } finally {
-                  setLiveAlertsLoading(false);
-                }
-              }}>
-              {liveAlertsLoading ? <span className="spinner" /> : (liveAlertsEnabled ? "🔔 Live Alerts: ON" : "🔔 Live Alerts: OFF")}
             </button>
             <button className="btn-danger" onClick={async () => {
               if (confirm("Reset all cached points? Points will re-sync from AuctionRoom.")) {
