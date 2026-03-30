@@ -3264,11 +3264,18 @@ export default function App() {
         </div>
         {/* PIN Management */}
         <div style={{ background: "rgba(15,21,32,0.9)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: 16, marginBottom: 16 }}>
-          <div style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase" as const, color: "#94a3b8", marginBottom: 14 }}>
-            🔐 User PINs
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase" as const, color: "#94a3b8" }}>
+              Change Passcode
+            </div>
+            <div style={{ fontSize: "0.65rem", color: "#475569", marginTop: 5 }}>
+              Your passcode must be exactly 4 digits and is used to log in to your account.{currentUser === "rajveer" ? " As commissioner, you can manage all members." : ""}
+            </div>
           </div>
           <div style={{ display: "flex", flexDirection: "column" as const, gap: 10 }}>
-            {Object.values(FANTASY_TEAMS).map(ft => (
+            {Object.values(FANTASY_TEAMS)
+              .filter(ft => currentUser === "rajveer" || ft.id === currentUser)
+              .map(ft => (
               <div key={ft.id} style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <span style={{ fontSize: "1rem" }}>{ft.emoji}</span>
                 <div style={{ flex: 1 }}>
@@ -3294,9 +3301,7 @@ export default function App() {
                 ) : (
                   <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
                     <span style={{ fontSize: "0.75rem", letterSpacing: "3px", color: "#3f3f46", fontFamily: "monospace" }}>••••</span>
-                    {(currentUser === "rajveer" || ft.id === currentUser) && (
-                      <button onClick={() => { setPinEditTarget(ft.id); setPinEditVal(userPins[ft.id] || ""); }} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, padding: "4px 10px", cursor: "pointer", color: "#71717a", fontSize: "0.65rem", fontFamily: "inherit" }}>Change</button>
-                    )}
+                    <button onClick={() => { setPinEditTarget(ft.id); setPinEditVal(userPins[ft.id] || ""); }} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, padding: "4px 10px", cursor: "pointer", color: "#71717a", fontSize: "0.65rem", fontFamily: "inherit" }}>Change</button>
                   </div>
                 )}
               </div>
