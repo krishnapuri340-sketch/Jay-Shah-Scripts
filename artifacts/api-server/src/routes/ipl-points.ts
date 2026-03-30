@@ -6,7 +6,12 @@ const router: IRouter = Router();
 
 const CRICAPI_KEY = process.env.CRICAPI_KEY;
 const CRICAPI_BASE = "https://api.cricapi.com/v1";
-const CACHE_FILE = join(process.cwd(), "ipl-points-cache.json");
+
+// Works whether CWD is /workspace (production) or /workspace/artifacts/api-server (dev)
+const _cwd = process.cwd();
+const CACHE_FILE = existsSync(join(_cwd, "artifacts/api-server"))
+  ? join(_cwd, "artifacts/api-server/ipl-points-cache.json")
+  : join(_cwd, "ipl-points-cache.json");
 
 interface PlayerStats {
   played: boolean;

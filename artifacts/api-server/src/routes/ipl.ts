@@ -4,7 +4,10 @@ import { join } from "path";
 import { fetchMatchOverview, refreshLiveMatches } from "./ipl-points";
 
 // ── Shared predictions store ──────────────────────────────────────────────────
-const PRED_FILE = join(process.cwd(), "ipl-predictions.json");
+const _cwd2 = process.cwd();
+const PRED_FILE = existsSync(join(_cwd2, "artifacts/api-server"))
+  ? join(_cwd2, "artifacts/api-server/ipl-predictions.json")
+  : join(_cwd2, "ipl-predictions.json");
 type PredStore = Record<string, Record<string, string | null>>;
 
 function loadPreds(): PredStore {
