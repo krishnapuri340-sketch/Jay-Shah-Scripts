@@ -1525,6 +1525,24 @@
       "matchDate": "2026-03-29",
       "matchNumber": 2,
       "linkedIplId": "2418"
+    },
+    "bd620723-6d40-4794-a046-c1f146af908a": {
+      "points": {
+        "Dhruv Jurel": 64,
+        "Shimron Hetmyer": 4,
+        "Riyan Parag": 28,
+        "Khaleel Ahmed": 30,
+        "Ravindra Jadeja": 98,
+        "Ruturaj Gaikwad": 8,
+        "Shivam Dube": 16,
+        "Sanju Samson": 14,
+        "Vaibhav Suryavanshi": 118,
+        "Yashasvi Jaiswal": 72
+      },
+      "matchLabel": "Rajasthan Royals vs Chennai Super Kings",
+      "matchDate": "2026-03-30",
+      "matchNumber": 3,
+      "linkedIplId": "2419"
     }
   },
   "playerIdMap": {
@@ -2131,7 +2149,7 @@
       "teamB": "Delhi Capitals"
     }
   },
-  "lastUpdated": "2026-03-29T18:00:26.567Z",
+  "lastUpdated": "2026-03-30T18:34:31.196Z",
   "dailyHits": {
     "date": "2026-03-30",
     "count": 345

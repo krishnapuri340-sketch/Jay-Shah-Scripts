@@ -498,7 +498,7 @@ export default function App() {
   const [standingsLoading, setStandingsLoading] = useState(false);
   const [iplStats, setIplStats] = useState<any | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
-  const [statsFilter, setStatsFilter] = useState<"all" | "fantasy">("all");
+  const [statsFilter, setStatsFilter] = useState<"all" | "fantasy" | "predictions">("all");
   const [statsCategory, setStatsCategory] = useState<"orangeCap" | "purpleCap" | "sixesLeader" | "foursLeader" | "srLeader" | "ecoLeader">("orangeCap");
   const [statsExpanded, setStatsExpanded] = useState(false);
   const [matchFilter, setMatchFilter] = useState<"upcoming" | "live" | "completed" | "all">("upcoming");
@@ -3048,59 +3048,171 @@ export default function App() {
         <div className="sec-title">IPL 2026 Stats</div>
 
         <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
-          {(["all", "fantasy"] as const).map(f => (
-            <button key={f} onClick={() => { setStatsFilter(f); setStatsExpanded(false); }}
+          {([["all", "All IPL"], ["fantasy", "Fantasy Only"], ["predictions", "Predictions"]] as [string, string][]).map(([f, label]) => (
+            <button key={f} onClick={() => { setStatsFilter(f as any); setStatsExpanded(false); }}
               style={{ flex: 1, padding: "8px 0", borderRadius: 10, border: "1px solid", fontSize: "0.68rem", fontWeight: 500, cursor: "pointer", fontFamily: "inherit",
                 background: statsFilter === f ? "var(--surface-2)" : "transparent",
                 borderColor: statsFilter === f ? "var(--border-2)" : "var(--border)",
-                color: statsFilter === f ? (f === "fantasy" ? "#22c55e" : "var(--text)") : "var(--text-3)" }}>
-              {f === "all" ? "All IPL" : "Fantasy Only"}
+                color: statsFilter === f ? (f === "fantasy" ? "#22c55e" : f === "predictions" ? "#a78bfa" : "var(--text)") : "var(--text-3)" }}>
+              {label}
             </button>
           ))}
         </div>
 
-        <div data-no-swipe="true" style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 8, marginBottom: 12, marginLeft: -16, marginRight: -16, paddingLeft: 16, paddingRight: 16 }}>
-          {STAT_CATS.map(c => (
-            <button key={c.id} onClick={() => { setStatsCategory(c.id); setStatsExpanded(false); }} className={`stats-cat-btn ${statsCategory === c.id ? "active" : ""}`}>
-              {c.label}
-            </button>
-          ))}
-        </div>
-
-        {!iplStats && statsLoading && (
-          <div style={{ color: "var(--text-3)", fontSize: "0.78rem", textAlign: "center" as const, padding: "24px 0" }}>Loading stats...</div>
-        )}
-        {iplStats && entries.length === 0 && (
-          <div style={{ color: "var(--text-3)", fontSize: "0.78rem", textAlign: "center" as const, padding: "24px 0" }}>
-            {iplStats.matchesProcessed === 0 ? "Stats will appear once match innings data is synced." : `No ${statsFilter === "fantasy" ? "fantasy " : ""}players found.`}
+        {statsFilter !== "predictions" && (
+          <div data-no-swipe="true" style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 8, marginBottom: 12, marginLeft: -16, marginRight: -16, paddingLeft: 16, paddingRight: 16 }}>
+            {STAT_CATS.map(c => (
+              <button key={c.id} onClick={() => { setStatsCategory(c.id); setStatsExpanded(false); }} className={`stats-cat-btn ${statsCategory === c.id ? "active" : ""}`}>
+                {c.label}
+              </button>
+            ))}
           </div>
         )}
-        {entries.length > 0 && (() => {
-          const visible = statsExpanded ? entries : entries.slice(0, 10);
-          const hasMore = entries.length > 10;
+
+        {statsFilter === "predictions" ? (() => {
+          const PRED_OWNERS = ["rajveer","mombasa","mumbai","ponygoat"] as const;
+          const sortedMatches = [...liveMatches]
+            .filter((m: any) => m.homeTeamCode && m.awayTeamCode)
+            .map((m: any) => {
+              const numMatch = ((m.name || "").match(/^(\d+)(?:st|nd|rd|th)\s+Match/i) || [])[1];
+              return { ...m, matchNum: numMatch ? parseInt(numMatch) : 999 };
+            })
+            .sort((a: any, b: any) => a.matchNum - b.matchNum);
+
+          const ownerScores: Record<string, number> = Object.fromEntries(PRED_OWNERS.map(id => [id, 0]));
+          sortedMatches.forEach((m: any) => {
+            if (m.matchNum <= 3 || !m.matchEnded) return;
+            const winner = getMatchWinner(m);
+            if (!winner || winner === "tie") return;
+            const preds = predictions[String(m.id)] || {};
+            PRED_OWNERS.forEach(id => { if (preds[id] === winner) ownerScores[id]++; });
+          });
+
+          const totalScorable = sortedMatches.filter((m: any) => m.matchNum > 3 && m.matchEnded).length;
+
           return (
-            <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden", marginBottom: 12 }}>
-              <div style={{ padding: "12px 14px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text)" }}>
-                  {STAT_CATS.find(c => c.id === cat)?.sub}
-                </div>
-                <div style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{iplStats.matchesProcessed} matches</div>
+            <>
+              {/* Score cards */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, marginBottom: 12 }}>
+                {PRED_OWNERS.map(id => {
+                  const ft = FANTASY_TEAMS[id];
+                  return (
+                    <div key={id} style={{ background: "var(--surface)", border: `1px solid ${ft.color}33`, borderRadius: 10, padding: "10px 4px", textAlign: "center" as const }}>
+                      <div style={{ fontSize: "0.6rem", marginBottom: 4 }}>{ft.emoji}</div>
+                      <div style={{ fontSize: "1.3rem", fontWeight: 800, color: ft.color, lineHeight: 1 }}>{ownerScores[id]}</div>
+                      <div style={{ fontSize: "0.55rem", color: "var(--text-3)", marginTop: 2 }}>{ft.owner}</div>
+                      {totalScorable > 0 && <div style={{ fontSize: "0.5rem", color: "var(--text-3)" }}>/{totalScorable}</div>}
+                    </div>
+                  );
+                })}
               </div>
-              {visible.map((e: any, i: number) => renderStatRow(e, i, cat))}
-              {hasMore && (
-                <button onClick={() => setStatsExpanded(x => !x)}
-                  style={{ width: "100%", padding: "11px 0", background: "transparent", border: "none", borderTop: "1px solid var(--border)", cursor: "pointer", fontSize: "0.68rem", color: "var(--text-3)", fontFamily: "inherit" }}>
-                  {statsExpanded ? `Show less` : `Show all ${entries.length}`}
-                </button>
-              )}
-            </div>
-          );
-        })()}
 
-        {iplStats && (
-          <div style={{ fontSize: "0.6rem", color: "var(--text-3)", textAlign: "center" as const, padding: "4px 0" }}>
-            <span style={{ color: "#22c55e" }}>F</span> = in one of the 4 fantasy teams
-          </div>
+              {/* Match table */}
+              <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden", marginBottom: 12 }}>
+                {/* Header */}
+                <div style={{ display: "grid", gridTemplateColumns: "34px 1fr repeat(4, 36px)", padding: "8px 12px", borderBottom: "1px solid var(--border)", background: "rgba(255,255,255,0.02)" }}>
+                  <div style={{ fontSize: "0.56rem", color: "var(--text-3)", fontWeight: 700, letterSpacing: "0.08em" }}>#</div>
+                  <div style={{ fontSize: "0.56rem", color: "var(--text-3)", fontWeight: 700, letterSpacing: "0.08em" }}>MATCH</div>
+                  {PRED_OWNERS.map(id => (
+                    <div key={id} style={{ fontSize: "0.56rem", color: FANTASY_TEAMS[id].color, fontWeight: 700, textAlign: "center" as const }}>
+                      {FANTASY_TEAMS[id].owner.slice(0,3).toUpperCase()}
+                    </div>
+                  ))}
+                </div>
+
+                {sortedMatches.length === 0 && (
+                  <div style={{ padding: "20px 12px", fontSize: "0.75rem", color: "var(--text-3)", textAlign: "center" as const }}>
+                    Matches loading...
+                  </div>
+                )}
+
+                {sortedMatches.map((m: any, idx: number) => {
+                  const isNil = m.matchNum <= 3;
+                  const isDone = m.matchEnded;
+                  const isLive = m.matchStarted && !m.matchEnded;
+                  const winner = isDone ? getMatchWinner(m) : null;
+                  const preds = predictions[String(m.id)] || {};
+                  const isLast = idx === sortedMatches.length - 1;
+
+                  return (
+                    <div key={m.id} style={{ display: "grid", gridTemplateColumns: "34px 1fr repeat(4, 36px)", padding: "8px 12px", borderBottom: isLast ? "none" : "1px solid var(--border)", alignItems: "center", opacity: !isDone && !isLive ? 0.5 : 1 }}>
+                      <div style={{ fontSize: "0.65rem", fontWeight: 700, color: isLive ? "var(--live)" : "var(--text-3)" }}>
+                        {m.matchNum === 999 ? "?" : `M${m.matchNum}`}
+                      </div>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: "0.68rem", fontWeight: 600, color: "var(--text-2)", whiteSpace: "nowrap" as const }}>
+                          <span style={{ color: winner === m.homeTeamCode ? "#22c55e" : "var(--text-2)" }}>{m.homeTeamCode}</span>
+                          <span style={{ color: "var(--text-3)", padding: "0 3px", fontSize: "0.55rem" }}>vs</span>
+                          <span style={{ color: winner === m.awayTeamCode ? "#22c55e" : "var(--text-2)" }}>{m.awayTeamCode}</span>
+                        </div>
+                        {isNil && <div style={{ fontSize: "0.5rem", color: "var(--text-3)", fontStyle: "italic" }}>no predictions</div>}
+                        {isLive && <div style={{ fontSize: "0.5rem", color: "var(--live)" }}>● Live</div>}
+                      </div>
+                      {PRED_OWNERS.map(id => {
+                        if (isNil) return (
+                          <div key={id} style={{ textAlign: "center" as const, fontSize: "0.6rem", color: "var(--text-3)" }}>—</div>
+                        );
+                        const pick = preds[id] || null;
+                        if (!pick) return (
+                          <div key={id} style={{ textAlign: "center" as const, fontSize: "0.6rem", color: "var(--text-3)" }}>—</div>
+                        );
+                        const isCorrect = !!winner && winner !== "tie" && pick === winner;
+                        const isWrong = !!winner && winner !== "tie" && pick !== winner;
+                        return (
+                          <div key={id} style={{ textAlign: "center" as const }}>
+                            <div style={{ fontSize: "0.58rem", fontWeight: 700, color: isCorrect ? "#22c55e" : isWrong ? "#f87171" : "var(--text-2)", lineHeight: 1.2 }}>{pick}</div>
+                            {isCorrect && <div style={{ fontSize: "0.6rem", color: "#22c55e", lineHeight: 1 }}>✓</div>}
+                            {isWrong && <div style={{ fontSize: "0.6rem", color: "#f87171", lineHeight: 1 }}>✗</div>}
+                            {!isDone && pick && <div style={{ fontSize: "0.5rem", color: "var(--text-3)", lineHeight: 1 }}>•</div>}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+              </div>
+              <div style={{ fontSize: "0.58rem", color: "var(--text-3)", textAlign: "center" as const, padding: "2px 0 8px" }}>
+                Matches 1–3 had no predictions · +1 for each correct pick
+              </div>
+            </>
+          );
+        })() : (
+          <>
+            {!iplStats && statsLoading && (
+              <div style={{ color: "var(--text-3)", fontSize: "0.78rem", textAlign: "center" as const, padding: "24px 0" }}>Loading stats...</div>
+            )}
+            {iplStats && entries.length === 0 && (
+              <div style={{ color: "var(--text-3)", fontSize: "0.78rem", textAlign: "center" as const, padding: "24px 0" }}>
+                {iplStats.matchesProcessed === 0 ? "Stats will appear once match innings data is synced." : `No ${statsFilter === "fantasy" ? "fantasy " : ""}players found.`}
+              </div>
+            )}
+            {entries.length > 0 && (() => {
+              const visible = statsExpanded ? entries : entries.slice(0, 10);
+              const hasMore = entries.length > 10;
+              return (
+                <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden", marginBottom: 12 }}>
+                  <div style={{ padding: "12px 14px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text)" }}>
+                      {STAT_CATS.find(c => c.id === cat)?.sub}
+                    </div>
+                    <div style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{iplStats.matchesProcessed} matches</div>
+                  </div>
+                  {visible.map((e: any, i: number) => renderStatRow(e, i, cat))}
+                  {hasMore && (
+                    <button onClick={() => setStatsExpanded(x => !x)}
+                      style={{ width: "100%", padding: "11px 0", background: "transparent", border: "none", borderTop: "1px solid var(--border)", cursor: "pointer", fontSize: "0.68rem", color: "var(--text-3)", fontFamily: "inherit" }}>
+                      {statsExpanded ? `Show less` : `Show all ${entries.length}`}
+                    </button>
+                  )}
+                </div>
+              );
+            })()}
+            {iplStats && (
+              <div style={{ fontSize: "0.6rem", color: "var(--text-3)", textAlign: "center" as const, padding: "4px 0" }}>
+                <span style={{ color: "#22c55e" }}>F</span> = in one of the 4 fantasy teams
+              </div>
+            )}
+          </>
         )}
       </div>
     );
