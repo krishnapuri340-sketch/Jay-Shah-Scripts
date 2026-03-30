@@ -1023,32 +1023,32 @@
     },
     "2419": {
       "points": {
-        "Ruturaj Gaikwad": 4,
-        "Sanju Samson": 4
+        "Ruturaj Gaikwad": 5,
+        "Sanju Samson": 14
       },
       "innings": [
         {
           "name": "Chennai Super Kings Inning 1",
-          "total": "0/0 (0.1 ov)",
+          "total": "7/0 (1.4 ov)",
           "batting": [
             {
               "name": "Sanju Samson",
-              "runs": 0,
-              "balls": 1,
-              "fours": 0,
+              "runs": 6,
+              "balls": 6,
+              "fours": 1,
               "sixes": 0,
-              "sr": "0.00",
+              "sr": "100",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
             },
             {
               "name": "Ruturaj Gaikwad",
-              "runs": 0,
-              "balls": 0,
+              "runs": 1,
+              "balls": 4,
               "fours": 0,
               "sixes": 0,
-              "sr": "0.00",
+              "sr": "25",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -1057,11 +1057,21 @@
           "bowling": [
             {
               "name": "Jofra Archer",
-              "overs": "0.1",
+              "overs": "1",
               "maidens": 0,
-              "runs": 0,
+              "runs": 6,
               "wickets": 0,
-              "eco": "0.00",
+              "eco": "6",
+              "wides": 0,
+              "noBalls": 0
+            },
+            {
+              "name": "Nandre Burger",
+              "overs": "0.4",
+              "maidens": 0,
+              "runs": 1,
+              "wickets": 0,
+              "eco": "1.5",
               "wides": 0,
               "noBalls": 0
             }
@@ -1071,8 +1081,8 @@
       "playerStats": {
         "Ruturaj Gaikwad": {
           "played": true,
-          "runs": 0,
-          "balls": 0,
+          "runs": 1,
+          "balls": 4,
           "fours": 0,
           "sixes": 0,
           "duck": false,
@@ -1088,9 +1098,9 @@
         },
         "Sanju Samson": {
           "played": true,
-          "runs": 0,
-          "balls": 1,
-          "fours": 0,
+          "runs": 6,
+          "balls": 6,
+          "fours": 1,
           "sixes": 0,
           "duck": false,
           "wickets": 0,
@@ -1757,6 +1767,6 @@
   "lastUpdated": "2026-03-29T18:00:26.567Z",
   "dailyHits": {
     "date": "2026-03-30",
-    "count": 13
+    "count": 23
   }
 }

@@ -26,13 +26,18 @@ if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
   webpush.setVapidDetails(VAPID_CONTACT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
 }
 
-// ── Push API routes ────────────────────────────────────────────────────────────
+// ── Toggle state (in-memory; resets on restart, intentionally lightweight) ─────
+let liveAlertsEnabled = false;
 
-router.get("/api/push/vapid-public-key", (_req, res) => {
+// ── Push API routes  (mounted under /api via routes/index → app.use("/api")) ───
+// Note: paths here must NOT include "/api/" prefix — they're relative to the
+// router already mounted at /api.
+
+router.get("/push/vapid-public-key", (_req, res) => {
   res.json({ key: VAPID_PUBLIC_KEY });
 });
 
-router.post("/api/push/subscribe", (req, res) => {
+router.post("/push/subscribe", (req, res) => {
   const sub = req.body;
   if (!sub?.endpoint) { res.status(400).json({ error: "Invalid subscription" }); return; }
   const subs = loadSubs();
@@ -43,35 +48,24 @@ router.post("/api/push/subscribe", (req, res) => {
   res.json({ ok: true, count: subs.length });
 });
 
-router.post("/api/push/unsubscribe", (req, res) => {
+router.post("/push/unsubscribe", (req, res) => {
   const { endpoint } = req.body || {};
   if (endpoint) saveSubs(loadSubs().filter((s: any) => s.endpoint !== endpoint));
   res.json({ ok: true });
 });
 
-router.post("/api/push/broadcast", async (req, res) => {
-  const { title, body, tag, url } = req.body || {};
-  const sent = await sendPushToAll({ title: title || "IPL Fantasy 2026", body: body || "", tag, url });
-  res.json({ ok: true, sent });
-});
-
-// Manually trigger a live scorecard push from the admin panel
-router.post("/api/push/live-score-update", async (_req, res) => {
-  const matches = await fetchLiveMatchesFromS3();
-  if (matches.length === 0) {
-    res.json({ ok: false, reason: "No live matches right now" });
-    return;
-  }
-  let sent = 0;
-  for (const m of matches) {
-    const notif = buildScorecardNotification(m);
-    if (notif) sent += await sendPushToAll(notif);
-  }
-  res.json({ ok: true, sent, matches: matches.length });
-});
-
-router.get("/api/push/subscriber-count", (_req, res) => {
+router.get("/push/subscriber-count", (_req, res) => {
   res.json({ count: loadSubs().length });
+});
+
+// Get / toggle live-alerts state
+router.get("/push/live-alerts", (_req, res) => {
+  res.json({ enabled: liveAlertsEnabled, subscribers: loadSubs().length });
+});
+
+router.post("/push/live-alerts/toggle", (_req, res) => {
+  liveAlertsEnabled = !liveAlertsEnabled;
+  res.json({ enabled: liveAlertsEnabled });
 });
 
 // ── Send helper ────────────────────────────────────────────────────────────────
@@ -125,7 +119,6 @@ async function fetchLiveMatchesFromS3(): Promise<any[]> {
   } catch { return []; }
 }
 
-// Snapshot of a match's score used to detect changes
 interface ScoreSnap {
   inn1Summary: string;
   inn2Summary: string;
@@ -134,51 +127,37 @@ interface ScoreSnap {
 }
 
 function getScoreSnap(m: any): ScoreSnap {
-  const wickets = (s: string) => {
-    const hit = s?.match(/\d+\/(\d+)/);
-    return hit ? parseInt(hit[1]) : 0;
-  };
+  const w = (s: string) => { const h = s?.match(/\d+\/(\d+)/); return h ? parseInt(h[1]) : 0; };
   return {
     inn1Summary: m?.FirstBattingSummary || "",
     inn2Summary: m?.SecondBattingSummary || "",
-    inn1Wickets: wickets(m?.FirstBattingSummary || ""),
-    inn2Wickets: wickets(m?.SecondBattingSummary || ""),
+    inn1Wickets: w(m?.FirstBattingSummary || ""),
+    inn2Wickets: w(m?.SecondBattingSummary || ""),
   };
 }
 
 function isSignificantChange(prev: ScoreSnap, curr: ScoreSnap): boolean {
-  // Wicket fell in either innings
   if (curr.inn1Wickets > prev.inn1Wickets) return true;
   if (curr.inn2Wickets > prev.inn2Wickets) return true;
-  // Second innings just started
   if (!prev.inn2Summary && curr.inn2Summary) return true;
   return false;
 }
 
 function buildScorecardNotification(m: any): {
-  title: string; body: string; tag: string; url: string; image?: string;
+  title: string; body: string; tag: string; url: string;
 } | null {
   const t1 = m?.FirstBattingTeamCode || m?.HomeTeamCode || m?.HomeTeamName || "";
   const t2 = m?.SecondBattingTeamCode || m?.AwayTeamCode || m?.AwayTeamName || "";
-
   const lines: string[] = [];
-
   if (m?.FirstBattingSummary)  lines.push(`${t1}  ${m.FirstBattingSummary}`);
   if (m?.SecondBattingSummary) lines.push(`${t2}  ${m.SecondBattingSummary}`);
-
-  // Chase / result line
   const status = m?.Commentss || m?.StatusNote || m?.Result || "";
   if (status) lines.push(status);
-
   if (lines.length === 0) return null;
-
-  const toss = m?.TossDetails ? `\n${m.TossDetails}` : "";
-  const tag = `match-${m?.MatchID || m?.MatchId || "live"}`;
-
   return {
     title: `🏏 ${t1} vs ${t2}`,
-    body: lines.join("\n") + toss,
-    tag,
+    body: lines.join("\n"),
+    tag: `match-${m?.MatchID || m?.MatchId || "live"}`,
     url: "/",
   };
 }
@@ -187,6 +166,7 @@ const lastSnaps = new Map<string, ScoreSnap>();
 let watcherTimer: ReturnType<typeof setInterval> | null = null;
 
 async function checkAndNotify() {
+  if (!liveAlertsEnabled) return;
   if (loadSubs().length === 0) return;
   const matches = await fetchLiveMatchesFromS3();
   for (const m of matches) {
@@ -200,7 +180,6 @@ async function checkAndNotify() {
     }
     lastSnaps.set(id, curr);
   }
-  // Clear snaps for matches no longer live
   const liveIds = new Set(matches.map((m: any) => String(m?.MatchID || m?.MatchId || "")));
   for (const id of lastSnaps.keys()) {
     if (!liveIds.has(id)) lastSnaps.delete(id);
@@ -209,9 +188,7 @@ async function checkAndNotify() {
 
 export function startLiveScoreWatcher() {
   if (watcherTimer) return;
-  // First check after 45 s so the server is fully up
   setTimeout(checkAndNotify, 45_000);
-  // Then every 60 s
   watcherTimer = setInterval(checkAndNotify, 60_000);
 }
 

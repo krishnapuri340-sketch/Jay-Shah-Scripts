@@ -313,6 +313,8 @@ export default function App() {
   const [notifStatus, setNotifStatus] = useState<'unsupported' | 'default' | 'granted' | 'denied'>('unsupported');
   const swRegRef = useRef<ServiceWorkerRegistration | null>(null);
   const [pointsLoading, setPointsLoading] = useState(false);
+  const [liveAlertsEnabled, setLiveAlertsEnabled] = useState(false);
+  const [liveAlertsLoading, setLiveAlertsLoading] = useState(false);
   const [pointsUpdating, setPointsUpdating] = useState(false);
   const [pendingMatches, setPendingMatches] = useState(0);
   const [nextAttempt, setNextAttempt] = useState<string | null>(null);
@@ -713,6 +715,14 @@ export default function App() {
     const id = setInterval(update, 1000);
     return () => clearInterval(id);
   }, [liveMatches]);
+
+  useEffect(() => {
+    if (tab !== "admin") return;
+    fetch("/api/push/live-alerts")
+      .then(r => r.json())
+      .then(d => setLiveAlertsEnabled(d.enabled))
+      .catch(() => {});
+  }, [tab]);
 
   // Hot players: scored >= 25 pts in most recent match
   const hotPlayers = new Set<string>(
@@ -2769,28 +2779,26 @@ export default function App() {
             onClick={fetchPoints} disabled={pointsLoading}>
             {pointsLoading ? <span className="spinner" /> : "⚡"} Fetch Points
           </button>
-          <button className="btn-primary" style={{ background: "rgba(212,168,67,0.08)", borderColor: "rgba(212,168,67,0.3)", color: "var(--gold)" }}
+          <button
+            className="btn-primary"
+            style={{
+              background: liveAlertsEnabled ? "rgba(34,197,94,0.15)" : "rgba(255,255,255,0.04)",
+              borderColor: liveAlertsEnabled ? "rgba(34,197,94,0.5)" : "rgba(255,255,255,0.1)",
+              color: liveAlertsEnabled ? "var(--live)" : "var(--text-2)",
+              minWidth: 160,
+            }}
+            disabled={liveAlertsLoading}
             onClick={async () => {
-              const body = prompt("Notification message:", "Points updated — check the leaderboard!");
-              if (!body) return;
-              const res = await fetch("/api/push/broadcast", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ title: "IPL Fantasy 2026", body, tag: "admin-update", url: "/" }),
-              });
-              const d = await res.json();
-              alert(`Sent to ${d.sent} subscriber${d.sent === 1 ? "" : "s"}`);
+              setLiveAlertsLoading(true);
+              try {
+                const res = await fetch("/api/push/live-alerts/toggle", { method: "POST" });
+                const d = await res.json();
+                setLiveAlertsEnabled(d.enabled);
+              } finally {
+                setLiveAlertsLoading(false);
+              }
             }}>
-            🔔 Notify All
-          </button>
-          <button className="btn-primary" style={{ background: "rgba(34,197,94,0.08)", borderColor: "rgba(34,197,94,0.3)", color: "var(--live)" }}
-            onClick={async () => {
-              const res = await fetch("/api/push/live-score-update", { method: "POST" });
-              const d = await res.json();
-              if (!d.ok) { alert(d.reason || "No live match found"); return; }
-              alert(`Scorecard sent to ${d.sent} subscriber${d.sent === 1 ? "" : "s"}`);
-            }}>
-            🏏 Push Scorecard
+            {liveAlertsLoading ? <span className="spinner" /> : (liveAlertsEnabled ? "🔔 Live Alerts: ON" : "🔔 Live Alerts: OFF")}
           </button>
           <button className="btn-danger" onClick={async () => {
             if (confirm("Reset all cached points? Points will re-sync from AuctionRoom.")) {
