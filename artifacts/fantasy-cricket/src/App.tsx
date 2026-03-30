@@ -709,7 +709,7 @@ export default function App() {
       const text = days > 0
         ? `${days}D ${String(hrs).padStart(2,"0")}H ${String(mins).padStart(2,"0")}M`
         : `${String(hrs).padStart(2,"0")}:${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
-      const homeTeam = upcoming.teamInfo?.[0]?.shortname || "";
+      const homeTeam = upcoming.homeTeamCode || upcoming.teamInfo?.[0]?.shortname || "";
       setCountdown({ text, matchName: upcoming.name, venue: upcoming.venue || "", homeTeam });
     };
     update();
@@ -1741,7 +1741,7 @@ export default function App() {
                 {m.toss && <div style={{ fontSize: "0.65rem", color: "var(--text-2)", marginTop: 5 }}>{m.toss}</div>}
                 {m.venue && (
                   <div className="match-venue">
-                    🏟 {m.venue}{m.teamInfo?.[0]?.shortname ? ` (${m.teamInfo[0].shortname})` : ""}
+                    🏟 {m.venue}{m.homeTeamCode ? ` (${m.homeTeamCode})` : ""}
                   </div>
                 )}
               </div>
@@ -2422,7 +2422,7 @@ export default function App() {
                   {isLive && m.toss && <div style={{ fontSize: "0.65rem", color: "var(--text-2)", marginTop: 5 }}>{m.toss}</div>}
                   {m.venue && (
                     <div className="match-venue">
-                      🏟 {m.venue}{m.teamInfo?.[0]?.shortname ? ` (${m.teamInfo[0].shortname})` : ""}
+                      🏟 {m.venue}{m.homeTeamCode ? ` (${m.homeTeamCode})` : ""}
                     </div>
                   )}
 

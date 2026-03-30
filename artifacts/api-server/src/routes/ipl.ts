@@ -55,6 +55,29 @@ async function fetchIPLLive(): Promise<any[]> {
   }
 }
 
+// IPL official team name → short code (S3 feed only provides codes for batting teams)
+const TEAM_NAME_TO_CODE: Record<string, string> = {
+  "Rajasthan Royals": "RR",
+  "Chennai Super Kings": "CSK",
+  "Mumbai Indians": "MI",
+  "Kolkata Knight Riders": "KKR",
+  "Royal Challengers Bengaluru": "RCB",
+  "Royal Challengers Bangalore": "RCB",
+  "Gujarat Titans": "GT",
+  "Punjab Kings": "PBKS",
+  "Lucknow Super Giants": "LSG",
+  "Delhi Capitals": "DC",
+  "Sunrisers Hyderabad": "SRH",
+};
+
+function teamCode(name: string, batCode1: string, batName1: string, batCode2: string, batName2: string): string {
+  // Prefer matching the team name against the batting team names (which carry the short code)
+  if (name && batName1 && name === batName1) return batCode1;
+  if (name && batName2 && name === batName2) return batCode2;
+  // Fallback to the static map
+  return TEAM_NAME_TO_CODE[name] || "";
+}
+
 function transformMatch(m: any): any {
   const status = String(m?.MatchStatus || "").toLowerCase();
   const isLive = status === "live" || status === "playing" || status === "in progress" || status === "ongoing";
@@ -64,29 +87,45 @@ function transformMatch(m: any): any {
   const matchTime = m?.GMTMatchTime ? m.GMTMatchTime.replace(" GMT", "") : (m?.MatchTime || "00:00");
   const dateTimeGMT = matchDate ? `${matchDate}T${matchTime}:00Z` : "";
 
-  const homeCode = m?.FirstBattingTeamCode || m?.HomeTeamCode || "";
-  const awayCode = m?.SecondBattingTeamCode || m?.AwayTeamCode || "";
+  // Home/away identity — from official HomeTeamName/AwayTeamName
+  // Codes are derived by matching against batting team codes (the only codes in the S3 feed)
+  const homeName = m?.HomeTeamName || "";
+  const awayName = m?.AwayTeamName || "";
+  const bat1Code = m?.FirstBattingTeamCode || "";
+  const bat1Name = m?.FirstBattingTeamName || "";
+  const bat2Code = m?.SecondBattingTeamCode || "";
+  const bat2Name = m?.SecondBattingTeamName || "";
+  const homeCode = teamCode(homeName, bat1Code, bat1Name, bat2Code, bat2Name);
+  const awayCode = teamCode(awayName, bat1Code, bat1Name, bat2Code, bat2Name);
+
+  // Batting order (may differ from home/away when away team wins toss and bats)
+  const firstBatCode  = m?.FirstBattingTeamCode  || homeCode;
+  const secondBatCode = m?.SecondBattingTeamCode || awayCode;
+  const firstBatName  = m?.FirstBattingTeamName  || homeName;
+  const secondBatName = m?.SecondBattingTeamName || awayName;
 
   const scoreEntries: any[] = [];
   if (m?.FirstBattingSummary) {
-    scoreEntries.push({ inning: `${homeCode || m?.FirstBattingTeamName} Innings`, summary: m.FirstBattingSummary });
+    scoreEntries.push({ inning: `${firstBatCode || firstBatName} Innings`, summary: m.FirstBattingSummary });
   }
   if (m?.SecondBattingSummary) {
-    scoreEntries.push({ inning: `${awayCode || m?.SecondBattingTeamName} Innings`, summary: m.SecondBattingSummary });
+    scoreEntries.push({ inning: `${secondBatCode || secondBatName} Innings`, summary: m.SecondBattingSummary });
   }
 
   return {
     id: String(m?.MatchID || m?.MatchId || Math.random()),
-    name: m?.MatchName || `${m?.HomeTeamName} vs ${m?.AwayTeamName}`,
+    name: m?.MatchName || `${homeName} vs ${awayName}`,
+    homeTeamCode: homeCode,
+    awayTeamCode: awayCode,
     teamInfo: [
       {
-        shortname: homeCode || m?.FirstBattingTeamName,
-        name: m?.HomeTeamName || m?.FirstBattingTeamName || "",
+        shortname: homeCode,
+        name: homeName,
         img: m?.HomeTeamLogo || m?.MatchHomeTeamLogo || "",
       },
       {
-        shortname: awayCode || m?.SecondBattingTeamName,
-        name: m?.AwayTeamName || m?.SecondBattingTeamName || "",
+        shortname: awayCode,
+        name: awayName,
         img: m?.AwayTeamLogo || m?.MatchAwayTeamLogo || "",
       },
     ],
