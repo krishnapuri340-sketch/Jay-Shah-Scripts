@@ -1024,11 +1024,11 @@
     "2419": {
       "points": {
         "Vaibhav Suryavanshi": 118,
-        "Dhruv Jurel": 13,
+        "Dhruv Jurel": 38,
         "Shivam Dube": 16,
         "Ruturaj Gaikwad": 8,
         "Sanju Samson": 14,
-        "Yashasvi Jaiswal": 30,
+        "Yashasvi Jaiswal": 38,
         "Ravindra Jadeja": 68,
         "Khaleel Ahmed": 10
       },
@@ -1224,15 +1224,15 @@
         },
         {
           "name": "Rajasthan Royals Inning 1",
-          "total": "77/1 (7.3 ov)",
+          "total": "94/2 (8.3 ov)",
           "batting": [
             {
               "name": "Yashasvi Jaiswal",
-              "runs": 20,
-              "balls": 24,
-              "fours": 2,
+              "runs": 24,
+              "balls": 25,
+              "fours": 3,
               "sixes": 0,
-              "sr": "83.33",
+              "sr": "96",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -1250,13 +1250,13 @@
             },
             {
               "name": "Dhruv Jurel",
-              "runs": 5,
-              "balls": 4,
-              "fours": 1,
+              "runs": 18,
+              "balls": 9,
+              "fours": 4,
               "sixes": 0,
-              "sr": "125",
-              "dismissal": "not out",
-              "notOut": true,
+              "sr": "200",
+              "dismissal": "bowled",
+              "notOut": false,
               "dnb": false
             }
           ],
@@ -1283,11 +1283,11 @@
             },
             {
               "name": "Anshul Kamboj",
-              "overs": "2",
+              "overs": "2.3",
               "maidens": 0,
-              "runs": 18,
-              "wickets": 1,
-              "eco": "9",
+              "runs": 26,
+              "wickets": 2,
+              "eco": "10.4",
               "wides": 0,
               "noBalls": 0
             },
@@ -1303,11 +1303,11 @@
             },
             {
               "name": "Jamie Overton",
-              "overs": "0.3",
+              "overs": "1",
               "maidens": 0,
-              "runs": 5,
+              "runs": 14,
               "wickets": 0,
-              "eco": "10",
+              "eco": "14",
               "wides": 0,
               "noBalls": 0
             }
@@ -1334,9 +1334,9 @@
         },
         "Dhruv Jurel": {
           "played": true,
-          "runs": 5,
-          "balls": 4,
-          "fours": 1,
+          "runs": 18,
+          "balls": 9,
+          "fours": 4,
           "sixes": 0,
           "duck": false,
           "wickets": 0,
@@ -1402,9 +1402,9 @@
         },
         "Yashasvi Jaiswal": {
           "played": true,
-          "runs": 20,
-          "balls": 24,
-          "fours": 2,
+          "runs": 24,
+          "balls": 25,
+          "fours": 3,
           "sixes": 0,
           "duck": false,
           "wickets": 0,
@@ -2105,6 +2105,6 @@
   "lastUpdated": "2026-03-29T18:00:26.567Z",
   "dailyHits": {
     "date": "2026-03-30",
-    "count": 253
+    "count": 279
   }
 }
