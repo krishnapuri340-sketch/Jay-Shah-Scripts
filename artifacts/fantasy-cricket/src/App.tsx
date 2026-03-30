@@ -326,7 +326,7 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
           {/* Avatar */}
           <div style={{ position: "relative", marginBottom: 18 }}>
             <div style={{ width: 88, height: 88, borderRadius: "50%", border: `2.5px solid ${ft.color}70`, overflow: "hidden", boxShadow: `0 0 0 4px ${ft.color}20, 0 8px 28px rgba(0,0,0,0.5)` }}>
-              <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner} style={{ width: "100%", height: "100%", objectFit: "contain", objectPosition: "center" }} />
             </div>
           </div>
 
@@ -415,7 +415,7 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
             backdropFilter: "blur(12px)",
           }}>
             <div style={{ width: 64, height: 64, borderRadius: "50%", border: `2px solid ${ft.color}70`, overflow: "hidden", marginBottom: 14, boxShadow: `0 0 0 3px ${ft.color}20`, flexShrink: 0 }}>
-              <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 15%" }} />
+              <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner} style={{ width: "100%", height: "100%", objectFit: "contain", objectPosition: "center" }} />
             </div>
             <div style={{ fontSize: "1rem", fontWeight: 800, color: "#ffffff", marginBottom: 5, letterSpacing: "-0.02em" }}>{ft.owner}</div>
             <div style={{ fontSize: "0.62rem", color: ft.color, fontWeight: 600, lineHeight: 1.4, letterSpacing: "0.04em", opacity: 0.9 }}>{ft.name}</div>
