@@ -337,7 +337,12 @@ export default function App() {
   const [statsCategory, setStatsCategory] = useState<"orangeCap" | "purpleCap" | "sixesLeader" | "foursLeader" | "srLeader" | "ecoLeader">("orangeCap");
   const [statsExpanded, setStatsExpanded] = useState(false);
   const [matchFilter, setMatchFilter] = useState<"upcoming" | "live" | "completed" | "all">("upcoming");
-  const [teamFilter, setTeamFilter] = useState<string | null>(null);
+  const [teamFilter, setTeamFilter] = useState<Set<string>>(new Set());
+  const toggleTeamFilter = (code: string) => setTeamFilter(prev => {
+    const next = new Set(prev);
+    if (next.has(code)) next.delete(code); else next.add(code);
+    return next;
+  });
   const [standingsOpen, setStandingsOpen] = useState(false);
 
   const [rankChanges, setRankChanges] = useState<Record<string, number>>({});
@@ -2253,12 +2258,12 @@ export default function App() {
       if (activeFilter === "live" && !isLiveM) return false;
       if (activeFilter === "upcoming" && (m.matchStarted || m.matchEnded)) return false;
       if (activeFilter === "completed" && !isDoneM) return false;
-      if (teamFilter) {
-        const inTeamInfo = (m.teamInfo || []).some((ti: any) => ti.shortname === teamFilter);
-        const inName = (m.name || "").toLowerCase().includes(teamFilter.toLowerCase());
-        if (!inTeamInfo && !inName) return false;
-        if (fixtureHomeAwayFilter === "home") return m.homeTeamCode === teamFilter;
-        if (fixtureHomeAwayFilter === "away") return m.homeTeamCode !== teamFilter;
+      if (teamFilter.size > 0) {
+        const inMatch = (m.teamInfo || []).some((ti: any) => teamFilter.has(ti.shortname))
+          || teamFilter.has(m.homeTeamCode) || teamFilter.has(m.awayTeamCode);
+        if (!inMatch) return false;
+        if (fixtureHomeAwayFilter === "home") return teamFilter.has(m.homeTeamCode);
+        if (fixtureHomeAwayFilter === "away") return !teamFilter.has(m.homeTeamCode);
         return true;
       }
       return true;
@@ -2306,11 +2311,11 @@ export default function App() {
                   {standings.map((t: any, i: number) => {
                     const color = IPL_COLORS[t.teamCode] || "var(--text-3)";
                     const isTop4 = i < 4;
-                    const isSelected = teamFilter === t.teamCode;
+                    const isSelected = teamFilter.has(t.teamCode);
                     const logoUrl = TEAM_LOGO_CDN[t.teamCode] || t.teamLogo;
                     return (
                       <tr key={t.teamCode}
-                        onClick={() => setTeamFilter(isSelected ? null : t.teamCode)}
+                        onClick={() => toggleTeamFilter(t.teamCode)}
                         style={{ borderBottom: "1px solid var(--border)", cursor: "pointer", background: isSelected ? color + "14" : "transparent", transition: "background 0.15s" }}>
                         <td style={{ padding: "8px 0 8px 12px", color: isTop4 ? "#22c55e" : "var(--text-3)", fontWeight: 700, fontSize: "0.68rem" }}>{i + 1}</td>
                         <td style={{ padding: "8px 4px" }}>
@@ -2344,34 +2349,45 @@ export default function App() {
           </div>
         )}
 
-        {/* Team filter chip + Home/Away sub-pills */}
-        {teamFilter && (() => {
-          const tc = IPL_COLORS[teamFilter] || "#888";
-          return (
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 10px", borderRadius: 20, background: tc + "18", border: `1px solid ${tc}44`, fontSize: "0.68rem", fontWeight: 600, color: tc }}>
-                  {teamFilter} matches
-                  <button onClick={() => setTeamFilter(null)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0, marginLeft: 2, lineHeight: 1, color: "inherit", opacity: 0.6, fontSize: "0.75rem" }}>✕</button>
-                </div>
-              </div>
-              <div data-no-swipe="true" style={{ display: "flex", gap: 6 }}>
-                {([["all","All"], ["home","🏠 Home"], ["away","✈️ Away"]] as const).map(([f, label]) => (
+        {/* Multi-team filter chips + Home/Away sub-pills */}
+        {teamFilter.size > 0 && (
+          <div style={{ marginBottom: 12 }}>
+            <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 6, marginBottom: 8, alignItems: "center" }}>
+              {Array.from(teamFilter).map(code => {
+                const tc = IPL_COLORS[code] || "#888";
+                return (
+                  <div key={code} style={{ display: "flex", alignItems: "center", gap: 5, padding: "4px 10px", borderRadius: 20, background: tc + "18", border: `1px solid ${tc}44`, fontSize: "0.68rem", fontWeight: 600, color: tc }}>
+                    {code}
+                    <button onClick={() => toggleTeamFilter(code)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0, lineHeight: 1, color: "inherit", opacity: 0.6, fontSize: "0.72rem" }}>✕</button>
+                  </div>
+                );
+              })}
+              {teamFilter.size > 1 && (
+                <button onClick={() => setTeamFilter(new Set())}
+                  style={{ padding: "4px 10px", borderRadius: 20, fontSize: "0.62rem", fontWeight: 500, border: "1px solid var(--border)", background: "transparent", color: "var(--text-3)", cursor: "pointer", fontFamily: "inherit" }}>
+                  Clear all
+                </button>
+              )}
+            </div>
+            <div data-no-swipe="true" style={{ display: "flex", gap: 6 }}>
+              {([["all","All"], ["home","🏠 Home"], ["away","✈️ Away"]] as const).map(([f, label]) => {
+                const anyColor = IPL_COLORS[Array.from(teamFilter)[0]] || "#888";
+                return (
                   <button key={f} onClick={() => setFixtureHomeAwayFilter(f)}
                     style={{
                       padding: "4px 14px", borderRadius: 20, fontSize: "0.63rem", fontWeight: 600,
-                      border: `1px solid ${fixtureHomeAwayFilter === f ? tc : "var(--border)"}`,
-                      background: fixtureHomeAwayFilter === f ? tc + "22" : "transparent",
-                      color: fixtureHomeAwayFilter === f ? tc : "var(--text-3)",
+                      border: `1px solid ${fixtureHomeAwayFilter === f ? anyColor : "var(--border)"}`,
+                      background: fixtureHomeAwayFilter === f ? anyColor + "22" : "transparent",
+                      color: fixtureHomeAwayFilter === f ? anyColor : "var(--text-3)",
                       cursor: "pointer", fontFamily: "inherit",
                     }}>
                     {label}
                   </button>
-                ))}
-              </div>
+                );
+              })}
             </div>
-          );
-        })()}
+          </div>
+        )}
 
         {/* Filter bar */}
         <div style={{ display: "flex", gap: 6, marginBottom: 16 }}>
@@ -2394,7 +2410,7 @@ export default function App() {
         {apiError && <div className="notice" style={{ background: "rgba(239,68,68,0.08)", borderColor: "rgba(239,68,68,0.2)", color: "#f87171", marginBottom: 12 }}>{apiError}</div>}
         {filteredMatches.length === 0 && (
           <div style={{ textAlign: "center" as const, color: "var(--text-3)", fontSize: "0.78rem", padding: "32px 0" }}>
-            {teamFilter ? `No ${activeFilter === "all" ? "" : activeFilter + " "}matches for ${teamFilter}` : activeFilter === "live" ? "No live matches right now" : activeFilter === "upcoming" ? "No upcoming matches" : "No matches"}
+            {teamFilter.size > 0 ? `No ${activeFilter === "all" ? "" : activeFilter + " "}${fixtureHomeAwayFilter !== "all" ? fixtureHomeAwayFilter + " " : ""}matches for ${Array.from(teamFilter).join(" / ")}` : activeFilter === "live" ? "No live matches right now" : activeFilter === "upcoming" ? "No upcoming matches" : "No matches"}
           </div>
         )}
         {Object.entries(filteredGrouped).map(([date, matches]: [string, any[]]) => (
@@ -2414,7 +2430,7 @@ export default function App() {
               const sc = scorecards[matchIdStr];
               const isLoadingSc = scorecardLoading === matchIdStr;
 
-              const isHome = teamFilter ? m.homeTeamCode === teamFilter : null;
+              const isHome = teamFilter.size > 0 ? teamFilter.has(m.homeTeamCode) : null;
               return (
                 <div key={m.id} className="match-card" style={{ cursor: "pointer" }}
                   onClick={() => toggleMatch(String(m.id), isDone || isLive)}>
