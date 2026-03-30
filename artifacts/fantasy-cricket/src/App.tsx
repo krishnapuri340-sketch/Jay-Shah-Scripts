@@ -745,7 +745,7 @@ export default function App() {
   useEffect(() => { setFixtureHomeAwayFilter("all"); }, [teamFilter]);
 
   useEffect(() => {
-    const delay = isAnyMatchLive ? 60_000 : 90_000;
+    const delay = isAnyMatchLive ? 30_000 : 60 * 60_000;
     const ids = [
       setInterval(fetchLive, delay),
       setInterval(fetchPoints, delay),

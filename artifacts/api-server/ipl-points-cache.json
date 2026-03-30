@@ -1222,15 +1222,15 @@
         },
         {
           "name": "Rajasthan Royals Inning 1",
-          "total": "54/0 (5.0 ov)",
+          "total": "54/0 (5.2 ov)",
           "batting": [
             {
               "name": "Yashasvi Jaiswal",
               "runs": 16,
-              "balls": 17,
+              "balls": 19,
               "fours": 2,
               "sixes": 0,
-              "sr": "94.12",
+              "sr": "84.21",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -1280,7 +1280,7 @@
             },
             {
               "name": "Noor Ahmad",
-              "overs": "0",
+              "overs": "0.2",
               "maidens": 0,
               "runs": 0,
               "wickets": 0,
@@ -1346,7 +1346,7 @@
         "Yashasvi Jaiswal": {
           "played": true,
           "runs": 16,
-          "balls": 17,
+          "balls": 19,
           "fours": 2,
           "sixes": 0,
           "duck": false,
@@ -2048,6 +2048,6 @@
   "lastUpdated": "2026-03-29T18:00:26.567Z",
   "dailyHits": {
     "date": "2026-03-30",
-    "count": 226
+    "count": 228
   }
 }
