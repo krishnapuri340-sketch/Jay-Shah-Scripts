@@ -218,7 +218,7 @@ body { background: var(--bg); }
   font-family: 'Oswald', sans-serif;
   font-size: 1.8rem; font-weight: 700; color: var(--gold);
   letter-spacing: 0.02em; line-height: 1; min-width: 80px; flex-shrink: 0;
-  text-shadow: 0 2px 8px var(--gold-glow);
+  text-shadow: 0 1px 4px rgba(223,178,62,0.15);
 }
 .countdown-label {
   font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase;
