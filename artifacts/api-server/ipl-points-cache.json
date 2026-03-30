@@ -2,7 +2,8 @@
   "seriesId": "87c62aac-bc3c-4738-ab93-19da0690488f",
   "cricapiMatchIds": {
     "2417": "55fe0f15-6eb0-4ad5-835b-5564be4f6a21",
-    "2418": "e02475c1-8f9a-4915-a9e8-d4dbc3441c96"
+    "2418": "e02475c1-8f9a-4915-a9e8-d4dbc3441c96",
+    "2419": "d788e9f9-99bf-4650-a035-92a7e21b3d08"
   },
   "processedMatches": {
     "2417": {
@@ -1672,6 +1673,6 @@
   "lastUpdated": "2026-03-29T18:00:26.567Z",
   "dailyHits": {
     "date": "2026-03-30",
-    "count": 0
+    "count": 7
   }
 }

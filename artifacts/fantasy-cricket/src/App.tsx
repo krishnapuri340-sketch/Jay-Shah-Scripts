@@ -310,6 +310,8 @@ export default function App() {
   const [adminBreakdownOpen, setAdminBreakdownOpen] = useState(false);
   const [liveMatches, setLiveMatches] = useState<any[]>([]);
   const [liveLoading, setLiveLoading] = useState(false);
+  const [notifStatus, setNotifStatus] = useState<'unsupported' | 'default' | 'granted' | 'denied'>('unsupported');
+  const swRegRef = useRef<ServiceWorkerRegistration | null>(null);
   const [pointsLoading, setPointsLoading] = useState(false);
   const [pointsUpdating, setPointsUpdating] = useState(false);
   const [pendingMatches, setPendingMatches] = useState(0);
@@ -480,6 +482,56 @@ export default function App() {
     fetchStandings();
     fetchStats();
   }, []);
+
+  // Register service worker for push notifications
+  useEffect(() => {
+    if ('serviceWorker' in navigator && 'PushManager' in window) {
+      navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`)
+        .then(reg => {
+          swRegRef.current = reg;
+          setNotifStatus(Notification.permission as 'default' | 'granted' | 'denied');
+        })
+        .catch(() => setNotifStatus('unsupported'));
+    }
+  }, []);
+
+  const enableNotifications = async () => {
+    if (!swRegRef.current) return;
+    try {
+      const perm = await Notification.requestPermission();
+      setNotifStatus(perm as 'default' | 'granted' | 'denied');
+      if (perm !== 'granted') return;
+      const res = await fetch('/api/push/vapid-public-key');
+      const { key } = await res.json();
+      const existing = await swRegRef.current.pushManager.getSubscription();
+      const sub = existing || await swRegRef.current.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: key,
+      });
+      await fetch('/api/push/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(sub),
+      });
+    } catch (e) {
+      console.warn('Push subscription failed:', e);
+    }
+  };
+
+  const disableNotifications = async () => {
+    const reg = swRegRef.current;
+    if (!reg) return;
+    const sub = await reg.pushManager.getSubscription();
+    if (sub) {
+      await fetch('/api/push/unsubscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ endpoint: sub.endpoint }),
+      });
+      await sub.unsubscribe();
+    }
+    setNotifStatus('default');
+  };
 
   // Adaptive polling: 1 min during a live match, 5 min when idle
   const isAnyMatchLive = liveMatches.some((m: any) => m.matchStarted && !m.matchEnded);
@@ -1581,7 +1633,25 @@ export default function App() {
 
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, marginTop: countdown ? 16 : 0 }}>
         <div className="sec-title" style={{ marginBottom: 0 }}>Leaderboard</div>
-        <div style={{ display: "flex", gap: 6 }}>
+        <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+          {notifStatus === 'default' && (
+            <button className="btn-primary" style={{ padding: "5px 9px", fontSize: "0.7rem", display: "flex", alignItems: "center", gap: 4 }}
+              onClick={enableNotifications} title="Enable match notifications">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              </svg>
+              <span>Notify</span>
+            </button>
+          )}
+          {notifStatus === 'granted' && (
+            <button className="btn-primary" style={{ padding: "5px 9px", fontSize: "0.7rem", display: "flex", alignItems: "center", gap: 4, borderColor: "rgba(34,197,94,0.4)", color: "var(--live)" }}
+              onClick={disableNotifications} title="Notifications on — tap to turn off">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              </svg>
+              <span>On</span>
+            </button>
+          )}
           <button className="btn-primary" style={{ padding: "6px 10px", display: "flex", alignItems: "center", gap: 5 }} onClick={shareLeaderboard} title="Share leaderboard">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>
@@ -1643,6 +1713,7 @@ export default function App() {
                     {s.summary || (s.r != null ? `${s.r}/${s.w} (${s.o} ov)` : "")}
                   </div>
                 ))}
+                {m.toss && <div style={{ fontSize: "0.65rem", color: "var(--text-2)", marginTop: 5 }}>{m.toss}</div>}
                 <div className="match-venue">{m.venue || ""}</div>
               </div>
             ))}
@@ -2319,6 +2390,7 @@ export default function App() {
                     </div>
                   ))}
                   {isDone && m.status && <div style={{ fontSize: "0.68rem", color: "var(--blue)", marginTop: 5 }}>{m.status}</div>}
+                  {isLive && m.toss && <div style={{ fontSize: "0.65rem", color: "var(--text-2)", marginTop: 5 }}>{m.toss}</div>}
                   {m.venue && <div className="match-venue">{m.venue}</div>}
 
                   {isExpanded && (
@@ -2689,6 +2761,20 @@ export default function App() {
           <button className="btn-primary" style={{ background: "rgba(96,165,250,0.1)", borderColor: "rgba(96,165,250,0.3)", color: "#60a5fa" }}
             onClick={fetchPoints} disabled={pointsLoading}>
             {pointsLoading ? <span className="spinner" /> : "⚡"} Fetch Points
+          </button>
+          <button className="btn-primary" style={{ background: "rgba(212,168,67,0.08)", borderColor: "rgba(212,168,67,0.3)", color: "var(--gold)" }}
+            onClick={async () => {
+              const body = prompt("Notification message:", "Points updated — check the leaderboard!");
+              if (!body) return;
+              const res = await fetch("/api/push/broadcast", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title: "IPL Fantasy 2026", body, tag: "admin-update", url: "/" }),
+              });
+              const d = await res.json();
+              alert(`Sent to ${d.sent} subscriber${d.sent === 1 ? "" : "s"}`);
+            }}>
+            🔔 Notify All
           </button>
           <button className="btn-danger" onClick={async () => {
             if (confirm("Reset all cached points? Points will re-sync from AuctionRoom.")) {
