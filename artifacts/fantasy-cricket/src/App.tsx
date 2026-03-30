@@ -1611,7 +1611,7 @@ export default function App() {
               </div>
               <div className="lb-meta">{s.team.owner} · <span style={{ color: "#d4a843" }}>C:</span> {s.team.captain} · <span style={{ color: "var(--text-2)" }}>VC:</span> {s.team.vc}</div>
             </div>
-            <div style={{ textAlign: "right" }}>
+            <div style={{ textAlign: "right", flexShrink: 0 }}>
               <div className={`lb-pts ${i === 0 ? "first" : ""}`} style={{ color: Object.keys(playerPoints).length === 0 ? "var(--text-3)" : s.team.color }}>
                 {Object.keys(playerPoints).length === 0 ? "—" : s.total}
               </div>
