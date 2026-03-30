@@ -3502,39 +3502,41 @@ export default function App() {
           <button className="btn-primary" onClick={() => { fetchLive(); fetchPoints(); }} disabled={liveLoading || pointsLoading}>
             {(liveLoading || pointsLoading) ? <span className="spinner" /> : "🔄"} Refresh All
           </button>
-          <button className="btn-primary" style={{ background: "rgba(96,165,250,0.1)", borderColor: "rgba(96,165,250,0.3)", color: "#60a5fa" }}
-            onClick={fetchPoints} disabled={pointsLoading}>
-            {pointsLoading ? <span className="spinner" /> : "⚡"} Fetch Points
-          </button>
-          <button
-            className="btn-primary"
-            style={{
-              background: liveAlertsEnabled ? "rgba(34,197,94,0.15)" : "rgba(255,255,255,0.04)",
-              borderColor: liveAlertsEnabled ? "rgba(34,197,94,0.5)" : "rgba(255,255,255,0.1)",
-              color: liveAlertsEnabled ? "var(--live)" : "var(--text-2)",
-              minWidth: 160,
-            }}
-            disabled={liveAlertsLoading}
-            onClick={async () => {
-              setLiveAlertsLoading(true);
-              try {
-                const res = await fetch("/api/push/live-alerts/toggle", { method: "POST" });
-                const d = await res.json();
-                setLiveAlertsEnabled(d.enabled);
-              } finally {
-                setLiveAlertsLoading(false);
+          {currentUser === "rajveer" && <>
+            <button className="btn-primary" style={{ background: "rgba(96,165,250,0.1)", borderColor: "rgba(96,165,250,0.3)", color: "#60a5fa" }}
+              onClick={fetchPoints} disabled={pointsLoading}>
+              {pointsLoading ? <span className="spinner" /> : "⚡"} Fetch Points
+            </button>
+            <button
+              className="btn-primary"
+              style={{
+                background: liveAlertsEnabled ? "rgba(34,197,94,0.15)" : "rgba(255,255,255,0.04)",
+                borderColor: liveAlertsEnabled ? "rgba(34,197,94,0.5)" : "rgba(255,255,255,0.1)",
+                color: liveAlertsEnabled ? "var(--live)" : "var(--text-2)",
+                minWidth: 160,
+              }}
+              disabled={liveAlertsLoading}
+              onClick={async () => {
+                setLiveAlertsLoading(true);
+                try {
+                  const res = await fetch("/api/push/live-alerts/toggle", { method: "POST" });
+                  const d = await res.json();
+                  setLiveAlertsEnabled(d.enabled);
+                } finally {
+                  setLiveAlertsLoading(false);
+                }
+              }}>
+              {liveAlertsLoading ? <span className="spinner" /> : (liveAlertsEnabled ? "🔔 Live Alerts: ON" : "🔔 Live Alerts: OFF")}
+            </button>
+            <button className="btn-danger" onClick={async () => {
+              if (confirm("Reset all cached points? Points will re-sync from AuctionRoom.")) {
+                await fetch("/api/ipl/points/reset", { method: "POST" });
+                setPlayerPoints({});
+                setProcessedMatches([]);
+                setTimeout(fetchPoints, 500);
               }
-            }}>
-            {liveAlertsLoading ? <span className="spinner" /> : (liveAlertsEnabled ? "🔔 Live Alerts: ON" : "🔔 Live Alerts: OFF")}
-          </button>
-          <button className="btn-danger" onClick={async () => {
-            if (confirm("Reset all cached points? Points will re-sync from AuctionRoom.")) {
-              await fetch("/api/ipl/points/reset", { method: "POST" });
-              setPlayerPoints({});
-              setProcessedMatches([]);
-              setTimeout(fetchPoints, 500);
-            }
-          }}>🗑️ Reset Cache</button>
+            }}>🗑️ Reset Cache</button>
+          </>}
         </div>
         {lastUpdated && (
           <div style={{ fontSize: "0.65rem", color: "#334155", marginTop: 10 }}>
