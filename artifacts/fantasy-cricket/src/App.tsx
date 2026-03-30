@@ -3261,7 +3261,7 @@ export default function App() {
                           </button>
                         ) : <div />}
                         <span style={{ fontSize: "0.58rem", color: "var(--text-3)" }}>
-                          {Math.min(predVisibleCount, currentMatches.length)} of {currentMatches.length}
+                          {Math.min(predVisibleCount, currentMatches.length) + archiveMatches.length} of {sortedMatches.length}
                         </span>
                         {hasMoreCurrent ? (
                           <button onClick={() => setPredVisibleCount(c => c + 10)}
