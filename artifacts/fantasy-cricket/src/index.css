@@ -4,8 +4,8 @@
 
 :root {
   --bg: #080c14;
-  --surface: #111828;
-  --surface-2: #1a2238;
+  --surface: rgba(14, 22, 40, 0.80);
+  --surface-2: rgba(22, 32, 58, 0.85);
   --border: rgba(255,255,255,0.08);
   --border-2: rgba(255,255,255,0.16);
   --text: #ffffff;
@@ -23,7 +23,9 @@
   --shadow-surface: inset 0 1px 0 rgba(255,255,255,0.06), 0 4px 20px rgba(0,0,0,0.3);
 }
 
-body { background: var(--bg); }
+body {
+  background: var(--bg) url('/bg.jpeg') center top / cover no-repeat fixed;
+}
 
 ::-webkit-scrollbar { width: 3px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -31,7 +33,13 @@ body { background: var(--bg); }
 
 .app {
   min-height: 100vh;
-  background: var(--bg);
+  background: linear-gradient(
+    to bottom,
+    rgba(8,12,20,0.60) 0%,
+    rgba(8,12,20,0.72) 35%,
+    rgba(8,12,20,0.82) 65%,
+    rgba(8,12,20,0.90) 100%
+  );
   color: var(--text);
   font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
