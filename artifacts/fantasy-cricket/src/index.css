@@ -43,8 +43,8 @@ body { background: var(--bg); }
 .player-art-left,
 .player-art-right {
   position: fixed;
-  top: 5%;
-  height: 80vh;
+  top: 18%;
+  height: 70vh;
   width: 150px;
   object-fit: cover;
   pointer-events: none;
