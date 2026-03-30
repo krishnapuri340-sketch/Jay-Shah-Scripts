@@ -1031,7 +1031,7 @@
       "innings": [
         {
           "name": "Chennai Super Kings Inning 1",
-          "total": "87/9 (17.0 ov)",
+          "total": "92/9 (17.2 ov)",
           "batting": [
             {
               "name": "Sanju Samson",
@@ -1112,11 +1112,11 @@
             },
             {
               "name": "Jamie Overton",
-              "runs": 26,
-              "balls": 26,
-              "fours": 1,
+              "runs": 31,
+              "balls": 28,
+              "fours": 2,
               "sixes": 1,
-              "sr": "100",
+              "sr": "110.71",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -1188,11 +1188,11 @@
             },
             {
               "name": "Sandeep Sharma",
-              "overs": "1",
+              "overs": "1.2",
               "maidens": 0,
-              "runs": 5,
+              "runs": 10,
               "wickets": 1,
-              "eco": "5",
+              "eco": "7.5",
               "wides": 0,
               "noBalls": 0
             },
@@ -1942,6 +1942,6 @@
   "lastUpdated": "2026-03-29T18:00:26.567Z",
   "dailyHits": {
     "date": "2026-03-30",
-    "count": 149
+    "count": 153
   }
 }

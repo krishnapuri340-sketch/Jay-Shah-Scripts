@@ -1787,12 +1787,30 @@ export default function App() {
                 {sortedStakes.length > 0 && hasIntel && (
                   <div style={{ borderTop: "1px solid var(--border)", marginBottom: 8 }} />
                 )}
-                {/* Row 2: match prediction — labelled like PICKS */}
+                {/* Rows 2–4: H2H / Ground Avg / Match Prediction — each on its own line, same label format */}
                 {hasIntel && (
-                  <div style={{ display: "flex", flexDirection: "column" as const, gap: 5 }}>
-                    {/* Header row: label + predicted winner logo + code only */}
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em", flexShrink: 0 }}>MATCH PREDICTION</span>
+                  <div style={{ display: "flex", flexDirection: "column" as const, gap: 6 }}>
+                    {h2h && (
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <span style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em", flexShrink: 0, minWidth: 90 }}>H2H</span>
+                        <span style={{ fontSize: "0.68rem", color: "var(--text-2)" }}>
+                          <span style={{ fontWeight: 700, color: h2h.aWins >= h2h.bWins ? "var(--text)" : "var(--text-3)" }}>{nextM.homeTeamCode} {h2h.aWins}</span>
+                          <span style={{ margin: "0 5px", color: "var(--text-3)" }}>–</span>
+                          <span style={{ fontWeight: 700, color: h2h.bWins > h2h.aWins ? "var(--text)" : "var(--text-3)" }}>{h2h.bWins} {nextM.awayTeamCode}</span>
+                        </span>
+                      </div>
+                    )}
+                    {vd && (
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <span style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em", flexShrink: 0, minWidth: 90 }}>GROUND AVG</span>
+                        <span style={{ fontSize: "0.68rem" }}>
+                          <span style={{ fontWeight: 700, color: "var(--text)" }}>{vd.avg}</span>
+                          <span style={{ fontSize: "0.6rem", color: "var(--text-3)", marginLeft: 6 }}>{vd.note}</span>
+                        </span>
+                      </div>
+                    )}
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <span style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em", flexShrink: 0, minWidth: 90 }}>MATCH PRED</span>
                       {pred.pick ? (
                         <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
                           <img src={TEAM_LOGO_CDN[pred.pick]} alt={pred.pick} style={{ width: 15, height: 15, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
@@ -1800,23 +1818,6 @@ export default function App() {
                         </div>
                       ) : (
                         <span style={{ fontSize: "0.6rem", color: "var(--text-3)", fontStyle: "italic" }}>{pred.reason}</span>
-                      )}
-                    </div>
-                    {/* Sub-line: H2H + ground avg */}
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" as const }}>
-                      {h2h && (
-                        <span style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>
-                          <span style={{ opacity: 0.5, marginRight: 4 }}>H2H</span>
-                          <span style={{ fontWeight: 600, color: h2h.aWins >= h2h.bWins ? "var(--text-2)" : "var(--text-3)" }}>{nextM.homeTeamCode} {h2h.aWins}</span>
-                          <span style={{ margin: "0 3px" }}>–</span>
-                          <span style={{ fontWeight: 600, color: h2h.bWins > h2h.aWins ? "var(--text-2)" : "var(--text-3)" }}>{h2h.bWins} {nextM.awayTeamCode}</span>
-                        </span>
-                      )}
-                      {vd && (
-                        <span style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>
-                          Ground avg score (batting first) –&nbsp;<span style={{ fontWeight: 600, color: "var(--text-2)" }}>{vd.avg}</span>
-                          <span style={{ opacity: 0.5, marginLeft: 6 }}>{vd.note}</span>
-                        </span>
                       )}
                     </div>
                   </div>
