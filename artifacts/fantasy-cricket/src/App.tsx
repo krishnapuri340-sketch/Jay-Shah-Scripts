@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useLayoutEffect, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 
 const FANTASY_TEAMS: Record<string, {
   id: string; name: string; owner: string; emoji: string; color: string;
@@ -593,14 +593,11 @@ export default function App() {
   const [expandedPredMatchId, setExpandedPredMatchId] = useState<string | null>(null);
   const [predictions, setPredictions] = useState<Record<string, Record<string, string | null>>>({});
 
-  const [rankChanges, setRankChanges] = useState<Record<string, number>>({});
   const [isDark, setIsDark] = useState(true);
   const [sparkTip, setSparkTip] = useState<{ label: string; pts: number } | null>(null);
   const [pullY, setPullY] = useState(0);
   const [installPrompt, setInstallPrompt] = useState<any>(null);
   const [appInstalled, setAppInstalled] = useState(false);
-  const lbContainerRef = useRef<HTMLDivElement>(null);
-  const prevCardTops = useRef<Record<string, number>>({});
   const [showToast, setShowToast] = useState(false);
   // Swipe refs
   const swipeStartX = useRef(0);
@@ -969,77 +966,6 @@ export default function App() {
     .map(id => ({ id, ...getTeamData(id, playerPoints), team: FANTASY_TEAMS[id] }))
     .sort((a, b) => b.total - a.total);
 
-  // Rank change tracking — compare current standings to hourly snapshot in localStorage
-  useEffect(() => {
-    if (!Object.keys(playerPoints).length) return;
-    const STORAGE_KEY = "ipl_fantasy_rank_snapshot";
-    const COOLDOWN_MS = 60 * 60 * 1000; // refresh snapshot at most once per hour
-    const currentRanks: Record<string, number> = {};
-    teamScores.forEach((s, i) => { currentRanks[s.id] = i + 1; });
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const { ranks: prevR, timestamp } = JSON.parse(stored) as { ranks: Record<string, number>; timestamp: number };
-        const changes: Record<string, number> = {};
-        for (const id of Object.keys(currentRanks)) {
-          if (prevR[id] !== undefined) changes[id] = prevR[id] - currentRanks[id];
-        }
-        setRankChanges(changes);
-        if (Date.now() - timestamp > COOLDOWN_MS) {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify({ ranks: currentRanks, timestamp: Date.now() }));
-        }
-      } else {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ranks: currentRanks, timestamp: Date.now() }));
-      }
-    } catch { /* ignore storage errors */ }
-  }, [playerPoints]);
-
-  // FLIP animation — only fires when the rank order actually changes
-  // lbReady suppresses the animation during the initial load to prevent the "reshuffle on open" effect
-  const prevOrderRef = useRef<string[]>([]);
-  const lbReady = useRef(false);
-
-  // Mark the leaderboard as ready one animation frame after the first complete data load
-  useEffect(() => {
-    if (!pointsLoading && !liveLoading && !lbReady.current) {
-      const id = requestAnimationFrame(() => { lbReady.current = true; });
-      return () => cancelAnimationFrame(id);
-    }
-  }, [pointsLoading, liveLoading]);
-
-  useLayoutEffect(() => {
-    if (!lbContainerRef.current) return;
-    const currentOrder = teamScores.map(s => s.id);
-    const prevOrder = prevOrderRef.current;
-    const orderChanged = lbReady.current &&
-      prevOrder.length === currentOrder.length &&
-      currentOrder.some((id, i) => id !== prevOrder[i]);
-    if (!orderChanged) {
-      prevOrderRef.current = currentOrder;
-      // Still record positions for next comparison
-      const cards = Array.from(lbContainerRef.current.querySelectorAll('[data-team-id]')) as HTMLElement[];
-      cards.forEach(card => { prevCardTops.current[card.dataset.teamId!] = card.getBoundingClientRect().top; });
-      return;
-    }
-    // Capture new positions and animate from old ones
-    const cards = Array.from(lbContainerRef.current.querySelectorAll('[data-team-id]')) as HTMLElement[];
-    cards.forEach(card => {
-      const id = card.dataset.teamId!;
-      const newTop = card.getBoundingClientRect().top;
-      const prevTop = prevCardTops.current[id];
-      if (prevTop !== undefined && Math.abs(prevTop - newTop) > 2) {
-        const delta = prevTop - newTop;
-        card.style.transition = 'none';
-        card.style.transform = `translateY(${delta}px)`;
-        card.getBoundingClientRect();
-        card.style.transition = 'transform 0.4s ease-out';
-        card.style.transform = '';
-        card.addEventListener('transitionend', () => { card.style.transition = ''; card.style.transform = ''; }, { once: true });
-      }
-      prevCardTops.current[id] = newTop;
-    });
-    prevOrderRef.current = currentOrder;
-  }, [teamScores]);
 
   // Countdown to next match
   useEffect(() => {
@@ -2125,20 +2051,15 @@ export default function App() {
           </button>
         </div>
       </div>
-      <div ref={lbContainerRef}>
+      <div>
       {teamScores.map((s, i) => (
-        <div key={s.id} data-team-id={s.id} className={`lb-card ${i === 0 ? "rank-first" : ""}`} onClick={() => { setSelectedTeam(s.id); setTab("teams"); }}>
+        <div key={s.id} className={`lb-card ${i === 0 ? "rank-first" : ""}`} onClick={() => { setSelectedTeam(s.id); setTab("teams"); }}>
           <div className="lb-accent" style={{ background: s.team.color }} />
           <div className="lb-inner">
             <div className={`lb-rank ${rankLabel(i)}`}>{i + 1}</div>
             <div className="lb-info">
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <div className={`lb-name ${i === 0 ? "first" : ""}`}>{s.team.name}</div>
-                {rankChanges[s.id] !== undefined && rankChanges[s.id] !== 0 && (
-                  <span className={`rank-change ${rankChanges[s.id] > 0 ? "up" : "down"}`}>
-                    {rankChanges[s.id] > 0 ? `▲${rankChanges[s.id]}` : `▼${Math.abs(rankChanges[s.id])}`}
-                  </span>
-                )}
               </div>
               <div className="lb-meta">{s.team.owner} · <span style={{ color: "#d4a843" }}>C:</span> {s.team.captain} · <span style={{ color: "var(--text-2)" }}>VC:</span> {s.team.vc}</div>
             </div>
