@@ -461,14 +461,15 @@ function LoginScreen({ onLogin, pins }: { onLogin: (id: string) => void; pins: R
           {wrong && <div style={{ fontSize: "0.65rem", color: "#f87171", marginBottom: 18, letterSpacing: "0.04em" }}>✕ Wrong PIN — try again</div>}
 
           {/* Numpad */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, width: "100%", maxWidth: 260 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 72px)", gap: 12, width: "fit-content" }}>
             {["1","2","3","4","5","6","7","8","9","","0","⌫"].map((k, i) => (
               k === "" ? <div key={i} /> :
               <button key={i} className="num-key" onClick={() => k === "⌫" ? back() : digit(k)} style={{
                 background: k === "⌫" ? "rgba(248,113,113,0.07)" : "rgba(255,255,255,0.04)",
                 border: `1px solid ${k === "⌫" ? "rgba(248,113,113,0.25)" : "rgba(255,255,255,0.08)"}`,
-                borderRadius: 14, padding: "17px 8px", fontSize: k === "⌫" ? "1rem" : "1.2rem", fontWeight: 600,
+                borderRadius: 16, width: 72, height: 72, fontSize: k === "⌫" ? "1.1rem" : "1.4rem", fontWeight: 600,
                 color: k === "⌫" ? "#f87171" : "#e4e4e7", cursor: "pointer", fontFamily: "inherit",
+                display: "flex", alignItems: "center", justifyContent: "center",
               }}>{k}</button>
             ))}
           </div>
