@@ -426,6 +426,7 @@ export default function App() {
     return next;
   });
   const [standingsOpen, setStandingsOpen] = useState(false);
+  const [expandedPredMatchId, setExpandedPredMatchId] = useState<string | null>(null);
   const [predictions, setPredictions] = useState<Record<string, Record<string, string | null>>>(() => {
     try { return JSON.parse(localStorage.getItem('ipl-predictions-2026') || '{}'); } catch { return {}; }
   });
@@ -1764,64 +1765,55 @@ export default function App() {
             const h2h = getH2H(nextM.homeTeamCode, nextM.awayTeamCode);
             const vd = VENUE_AVG[nextM.venue || ""];
             const pred = predictNextMatch(nextM.homeTeamCode, nextM.awayTeamCode);
+            const hasIntel = h2h || vd;
             return (
-              <>
-                {/* Fantasy stakes row */}
-                {stakes.some(s => s.count > 0) && (
-                  <div style={{ borderTop: "1px solid var(--border)", paddingTop: 8, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" as const }}>
-                    <span style={{ fontSize: "0.57rem", color: "var(--text-3)", flexShrink: 0, letterSpacing: "0.04em" }}>PICKS IN THIS MATCH</span>
-                    <div style={{ display: "flex", gap: 10 }}>
+              <div style={{ borderTop: "1px solid var(--border)", paddingTop: 9, display: "flex", flexDirection: "column" as const, gap: 7 }}>
+                {/* Compact row: stakes + H2H + venue all inline */}
+                <div style={{ display: "flex", alignItems: "center", gap: 0, flexWrap: "wrap" as const, rowGap: 5 }}>
+                  {/* Owner stakes chips */}
+                  {stakes.some(s => s.count > 0) && (
+                    <div style={{ display: "flex", gap: 8, marginRight: 12 }}>
                       {stakes.map(s => (
-                        <span key={s.owner} style={{ fontSize: "0.68rem", fontWeight: 700, color: s.count > 0 ? s.color : "var(--text-3)" }}>
-                          {s.owner} <span style={{ fontWeight: 400, fontSize: "0.6rem" }}>{s.count}</span>
+                        <span key={s.owner} style={{ fontSize: "0.65rem", fontWeight: 700, color: s.count > 0 ? s.color : "var(--text-3)" }}>
+                          {s.owner}<span style={{ fontWeight: 400, color: "var(--text-3)", fontSize: "0.6rem", marginLeft: 2 }}>{s.count}</span>
                         </span>
                       ))}
                     </div>
-                  </div>
-                )}
-                {/* Match intel row */}
-                {(h2h || vd) && (
-                  <div style={{ borderTop: "1px solid var(--border)", paddingTop: 8, display: "flex", flexDirection: "column" as const, gap: 7 }}>
-                    <div style={{ display: "flex", gap: 14, flexWrap: "wrap" as const }}>
-                      {h2h && (
-                        <div>
-                          <div style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em", marginBottom: 2 }}>H2H ALL-TIME</div>
-                          <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--text-2)" }}>
-                            <span style={{ color: h2h.aWins > h2h.bWins ? "var(--text)" : "var(--text-3)" }}>{nextM.homeTeamCode} {h2h.aWins}</span>
-                            <span style={{ color: "var(--text-3)", margin: "0 4px" }}>–</span>
-                            <span style={{ color: h2h.bWins > h2h.aWins ? "var(--text)" : "var(--text-3)" }}>{h2h.bWins} {nextM.awayTeamCode}</span>
-                          </div>
-                        </div>
-                      )}
-                      {vd && (
-                        <div>
-                          <div style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em", marginBottom: 2 }}>VENUE · 1ST INN</div>
-                          <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--text-2)" }}>
-                            ~{vd.avg} avg
-                            <span style={{ fontSize: "0.58rem", color: "var(--text-3)", fontWeight: 400, marginLeft: 5 }}>HS {vd.high} · {vd.note}</span>
-                          </div>
-                        </div>
-                      )}
+                  )}
+                  {/* H2H inline */}
+                  {h2h && (
+                    <span style={{ fontSize: "0.63rem", color: "var(--text-3)" }}>
+                      <span style={{ fontWeight: 600, color: h2h.aWins >= h2h.bWins ? "var(--text-2)" : "var(--text-3)" }}>{nextM.homeTeamCode} {h2h.aWins}</span>
+                      <span style={{ margin: "0 3px" }}>–</span>
+                      <span style={{ fontWeight: 600, color: h2h.bWins > h2h.aWins ? "var(--text-2)" : "var(--text-3)" }}>{h2h.bWins} {nextM.awayTeamCode}</span>
+                      <span style={{ opacity: 0.5, marginLeft: 3 }}>H2H</span>
+                    </span>
+                  )}
+                  {/* Venue inline */}
+                  {vd && (
+                    <span style={{ fontSize: "0.6rem", color: "var(--text-3)", marginLeft: h2h ? 10 : 0 }}>
+                      · ~{vd.avg} avg
+                      <span style={{ opacity: 0.6, marginLeft: 4 }}>{vd.note}</span>
+                    </span>
+                  )}
+                </div>
+                {/* Prediction pill — slim single line */}
+                {hasIntel && (
+                  pred.pick ? (
+                    <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                      <span style={{ fontSize: "0.58rem", color: "var(--text-3)" }}>💡</span>
+                      <img src={TEAM_LOGO_CDN[pred.pick]} alt={pred.pick} style={{ width: 14, height: 14, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                      <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--gold)" }}>{pred.pick}</span>
+                      <span style={{ fontSize: "0.58rem", color: "var(--text-3)" }}>
+                        {pred.reason.toLowerCase()}
+                        {h2h && ` · ${pred.pick === nextM.homeTeamCode ? `${h2h.aWins}-${h2h.bWins}` : `${h2h.bWins}-${h2h.aWins}`} H2H`}
+                      </span>
                     </div>
-                    {pred.pick && (
-                      <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 9px", borderRadius: 8, background: "rgba(212,168,67,0.07)", border: "1px solid rgba(212,168,67,0.18)" }}>
-                        <span style={{ fontSize: "0.62rem" }}>💡</span>
-                        <span style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{pred.reason}:</span>
-                        <img src={TEAM_LOGO_CDN[pred.pick]} alt={pred.pick} style={{ width: 16, height: 16, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                        <span style={{ fontSize: "0.7rem", fontWeight: 700, color: "var(--gold)" }}>{pred.pick}</span>
-                        {h2h && (
-                          <span style={{ fontSize: "0.57rem", color: "var(--text-3)", marginLeft: 2 }}>
-                            ({pred.pick === nextM.homeTeamCode ? `${h2h.aWins}-${h2h.bWins}` : `${h2h.bWins}-${h2h.aWins}`} H2H)
-                          </span>
-                        )}
-                      </div>
-                    )}
-                    {!pred.pick && (
-                      <div style={{ fontSize: "0.62rem", color: "var(--text-3)", fontStyle: "italic" }}>⚖️ {pred.reason}</div>
-                    )}
-                  </div>
+                  ) : (
+                    <span style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>⚖️ {pred.reason}</span>
+                  )
                 )}
-              </>
+              </div>
             );
           })()}
         </div>
@@ -2641,7 +2633,7 @@ export default function App() {
                     </div>
                   )}
 
-                  {/* Prediction section */}
+                  {/* Prediction section — collapsible */}
                   {m.homeTeamCode && m.awayTeamCode && (() => {
                     const PRED_OWNERS = ["rajveer","mombasa","mumbai","ponygoat"] as const;
                     const preds = predictions[matchIdStr] || {};
@@ -2650,71 +2642,86 @@ export default function App() {
                     const correctCount = winner && winner !== "tie"
                       ? PRED_OWNERS.filter(id => preds[id] === winner).length : 0;
                     const anyPick = PRED_OWNERS.some(id => preds[id]);
+                    const pickCount = PRED_OWNERS.filter(id => preds[id]).length;
                     if (isDone && !anyPick) return null;
+                    const isOpen = expandedPredMatchId === matchIdStr;
+                    const togglePred = (e: React.MouseEvent) => {
+                      e.stopPropagation();
+                      setExpandedPredMatchId(isOpen ? null : matchIdStr);
+                    };
+                    // Collapsed summary line
+                    const collapsedSummary = isDone && winner && winner !== "tie" && anyPick
+                      ? `${winner} won · ${correctCount}/4 ✓`
+                      : isDone && winner === "tie"
+                      ? "Tied"
+                      : isLocked
+                      ? pickCount > 0 ? `${pickCount}/4 picked 🔒` : "🔒 Locked — no picks"
+                      : pickCount > 0 ? `${pickCount}/4 picked` : "Tap to predict";
                     return (
-                      <div onClick={e => e.stopPropagation()} style={{ marginTop: 10, borderTop: "1px solid var(--border)", paddingTop: 8 }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                      <div onClick={e => e.stopPropagation()} style={{ marginTop: 10, borderTop: "1px solid var(--border)", paddingTop: 7 }}>
+                        {/* Tappable header row */}
+                        <div onClick={togglePred} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", userSelect: "none" as const }}>
                           <span style={{ fontSize: "0.57rem", color: "var(--text-3)", fontWeight: 600, letterSpacing: "0.06em" }}>
-                            {isLocked ? (isDone ? "PREDICTIONS" : "🔒 LOCKED") : "PREDICT WINNER"}
+                            {isDone ? "PREDICTIONS" : isLocked ? "🔒 PREDICTIONS" : "📊 PREDICT"}
                           </span>
-                          {isDone && winner && winner !== "tie" && anyPick && (
-                            <span style={{ fontSize: "0.57rem", color: "var(--text-3)" }}>
-                              {winner} won · {correctCount}/4 ✓
-                            </span>
-                          )}
-                          {isDone && winner === "tie" && (
-                            <span style={{ fontSize: "0.57rem", color: "var(--text-3)" }}>Tied</span>
-                          )}
+                          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                            <span style={{ fontSize: "0.57rem", color: "var(--text-3)" }}>{collapsedSummary}</span>
+                            <span style={{ fontSize: "0.55rem", color: "var(--text-3)", transition: "transform 0.2s", display: "inline-block", transform: isOpen ? "rotate(180deg)" : "none" }}>▼</span>
+                          </div>
                         </div>
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
-                          {PRED_OWNERS.map(ownerId => {
-                            const ft = FANTASY_TEAMS[ownerId];
-                            const pick = preds[ownerId] || null;
-                            const isCorrect = !!winner && winner !== "tie" && pick === winner;
-                            const isWrong = !!winner && winner !== "tie" && pick !== null && pick !== winner;
-                            return (
-                              <div key={ownerId} style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 7px", borderRadius: 8, background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)" }}>
-                                <span style={{ fontSize: "0.6rem", color: ft.color, fontWeight: 700, minWidth: 30, flexShrink: 0 }}>{ft.owner}</span>
-                                {isLocked ? (
-                                  <div style={{ display: "flex", alignItems: "center", gap: 3, flex: 1 }}>
-                                    {pick ? (
-                                      <>
-                                        <img src={TEAM_LOGO_CDN[pick]} alt={pick} style={{ width: 14, height: 14, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                                        <span style={{ fontSize: "0.62rem", fontWeight: 600, color: isCorrect ? "#22c55e" : isWrong ? "#f87171" : "var(--text-2)" }}>{pick}</span>
-                                        {isCorrect && <span style={{ fontSize: "0.65rem", color: "#22c55e" }}>✓</span>}
-                                        {isWrong && <span style={{ fontSize: "0.65rem", color: "#f87171" }}>✗</span>}
-                                      </>
-                                    ) : (
-                                      <span style={{ fontSize: "0.6rem", color: "var(--text-3)", fontStyle: "italic" }}>—</span>
-                                    )}
-                                  </div>
-                                ) : (
-                                  <div style={{ display: "flex", gap: 3, flex: 1 }}>
-                                    {[m.homeTeamCode, m.awayTeamCode].map((code: string) => (
-                                      <button key={code} onClick={() => {
-                                        setPredictions(prev => ({
-                                          ...prev,
-                                          [matchIdStr]: { ...(prev[matchIdStr] || {}), [ownerId]: pick === code ? null : code }
-                                        }));
-                                      }} style={{
-                                        flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 2,
-                                        padding: "3px 2px", borderRadius: 6, cursor: "pointer", border: "1px solid",
-                                        fontFamily: "inherit", fontSize: "0.58rem", fontWeight: 600,
-                                        background: pick === code ? `${ft.color}22` : "transparent",
-                                        borderColor: pick === code ? ft.color : "var(--border)",
-                                        color: pick === code ? "var(--text)" : "var(--text-3)",
-                                        transition: "all 0.15s",
-                                      }}>
-                                        <img src={TEAM_LOGO_CDN[code]} alt={code} style={{ width: 11, height: 11, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                                        <span>{code}</span>
-                                      </button>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
+                        {/* Expandable grid */}
+                        {isOpen && (
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4, marginTop: 8 }}>
+                            {PRED_OWNERS.map(ownerId => {
+                              const ft = FANTASY_TEAMS[ownerId];
+                              const pick = preds[ownerId] || null;
+                              const isCorrect = !!winner && winner !== "tie" && pick === winner;
+                              const isWrong = !!winner && winner !== "tie" && pick !== null && pick !== winner;
+                              return (
+                                <div key={ownerId} style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 7px", borderRadius: 8, background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)" }}>
+                                  <span style={{ fontSize: "0.6rem", color: ft.color, fontWeight: 700, minWidth: 30, flexShrink: 0 }}>{ft.owner}</span>
+                                  {isLocked ? (
+                                    <div style={{ display: "flex", alignItems: "center", gap: 3, flex: 1 }}>
+                                      {pick ? (
+                                        <>
+                                          <img src={TEAM_LOGO_CDN[pick]} alt={pick} style={{ width: 14, height: 14, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                                          <span style={{ fontSize: "0.62rem", fontWeight: 600, color: isCorrect ? "#22c55e" : isWrong ? "#f87171" : "var(--text-2)" }}>{pick}</span>
+                                          {isCorrect && <span style={{ fontSize: "0.65rem", color: "#22c55e" }}>✓</span>}
+                                          {isWrong && <span style={{ fontSize: "0.65rem", color: "#f87171" }}>✗</span>}
+                                        </>
+                                      ) : (
+                                        <span style={{ fontSize: "0.6rem", color: "var(--text-3)", fontStyle: "italic" }}>—</span>
+                                      )}
+                                    </div>
+                                  ) : (
+                                    <div style={{ display: "flex", gap: 3, flex: 1 }}>
+                                      {[m.homeTeamCode, m.awayTeamCode].map((code: string) => (
+                                        <button key={code} onClick={e => {
+                                          e.stopPropagation();
+                                          setPredictions(prev => ({
+                                            ...prev,
+                                            [matchIdStr]: { ...(prev[matchIdStr] || {}), [ownerId]: pick === code ? null : code }
+                                          }));
+                                        }} style={{
+                                          flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 2,
+                                          padding: "3px 2px", borderRadius: 6, cursor: "pointer", border: "1px solid",
+                                          fontFamily: "inherit", fontSize: "0.58rem", fontWeight: 600,
+                                          background: pick === code ? `${ft.color}22` : "transparent",
+                                          borderColor: pick === code ? ft.color : "var(--border)",
+                                          color: pick === code ? "var(--text)" : "var(--text-3)",
+                                          transition: "all 0.15s",
+                                        }}>
+                                          <img src={TEAM_LOGO_CDN[code]} alt={code} style={{ width: 11, height: 11, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                                          <span>{code}</span>
+                                        </button>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
                     );
                   })()}
