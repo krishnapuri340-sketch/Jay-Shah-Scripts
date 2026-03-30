@@ -2121,7 +2121,13 @@ export default function App() {
               <button key={ft.id} className={`team-tab ${selectedTeam === ft.id ? "active" : ""}`}
                 style={selectedTeam === ft.id ? { color: ft.color, borderColor: ft.color } : {}}
                 onClick={() => setSelectedTeam(ft.id)}>
-                <div>{ft.emoji} {ft.name}</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                  <div style={{ position: "relative", width: 20, height: 20, borderRadius: "50%", border: `1.5px solid ${ft.color}60`, overflow: "hidden", flexShrink: 0 }}>
+                    <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center center", display: "block" }} />
+                    <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "radial-gradient(circle, transparent 40%, rgba(8,12,20,0.8) 80%, rgba(8,12,20,0.95) 100%)" }} />
+                  </div>
+                  {ft.name}
+                </div>
                 <div style={{ fontSize: "0.6rem", opacity: 0.65, marginTop: 1 }}>{ft.owner}</div>
               </button>
             );
