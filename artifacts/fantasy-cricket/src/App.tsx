@@ -486,7 +486,12 @@ export default function App() {
   const [expandedPredMatchId, setExpandedPredMatchId] = useState<string | null>(null);
   const [predictions, setPredictions] = useState<Record<string, Record<string, string | null>>>({});
 
-  const [isDark, setIsDark] = useState(true);
+  const [isDark, setIsDark] = useState(() => localStorage.getItem("theme") !== "light");
+  const toggleTheme = () => setIsDark(d => {
+    const next = !d;
+    localStorage.setItem("theme", next ? "dark" : "light");
+    return next;
+  });
   const [sparkTip, setSparkTip] = useState<{ label: string; pts: number } | null>(null);
   const [pullY, setPullY] = useState(0);
   const [installPrompt, setInstallPrompt] = useState<any>(null);
@@ -3661,6 +3666,34 @@ export default function App() {
                         </svg>
                         League Control Centre
                         <svg className="settings-row-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                      </button>
+                      <button className="settings-row" onClick={toggleTheme}>
+                        {isDark ? (
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="5"/>
+                            <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                            <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                          </svg>
+                        ) : (
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                          </svg>
+                        )}
+                        {isDark ? "Light mode" : "Dark mode"}
+                        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center" }}>
+                          <div style={{
+                            width: 34, height: 18, borderRadius: 9, padding: "2px 3px",
+                            background: isDark ? "rgba(255,255,255,0.1)" : "rgba(223,178,62,0.9)",
+                            border: "1px solid rgba(255,255,255,0.15)",
+                            display: "flex", alignItems: "center",
+                            justifyContent: isDark ? "flex-start" : "flex-end",
+                            transition: "all 0.25s cubic-bezier(0.4,0,0.2,1)",
+                          }}>
+                            <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,0.3)", transition: "all 0.25s" }} />
+                          </div>
+                        </div>
                       </button>
                       <button className="settings-row settings-row-danger" onClick={() => { handleLogout(); setSettingsOpen(false); }}>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
