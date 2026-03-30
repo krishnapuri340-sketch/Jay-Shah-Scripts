@@ -310,16 +310,12 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
       }}>
         <style>{`
           @keyframes login-fade-up { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
-          @keyframes glow-pulse { 0%,100% { opacity:0.4; } 50% { opacity:0.7; } }
           @keyframes pin-shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(6px)} }
           .pin-dot-fill { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-          .pin-dot-fill.filled { transform: scale(1.2); box-shadow: 0 0 12px currentColor; }
+          .pin-dot-fill.filled { transform: scale(1.15); }
           .num-key { transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 4px 12px rgba(0,0,0,0.2); }
           .num-key:active { transform: scale(0.9) translateY(2px); box-shadow: inset 0 1px 0 rgba(255,255,255,0.02), 0 2px 6px rgba(0,0,0,0.2); }
         `}</style>
-
-        {/* Ambient glow */}
-        <div style={{ position: "absolute", top: -80, left: "50%", transform: "translateX(-50%)", width: 340, height: 340, borderRadius: "50%", background: `radial-gradient(circle, ${ft.color}22 0%, transparent 70%)`, animation: "glow-pulse 3s ease-in-out infinite", pointerEvents: "none" }} />
 
         <button onClick={() => { setSel(null); setEntered(""); setWrong(false); }}
           style={{ position: "absolute", top: 22, left: 20, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "6px 14px", color: "#71717a", fontSize: "0.72rem", cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 5 }}>
@@ -329,7 +325,7 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
         <div style={{ animation: "login-fade-up 0.35s ease-out", display: "flex", flexDirection: "column" as const, alignItems: "center" }}>
           {/* Avatar */}
           <div style={{ position: "relative", marginBottom: 18 }}>
-            <div style={{ width: 80, height: 80, borderRadius: 24, background: `${ft.color}15`, border: `2px solid ${ft.color}55`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "2.2rem", boxShadow: `0 0 32px ${ft.color}30` }}>
+            <div style={{ width: 80, height: 80, borderRadius: 24, background: `${ft.color}12`, border: `1.5px solid ${ft.color}45`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "2.2rem" }}>
               {ft.emoji}
             </div>
           </div>
@@ -345,7 +341,6 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
                 width: 16, height: 16, borderRadius: "50%",
                 background: i < entered.length ? ft.color : "transparent",
                 border: `2.5px solid ${i < entered.length ? ft.color : "#3f3f46"}`,
-                boxShadow: i < entered.length ? `0 0 10px ${ft.color}60` : "none",
               }} />
             ))}
           </div>
@@ -382,27 +377,22 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
     }}>
       <style>{`
         @keyframes login-fade-up { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
-        @keyframes logo-glow { 0%,100% { box-shadow: 0 0 30px rgba(223,178,62,0.3); } 50% { box-shadow: 0 0 50px rgba(223,178,62,0.6); } }
         @keyframes team-card-in { from { opacity:0; transform:scale(0.9) translateY(15px); } to { opacity:1; transform:scale(1) translateY(0); } }
         .team-card { transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) !important; position: relative; overflow: hidden; }
-        .team-card::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, transparent 100%); opacity: 0; transition: opacity 0.25s ease; }
-        .team-card:hover { transform: translateY(-4px) !important; box-shadow: 0 12px 30px rgba(0,0,0,0.5) !important; border-color: rgba(255,255,255,0.3) !important; }
+        .team-card::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 100%); opacity: 0; transition: opacity 0.25s ease; }
+        .team-card:hover { transform: translateY(-3px) !important; box-shadow: 0 10px 28px rgba(0,0,0,0.5) !important; border-color: rgba(255,255,255,0.25) !important; }
         .team-card:hover::before { opacity: 1; }
         .team-card:active { transform: scale(0.96) translateY(0) !important; transition: all 0.1s ease !important; }
       `}</style>
 
-      {/* Background radial */}
-      <div style={{ position: "absolute", top: -120, left: "50%", transform: "translateX(-50%)", width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(212,168,67,0.07) 0%, transparent 65%)", pointerEvents: "none" }} />
-      <div style={{ position: "absolute", bottom: -80, left: "50%", transform: "translateX(-50%)", width: 360, height: 360, borderRadius: "50%", background: "radial-gradient(circle, rgba(99,102,241,0.05) 0%, transparent 65%)", pointerEvents: "none" }} />
-
       {/* Logo */}
       <div style={{ animation: "login-fade-up 0.3s ease-out", display: "flex", flexDirection: "column" as const, alignItems: "center", marginBottom: 48 }}>
-        <div style={{ width: 64, height: 64, borderRadius: 20, background: "linear-gradient(135deg, rgba(223,178,62,0.2) 0%, rgba(223,178,62,0.05) 100%)", border: "1px solid rgba(223,178,62,0.5)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.8rem", marginBottom: 18, animation: "logo-glow 3s ease-in-out infinite", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.2), 0 8px 24px rgba(0,0,0,0.4)", textShadow: "0 2px 10px rgba(223,178,62,0.5)" }}>🏏</div>
-        <div style={{ fontSize: "1.8rem", fontWeight: 900, color: "#ffffff", letterSpacing: "-0.04em", lineHeight: 1.1, textShadow: "0 2px 12px rgba(0,0,0,0.8)", fontFamily: "'Oswald', sans-serif", textTransform: "uppercase" }}>IPL Fantasy</div>
+        <div style={{ width: 64, height: 64, borderRadius: 20, background: "linear-gradient(135deg, rgba(223,178,62,0.15) 0%, rgba(223,178,62,0.04) 100%)", border: "1px solid rgba(223,178,62,0.4)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.8rem", marginBottom: 18, boxShadow: "0 8px 24px rgba(0,0,0,0.4)" }}>🏏</div>
+        <div style={{ fontSize: "1.8rem", fontWeight: 900, color: "#ffffff", letterSpacing: "-0.04em", lineHeight: 1.1, fontFamily: "'Oswald', sans-serif", textTransform: "uppercase" }}>IPL Fantasy</div>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8 }}>
-          <div style={{ width: 32, height: 1, background: "linear-gradient(90deg, transparent, rgba(223,178,62,0.6))" }} />
-          <div style={{ fontSize: "0.65rem", color: "#dfb23e", letterSpacing: "0.25em", fontWeight: 700, textShadow: "0 2px 8px rgba(223,178,62,0.4)" }}>2026 SEASON</div>
-          <div style={{ width: 32, height: 1, background: "linear-gradient(270deg, transparent, rgba(223,178,62,0.6))" }} />
+          <div style={{ width: 32, height: 1, background: "linear-gradient(90deg, transparent, rgba(223,178,62,0.5))" }} />
+          <div style={{ fontSize: "0.65rem", color: "#dfb23e", letterSpacing: "0.25em", fontWeight: 700 }}>2026 SEASON</div>
+          <div style={{ width: 32, height: 1, background: "linear-gradient(270deg, transparent, rgba(223,178,62,0.5))" }} />
         </div>
       </div>
 
@@ -415,15 +405,15 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, width: "100%", maxWidth: 400 }}>
         {Object.values(FANTASY_TEAMS).map((ft, idx) => (
           <button key={ft.id} className="team-card" onClick={() => setSel(ft.id)} style={{
-            background: `linear-gradient(160deg, ${ft.color}15 0%, rgba(20,20,22,0.8) 100%)`,
-            border: `1px solid ${ft.color}40`,
+            background: `linear-gradient(160deg, ${ft.color}12 0%, rgba(8,12,20,0.85) 100%)`,
+            border: `1px solid ${ft.color}35`,
             borderRadius: 24, padding: "28px 16px 24px",
             cursor: "pointer", fontFamily: "inherit", textAlign: "center" as const,
-            boxShadow: `inset 0 1px 0 rgba(255,255,255,0.1), 0 8px 24px rgba(0,0,0,0.4)`,
+            boxShadow: `0 8px 24px rgba(0,0,0,0.4)`,
             animation: `team-card-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) ${idx * 0.08 + 0.1}s both`,
             backdropFilter: "blur(12px)",
           }}>
-            <div style={{ width: 60, height: 60, borderRadius: 20, background: `linear-gradient(135deg, ${ft.color}25 0%, ${ft.color}05 100%)`, border: `1px solid ${ft.color}50`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "2rem", margin: "0 auto 16px", boxShadow: `inset 0 1px 0 rgba(255,255,255,0.2), 0 4px 16px ${ft.color}30`, textShadow: `0 2px 8px ${ft.color}60` }}>
+            <div style={{ width: 60, height: 60, borderRadius: 20, background: `${ft.color}10`, border: `1px solid ${ft.color}40`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "2rem", margin: "0 auto 16px" }}>
               {ft.emoji}
             </div>
             <div style={{ fontSize: "1rem", fontWeight: 800, color: "#ffffff", marginBottom: 6, letterSpacing: "-0.02em" }}>{ft.owner}</div>
@@ -2146,7 +2136,7 @@ export default function App() {
                   {td.players.filter(p => liveNowPlaying.has(p.name)).map(p => (
                     <div key={p.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#f87171", display: "inline-block", flexShrink: 0, boxShadow: "0 0 4px #f87171" }} />
+                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#f87171", display: "inline-block", flexShrink: 0 }} />
                         <span style={{ fontSize: "0.78rem", fontWeight: 500, color: "#fca5a5" }}>{p.name}</span>
                         {p.name === t.captain && <span style={{ fontSize: "0.55rem", fontWeight: 700, color: "#d4a843" }}>C</span>}
                         {p.name === t.vc && <span style={{ fontSize: "0.55rem", fontWeight: 700, color: "var(--text-3)" }}>VC</span>}
