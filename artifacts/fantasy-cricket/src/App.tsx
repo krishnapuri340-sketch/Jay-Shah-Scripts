@@ -2460,7 +2460,7 @@ export default function App() {
                 })}
               </div>
 
-              <div className="top11-label" style={{ marginTop: 16, marginBottom: 8, cursor: "pointer", userSelect: "none", display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: 32 }}
+              <div className="top11-label" style={{ marginTop: 16, marginBottom: 8, cursor: "pointer", userSelect: "none", display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: benchOpen ? 0 : 32 }}
                 onClick={() => setBenchOpen(o => !o)}>
                 <span>Bench</span>
                 <span style={{ fontSize: "0.6rem", color: "var(--text-3)", display: "inline-block", transition: "transform 0.2s", transform: benchOpen ? "rotate(180deg)" : "none" }}>▼</span>
