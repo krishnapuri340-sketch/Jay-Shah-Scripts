@@ -1031,7 +1031,7 @@
       "innings": [
         {
           "name": "Chennai Super Kings Inning 1",
-          "total": "103/9 (19.0 ov)",
+          "total": "111/10 (19.4 ov)",
           "batting": [
             {
               "name": "Sanju Samson",
@@ -1112,13 +1112,13 @@
             },
             {
               "name": "Jamie Overton",
-              "runs": 36,
-              "balls": 33,
+              "runs": 43,
+              "balls": 36,
               "fours": 2,
-              "sixes": 1,
-              "sr": "109.09",
-              "dismissal": "not out",
-              "notOut": true,
+              "sixes": 2,
+              "sr": "119.44",
+              "dismissal": "runout",
+              "notOut": false,
               "dnb": false
             },
             {
@@ -1145,11 +1145,11 @@
             },
             {
               "name": "Anshul Kamboj",
-              "runs": 6,
-              "balls": 9,
+              "runs": 7,
+              "balls": 10,
               "fours": 1,
               "sixes": 0,
-              "sr": "66.67",
+              "sr": "70",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -1170,9 +1170,9 @@
               "name": "Nandre Burger",
               "overs": "4",
               "maidens": 0,
-              "runs": 27,
+              "runs": 26,
               "wickets": 2,
-              "eco": "6.8",
+              "eco": "6.5",
               "wides": 3,
               "noBalls": 1
             },
@@ -1188,11 +1188,11 @@
             },
             {
               "name": "Sandeep Sharma",
-              "overs": "2",
+              "overs": "2.4",
               "maidens": 0,
-              "runs": 13,
+              "runs": 22,
               "wickets": 1,
-              "eco": "6.5",
+              "eco": "8.2",
               "wides": 0,
               "noBalls": 0
             },
@@ -1942,6 +1942,6 @@
   "lastUpdated": "2026-03-29T18:00:26.567Z",
   "dailyHits": {
     "date": "2026-03-30",
-    "count": 165
+    "count": 169
   }
 }
