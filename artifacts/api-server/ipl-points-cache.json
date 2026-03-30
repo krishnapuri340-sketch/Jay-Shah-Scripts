@@ -1023,10 +1023,11 @@
     },
     "2419": {
       "points": {
+        "Dhruv Jurel": 4,
         "Shivam Dube": 16,
         "Ruturaj Gaikwad": 8,
         "Sanju Samson": 14,
-        "Yashasvi Jaiswal": 26,
+        "Yashasvi Jaiswal": 28,
         "Ravindra Jadeja": 68,
         "Khaleel Ahmed": 10
       },
@@ -1222,26 +1223,37 @@
         },
         {
           "name": "Rajasthan Royals Inning 1",
-          "total": "54/0 (5.2 ov)",
+          "total": "70/1 (6.2 ov)",
           "batting": [
             {
               "name": "Yashasvi Jaiswal",
-              "runs": 16,
-              "balls": 19,
+              "runs": 18,
+              "balls": 21,
               "fours": 2,
               "sixes": 0,
-              "sr": "84.21",
+              "sr": "85.71",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
             },
             {
               "name": "Vaibhav Sooryavanshi",
-              "runs": 38,
-              "balls": 13,
+              "runs": 52,
+              "balls": 17,
               "fours": 4,
-              "sixes": 3,
-              "sr": "292.31",
+              "sixes": 5,
+              "sr": "305.88",
+              "dismissal": "catch",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Dhruv Jurel",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "0.00",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -1270,6 +1282,16 @@
             },
             {
               "name": "Anshul Kamboj",
+              "overs": "1.2",
+              "maidens": 0,
+              "runs": 16,
+              "wickets": 1,
+              "eco": "12",
+              "wides": 0,
+              "noBalls": 0
+            },
+            {
+              "name": "Noor Ahmad",
               "overs": "1",
               "maidens": 0,
               "runs": 15,
@@ -1277,21 +1299,28 @@
               "eco": "15",
               "wides": 0,
               "noBalls": 0
-            },
-            {
-              "name": "Noor Ahmad",
-              "overs": "0.2",
-              "maidens": 0,
-              "runs": 0,
-              "wickets": 0,
-              "eco": "0.00",
-              "wides": 0,
-              "noBalls": 0
             }
           ]
         }
       ],
       "playerStats": {
+        "Dhruv Jurel": {
+          "played": true,
+          "runs": 0,
+          "balls": 0,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "stumpings": 0
+        },
         "Shivam Dube": {
           "played": true,
           "runs": 6,
@@ -1345,8 +1374,8 @@
         },
         "Yashasvi Jaiswal": {
           "played": true,
-          "runs": 16,
-          "balls": 19,
+          "runs": 18,
+          "balls": 21,
           "fours": 2,
           "sixes": 0,
           "duck": false,
@@ -2048,6 +2077,6 @@
   "lastUpdated": "2026-03-29T18:00:26.567Z",
   "dailyHits": {
     "date": "2026-03-30",
-    "count": 228
+    "count": 240
   }
 }

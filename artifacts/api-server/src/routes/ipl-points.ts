@@ -1201,6 +1201,54 @@ const FANTASY_TEAMS_EXPORT: Record<string, string[]> = {
   ponygoat: ["Marcus Stoinis","Yashasvi Jaiswal","Tim Seifert","Virat Kohli","Shashank Singh","Sunil Narine","Suryakumar Yadav","Jasprit Bumrah","Ravindra Jadeja","Travis Head","KL Rahul","Ryan Rickelton","Mitchell Marsh","Khaleel Ahmed","Kuldeep Yadav","Washington Sundar","T Natarajan"],
 };
 
+// ── Live match poller (called by ipl.ts every 30 s when a match is active) ───
+let liveRefreshInProgress = false;
+
+export async function refreshLiveMatches(liveIplIds: string[]): Promise<void> {
+  if (!CRICAPI_KEY || liveIplIds.length === 0 || liveRefreshInProgress) return;
+  liveRefreshInProgress = true;
+  try {
+    // Reload cache so we have latest daily hit count
+    if (Date.now() - lastPointsCacheReload > 5000) {
+      pointsCache = loadCache();
+      lastPointsCacheReload = Date.now();
+    }
+    const today = utcDateString();
+    if (pointsCache.dailyHits.date !== today) pointsCache.dailyHits = { date: today, count: 0 };
+    if (pointsCache.dailyHits.count >= DAILY_CALL_LIMIT) {
+      console.log(`[live-poll] Daily CricAPI limit reached (${pointsCache.dailyHits.count}), skipping`);
+      return;
+    }
+    const supabaseLinkedNow = new Set(
+      Object.values(pointsCache.supabaseScores || {}).map(f => f.linkedIplId).filter(Boolean) as string[]
+    );
+    for (const iplId of liveIplIds) {
+      const cricapiId = (pointsCache.cricapiMatchIds || {})[iplId];
+      if (!cricapiId) continue;
+      if (pointsCache.dailyHits.count >= DAILY_CALL_LIMIT) break;
+      try {
+        const meta = (pointsCache.matchMetadata || {})[iplId];
+        const matchData = await processSingleMatch(
+          cricapiId, FANTASY_PLAYER_NAMES,
+          meta?.teamA || "", meta?.teamB || ""
+        );
+        if (matchData.innings.length > 0 || Object.keys(matchData.points).length > 0) {
+          const isSupabaseCovered = supabaseLinkedNow.has(iplId);
+          pointsCache.processedMatches[iplId] = isSupabaseCovered
+            ? { points: {}, innings: matchData.innings, playerStats: matchData.playerStats }
+            : matchData;
+          console.log(`[live-poll] Match ${iplId} updated: ${matchData.innings.length} innings, ${Object.keys(matchData.points).length} pts`);
+          saveCache(pointsCache);
+        }
+      } catch (e: any) {
+        console.error(`[live-poll] CricAPI error for match ${iplId}:`, e?.message);
+      }
+    }
+  } finally {
+    liveRefreshInProgress = false;
+  }
+}
+
 router.post("/ipl/points/reset", async (_req, res) => {
   pointsCache = {
     seriesId: null, cricapiMatchIds: {}, processedMatches: {},

@@ -1,7 +1,7 @@
 import { Router, type IRouter } from "express";
 import { readFileSync, writeFileSync, existsSync } from "fs";
 import { join } from "path";
-import { fetchMatchOverview } from "./ipl-points";
+import { fetchMatchOverview, refreshLiveMatches } from "./ipl-points";
 
 // ── Shared predictions store ──────────────────────────────────────────────────
 const PRED_FILE = join(process.cwd(), "ipl-predictions.json");
@@ -160,8 +160,10 @@ function transformMatch(m: any): any {
 }
 
 let cache: { data: any; timestamp: number } | null = null;
-const CACHE_TTL = 90 * 1000; // 90 s — cache considered stale after this
+const CACHE_TTL_IDLE = 90 * 1000;  // 90 s when no live match
+const CACHE_TTL_LIVE = 30 * 1000;  // 30 s when a match is active
 let matchesRefreshing = false;
+let currentLiveIplIds: string[] = []; // updated by each doRefreshMatches run
 
 async function doRefreshMatches(): Promise<void> {
   if (matchesRefreshing) return;
@@ -198,10 +200,18 @@ async function doRefreshMatches(): Promise<void> {
       },
       timestamp: Date.now(),
     };
+    // Track live IPL match IDs for CricAPI polling
+    currentLiveIplIds = allMatches
+      .filter((m: any) => m.matchStarted && !m.matchEnded)
+      .map((m: any) => m.id);
     // Pre-warm scorecard overview cache for completed matches
     const completedIds = allMatches.filter((m: any) => m.matchEnded).map((m: any) => m.id);
     for (const id of completedIds) {
       fetchMatchOverview(id, true).catch(() => {});
+    }
+    // Pull fresh CricAPI scorecard for each live match
+    if (currentLiveIplIds.length > 0) {
+      refreshLiveMatches(currentLiveIplIds).catch(() => {});
     }
   } catch (_) {
     // silently retain old cache on error
@@ -210,16 +220,24 @@ async function doRefreshMatches(): Promise<void> {
   }
 }
 
-// Warm cache on startup and keep it fresh every 90 s
-doRefreshMatches();
-setInterval(doRefreshMatches, CACHE_TTL);
+// Adaptive scheduler: 30 s during a live match, 90 s when idle
+function scheduleNextMatchRefresh(): void {
+  const delay = currentLiveIplIds.length > 0 ? CACHE_TTL_LIVE : CACHE_TTL_IDLE;
+  setTimeout(async () => {
+    await doRefreshMatches();
+    scheduleNextMatchRefresh();
+  }, delay);
+}
+
+// Warm cache on startup then begin adaptive cycle
+doRefreshMatches().then(scheduleNextMatchRefresh);
 
 router.get("/ipl/matches", async (req, res) => {
   try {
     if (!cache) {
       // Very first boot — wait for the initial fill
       await doRefreshMatches();
-    } else if (Date.now() - cache.timestamp >= CACHE_TTL) {
+    } else if (Date.now() - cache.timestamp >= CACHE_TTL_IDLE) {
       // Stale — fire background refresh but respond immediately with old data
       doRefreshMatches().catch(() => {});
     }
