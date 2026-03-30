@@ -100,7 +100,34 @@ body { background: var(--bg); }
 .header-year {
   font-size: 0.72rem; font-weight: 700; color: var(--gold); letter-spacing: 0.05em;
 }
-.header-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.header-right { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
+
+/* user chip */
+.user-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  border: 1px solid; border-radius: 20px; padding: 3px 3px 3px 6px;
+}
+.user-chip-emoji { font-size: 0.85rem; line-height: 1; }
+.user-chip-name  { font-size: 0.68rem; font-weight: 700; line-height: 1; }
+.user-chip-logout {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.09);
+  color: var(--text-3); cursor: pointer; padding: 0; flex-shrink: 0;
+  transition: color 0.15s, background 0.15s;
+}
+.user-chip-logout:hover { color: var(--text); background: rgba(255,255,255,0.12); }
+
+/* icon-only button (admin gear) */
+.btn-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border-2); color: var(--text-3); cursor: pointer;
+  background: linear-gradient(180deg, var(--surface-2) 0%, var(--surface) 100%);
+  transition: all 0.2s; flex-shrink: 0;
+}
+.btn-icon:hover { color: var(--text); border-color: rgba(255,255,255,0.22); }
+.btn-icon.active { color: var(--gold); border-color: rgba(223,178,62,0.5); background: rgba(223,178,62,0.08); }
 .live-pill {
   display: flex; align-items: center; gap: 6px;
   font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;

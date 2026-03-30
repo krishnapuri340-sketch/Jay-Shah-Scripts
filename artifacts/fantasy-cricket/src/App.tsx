@@ -3498,28 +3498,32 @@ export default function App() {
               {(() => {
                 const cu = FANTASY_TEAMS[currentUser!];
                 return (
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 5, background: `${cu.color}15`, border: `1px solid ${cu.color}40`, borderRadius: 20, padding: "3px 8px 3px 5px" }}>
-                      <span style={{ fontSize: "0.9rem" }}>{cu.emoji}</span>
-                      <span style={{ fontSize: "0.68rem", fontWeight: 600, color: cu.color }}>{cu.owner}</span>
-                    </div>
-                    <button onClick={handleLogout} title="Log out" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, padding: "4px 7px", cursor: "pointer", color: "#52525b", fontSize: "0.65rem", fontFamily: "inherit" }}>Logout</button>
+                  <div className="user-chip" style={{ borderColor: `${cu.color}45`, background: `${cu.color}12` }}>
+                    <span className="user-chip-emoji">{cu.emoji}</span>
+                    <span className="user-chip-name" style={{ color: cu.color }}>{cu.owner}</span>
+                    <button className="user-chip-logout" onClick={handleLogout} title="Log out">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                      </svg>
+                    </button>
                   </div>
                 );
               })()}
               <button
-                className={`btn-dashboard ${tab === "admin" ? "active" : ""}`}
+                className={`btn-icon ${tab === "admin" ? "active" : ""}`}
                 onClick={() => setTab("admin")}
+                title="Admin"
               >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="3"/>
                   <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
                 </svg>
-                Admin
               </button>
               <div className="live-pill">
                 <div className="live-dot" />
-                {liveLoading ? "Syncing" : "Live"}
+                {liveLoading ? "…" : "Live"}
               </div>
             </div>
           </div>
