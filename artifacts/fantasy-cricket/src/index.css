@@ -37,48 +37,22 @@ body { background: var(--bg); }
   -webkit-font-smoothing: antialiased;
 }
 
-.bg-field { display: none; }
-
-/* === PLAYER ART EDGES === */
-.player-art-left,
-.player-art-right {
+/* === BACKGROUND === */
+.bg-field {
   position: fixed;
-  top: 18%;
-  height: 70vh;
-  width: 150px;
-  object-fit: cover;
-  pointer-events: none;
+  inset: 0;
   z-index: 0;
-  opacity: 0.38;
-  mix-blend-mode: screen;
-  transition: opacity 0.4s;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 110% 45% at 50% 0%,   rgba(223,178,62,0.055) 0%, transparent 70%),
+    radial-gradient(ellipse 70%  55% at 8%  45%,  rgba(59,130,246,0.04)  0%, transparent 65%),
+    radial-gradient(ellipse 70%  55% at 92% 55%,  rgba(168,85,247,0.035) 0%, transparent 65%),
+    radial-gradient(ellipse 90%  40% at 50% 100%, rgba(15,25,50,0.6)     0%, transparent 80%);
 }
-.player-art-left {
-  left: -8px;
-  object-position: center 15%;
-  -webkit-mask-image:
-    linear-gradient(to right, transparent 0%, black 18%, rgba(0,0,0,0.7) 60%, transparent 100%),
-    linear-gradient(to bottom, transparent 0%, black 4%, black 94%, transparent 100%);
-  -webkit-mask-composite: destination-in;
-  mask-image:
-    linear-gradient(to right, transparent 0%, black 18%, rgba(0,0,0,0.7) 60%, transparent 100%),
-    linear-gradient(to bottom, transparent 0%, black 4%, black 94%, transparent 100%);
-  mask-composite: intersect;
+.light-mode .bg-field {
+  background:
+    radial-gradient(ellipse 110% 45% at 50% 0%, rgba(223,178,62,0.06) 0%, transparent 70%);
 }
-.player-art-right {
-  right: -8px;
-  object-position: center 15%;
-  -webkit-mask-image:
-    linear-gradient(to left, transparent 0%, black 18%, rgba(0,0,0,0.7) 60%, transparent 100%),
-    linear-gradient(to bottom, transparent 0%, black 4%, black 94%, transparent 100%);
-  -webkit-mask-composite: destination-in;
-  mask-image:
-    linear-gradient(to left, transparent 0%, black 18%, rgba(0,0,0,0.7) 60%, transparent 100%),
-    linear-gradient(to bottom, transparent 0%, black 4%, black 94%, transparent 100%);
-  mask-composite: intersect;
-}
-.light-mode .player-art-left,
-.light-mode .player-art-right { opacity: 0.09; mix-blend-mode: multiply; }
 
 .content {
   max-width: 580px;
