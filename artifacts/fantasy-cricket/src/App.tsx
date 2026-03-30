@@ -3386,7 +3386,7 @@ export default function App() {
             ))}
           </div>
         </div>
-        <div style={{ background: "rgba(15,21,32,0.9)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: 16, marginBottom: 16 }}>
+        {currentUser === "rajveer" && <div style={{ background: "rgba(15,21,32,0.9)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: 16, marginBottom: 16 }}>
           <div style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase" as const, color: "#94a3b8", marginBottom: 12 }}>
             🤖 Auto-Points Engine
           </div>
@@ -3437,7 +3437,7 @@ export default function App() {
               </div>
             )}
           </div>
-        </div>
+        </div>}
         <div style={{ background: "rgba(15,21,32,0.9)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: 16, marginBottom: 16 }}>
           <div
             onClick={() => setAdminBreakdownOpen(o => !o)}
