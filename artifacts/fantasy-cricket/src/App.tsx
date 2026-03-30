@@ -2460,11 +2460,20 @@ export default function App() {
                 })}
               </div>
 
-              <div className="top11-label" style={{ marginTop: 16, cursor: "pointer", userSelect: "none", display: "flex", alignItems: "center", justifyContent: "space-between" }}
-                onClick={() => setBenchOpen(o => !o)}>
-                <span>Bench</span>
-                <span style={{ fontSize: "0.6rem", color: "var(--text-3)", display: "inline-block", transition: "transform 0.2s", transform: benchOpen ? "rotate(180deg)" : "none" }}>▼</span>
-              </div>
+              <button
+                onClick={() => setBenchOpen(o => !o)}
+                style={{
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                  width: "100%", marginTop: 16, padding: "12px 14px",
+                  background: "var(--surface)", border: "1px solid var(--border)",
+                  borderRadius: 10, cursor: "pointer", fontFamily: "inherit",
+                  color: "var(--text-3)", userSelect: "none",
+                }}>
+                <span style={{ fontSize: "0.65rem", fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                  Bench {!benchOpen && <span style={{ fontSize: "0.58rem", opacity: 0.6 }}>· {td.players.filter(p => !td.top11.has(p.name)).length} players</span>}
+                </span>
+                <span style={{ fontSize: "0.6rem", display: "inline-block", transition: "transform 0.2s", transform: benchOpen ? "rotate(180deg)" : "none" }}>▼</span>
+              </button>
               {benchOpen && (
                 <div className="players-grid">
                   {td.players.filter(p => !td.top11.has(p.name)).sort((a, b) => b.adj - a.adj).map(p => {
