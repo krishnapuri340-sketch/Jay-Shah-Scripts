@@ -3460,6 +3460,8 @@ export default function App() {
         onTouchEnd={handleSwipeEnd}
       >
         <div className="bg-field" />
+        <img src={`${import.meta.env.BASE_URL}players-left.jpeg`} className="player-art-left" alt="" aria-hidden="true" />
+        <img src={`${import.meta.env.BASE_URL}players-right.jpeg`} className="player-art-right" alt="" aria-hidden="true" />
         <div className="content">
           <div className="header">
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>

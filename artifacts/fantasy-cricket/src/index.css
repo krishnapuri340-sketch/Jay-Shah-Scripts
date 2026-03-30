@@ -39,10 +39,55 @@ body { background: var(--bg); }
 
 .bg-field { display: none; }
 
+/* === PLAYER ART EDGES === */
+.player-art-left,
+.player-art-right {
+  position: fixed;
+  top: 8%;
+  height: 72vh;
+  width: 120px;
+  object-fit: cover;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.30;
+  mix-blend-mode: screen;
+  transition: opacity 0.4s;
+}
+/* Left image: push 20px off-screen; 100px visible; fade right half to transparent */
+.player-art-left {
+  left: -20px;
+  object-position: center 15%;
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0%, black 20%, rgba(0,0,0,0.6) 65%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, black 15%, black 82%, transparent 100%);
+  -webkit-mask-composite: destination-in;
+  mask-image:
+    linear-gradient(to right, transparent 0%, black 20%, rgba(0,0,0,0.6) 65%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, black 15%, black 82%, transparent 100%);
+  mask-composite: intersect;
+}
+/* Right image: mirror of left */
+.player-art-right {
+  right: -20px;
+  object-position: center 15%;
+  -webkit-mask-image:
+    linear-gradient(to left, transparent 0%, black 20%, rgba(0,0,0,0.6) 65%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, black 15%, black 82%, transparent 100%);
+  -webkit-mask-composite: destination-in;
+  mask-image:
+    linear-gradient(to left, transparent 0%, black 20%, rgba(0,0,0,0.6) 65%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, black 15%, black 82%, transparent 100%);
+  mask-composite: intersect;
+}
+.light-mode .player-art-left,
+.light-mode .player-art-right { opacity: 0.08; mix-blend-mode: multiply; }
+
 .content {
   max-width: 580px;
   margin: 0 auto;
   padding: 0 16px max(90px, calc(72px + env(safe-area-inset-bottom)));
+  position: relative;
+  z-index: 1;
 }
 
 /* === HEADER === */
