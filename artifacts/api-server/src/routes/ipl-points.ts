@@ -759,8 +759,8 @@ router.get("/ipl/points", async (req, res) => {
                   if (m.MatchStatus !== "Post") return false;
                   const iplId = String(m.MatchID);
                   const cached = pointsCache.processedMatches[iplId];
-                  // Always fetch innings for stats/scorecard display, even if Supabase has points
-                  return !cached || !cached.innings?.length;
+                  // Re-fetch if: no data, no innings, or only 1 innings (match should have 2 for stats)
+                  return !cached || !cached.innings?.length || cached.innings.length < 2;
                 });
                 const needsCricapi = [...liveMatches, ...fallbackMatches].slice(0, 3);
 

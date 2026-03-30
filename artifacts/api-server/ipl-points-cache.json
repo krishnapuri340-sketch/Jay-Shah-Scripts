@@ -1031,7 +1031,7 @@
       "innings": [
         {
           "name": "Chennai Super Kings Inning 1",
-          "total": "111/10 (19.4 ov)",
+          "total": "68/7 (12.0 ov)",
           "batting": [
             {
               "name": "Sanju Samson",
@@ -1112,44 +1112,22 @@
             },
             {
               "name": "Jamie Overton",
-              "runs": 43,
-              "balls": 36,
-              "fours": 2,
-              "sixes": 2,
-              "sr": "119.44",
-              "dismissal": "runout",
-              "notOut": false,
+              "runs": 12,
+              "balls": 10,
+              "fours": 0,
+              "sixes": 1,
+              "sr": "120",
+              "dismissal": "not out",
+              "notOut": true,
               "dnb": false
             },
             {
               "name": "Noor Ahmad",
               "runs": 1,
-              "balls": 9,
+              "balls": 5,
               "fours": 0,
               "sixes": 0,
-              "sr": "11.11",
-              "dismissal": "catch",
-              "notOut": false,
-              "dnb": false
-            },
-            {
-              "name": "Matt Henry",
-              "runs": 5,
-              "balls": 7,
-              "fours": 1,
-              "sixes": 0,
-              "sr": "71.43",
-              "dismissal": "cb",
-              "notOut": false,
-              "dnb": false
-            },
-            {
-              "name": "Anshul Kamboj",
-              "runs": 7,
-              "balls": 10,
-              "fours": 1,
-              "sixes": 0,
-              "sr": "70",
+              "sr": "20",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -1158,51 +1136,51 @@
           "bowling": [
             {
               "name": "Jofra Archer",
-              "overs": "4",
+              "overs": "2",
               "maidens": 0,
-              "runs": 19,
-              "wickets": 2,
-              "eco": "4.8",
+              "runs": 11,
+              "wickets": 1,
+              "eco": "5.5",
               "wides": 1,
               "noBalls": 0
             },
             {
               "name": "Nandre Burger",
-              "overs": "4",
+              "overs": "2",
               "maidens": 0,
-              "runs": 26,
+              "runs": 14,
               "wickets": 2,
-              "eco": "6.5",
-              "wides": 3,
-              "noBalls": 1
+              "eco": "7",
+              "wides": 2,
+              "noBalls": 0
             },
             {
               "name": "Brijesh Sharma",
-              "overs": "3",
+              "overs": "2",
               "maidens": 0,
-              "runs": 17,
+              "runs": 10,
               "wickets": 1,
-              "eco": "5.7",
+              "eco": "5",
               "wides": 2,
               "noBalls": 0
             },
             {
               "name": "Sandeep Sharma",
-              "overs": "2.4",
+              "overs": "1",
               "maidens": 0,
-              "runs": 22,
+              "runs": 5,
               "wickets": 1,
-              "eco": "8.2",
+              "eco": "5",
               "wides": 0,
               "noBalls": 0
             },
             {
               "name": "Ravi Bishnoi",
-              "overs": "3",
+              "overs": "2",
               "maidens": 0,
-              "runs": 16,
-              "wickets": 1,
-              "eco": "5.3",
+              "runs": 15,
+              "wickets": 0,
+              "eco": "7.5",
               "wides": 0,
               "noBalls": 0
             },
@@ -1942,6 +1920,6 @@
   "lastUpdated": "2026-03-29T18:00:26.567Z",
   "dailyHits": {
     "date": "2026-03-30",
-    "count": 169
+    "count": 183
   }
 }

@@ -145,26 +145,20 @@ function transformMatch(m: any): any {
 }
 
 let cache: { data: any; timestamp: number } | null = null;
-const CACHE_TTL = 2 * 60 * 1000;
-let standingsCache: { data: any; timestamp: number } | null = null;
+const CACHE_TTL = 90 * 1000; // 90 s — cache considered stale after this
+let matchesRefreshing = false;
 
-router.get("/ipl/matches", async (req, res) => {
+async function doRefreshMatches(): Promise<void> {
+  if (matchesRefreshing) return;
+  matchesRefreshing = true;
   try {
-    if (cache && Date.now() - cache.timestamp < CACHE_TTL) {
-      res.json(cache.data);
-      return;
-    }
-
     const [scheduleResult, liveResult] = await Promise.allSettled([
       fetchIPLSchedule(),
       fetchIPLLive(),
     ]);
-
     const scheduleData = scheduleResult.status === "fulfilled" ? scheduleResult.value : { matches: [] };
     const liveData = liveResult.status === "fulfilled" ? liveResult.value : [];
-
     const liveIds = new Set(liveData.map((l: any) => String(l?.MatchID || l?.MatchId || "")));
-
     const allMatches = scheduleData.matches.map((m: any) => {
       const transformed = transformMatch(m);
       if (liveIds.has(transformed.id)) {
@@ -172,52 +166,67 @@ router.get("/ipl/matches", async (req, res) => {
       }
       return transformed;
     });
-
     allMatches.sort((a: any, b: any) => {
       const aLive = a.matchStarted && !a.matchEnded;
       const bLive = b.matchStarted && !b.matchEnded;
       if (aLive && !bLive) return -1;
       if (bLive && !aLive) return 1;
-      const aTime = a.dateTimeGMT ? new Date(a.dateTimeGMT).getTime() : 0;
-      const bTime = b.dateTimeGMT ? new Date(b.dateTimeGMT).getTime() : 0;
-      return aTime - bTime;
+      const aT = a.dateTimeGMT ? new Date(a.dateTimeGMT).getTime() : 0;
+      const bT = b.dateTimeGMT ? new Date(b.dateTimeGMT).getTime() : 0;
+      return aT - bT;
     });
-
-    const response = {
-      matches: allMatches,
-      sources: {
-        iplOfficial: scheduleData.matches.length,
-        liveCount: liveData.length,
-        competitionId: IPL_COMPETITION_ID,
+    cache = {
+      data: {
+        matches: allMatches,
+        sources: { iplOfficial: scheduleData.matches.length, liveCount: liveData.length, competitionId: IPL_COMPETITION_ID },
+        timestamp: new Date().toISOString(),
       },
-      timestamp: new Date().toISOString(),
+      timestamp: Date.now(),
     };
-
-    cache = { data: response, timestamp: Date.now() };
-    res.json(response);
-
-    // Pre-warm scorecard overview cache for completed matches in the background
-    // so the first user click on any match scorecard is instant
-    const completedIds = allMatches
-      .filter((m: any) => m.matchEnded)
-      .map((m: any) => m.id);
+    // Pre-warm scorecard overview cache for completed matches
+    const completedIds = allMatches.filter((m: any) => m.matchEnded).map((m: any) => m.id);
     for (const id of completedIds) {
       fetchMatchOverview(id, true).catch(() => {});
     }
+  } catch (_) {
+    // silently retain old cache on error
+  } finally {
+    matchesRefreshing = false;
+  }
+}
+
+// Warm cache on startup and keep it fresh every 90 s
+doRefreshMatches();
+setInterval(doRefreshMatches, CACHE_TTL);
+
+router.get("/ipl/matches", async (req, res) => {
+  try {
+    if (!cache) {
+      // Very first boot — wait for the initial fill
+      await doRefreshMatches();
+    } else if (Date.now() - cache.timestamp >= CACHE_TTL) {
+      // Stale — fire background refresh but respond immediately with old data
+      doRefreshMatches().catch(() => {});
+    }
+    if (cache) return res.json(cache.data);
+    res.status(503).json({ error: "Match data loading, try again shortly", matches: [] });
   } catch (err: any) {
     req.log.error({ err }, "Failed to fetch IPL matches");
     res.status(500).json({ error: "Failed to fetch match data", matches: [] });
   }
 });
 
-router.get("/ipl/standings", async (req, res) => {
+let standingsCache: { data: any; timestamp: number } | null = null;
+const STANDINGS_TTL = 3 * 60 * 1000; // 3 min
+let standingsRefreshing = false;
+
+async function doRefreshStandings(): Promise<void> {
+  if (standingsRefreshing) return;
+  standingsRefreshing = true;
   try {
-    if (standingsCache && Date.now() - standingsCache.timestamp < CACHE_TTL) {
-      return res.json(standingsCache.data);
-    }
     const url = `${IPL_S3_BASE}/stats/${IPL_COMPETITION_ID}-groupstandings.js`;
     const r = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" }, signal: AbortSignal.timeout(10000) });
-    if (!r.ok) return res.json({ standings: [] });
+    if (!r.ok) return;
     const text = await r.text();
     const parsed = parseJsonp(text);
     const raw: any[] = parsed?.points || [];
@@ -237,9 +246,26 @@ router.get("/ipl/standings", async (req, res) => {
       against: t.AgainstTeam || "",
       form: t.Performance || "",
     })).sort((a: any, b: any) => (b.points - a.points) || (b.nrr - a.nrr));
-    const response = { standings, timestamp: new Date().toISOString() };
-    standingsCache = { data: response, timestamp: Date.now() };
-    return res.json(response);
+    standingsCache = { data: { standings, timestamp: new Date().toISOString() }, timestamp: Date.now() };
+  } catch (_) {
+    // retain old cache
+  } finally {
+    standingsRefreshing = false;
+  }
+}
+
+doRefreshStandings();
+setInterval(doRefreshStandings, STANDINGS_TTL);
+
+router.get("/ipl/standings", async (req, res) => {
+  try {
+    if (!standingsCache) {
+      await doRefreshStandings();
+    } else if (Date.now() - standingsCache.timestamp >= STANDINGS_TTL) {
+      doRefreshStandings().catch(() => {});
+    }
+    if (standingsCache) return res.json(standingsCache.data);
+    return res.json({ standings: [] });
   } catch (err: any) {
     req.log.error({ err }, "Failed to fetch standings");
     return res.status(500).json({ standings: [] });
