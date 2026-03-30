@@ -42,11 +42,11 @@ function LineupPreviewCard({ data, matchIndex = 0, totalMatches = 1 }: {
           <span style={{ fontSize: "1.2rem" }}>🔮</span>
           <div style={{ minWidth: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-              <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "1rem", letterSpacing: "1.5px", color: "#e8821a" }}>
+              <div style={{ fontFamily: "'Oswald',sans-serif", fontSize: "1rem", letterSpacing: "1.5px", color: "#dfb23e" }}>
                 {isDoubleHeader ? `MATCH ${matchIndex + 1} LINEUP` : "NEXT MATCH LINEUP"}
               </div>
               {isDoubleHeader && (
-                <span style={{ fontSize: "0.55rem", fontWeight: 700, padding: "1px 6px", borderRadius: 20, background: "rgba(232,130,26,0.15)", border: "1px solid rgba(232,130,26,0.3)", color: "#e8821a", letterSpacing: "0.5px" }}>
+                <span style={{ fontSize: "0.55rem", fontWeight: 700, padding: "1px 6px", borderRadius: 20, background: "rgba(223,178,62,0.15)", border: "1px solid rgba(223,178,62,0.3)", color: "#dfb23e", letterSpacing: "0.5px" }}>
                   DOUBLE HEADER
                 </span>
               )}
@@ -309,13 +309,13 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
         overflow: "hidden",
       }}>
         <style>{`
-          @keyframes login-fade-up { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
-          @keyframes glow-pulse { 0%,100% { opacity:0.55; } 50% { opacity:0.85; } }
+          @keyframes login-fade-up { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+          @keyframes glow-pulse { 0%,100% { opacity:0.4; } 50% { opacity:0.7; } }
           @keyframes pin-shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(6px)} }
-          .pin-dot-fill { transition: background 0.15s, border-color 0.15s, transform 0.15s; }
-          .pin-dot-fill.filled { transform: scale(1.15); }
-          .num-key { transition: background 0.12s, transform 0.08s; }
-          .num-key:active { transform: scale(0.92); }
+          .pin-dot-fill { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+          .pin-dot-fill.filled { transform: scale(1.2); box-shadow: 0 0 12px currentColor; }
+          .num-key { transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 4px 12px rgba(0,0,0,0.2); }
+          .num-key:active { transform: scale(0.9) translateY(2px); box-shadow: inset 0 1px 0 rgba(255,255,255,0.02), 0 2px 6px rgba(0,0,0,0.2); }
         `}</style>
 
         {/* Ambient glow */}
@@ -355,15 +355,16 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
           {checking && <div style={{ fontSize: "0.62rem", color: "#71717a", marginBottom: 12, letterSpacing: "0.06em" }}>Checking…</div>}
 
           {/* Numpad */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 72px)", gap: 12, width: "fit-content", opacity: checking ? 0.4 : 1, pointerEvents: checking ? "none" : "auto" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 76px)", gap: 14, width: "fit-content", opacity: checking ? 0.4 : 1, pointerEvents: checking ? "none" : "auto" }}>
             {["1","2","3","4","5","6","7","8","9","","0","⌫"].map((k, i) => (
               k === "" ? <div key={i} /> :
               <button key={i} className="num-key" onClick={() => k === "⌫" ? back() : digit(k)} style={{
-                background: k === "⌫" ? "rgba(248,113,113,0.07)" : "rgba(255,255,255,0.04)",
-                border: `1px solid ${k === "⌫" ? "rgba(248,113,113,0.25)" : "rgba(255,255,255,0.08)"}`,
-                borderRadius: 16, width: 72, height: 72, fontSize: k === "⌫" ? "1.1rem" : "1.4rem", fontWeight: 600,
-                color: k === "⌫" ? "#f87171" : "#e4e4e7", cursor: "pointer", fontFamily: "inherit",
+                background: k === "⌫" ? "rgba(248,113,113,0.07)" : "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)",
+                border: `1px solid ${k === "⌫" ? "rgba(248,113,113,0.25)" : "rgba(255,255,255,0.12)"}`,
+                borderRadius: 20, width: 76, height: 76, fontSize: k === "⌫" ? "1.2rem" : "1.6rem", fontWeight: 500,
+                color: k === "⌫" ? "#f87171" : "#ffffff", cursor: "pointer", fontFamily: "inherit",
                 display: "flex", alignItems: "center", justifyContent: "center",
+                backdropFilter: "blur(12px)",
               }}>{k}</button>
             ))}
           </div>
@@ -380,11 +381,14 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
       overflow: "hidden", padding: "0 24px",
     }}>
       <style>{`
-        @keyframes login-fade-up { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
-        @keyframes logo-glow { 0%,100% { box-shadow: 0 0 24px rgba(212,168,67,0.25); } 50% { box-shadow: 0 0 42px rgba(212,168,67,0.45); } }
-        @keyframes team-card-in { from { opacity:0; transform:scale(0.94) translateY(10px); } to { opacity:1; transform:scale(1) translateY(0); } }
-        .team-card { transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease !important; }
-        .team-card:active { transform: scale(0.97) !important; }
+        @keyframes login-fade-up { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes logo-glow { 0%,100% { box-shadow: 0 0 30px rgba(223,178,62,0.3); } 50% { box-shadow: 0 0 50px rgba(223,178,62,0.6); } }
+        @keyframes team-card-in { from { opacity:0; transform:scale(0.9) translateY(15px); } to { opacity:1; transform:scale(1) translateY(0); } }
+        .team-card { transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) !important; position: relative; overflow: hidden; }
+        .team-card::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, transparent 100%); opacity: 0; transition: opacity 0.25s ease; }
+        .team-card:hover { transform: translateY(-4px) !important; box-shadow: 0 12px 30px rgba(0,0,0,0.5) !important; border-color: rgba(255,255,255,0.3) !important; }
+        .team-card:hover::before { opacity: 1; }
+        .team-card:active { transform: scale(0.96) translateY(0) !important; transition: all 0.1s ease !important; }
       `}</style>
 
       {/* Background radial */}
@@ -392,13 +396,13 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
       <div style={{ position: "absolute", bottom: -80, left: "50%", transform: "translateX(-50%)", width: 360, height: 360, borderRadius: "50%", background: "radial-gradient(circle, rgba(99,102,241,0.05) 0%, transparent 65%)", pointerEvents: "none" }} />
 
       {/* Logo */}
-      <div style={{ animation: "login-fade-up 0.3s ease-out", display: "flex", flexDirection: "column" as const, alignItems: "center", marginBottom: 40 }}>
-        <div style={{ width: 56, height: 56, borderRadius: 18, background: "rgba(212,168,67,0.1)", border: "1.5px solid rgba(212,168,67,0.45)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.6rem", marginBottom: 14, animation: "logo-glow 3s ease-in-out infinite" }}>🏏</div>
-        <div style={{ fontSize: "1.55rem", fontWeight: 900, color: "#fafafa", letterSpacing: "-0.035em", lineHeight: 1.1 }}>IPL Fantasy</div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6 }}>
-          <div style={{ width: 24, height: 1, background: "rgba(212,168,67,0.3)" }} />
-          <div style={{ fontSize: "0.58rem", color: "#d4a843", letterSpacing: "0.18em", fontWeight: 600, opacity: 0.7 }}>2026 SEASON</div>
-          <div style={{ width: 24, height: 1, background: "rgba(212,168,67,0.3)" }} />
+      <div style={{ animation: "login-fade-up 0.3s ease-out", display: "flex", flexDirection: "column" as const, alignItems: "center", marginBottom: 48 }}>
+        <div style={{ width: 64, height: 64, borderRadius: 20, background: "linear-gradient(135deg, rgba(223,178,62,0.2) 0%, rgba(223,178,62,0.05) 100%)", border: "1px solid rgba(223,178,62,0.5)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.8rem", marginBottom: 18, animation: "logo-glow 3s ease-in-out infinite", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.2), 0 8px 24px rgba(0,0,0,0.4)", textShadow: "0 2px 10px rgba(223,178,62,0.5)" }}>🏏</div>
+        <div style={{ fontSize: "1.8rem", fontWeight: 900, color: "#ffffff", letterSpacing: "-0.04em", lineHeight: 1.1, textShadow: "0 2px 12px rgba(0,0,0,0.8)", fontFamily: "'Oswald', sans-serif", textTransform: "uppercase" }}>IPL Fantasy</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8 }}>
+          <div style={{ width: 32, height: 1, background: "linear-gradient(90deg, transparent, rgba(223,178,62,0.6))" }} />
+          <div style={{ fontSize: "0.65rem", color: "#dfb23e", letterSpacing: "0.25em", fontWeight: 700, textShadow: "0 2px 8px rgba(223,178,62,0.4)" }}>2026 SEASON</div>
+          <div style={{ width: 32, height: 1, background: "linear-gradient(270deg, transparent, rgba(223,178,62,0.6))" }} />
         </div>
       </div>
 
@@ -408,21 +412,22 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
       </div>
 
       {/* Team cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, width: "100%", maxWidth: 360 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, width: "100%", maxWidth: 400 }}>
         {Object.values(FANTASY_TEAMS).map((ft, idx) => (
           <button key={ft.id} className="team-card" onClick={() => setSel(ft.id)} style={{
-            background: `linear-gradient(145deg, ${ft.color}10 0%, ${ft.color}06 100%)`,
-            border: `1.5px solid ${ft.color}30`,
-            borderRadius: 20, padding: "22px 14px 20px",
+            background: `linear-gradient(160deg, ${ft.color}15 0%, rgba(20,20,22,0.8) 100%)`,
+            border: `1px solid ${ft.color}40`,
+            borderRadius: 24, padding: "28px 16px 24px",
             cursor: "pointer", fontFamily: "inherit", textAlign: "center" as const,
-            boxShadow: `0 4px 20px ${ft.color}12`,
-            animation: `team-card-in 0.4s ease-out ${idx * 0.06 + 0.1}s both`,
+            boxShadow: `inset 0 1px 0 rgba(255,255,255,0.1), 0 8px 24px rgba(0,0,0,0.4)`,
+            animation: `team-card-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) ${idx * 0.08 + 0.1}s both`,
+            backdropFilter: "blur(12px)",
           }}>
-            <div style={{ width: 52, height: 52, borderRadius: 16, background: `${ft.color}14`, border: `1.5px solid ${ft.color}40`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.7rem", margin: "0 auto 12px", boxShadow: `0 0 18px ${ft.color}20` }}>
+            <div style={{ width: 60, height: 60, borderRadius: 20, background: `linear-gradient(135deg, ${ft.color}25 0%, ${ft.color}05 100%)`, border: `1px solid ${ft.color}50`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "2rem", margin: "0 auto 16px", boxShadow: `inset 0 1px 0 rgba(255,255,255,0.2), 0 4px 16px ${ft.color}30`, textShadow: `0 2px 8px ${ft.color}60` }}>
               {ft.emoji}
             </div>
-            <div style={{ fontSize: "0.88rem", fontWeight: 800, color: ft.color, marginBottom: 4, letterSpacing: "-0.01em" }}>{ft.owner}</div>
-            <div style={{ fontSize: "0.58rem", color: "#71717a", lineHeight: 1.4, letterSpacing: "0.01em" }}>{ft.name}</div>
+            <div style={{ fontSize: "1rem", fontWeight: 800, color: "#ffffff", marginBottom: 6, letterSpacing: "-0.02em" }}>{ft.owner}</div>
+            <div style={{ fontSize: "0.62rem", color: ft.color, fontWeight: 600, lineHeight: 1.4, letterSpacing: "0.04em", opacity: 0.9 }}>{ft.name}</div>
           </button>
         ))}
       </div>
