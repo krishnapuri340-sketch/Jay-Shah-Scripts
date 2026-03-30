@@ -197,7 +197,15 @@ function calcPoints(p: PlayerStats): number {
 }
 
 function normalizeName(name: string): string {
-  return name.toLowerCase().replace(/[^a-z ]/g, "").replace(/\s+/g, " ").trim();
+  return name.toLowerCase()
+    .replace(/[^a-z ]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    // Collapse common Indian name romanization variants so e.g.
+    // "Sooryavanshi" == "Suryavanshi", "Prithvee" == "Prithvi"
+    .replace(/oo/g, "u")
+    .replace(/ee/g, "i")
+    .replace(/aa/g, "a");
 }
 
 function namesMatch(a: string, b: string): boolean {
