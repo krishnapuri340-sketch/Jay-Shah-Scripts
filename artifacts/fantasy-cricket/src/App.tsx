@@ -495,6 +495,13 @@ export default function App() {
     }
   }, []);
 
+  const urlBase64ToUint8Array = (b64: string): Uint8Array => {
+    const padding = '='.repeat((4 - b64.length % 4) % 4);
+    const base64 = (b64 + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const raw = atob(base64);
+    return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+  };
+
   const enableNotifications = async () => {
     if (!swRegRef.current) return;
     try {
@@ -506,7 +513,7 @@ export default function App() {
       const existing = await swRegRef.current.pushManager.getSubscription();
       const sub = existing || await swRegRef.current.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: key,
+        applicationServerKey: urlBase64ToUint8Array(key),
       });
       await fetch('/api/push/subscribe', {
         method: 'POST',
@@ -2775,6 +2782,15 @@ export default function App() {
               alert(`Sent to ${d.sent} subscriber${d.sent === 1 ? "" : "s"}`);
             }}>
             🔔 Notify All
+          </button>
+          <button className="btn-primary" style={{ background: "rgba(34,197,94,0.08)", borderColor: "rgba(34,197,94,0.3)", color: "var(--live)" }}
+            onClick={async () => {
+              const res = await fetch("/api/push/live-score-update", { method: "POST" });
+              const d = await res.json();
+              if (!d.ok) { alert(d.reason || "No live match found"); return; }
+              alert(`Scorecard sent to ${d.sent} subscriber${d.sent === 1 ? "" : "s"}`);
+            }}>
+            🏏 Push Scorecard
           </button>
           <button className="btn-danger" onClick={async () => {
             if (confirm("Reset all cached points? Points will re-sync from AuctionRoom.")) {

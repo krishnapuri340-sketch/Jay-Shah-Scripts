@@ -5,16 +5,20 @@ self.addEventListener('push', e => {
   if (!e.data) return;
   let data;
   try { data = e.data.json(); } catch { data = { title: 'IPL Fantasy 2026', body: e.data.text() }; }
-  e.waitUntil(
-    self.registration.showNotification(data.title || 'IPL Fantasy 2026', {
-      body: data.body || '',
-      icon: '/app-icon.png',
-      badge: '/app-icon.png',
-      tag: data.tag || 'ipl-update',
-      renotify: true,
-      data: { url: data.url || '/' }
-    })
-  );
+
+  const options = {
+    body: data.body || '',
+    icon: '/app-icon.png',
+    badge: '/app-icon.png',
+    tag: data.tag || 'ipl-update',
+    renotify: true,
+    silent: false,
+    data: { url: data.url || '/' },
+  };
+  // Show large image if provided (supported on Android & iOS 16.4+)
+  if (data.image) options.image = data.image;
+
+  e.waitUntil(self.registration.showNotification(data.title || 'IPL Fantasy 2026', options));
 });
 
 self.addEventListener('notificationclick', e => {
