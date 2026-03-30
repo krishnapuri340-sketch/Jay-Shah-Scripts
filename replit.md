@@ -48,13 +48,23 @@ Primary application: IPL Fantasy Cricket Tracker for 4 teams (Rajveer Puri, Momb
 - `GET /api/ipl/points` — Fantasy points aggregated from CricAPI cache; triggers background update
 - `GET /api/ipl/scorecard/:matchId` — Innings batting/bowling from cache + live S3 match overview
 - `GET /api/ipl/stats` — Aggregated season batting/bowling stats (Orange Cap, Purple Cap, Sixes, Fours, SR, Economy); each player tagged `isFantasy` if in any of the 4 fantasy teams
+### Authentication (PIN Login)
+- Client-side only; no backend involvement
+- `LoginScreen` component shown when no session is active (`localStorage: ipl-current-user`)
+- PINs stored in `localStorage: ipl-pins-2026` (object keyed by team ID)
+- Default PINs: `rajveer=1111, mombasa=2222, mumbai=3333, ponygoat=4444`; changeable via Admin tab
+- `DEFAULT_PINS`, `loadPins()`, `savePins()` exported from top of App.tsx
+- 4-digit numpad UI; auto-submits on 4 digits; shake animation on wrong PIN
+- `currentUser` state gates entire app; logout clears localStorage and resets to login screen
+- Predictions: only the logged-in user's row shows pick buttons; others are read-only
+
 ### Frontend Tabs
 - Home: Leaderboard + recent results
 - Teams: Per-fantasy-team player list with points
 - Matches: IPL fixtures with expandable scorecards
 - Stats: Orange Cap / Purple Cap / Sixes / Fours / SR / Economy leaderboards; toggle All vs Fantasy Only
 - IPL: Points table + team color grid
-- Admin: Manual refresh, debug info, points breakdown
+- Admin: Manual refresh, debug info, PIN management, points breakdown
 
 ### Key Files
 - `artifacts/fantasy-cricket/src/App.tsx` — All frontend logic (tabs, state, team definitions)

@@ -380,6 +380,89 @@ function TeamBadge({ name, size = 32 }: { name: string; size?: number }) {
   );
 }
 
+// ─── PIN login ───────────────────────────────────────────────────────────────
+const DEFAULT_PINS: Record<string, string> = { rajveer: "1111", mombasa: "2222", mumbai: "3333", ponygoat: "4444" };
+function loadPins(): Record<string, string> {
+  try { return { ...DEFAULT_PINS, ...JSON.parse(localStorage.getItem("ipl-pins-2026") || "{}") }; } catch { return { ...DEFAULT_PINS }; }
+}
+function savePins(p: Record<string, string>) { localStorage.setItem("ipl-pins-2026", JSON.stringify(p)); }
+
+function LoginScreen({ onLogin, pins }: { onLogin: (id: string) => void; pins: Record<string, string> }) {
+  const [sel, setSel] = useState<string | null>(null);
+  const [entered, setEntered] = useState("");
+  const [shake, setShake] = useState(false);
+  const [wrong, setWrong] = useState(false);
+
+  const digit = (d: string) => {
+    if (entered.length >= 4) return;
+    const next = entered + d;
+    setEntered(next);
+    if (next.length === 4) {
+      if (next === pins[sel!]) { onLogin(sel!); }
+      else {
+        setShake(true); setWrong(true);
+        setTimeout(() => { setShake(false); setEntered(""); setWrong(false); }, 700);
+      }
+    }
+  };
+  const back = () => setEntered(e => e.slice(0, -1));
+
+  if (sel) {
+    const ft = FANTASY_TEAMS[sel];
+    return (
+      <div style={{ position: "fixed", inset: 0, background: "#09090b", display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 24 }}>
+        <button onClick={() => { setSel(null); setEntered(""); setWrong(false); }}
+          style={{ position: "absolute", top: 20, left: 18, background: "none", border: "none", color: "#52525b", fontSize: "0.75rem", cursor: "pointer", fontFamily: "inherit" }}>← Back</button>
+        <div style={{ width: 54, height: 54, borderRadius: 16, background: `${ft.color}18`, border: `2px solid ${ft.color}60`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem", marginBottom: 10 }}>{ft.emoji}</div>
+        <div style={{ fontSize: "1rem", fontWeight: 700, color: ft.color, marginBottom: 2 }}>{ft.owner}</div>
+        <div style={{ fontSize: "0.65rem", color: "#52525b", marginBottom: 30 }}>{ft.name}</div>
+        <div className={shake ? "pin-shake" : ""} style={{ display: "flex", gap: 14, marginBottom: wrong ? 8 : 32 }}>
+          {[0,1,2,3].map(i => (
+            <div key={i} style={{ width: 14, height: 14, borderRadius: "50%", background: i < entered.length ? ft.color : "transparent", border: `2px solid ${i < entered.length ? ft.color : "#3f3f46"}`, transition: "all 0.12s" }} />
+          ))}
+        </div>
+        {wrong && <div style={{ fontSize: "0.65rem", color: "#ef4444", marginBottom: 20 }}>Wrong PIN — try again</div>}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, width: "100%", maxWidth: 240 }}>
+          {["1","2","3","4","5","6","7","8","9","","0","⌫"].map((k, i) => (
+            k === "" ? <div key={i} /> :
+            <button key={i} onClick={() => k === "⌫" ? back() : digit(k)} style={{
+              background: k === "⌫" ? "rgba(239,68,68,0.07)" : "rgba(255,255,255,0.05)",
+              border: `1px solid ${k === "⌫" ? "rgba(239,68,68,0.2)" : "rgba(255,255,255,0.07)"}`,
+              borderRadius: 12, padding: "15px 8px", fontSize: "1.1rem", fontWeight: 600,
+              color: k === "⌫" ? "#ef4444" : "#e4e4e7", cursor: "pointer", fontFamily: "inherit",
+            }}>{k}</button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "#09090b", display: "flex", flexDirection: "column" as const, alignItems: "center", zIndex: 1000, padding: "0 20px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, paddingTop: 56, marginBottom: 44 }}>
+        <div style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(212,168,67,0.12)", border: "1.5px solid #d4a843", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.2rem" }}>🏏</div>
+        <div>
+          <div style={{ fontSize: "1.05rem", fontWeight: 800, color: "#fafafa", letterSpacing: "-0.02em" }}>IPL Fantasy</div>
+          <div style={{ fontSize: "0.58rem", color: "#52525b", letterSpacing: "0.1em" }}>2026 SEASON</div>
+        </div>
+      </div>
+      <div style={{ fontSize: "0.58rem", letterSpacing: "0.12em", color: "#52525b", textTransform: "uppercase" as const, marginBottom: 18 }}>Who are you?</div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, width: "100%", maxWidth: 340 }}>
+        {Object.values(FANTASY_TEAMS).map(ft => (
+          <button key={ft.id} onClick={() => setSel(ft.id)} style={{
+            background: `${ft.color}0c`, border: `1.5px solid ${ft.color}35`, borderRadius: 16,
+            padding: "22px 14px", cursor: "pointer", fontFamily: "inherit", textAlign: "center" as const,
+          }}>
+            <div style={{ fontSize: "1.7rem", marginBottom: 7 }}>{ft.emoji}</div>
+            <div style={{ fontSize: "0.78rem", fontWeight: 700, color: ft.color, marginBottom: 3 }}>{ft.owner}</div>
+            <div style={{ fontSize: "0.58rem", color: "#71717a", lineHeight: 1.35 }}>{ft.name}</div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [tab, setTab] = useState("home");
   const [historyYear, setHistoryYear] = useState<number | null>(null);
@@ -458,6 +541,19 @@ export default function App() {
   // Always-fresh ref to refresh fn (avoids stale closure in PTR listener)
   const refreshFnRef = useRef(() => {});
   const [countdown, setCountdown] = useState<{ text: string; matchName: string; venue?: string; homeTeam?: string } | null>(null);
+  const [currentUser, setCurrentUser] = useState<string | null>(() => localStorage.getItem("ipl-current-user"));
+  const [userPins, setUserPins] = useState<Record<string, string>>(loadPins);
+  const [pinEditTarget, setPinEditTarget] = useState<string | null>(null);
+  const [pinEditVal, setPinEditVal] = useState("");
+  const handleLogin = (userId: string) => { localStorage.setItem("ipl-current-user", userId); setCurrentUser(userId); setTab("home"); };
+  const handleLogout = () => { localStorage.removeItem("ipl-current-user"); setCurrentUser(null); };
+  const handleSavePin = (uid: string) => {
+    if (!/^\d{4}$/.test(pinEditVal)) return;
+    const updated = { ...userPins, [uid]: pinEditVal };
+    setUserPins(updated); savePins(updated);
+    setPinEditTarget(null); setPinEditVal("");
+  };
+
   const fetchPoints = async () => {
     if (pointsLoading) return;
     setPointsLoading(true);
@@ -2703,7 +2799,7 @@ export default function App() {
                               return (
                                 <div key={ownerId} style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 7px", borderRadius: 8, background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)" }}>
                                   <span style={{ fontSize: "0.6rem", color: ft.color, fontWeight: 700, minWidth: 30, flexShrink: 0 }}>{ft.owner}</span>
-                                  {isLocked ? (
+                                  {(isLocked || ownerId !== currentUser) ? (
                                     <div style={{ display: "flex", alignItems: "center", gap: 3, flex: 1 }}>
                                       {pick ? (
                                         <>
@@ -3007,6 +3103,49 @@ export default function App() {
           </div>
         </div>
 
+        {/* PIN Management */}
+        <div style={{ background: "rgba(15,21,32,0.9)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: 16, marginBottom: 16 }}>
+          <div style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase" as const, color: "#94a3b8", marginBottom: 14 }}>
+            🔐 User PINs
+          </div>
+          <div style={{ display: "flex", flexDirection: "column" as const, gap: 10 }}>
+            {Object.values(FANTASY_TEAMS).map(ft => (
+              <div key={ft.id} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ fontSize: "1rem" }}>{ft.emoji}</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: "0.7rem", fontWeight: 600, color: ft.color }}>{ft.owner}</div>
+                  <div style={{ fontSize: "0.58rem", color: "#52525b" }}>{ft.name}</div>
+                </div>
+                {pinEditTarget === ft.id ? (
+                  <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="\d{4}"
+                      maxLength={4}
+                      value={pinEditVal}
+                      onChange={e => setPinEditVal(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                      placeholder="0000"
+                      style={{ width: 52, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8, padding: "4px 8px", color: "#e4e4e7", fontSize: "0.8rem", fontFamily: "inherit", textAlign: "center" as const, letterSpacing: "3px" }}
+                      autoFocus
+                    />
+                    <button onClick={() => handleSavePin(ft.id)} style={{ background: `${ft.color}22`, border: `1px solid ${ft.color}50`, borderRadius: 8, padding: "4px 10px", cursor: "pointer", color: ft.color, fontSize: "0.65rem", fontFamily: "inherit", fontWeight: 600 }}>Save</button>
+                    <button onClick={() => { setPinEditTarget(null); setPinEditVal(""); }} style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 8, padding: "4px 8px", cursor: "pointer", color: "#52525b", fontSize: "0.65rem", fontFamily: "inherit" }}>✕</button>
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                    <span style={{ fontSize: "0.75rem", letterSpacing: "3px", color: "#3f3f46", fontFamily: "monospace" }}>••••</span>
+                    <button onClick={() => { setPinEditTarget(ft.id); setPinEditVal(userPins[ft.id] || ""); }} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, padding: "4px 10px", cursor: "pointer", color: "#71717a", fontSize: "0.65rem", fontFamily: "inherit" }}>Change</button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: 12, fontSize: "0.58rem", color: "#3f3f46", lineHeight: 1.5 }}>
+            Default PINs: Raj=1111, Rahul=2222, Smeet=3333, Deb=4444. Changes are saved locally on this device.
+          </div>
+        </div>
+
         <div style={{ background: "rgba(15,21,32,0.9)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: 16, marginBottom: 16 }}>
           <div style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase" as const, color: "#94a3b8", marginBottom: 12 }}>
             🤖 Auto-Points Engine
@@ -3191,6 +3330,8 @@ export default function App() {
     if (dx > 0 && idx > 0) setTab(SWIPEABLE_TABS[idx - 1]);
   };
 
+  if (!currentUser) return <LoginScreen onLogin={handleLogin} pins={userPins} />;
+
   return (
     <>
       {showToast && <div className="share-toast">✓ Copied to clipboard!</div>}
@@ -3244,6 +3385,20 @@ export default function App() {
                   Install
                 </button>
               )}
+              {(() => {
+                const cu = FANTASY_TEAMS[currentUser!];
+                return (
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 5, background: `${cu.color}15`, border: `1px solid ${cu.color}40`, borderRadius: 20, padding: "3px 8px 3px 5px" }}>
+                      <span style={{ fontSize: "0.9rem" }}>{cu.emoji}</span>
+                      <span style={{ fontSize: "0.68rem", fontWeight: 600, color: cu.color }}>{cu.owner}</span>
+                    </div>
+                    <button onClick={handleLogout} title="Log out" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, padding: "4px 7px", cursor: "pointer", color: "#52525b", fontSize: "0.65rem", fontFamily: "inherit" }}>
+                      Out
+                    </button>
+                  </div>
+                );
+              })()}
               <button
                 className={`btn-dashboard ${tab === "admin" ? "active" : ""}`}
                 onClick={() => setTab("admin")}

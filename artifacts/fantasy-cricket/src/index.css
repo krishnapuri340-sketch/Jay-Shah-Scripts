@@ -433,6 +433,18 @@ body { background: var(--bg); }
 @keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 .animate-in { animation: slideUp 0.2s ease forwards; }
 
+/* === PIN SHAKE === */
+@keyframes pinShake {
+  0%   { transform: translateX(0); }
+  15%  { transform: translateX(-8px); }
+  30%  { transform: translateX(8px); }
+  45%  { transform: translateX(-6px); }
+  60%  { transform: translateX(6px); }
+  75%  { transform: translateX(-3px); }
+  100% { transform: translateX(0); }
+}
+.pin-shake { animation: pinShake 0.6s ease; }
+
 /* === LIGHT MODE (preserved but minimal) === */
 .light-mode {
   --bg: #fafafa; --surface: #fff; --surface-2: #f4f4f5;
