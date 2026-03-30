@@ -581,6 +581,7 @@ export default function App() {
   const [statsExpanded, setStatsExpanded] = useState(false);
   const [predArchiveOpen, setPredArchiveOpen] = useState(false);
   const [predVisibleCount, setPredVisibleCount] = useState(10);
+  const [expandedMomentsMatchId, setExpandedMomentsMatchId] = useState<string | null>(null);
   const [matchFilter, setMatchFilter] = useState<"upcoming" | "live" | "completed" | "all">("upcoming");
   const [teamFilter, setTeamFilter] = useState<Set<string>>(new Set());
   const toggleTeamFilter = (code: string) => setTeamFilter(prev => {
@@ -699,6 +700,49 @@ export default function App() {
       setApiError("Fetch failed: " + (e.message || "Unknown error"));
     }
     setLiveLoading(false);
+  };
+
+  const deriveMoments = (innings: any[]) => {
+    if (!innings?.length) return [];
+    const moments: { type: string; icon: string; desc: string; player: string; team: string; sort: number }[] = [];
+    for (const inn of innings) {
+      const shortTeam = (inn.name || "").replace(" Innings", "").replace(" Inning", "");
+      for (const bat of (inn.batting || [])) {
+        if (bat.dnb) continue;
+        const score = `${bat.runs}${bat.notOut ? "*" : ""} off ${bat.balls}b`;
+        const extras = `${bat.fours}×4  ${bat.sixes}×6`;
+        if (bat.runs >= 100) {
+          moments.push({ type: "century", icon: "💯", player: bat.name, desc: `${bat.name}  ${score}  ·  ${extras}`, team: shortTeam, sort: 0 });
+        } else if (bat.runs >= 50) {
+          moments.push({ type: "fifty", icon: "⭐", player: bat.name, desc: `${bat.name}  ${score}  ·  ${extras}`, team: shortTeam, sort: 1 });
+        }
+        if ((bat.sixes || 0) >= 4) {
+          moments.push({ type: "sixes", icon: "🔥", player: bat.name, desc: `${bat.name} hits ${bat.sixes} sixes`, team: shortTeam, sort: 2 });
+        }
+        if (!bat.notOut && bat.dismissal && bat.runs >= 30) {
+          moments.push({ type: "wicket", icon: "🏏", player: bat.name, desc: `${bat.name} out for ${bat.runs}  —  ${bat.dismissal}`, team: shortTeam, sort: 3 });
+        }
+      }
+      for (const bowl of (inn.bowling || [])) {
+        if ((bowl.wickets || 0) >= 3) {
+          moments.push({ type: "haul", icon: "🎯", player: bowl.name, desc: `${bowl.name}  ${bowl.wickets}/${bowl.runs}  off  ${bowl.overs} ov`, team: shortTeam, sort: 2 });
+        }
+      }
+    }
+    return moments.sort((a, b) => a.sort - b.sort);
+  };
+
+  const fetchScorecardFresh = async (matchId: string) => {
+    if (scorecardLoading === matchId) return;
+    setScorecardLoading(matchId);
+    try {
+      const res = await fetch(`/api/ipl/scorecard/${matchId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setScorecards(prev => ({ ...prev, [matchId]: data }));
+      }
+    } catch (_) {}
+    setScorecardLoading(null);
   };
 
   const fetchScorecard = async (matchId: string) => {
@@ -901,6 +945,19 @@ export default function App() {
     const id = setInterval(fetchPredictions, 30_000);
     return () => clearInterval(id);
   }, [tab, statsFilter]);
+
+  // Auto-fetch + refresh scorecards for live matches (powers Key Moments)
+  useEffect(() => {
+    if (tab !== "fixtures" || !isAnyMatchLive) return;
+    const liveIds = liveMatches
+      .filter((m: any) => m.matchStarted && !m.matchEnded)
+      .map((m: any) => String(m.id));
+    liveIds.forEach(id => fetchScorecard(id));
+    const timer = setInterval(() => {
+      liveIds.forEach(id => fetchScorecardFresh(id));
+    }, 60_000);
+    return () => clearInterval(timer);
+  }, [tab, isAnyMatchLive]);
 
   // Refresh when the user returns to the tab after being away
   useEffect(() => {
@@ -2993,6 +3050,62 @@ export default function App() {
                                 </div>
                               );
                             })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
+                  {/* Key Moments — live and completed matches only */}
+                  {(isDone || isLive) && (() => {
+                    const isMomentsOpen = expandedMomentsMatchId === matchIdStr;
+                    const sc = scorecards[matchIdStr];
+                    const moments = deriveMoments(sc?.innings || []);
+                    const MOMENT_COLORS: Record<string, string> = {
+                      century: "#facc15", fifty: "#a78bfa", sixes: "#f97316",
+                      wicket: "#f87171", haul: "#34d399",
+                    };
+                    return (
+                      <div onClick={e => e.stopPropagation()} style={{ marginTop: 10, borderTop: "1px solid var(--border)", paddingTop: 7 }}>
+                        <div onClick={() => {
+                          if (!isMomentsOpen && !sc) fetchScorecard(matchIdStr);
+                          setExpandedMomentsMatchId(isMomentsOpen ? null : matchIdStr);
+                        }} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", userSelect: "none" as const }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                            <span style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em" }}>KEY MOMENTS</span>
+                            {isLive && <span style={{ fontSize: "0.5rem", background: "rgba(34,197,94,0.15)", color: "#22c55e", border: "1px solid rgba(34,197,94,0.3)", borderRadius: 4, padding: "1px 5px", letterSpacing: "0.06em" }}>LIVE</span>}
+                            {moments.length > 0 && <span style={{ fontSize: "0.5rem", color: "var(--text-3)" }}>{moments.length} event{moments.length !== 1 ? "s" : ""}</span>}
+                          </div>
+                          <span style={{ fontSize: "0.55rem", color: "var(--text-3)", display: "inline-block", transition: "transform 0.2s", transform: isMomentsOpen ? "rotate(180deg)" : "none" }}>▼</span>
+                        </div>
+                        {isMomentsOpen && (
+                          <div style={{ marginTop: 10 }}>
+                            {isLoadingSc && !sc && (
+                              <div style={{ color: "var(--text-3)", fontSize: "0.7rem", padding: "6px 0" }}>Loading moments...</div>
+                            )}
+                            {sc && moments.length === 0 && (
+                              <div style={{ color: "var(--text-3)", fontSize: "0.7rem", padding: "4px 0", fontStyle: "italic" }}>
+                                {isLive ? "No highlights yet — check back soon" : "No notable moments recorded"}
+                              </div>
+                            )}
+                            {moments.map((m, mi) => (
+                              <div key={mi} style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "7px 0", borderBottom: mi < moments.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
+                                <div style={{ width: 28, height: 28, borderRadius: 8, background: `${MOMENT_COLORS[m.type] || "#d4a843"}12`, border: `1px solid ${MOMENT_COLORS[m.type] || "#d4a843"}30`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.85rem", flexShrink: 0 }}>
+                                  {m.icon}
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                  <div style={{ fontSize: "0.7rem", color: "var(--text)", fontWeight: 500, lineHeight: 1.35 }}>{m.desc}</div>
+                                  <div style={{ fontSize: "0.58rem", color: "var(--text-3)", marginTop: 1 }}>{m.team}</div>
+                                </div>
+                                <div style={{ fontSize: "0.58rem", fontWeight: 700, color: MOMENT_COLORS[m.type] || "#d4a843", textTransform: "uppercase" as const, letterSpacing: "0.04em", paddingTop: 2, flexShrink: 0 }}>
+                                  {m.type === "century" ? "100" : m.type === "fifty" ? "50+" : m.type === "wicket" ? "OUT" : m.type === "sixes" ? "SIX" : m.type === "haul" ? "HAUL" : ""}
+                                </div>
+                              </div>
+                            ))}
+                            {isLive && sc && (
+                              <div style={{ marginTop: 6, fontSize: "0.55rem", color: "var(--text-3)", textAlign: "right" as const }}>
+                                Refreshes every 60s · derived from scorecard
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
