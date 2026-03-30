@@ -3143,9 +3143,6 @@ export default function App() {
               </div>
             ))}
           </div>
-          <div style={{ marginTop: 12, fontSize: "0.58rem", color: "#3f3f46", lineHeight: 1.5 }}>
-            Default PINs: Raj=1111, Rahul=2222, Smeet=3333, Deb=4444. Changes are saved locally on this device.
-          </div>
         </div>
 
         <div style={{ background: "rgba(15,21,32,0.9)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: 16, marginBottom: 16 }}>
