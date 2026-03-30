@@ -1026,7 +1026,7 @@
         "Vaibhav Suryavanshi": 118,
         "Dhruv Jurel": 38,
         "Shivam Dube": 16,
-        "Riyan Parag": 30,
+        "Riyan Parag": 28,
         "Ruturaj Gaikwad": 8,
         "Sanju Samson": 14,
         "Yashasvi Jaiswal": 63,
@@ -1225,7 +1225,7 @@
         },
         {
           "name": "Rajasthan Royals Inning 1",
-          "total": "121/2 (11.5 ov)",
+          "total": "121/2 (12.0 ov)",
           "batting": [
             {
               "name": "Yashasvi Jaiswal",
@@ -1263,10 +1263,10 @@
             {
               "name": "Riyan Parag",
               "runs": 14,
-              "balls": 10,
+              "balls": 11,
               "fours": 1,
               "sixes": 1,
-              "sr": "140",
+              "sr": "127.27",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -1275,12 +1275,12 @@
           "bowling": [
             {
               "name": "Matt Henry",
-              "overs": "2.5",
+              "overs": "3",
               "maidens": 0,
-              "runs": 39,
+              "runs": 40,
               "wickets": 0,
-              "eco": "13.8",
-              "wides": 0,
+              "eco": "13.3",
+              "wides": 1,
               "noBalls": 0
             },
             {
@@ -1381,7 +1381,7 @@
         "Riyan Parag": {
           "played": true,
           "runs": 14,
-          "balls": 10,
+          "balls": 11,
           "fours": 1,
           "sixes": 1,
           "duck": false,
@@ -2134,6 +2134,6 @@
   "lastUpdated": "2026-03-29T18:00:26.567Z",
   "dailyHits": {
     "date": "2026-03-30",
-    "count": 341
+    "count": 345
   }
 }
