@@ -770,10 +770,10 @@ export default function App() {
       const res = await fetch('/api/push/vapid-public-key');
       const { key } = await res.json();
       const existing = await swRegRef.current.pushManager.getSubscription();
-      const sub = existing || await swRegRef.current.pushManager.subscribe({
+      const sub = existing || (await swRegRef.current.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(key),
-      });
+      }));
       await fetch('/api/push/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -2695,7 +2695,6 @@ export default function App() {
             </div>
           </div>
         )}
-
         {/* Multi-team filter chips + Home/Away sub-pills */}
         {teamFilter.size > 0 && (
           <div style={{ marginBottom: 12 }}>
@@ -2735,7 +2734,6 @@ export default function App() {
             </div>
           </div>
         )}
-
         {/* Filter bar */}
         <div style={{ display: "flex", gap: 6, marginBottom: 16 }}>
           {(["live", "upcoming", "completed", "all"] as const).map(f => {
@@ -2753,7 +2751,6 @@ export default function App() {
             );
           })}
         </div>
-
         {apiError && <div className="notice" style={{ background: "rgba(239,68,68,0.08)", borderColor: "rgba(239,68,68,0.2)", color: "#f87171", marginBottom: 12 }}>{apiError}</div>}
         {filteredMatches.length === 0 && (
           <div style={{ textAlign: "center" as const, color: "var(--text-3)", fontSize: "0.78rem", padding: "32px 0" }}>
@@ -2824,7 +2821,6 @@ export default function App() {
                       🏟 {m.venue}{m.homeTeamCode ? ` (${m.homeTeamCode})` : ""}
                     </div>
                   )}
-
                   {/* Prediction section — collapsible */}
                   {m.homeTeamCode && m.awayTeamCode && (() => {
                     const PRED_OWNERS = ["rajveer","mombasa","mumbai","ponygoat"] as const;
@@ -2924,7 +2920,6 @@ export default function App() {
                       </div>
                     );
                   })()}
-
                   {/* Scorecard collapsible — live and completed matches only */}
                   {(isDone || isLive) && (
                     <div style={{ marginTop: 10, borderTop: "1px solid var(--border)", paddingTop: 7 }}
@@ -3332,7 +3327,6 @@ export default function App() {
     return (
       <div>
         <div className="sec-title">Admin</div>
-
         <div className="stat-grid" style={{ marginBottom: 20 }}>
           <div className="stat-card">
             <div className="stat-val" style={{ color: "#22c55e" }}>{completedCount}</div>
@@ -3351,7 +3345,6 @@ export default function App() {
             <div className="stat-lbl">Players</div>
           </div>
         </div>
-
         {/* PIN Management */}
         <div style={{ background: "rgba(15,21,32,0.9)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: 16, marginBottom: 16 }}>
           <div style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase" as const, color: "#94a3b8", marginBottom: 14 }}>
@@ -3393,7 +3386,6 @@ export default function App() {
             ))}
           </div>
         </div>
-
         <div style={{ background: "rgba(15,21,32,0.9)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: 16, marginBottom: 16 }}>
           <div style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase" as const, color: "#94a3b8", marginBottom: 12 }}>
             🤖 Auto-Points Engine
@@ -3446,7 +3438,6 @@ export default function App() {
             )}
           </div>
         </div>
-
         <div style={{ background: "rgba(15,21,32,0.9)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: 16, marginBottom: 16 }}>
           <div
             onClick={() => setAdminBreakdownOpen(o => !o)}
@@ -3507,7 +3498,6 @@ export default function App() {
             );
           })}
         </div>
-
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" as const }}>
           <button className="btn-primary" onClick={() => { fetchLive(); fetchPoints(); }} disabled={liveLoading || pointsLoading}>
             {(liveLoading || pointsLoading) ? <span className="spinner" /> : "🔄"} Refresh All
@@ -3641,9 +3631,7 @@ export default function App() {
                       <span style={{ fontSize: "0.9rem" }}>{cu.emoji}</span>
                       <span style={{ fontSize: "0.68rem", fontWeight: 600, color: cu.color }}>{cu.owner}</span>
                     </div>
-                    <button onClick={handleLogout} title="Log out" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, padding: "4px 7px", cursor: "pointer", color: "#52525b", fontSize: "0.65rem", fontFamily: "inherit" }}>
-                      Out
-                    </button>
+                    <button onClick={handleLogout} title="Log out" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, padding: "4px 7px", cursor: "pointer", color: "#52525b", fontSize: "0.65rem", fontFamily: "inherit" }}>Logout</button>
                   </div>
                 );
               })()}
