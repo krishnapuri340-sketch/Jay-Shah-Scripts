@@ -1031,7 +1031,7 @@
       "innings": [
         {
           "name": "Chennai Super Kings Inning 1",
-          "total": "95/9 (18.0 ov)",
+          "total": "103/9 (19.0 ov)",
           "batting": [
             {
               "name": "Sanju Samson",
@@ -1112,11 +1112,11 @@
             },
             {
               "name": "Jamie Overton",
-              "runs": 33,
-              "balls": 30,
+              "runs": 36,
+              "balls": 33,
               "fours": 2,
               "sixes": 1,
-              "sr": "110",
+              "sr": "109.09",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -1145,11 +1145,11 @@
             },
             {
               "name": "Anshul Kamboj",
-              "runs": 1,
-              "balls": 5,
-              "fours": 0,
+              "runs": 6,
+              "balls": 9,
+              "fours": 1,
               "sixes": 0,
-              "sr": "20",
+              "sr": "66.67",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -1168,13 +1168,13 @@
             },
             {
               "name": "Nandre Burger",
-              "overs": "3",
+              "overs": "4",
               "maidens": 0,
-              "runs": 18,
+              "runs": 27,
               "wickets": 2,
-              "eco": "6",
+              "eco": "6.8",
               "wides": 3,
-              "noBalls": 0
+              "noBalls": 1
             },
             {
               "name": "Brijesh Sharma",
@@ -1942,6 +1942,6 @@
   "lastUpdated": "2026-03-29T18:00:26.567Z",
   "dailyHits": {
     "date": "2026-03-30",
-    "count": 157
+    "count": 165
   }
 }

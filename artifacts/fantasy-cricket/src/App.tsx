@@ -2610,8 +2610,7 @@ export default function App() {
 
               const isHome = teamFilter.size > 0 ? teamFilter.has(m.homeTeamCode) : null;
               return (
-                <div key={m.id} className="match-card" style={{ cursor: "pointer" }}
-                  onClick={() => toggleMatch(String(m.id), isDone || isLive)}>
+                <div key={m.id} className="match-card">
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                     <div className="match-status" style={{ color: statusColor }}>
                       {statusLabel}
@@ -2628,7 +2627,6 @@ export default function App() {
                           {isHome ? "HOME" : "AWAY"}
                         </div>
                       )}
-                      {(isDone || isLive) && <span style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{isExpanded ? "▲" : "▼"}</span>}
                     </div>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
@@ -2751,21 +2749,30 @@ export default function App() {
                     );
                   })()}
 
-                  {isExpanded && (
-                    <div style={{ marginTop: 12, borderTop: "1px solid var(--border)", paddingTop: 12 }}
+                  {/* Scorecard collapsible — live and completed matches only */}
+                  {(isDone || isLive) && (
+                    <div style={{ marginTop: 10, borderTop: "1px solid var(--border)", paddingTop: 7 }}
                       onClick={e => e.stopPropagation()}>
-                      {isLoadingSc && <div style={{ color: "var(--text-3)", fontSize: "0.72rem", padding: "8px 0" }}>Loading scorecard...</div>}
-                      {sc?.overview && (
-                        <div style={{ display: "flex", flexDirection: "column" as const, gap: 4, marginBottom: 12 }}>
-                          {sc.overview.toss && <div style={{ fontSize: "0.65rem", color: "var(--text-3)" }}>{sc.overview.toss}</div>}
-                          {sc.overview.result && <div style={{ fontSize: "0.68rem", color: "var(--text-2)", fontWeight: 500 }}>{sc.overview.result}</div>}
-                        </div>
-                      )}
-                      {sc && !sc.hasScorecard && (
-                        <div style={{ color: "var(--text-3)", fontSize: "0.72rem", padding: "4px 0" }}>
-                          Scorecard will appear once innings data is synced.
-                        </div>
-                      )}
+                      {/* Toggle header */}
+                      <div onClick={() => toggleMatch(matchIdStr, true)}
+                        style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", userSelect: "none" as const }}>
+                        <span style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em" }}>SCORECARD</span>
+                        <span style={{ fontSize: "0.55rem", color: "var(--text-3)", display: "inline-block", transition: "transform 0.2s", transform: isExpanded ? "rotate(180deg)" : "none" }}>▼</span>
+                      </div>
+                      {isExpanded && (
+                        <div style={{ marginTop: 10 }}>
+                          {isLoadingSc && <div style={{ color: "var(--text-3)", fontSize: "0.72rem", padding: "8px 0" }}>Loading scorecard...</div>}
+                          {sc?.overview && (
+                            <div style={{ display: "flex", flexDirection: "column" as const, gap: 4, marginBottom: 12 }}>
+                              {sc.overview.toss && <div style={{ fontSize: "0.65rem", color: "var(--text-3)" }}>{sc.overview.toss}</div>}
+                              {sc.overview.result && <div style={{ fontSize: "0.68rem", color: "var(--text-2)", fontWeight: 500 }}>{sc.overview.result}</div>}
+                            </div>
+                          )}
+                          {sc && !sc.hasScorecard && (
+                            <div style={{ color: "var(--text-3)", fontSize: "0.72rem", padding: "4px 0" }}>
+                              Scorecard will appear once innings data is synced.
+                            </div>
+                          )}
                       {(sc?.innings || []).map((inn: any, idx: number) => (
                         <div key={idx} style={{ marginBottom: 16 }}>
                           <div style={{ fontSize: "0.65rem", fontWeight: 600, color: "var(--text-2)", letterSpacing: "0.06em", textTransform: "uppercase" as const, marginBottom: 8 }}>
@@ -2832,6 +2839,8 @@ export default function App() {
                           )}
                         </div>
                       ))}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
