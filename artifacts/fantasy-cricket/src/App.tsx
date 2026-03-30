@@ -275,6 +275,62 @@ const ABBR_TO_TEAM: Record<string, string> = {
   DC:"Delhi Capitals", DD:"Delhi Daredevils", PBKS:"Punjab Kings", KXIP:"Kings XI Punjab",
   LSG:"Lucknow Super Giants", PWI:"Pune Warriors", GL:"Gujarat Lions",
 };
+const IPL_H2H: Record<string, [number, number]> = {
+  "CSK-DC":[16,9],"CSK-GT":[3,4],"CSK-KKR":[18,11],"CSK-LSG":[5,4],"CSK-MI":[14,19],
+  "CSK-PBKS":[19,11],"CSK-RCB":[18,13],"CSK-RR":[15,10],"CSK-SRH":[14,10],
+  "DC-GT":[3,5],"DC-KKR":[11,14],"DC-LSG":[5,5],"DC-MI":[12,16],
+  "DC-PBKS":[15,11],"DC-RCB":[10,15],"DC-RR":[10,14],"DC-SRH":[10,13],
+  "GT-KKR":[4,4],"GT-LSG":[5,5],"GT-MI":[5,3],"GT-PBKS":[4,3],
+  "GT-RCB":[5,3],"GT-RR":[5,3],"GT-SRH":[5,3],
+  "KKR-LSG":[5,3],"KKR-MI":[13,17],"KKR-PBKS":[16,10],"KKR-RCB":[16,14],
+  "KKR-RR":[15,11],"KKR-SRH":[14,11],
+  "LSG-MI":[5,4],"LSG-PBKS":[4,5],"LSG-RCB":[4,4],"LSG-RR":[4,4],"LSG-SRH":[4,4],
+  "MI-PBKS":[17,11],"MI-RCB":[19,14],"MI-RR":[16,10],"MI-SRH":[10,10],
+  "PBKS-RCB":[11,17],"PBKS-RR":[14,17],"PBKS-SRH":[10,13],
+  "RCB-RR":[15,10],"RCB-SRH":[14,13],"RR-SRH":[11,13],
+};
+function getH2H(a: string, b: string): { aWins: number; bWins: number } | null {
+  const sorted = [a, b].sort();
+  const data = IPL_H2H[sorted.join("-")];
+  if (!data) return null;
+  return sorted[0] === a ? { aWins: data[0], bWins: data[1] } : { aWins: data[1], bWins: data[0] };
+}
+const VENUE_AVG: Record<string, { avg: number; high: number; note: string }> = {
+  "ACA Stadium":                                                     { avg: 160, high: 195, note: "Balanced" },
+  "Arun Jaitley Stadium":                                            { avg: 162, high: 213, note: "Balanced" },
+  "Bharat Ratna Shri Atal Bihari Vajpayee Ekana Cricket Stadium":   { avg: 163, high: 196, note: "Balanced" },
+  "Eden Gardens":                                                    { avg: 162, high: 222, note: "Seam-friendly" },
+  "Himachal Pradesh Cricket Association Stadium":                    { avg: 152, high: 192, note: "Batting tough" },
+  "M Chinnaswamy Stadium":                                           { avg: 170, high: 263, note: "Batters' paradise" },
+  "MA Chidambaram Stadium":                                          { avg: 155, high: 208, note: "Spin-friendly" },
+  "Narendra Modi Stadium":                                           { avg: 168, high: 224, note: "Flat wicket" },
+  "New International Cricket Stadium":                               { avg: 161, high: 186, note: "New venue" },
+  "Rajiv Gandhi International Stadium":                              { avg: 162, high: 204, note: "Balanced" },
+  "Sawai Mansingh Stadium":                                          { avg: 158, high: 211, note: "Slow & low" },
+  "Shaheed Veer Narayan Singh International Cricket Stadium":        { avg: 156, high: 190, note: "Bowler-friendly" },
+  "Wankhede Stadium":                                                { avg: 172, high: 235, note: "Small ground, pacers aid" },
+};
+function predictNextMatch(homeCode: string, awayCode: string): { pick: string | null; reason: string; homeW: number; awayW: number } {
+  const h2h = getH2H(homeCode, awayCode);
+  let homeScore = 1.0, awayScore = 0.0;
+  if (h2h) {
+    const diff = h2h.aWins - h2h.bWins;
+    if (diff > 0) homeScore += Math.min(diff * 0.18, 2.2);
+    else awayScore += Math.min(Math.abs(diff) * 0.18, 2.2);
+  }
+  const edge = homeScore - awayScore;
+  if (Math.abs(edge) < 0.4) return { pick: null, reason: "Too close to call", homeW: homeScore, awayW: awayScore };
+  const pick = edge > 0 ? homeCode : awayCode;
+  const isHome = pick === homeCode;
+  const h2hLeads = h2h ? (isHome ? h2h.aWins > h2h.bWins : h2h.bWins > h2h.aWins) : false;
+  const reason = h2hLeads && Math.abs(edge) > 1.2
+    ? "Strong H2H edge"
+    : h2hLeads
+    ? "H2H + home advantage"
+    : "Home advantage";
+  return { pick, reason, homeW: homeScore, awayW: awayScore };
+}
+
 function getMatchWinner(m: any): string | null {
   if (!m.matchEnded || !m.status) return null;
   const s = m.status.toLowerCase();
@@ -1705,18 +1761,67 @@ export default function App() {
               owner: ft.owner, color: ft.color,
               count: ft.players.filter((p: any) => p.ipl === nextM.homeTeamCode || p.ipl === nextM.awayTeamCode).length
             }));
-            if (stakes.every(s => s.count === 0)) return null;
+            const h2h = getH2H(nextM.homeTeamCode, nextM.awayTeamCode);
+            const vd = VENUE_AVG[nextM.venue || ""];
+            const pred = predictNextMatch(nextM.homeTeamCode, nextM.awayTeamCode);
             return (
-              <div style={{ borderTop: "1px solid var(--border)", paddingTop: 8, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" as const }}>
-                <span style={{ fontSize: "0.57rem", color: "var(--text-3)", flexShrink: 0, letterSpacing: "0.04em" }}>PICKS IN THIS MATCH</span>
-                <div style={{ display: "flex", gap: 10 }}>
-                  {stakes.map(s => (
-                    <span key={s.owner} style={{ fontSize: "0.68rem", fontWeight: 700, color: s.count > 0 ? s.color : "var(--text-3)" }}>
-                      {s.owner} <span style={{ fontWeight: 400, fontSize: "0.6rem" }}>{s.count}</span>
-                    </span>
-                  ))}
-                </div>
-              </div>
+              <>
+                {/* Fantasy stakes row */}
+                {stakes.some(s => s.count > 0) && (
+                  <div style={{ borderTop: "1px solid var(--border)", paddingTop: 8, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" as const }}>
+                    <span style={{ fontSize: "0.57rem", color: "var(--text-3)", flexShrink: 0, letterSpacing: "0.04em" }}>PICKS IN THIS MATCH</span>
+                    <div style={{ display: "flex", gap: 10 }}>
+                      {stakes.map(s => (
+                        <span key={s.owner} style={{ fontSize: "0.68rem", fontWeight: 700, color: s.count > 0 ? s.color : "var(--text-3)" }}>
+                          {s.owner} <span style={{ fontWeight: 400, fontSize: "0.6rem" }}>{s.count}</span>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {/* Match intel row */}
+                {(h2h || vd) && (
+                  <div style={{ borderTop: "1px solid var(--border)", paddingTop: 8, display: "flex", flexDirection: "column" as const, gap: 7 }}>
+                    <div style={{ display: "flex", gap: 14, flexWrap: "wrap" as const }}>
+                      {h2h && (
+                        <div>
+                          <div style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em", marginBottom: 2 }}>H2H ALL-TIME</div>
+                          <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--text-2)" }}>
+                            <span style={{ color: h2h.aWins > h2h.bWins ? "var(--text)" : "var(--text-3)" }}>{nextM.homeTeamCode} {h2h.aWins}</span>
+                            <span style={{ color: "var(--text-3)", margin: "0 4px" }}>–</span>
+                            <span style={{ color: h2h.bWins > h2h.aWins ? "var(--text)" : "var(--text-3)" }}>{h2h.bWins} {nextM.awayTeamCode}</span>
+                          </div>
+                        </div>
+                      )}
+                      {vd && (
+                        <div>
+                          <div style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em", marginBottom: 2 }}>VENUE · 1ST INN</div>
+                          <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--text-2)" }}>
+                            ~{vd.avg} avg
+                            <span style={{ fontSize: "0.58rem", color: "var(--text-3)", fontWeight: 400, marginLeft: 5 }}>HS {vd.high} · {vd.note}</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    {pred.pick && (
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 9px", borderRadius: 8, background: "rgba(212,168,67,0.07)", border: "1px solid rgba(212,168,67,0.18)" }}>
+                        <span style={{ fontSize: "0.62rem" }}>💡</span>
+                        <span style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{pred.reason}:</span>
+                        <img src={TEAM_LOGO_CDN[pred.pick]} alt={pred.pick} style={{ width: 16, height: 16, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                        <span style={{ fontSize: "0.7rem", fontWeight: 700, color: "var(--gold)" }}>{pred.pick}</span>
+                        {h2h && (
+                          <span style={{ fontSize: "0.57rem", color: "var(--text-3)", marginLeft: 2 }}>
+                            ({pred.pick === nextM.homeTeamCode ? `${h2h.aWins}-${h2h.bWins}` : `${h2h.bWins}-${h2h.aWins}`} H2H)
+                          </span>
+                        )}
+                      </div>
+                    )}
+                    {!pred.pick && (
+                      <div style={{ fontSize: "0.62rem", color: "var(--text-3)", fontStyle: "italic" }}>⚖️ {pred.reason}</div>
+                    )}
+                  </div>
+                )}
+              </>
             );
           })()}
         </div>
