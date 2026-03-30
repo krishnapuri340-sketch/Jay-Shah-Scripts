@@ -3159,7 +3159,7 @@ export default function App() {
                   <div style={{ fontSize: "0.56rem", color: "var(--text-3)", fontWeight: 700, letterSpacing: "0.08em" }}>#</div>
                   <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
                     <span style={{ fontSize: "0.56rem", color: "var(--text-3)", fontWeight: 700, letterSpacing: "0.08em" }}>MATCH</span>
-                    <span style={{ fontSize: "0.5rem", background: "rgba(167,139,250,0.12)", color: "#a78bfa", borderRadius: 4, padding: "1px 5px" }}>live picks</span>
+                    <span style={{ fontSize: "0.5rem", background: "rgba(255,255,255,0.05)", color: "var(--text-3)", borderRadius: 4, padding: "1px 5px" }}>live picks</span>
                   </div>
                   {PRED_OWNERS.map(id => (
                     <div key={id} style={{ fontSize: "0.56rem", color: FANTASY_TEAMS[id].color, fontWeight: 700, textAlign: "center" as const }}>
@@ -3197,7 +3197,7 @@ export default function App() {
                         </div>
                         {isNil && <div style={{ fontSize: "0.5rem", color: "var(--text-3)", fontStyle: "italic" }}>no predictions</div>}
                         {isLive && <div style={{ fontSize: "0.5rem", color: "var(--live)" }}>● Live</div>}
-                        {isUpcoming && !isNil && picksIn > 0 && <div style={{ fontSize: "0.5rem", color: "#a78bfa" }}>{picksIn}/4 picked</div>}
+                        {isUpcoming && !isNil && picksIn > 0 && <div style={{ fontSize: "0.5rem", color: "var(--text-3)" }}>{picksIn}/4 picked</div>}
                         {isUpcoming && !isNil && picksIn === 0 && <div style={{ fontSize: "0.5rem", color: "var(--text-3)" }}>open</div>}
                       </div>
                       {PRED_OWNERS.map(id => {
@@ -3217,7 +3217,7 @@ export default function App() {
                           <div key={id} style={{ textAlign: "center" as const }}>
                             <div style={{
                               fontSize: "0.58rem", fontWeight: 700, lineHeight: 1.2,
-                              color: isCorrect ? "#22c55e" : isWrong ? "#f87171" : isPending ? "#a78bfa" : "var(--text-2)"
+                              color: isCorrect ? "#22c55e" : isWrong ? "#f87171" : isPending ? "var(--text-3)" : "var(--text-2)"
                             }}>{pick}</div>
                             {isCorrect && <div style={{ fontSize: "0.6rem", color: "#22c55e", lineHeight: 1 }}>✓</div>}
                             {isWrong && <div style={{ fontSize: "0.6rem", color: "#f87171", lineHeight: 1 }}>✗</div>}
