@@ -589,9 +589,9 @@ body { background: var(--bg); }
 
 /* === LIGHT MODE === */
 .light-mode {
-  --bg: #f1f3f6;
-  --surface: #ffffff;
-  --surface-2: #e8eaed;
+  --bg: #f4f1ec;
+  --surface: #fdfaf6;
+  --surface-2: #eae6df;
   --border: rgba(0,0,0,0.09);
   --border-2: rgba(0,0,0,0.16);
   --text: #0d0d0d;
@@ -610,7 +610,7 @@ body { background: var(--bg); }
 
 /* Header */
 .light-mode .header {
-  background: linear-gradient(180deg, rgba(241,243,246,0.95) 0%, rgba(241,243,246,0) 100%);
+  background: linear-gradient(180deg, rgba(244,241,236,0.97) 0%, rgba(244,241,236,0) 100%);
 }
 .light-mode .header-logo-inner { background: var(--bg); }
 
