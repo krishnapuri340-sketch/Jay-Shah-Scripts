@@ -397,11 +397,11 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
             {/* spinning ring icon */}
             <div style={{ position: "relative", width: 96, height: 96, marginBottom: 18 }}>
               <div style={{
-                position: "absolute", inset: -2, borderRadius: 28,
-                background: "conic-gradient(from 0deg, rgba(223,178,62,0) 0deg, rgba(223,178,62,0.7) 60deg, rgba(255,240,180,0.9) 90deg, rgba(223,178,62,0.7) 120deg, rgba(223,178,62,0) 180deg, rgba(223,178,62,0) 270deg, rgba(223,178,62,0.4) 330deg, rgba(223,178,62,0) 360deg)",
+                position: "absolute", inset: -1.5, borderRadius: 28,
+                background: "conic-gradient(from 0deg, rgba(223,178,62,0) 0deg, rgba(223,178,62,0) 70deg, rgba(255,240,180,0.95) 90deg, rgba(223,178,62,0) 110deg, rgba(223,178,62,0) 360deg)",
                 animation: "login-icon-spin 8s linear infinite",
               }} />
-              <div style={{ position: "absolute", inset: 2, borderRadius: 25, background: "#0d1117", overflow: "hidden" }}>
+              <div style={{ position: "absolute", inset: 1.5, borderRadius: 25.5, background: "#0d1117", overflow: "hidden" }}>
                 <img
                   src={`${import.meta.env.BASE_URL}app-icon.png`}
                   alt="Indian Premier League"
@@ -789,27 +789,25 @@ export default function App() {
       const res = await fetch("/api/ipl/predictions");
       if (res.ok) {
         const server: Record<string, Record<string, string | null>> = await res.json();
-        // Merge: local cache fills in any gaps if server lost data
         const local = loadLocalPreds();
-        const merged: Record<string, Record<string, string | null>> = { ...local };
-        Object.entries(server).forEach(([matchId, picks]) => {
+        // Merge: start with server as baseline, then LOCAL overwrites — local is always most recent
+        const merged: Record<string, Record<string, string | null>> = { ...server };
+        Object.entries(local).forEach(([matchId, picks]) => {
           merged[matchId] = { ...(merged[matchId] || {}), ...picks };
         });
-        // If server was missing data we have locally, push it back
-        const serverIsEmpty = Object.keys(server).length === 0 && Object.keys(local).length > 0;
-        if (serverIsEmpty) {
-          Object.entries(local).forEach(([matchId, picks]) => {
-            Object.entries(picks).forEach(([ownerId, pick]) => {
-              if (pick) {
-                fetch(`/api/ipl/predictions/${encodeURIComponent(matchId)}`, {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ ownerId, pick }),
-                }).catch(() => {});
-              }
-            });
+        // Push back any local pick that the server doesn't have or that differs from server
+        Object.entries(local).forEach(([matchId, picks]) => {
+          Object.entries(picks).forEach(([ownerId, pick]) => {
+            const serverPick = server[matchId]?.[ownerId];
+            if (pick && pick !== serverPick) {
+              fetch(`/api/ipl/predictions/${encodeURIComponent(matchId)}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ownerId, pick }),
+              }).catch(() => {});
+            }
           });
-        }
+        });
         saveLocalPreds(merged);
         setPredictions(merged);
       }
@@ -3099,6 +3097,7 @@ export default function App() {
                     const pickCount = PRED_OWNERS.filter(id => preds[id]).length;
                     if (isDone && !anyPick) return null;
                     const isOpen = expandedPredMatchId === matchIdStr;
+                    const isAdminOverride = currentUser === "rajveer" && isLocked;
                     const togglePred = (e: React.MouseEvent) => {
                       e.stopPropagation();
                       setExpandedPredMatchId(isOpen ? null : matchIdStr);
@@ -3111,12 +3110,24 @@ export default function App() {
                       : isLocked
                       ? pickCount > 0 ? `${pickCount}/4 picked 🔒` : "🔒 Locked — no picks"
                       : pickCount > 0 ? `${pickCount}/4 picked` : "Tap to predict";
+                    const submitPick = (ownerId: string, newPick: string | null) => {
+                      setPredictions(prev => {
+                        const updated = { ...prev, [matchIdStr]: { ...(prev[matchIdStr] || {}), [ownerId]: newPick } };
+                        saveLocalPreds(updated);
+                        return updated;
+                      });
+                      fetch(`/api/ipl/predictions/${encodeURIComponent(matchIdStr)}`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ ownerId, pick: newPick }),
+                      }).then(r => r.json()).then(d => { if (d.predictions) { saveLocalPreds(d.predictions); setPredictions(d.predictions); } }).catch(() => {});
+                    };
                     return (
                       <div onClick={e => e.stopPropagation()} style={{ marginTop: 10, borderTop: "1px solid var(--border)", paddingTop: 7 }}>
                         {/* Tappable header row */}
                         <div onClick={togglePred} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", userSelect: "none" as const }}>
-                          <span style={{ fontSize: "0.57rem", color: "var(--text-3)", fontWeight: 600, letterSpacing: "0.06em" }}>
-                            {isDone ? "PREDICTIONS" : isLocked ? "🔒 PREDICTIONS" : "📊 PREDICT"}
+                          <span style={{ fontSize: "0.57rem", color: isAdminOverride ? "#f59e0b" : "var(--text-3)", fontWeight: 600, letterSpacing: "0.06em" }}>
+                            {isDone ? "PREDICTIONS" : isAdminOverride ? "🛡 ADMIN OVERRIDE" : isLocked ? "🔒 PREDICTIONS" : "📊 PREDICT"}
                           </span>
                           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                             <span style={{ fontSize: "0.57rem", color: "var(--text-3)" }}>{collapsedSummary}</span>
@@ -3126,15 +3137,22 @@ export default function App() {
                         {/* Expandable grid */}
                         {isOpen && (
                           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4, marginTop: 8 }}>
+                            {isAdminOverride && (
+                              <div style={{ gridColumn: "1/-1", fontSize: "0.55rem", color: "#f59e0b", marginBottom: 2, opacity: 0.8 }}>
+                                Admin: tap any pick to force-change it
+                              </div>
+                            )}
                             {PRED_OWNERS.map(ownerId => {
                               const ft = FANTASY_TEAMS[ownerId];
                               const pick = preds[ownerId] || null;
                               const isCorrect = !!winner && winner !== "tie" && pick === winner;
                               const isWrong = !!winner && winner !== "tie" && pick !== null && pick !== winner;
+                              // Show buttons: own pick (not locked) OR admin override mode
+                              const showButtons = (ownerId === currentUser && !isLocked) || isAdminOverride;
                               return (
-                                <div key={ownerId} style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 7px", borderRadius: 8, background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)" }}>
+                                <div key={ownerId} style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 7px", borderRadius: 8, background: isAdminOverride ? "rgba(245,158,11,0.04)" : "rgba(255,255,255,0.03)", border: `1px solid ${isAdminOverride ? "rgba(245,158,11,0.2)" : "var(--border)"}` }}>
                                   <span style={{ fontSize: "0.6rem", color: ft.color, fontWeight: 700, minWidth: 30, flexShrink: 0 }}>{ft.owner}</span>
-                                  {(isLocked || ownerId !== currentUser) ? (
+                                  {!showButtons ? (
                                     <div style={{ display: "flex", alignItems: "center", gap: 3, flex: 1 }}>
                                       {pick ? (
                                         <>
@@ -3152,17 +3170,7 @@ export default function App() {
                                       {[m.homeTeamCode, m.awayTeamCode].map((code: string) => (
                                         <button key={code} onClick={e => {
                                           e.stopPropagation();
-                                          const newPick = pick === code ? null : code;
-                                          setPredictions(prev => {
-                                            const updated = { ...prev, [matchIdStr]: { ...(prev[matchIdStr] || {}), [ownerId]: newPick } };
-                                            saveLocalPreds(updated);
-                                            return updated;
-                                          });
-                                          fetch(`/api/ipl/predictions/${encodeURIComponent(matchIdStr)}`, {
-                                            method: "POST",
-                                            headers: { "Content-Type": "application/json" },
-                                            body: JSON.stringify({ ownerId, pick: newPick }),
-                                          }).then(r => r.json()).then(d => { if (d.predictions) { saveLocalPreds(d.predictions); setPredictions(d.predictions); } }).catch(() => {});
+                                          submitPick(ownerId, pick === code ? null : code);
                                         }} style={{
                                           flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 2,
                                           padding: "3px 2px", borderRadius: 6, cursor: "pointer", border: "1px solid",
