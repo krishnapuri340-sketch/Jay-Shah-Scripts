@@ -2,7 +2,7 @@ import { FANTASY_TEAMS } from "./teams";
 
 export function applyMultiplier(raw: number, isCaptain: boolean, isVC: boolean): number {
   if (isCaptain) return raw * 2;
-  if (isVC) return Math.floor(raw * 1.5);
+  if (isVC) return raw * 1.5;
   return raw;
 }
 
