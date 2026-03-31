@@ -658,9 +658,33 @@ router.get("/ipl/points", async (req, res) => {
     }
 
     // ── Hybrid aggregation: Supabase (official) + CricAPI (live/fallback) ──
-    const supabaseLinkedIds = new Set(
-      Object.values(pointsCache.supabaseScores || {}).map(f => f.linkedIplId).filter(Boolean) as string[]
-    );
+    // Build the set of iplIds covered by Supabase using TWO methods to prevent
+    // a race condition where the background job has synced Supabase scores but
+    // hasn't yet written linkedIplId (causing both sources to be counted):
+    //   1. Already-linked via linkedIplId (set by background job)
+    //   2. On-the-fly date+team matching against matchMetadata (covers the race window)
+    const supabaseLinkedIds = new Set<string>();
+    for (const fixtureData of Object.values(pointsCache.supabaseScores || {})) {
+      if (fixtureData.linkedIplId) {
+        supabaseLinkedIds.add(fixtureData.linkedIplId);
+        continue;
+      }
+      // Fallback: match by date + teams so we deduplicate even before linking is persisted
+      const parts = fixtureData.matchLabel.split(" vs ");
+      const sTeamA = parts[0]?.trim() || "";
+      const sTeamB = parts[1]?.trim() || "";
+      for (const [iplId, meta] of Object.entries(pointsCache.matchMetadata || {})) {
+        if (meta.matchDate !== fixtureData.matchDate) continue;
+        const okAA = teamNamesMatch(sTeamA, meta.teamA);
+        const okAB = teamNamesMatch(sTeamA, meta.teamB);
+        const okBA = teamNamesMatch(sTeamB, meta.teamA);
+        const okBB = teamNamesMatch(sTeamB, meta.teamB);
+        if ((okAA || okAB) && (okBA || okBB)) {
+          supabaseLinkedIds.add(iplId);
+          break;
+        }
+      }
+    }
     const aggregated: Record<string, number> = {};
     // playerMatchPoints: player → [ { matchNum, label, pts, source, stats? } ]
     const playerMatchPoints: Record<string, Array<{ matchNum: number; label: string; pts: number; source: "official" | "live"; stats?: PlayerStats }>> = {};
@@ -771,6 +795,12 @@ router.get("/ipl/points", async (req, res) => {
                   if ((okAA || okAB) && (okBA || okBB)) {
                     fixture.linkedIplId = iplId;
                     console.log(`[supabase] Linked "${fixture.matchLabel}" → iplId ${iplId}`);
+                    // Clear any stale CricAPI points for this match — Supabase is authoritative
+                    const pm = pointsCache.processedMatches[iplId];
+                    if (pm && Object.keys(pm.points || {}).length > 0) {
+                      pointsCache.processedMatches[iplId] = { ...pm, points: {} };
+                      console.log(`[supabase] Cleared stale CricAPI points for linked match ${iplId}`);
+                    }
                     break;
                   }
                 }

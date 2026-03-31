@@ -542,20 +542,7 @@
       }
     },
     "2418": {
-      "points": {
-        "Cameron Green": 38,
-        "Ajinkya Rahane": 125,
-        "Trent Boult": 4,
-        "Tilak Varma": 44,
-        "Rohit Sharma": 162,
-        "Rinku Singh": 61,
-        "Hardik Pandya": 52,
-        "Finn Allen": 89,
-        "Sunil Narine": 2,
-        "Suryakumar Yadav": 32,
-        "Jasprit Bumrah": 4,
-        "Ryan Rickelton": 167
-      },
+      "points": {},
       "innings": [
         {
           "name": "Kolkata Knight Riders Inning 1",
@@ -1023,17 +1010,7 @@
       }
     },
     "2419": {
-      "points": {
-        "Vaibhav Suryavanshi": 118,
-        "Dhruv Jurel": 38,
-        "Shivam Dube": 16,
-        "Riyan Parag": 28,
-        "Ruturaj Gaikwad": 8,
-        "Sanju Samson": 14,
-        "Yashasvi Jaiswal": 63,
-        "Ravindra Jadeja": 68,
-        "Khaleel Ahmed": 10
-      },
+      "points": {},
       "innings": [
         {
           "name": "Chennai Super Kings Inning 1",
@@ -1488,12 +1465,15 @@
         "Shubman Gill": 73,
         "Jos Buttler": 70,
         "Yuzvendra Chahal": 68,
+        "Shreyas Iyer": 38,
         "Priyansh Arya": 17,
         "Marco Jansen": 40,
         "Arshdeep Singh": 2,
-        "Prabhsimran Singh": 60,
+        "Prabhsimran Singh": 77,
+        "Nehal Wadhera": 7,
         "Sai Sudharsan": 25,
-        "Rashid Khan": 8,
+        "Prasidh Krishna": 34,
+        "Rashid Khan": 36,
         "Mohammed Siraj": 6,
         "Washington Sundar": 30
       },
@@ -1646,7 +1626,7 @@
         },
         {
           "name": "Punjab Kings Inning 1",
-          "total": "71/1 (8.0 ov)",
+          "total": "112/3 (13.0 ov)",
           "batting": [
             {
               "name": "Priyansh Arya",
@@ -1661,22 +1641,44 @@
             },
             {
               "name": "Prabhsimran Singh",
-              "runs": 28,
-              "balls": 19,
+              "runs": 37,
+              "balls": 24,
               "fours": 1,
-              "sixes": 3,
-              "sr": "147.37",
+              "sixes": 4,
+              "sr": "154.17",
+              "dismissal": "catch",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Cooper Connolly",
+              "runs": 47,
+              "balls": 30,
+              "fours": 2,
+              "sixes": 4,
+              "sr": "156.67",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
             },
             {
-              "name": "Cooper Connolly",
-              "runs": 36,
-              "balls": 21,
-              "fours": 2,
-              "sixes": 3,
-              "sr": "171.43",
+              "name": "Shreyas Iyer",
+              "runs": 18,
+              "balls": 11,
+              "fours": 0,
+              "sixes": 2,
+              "sr": "163.64",
+              "dismissal": "catch",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Nehal Wadhera",
+              "runs": 3,
+              "balls": 5,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "60",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -1705,9 +1707,9 @@
             },
             {
               "name": "Ashok Sharma",
-              "overs": "1",
+              "overs": "2",
               "maidens": 0,
-              "runs": 13,
+              "runs": 26,
               "wickets": 0,
               "eco": "13",
               "wides": 1,
@@ -1715,21 +1717,31 @@
             },
             {
               "name": "Rashid Khan",
-              "overs": "2",
+              "overs": "4",
               "maidens": 0,
-              "runs": 13,
-              "wickets": 0,
-              "eco": "6.5",
+              "runs": 29,
+              "wickets": 1,
+              "eco": "7.2",
               "wides": 0,
               "noBalls": 0
             },
             {
               "name": "Washington Sundar",
-              "overs": "1",
+              "overs": "2",
               "maidens": 0,
-              "runs": 9,
+              "runs": 18,
               "wickets": 0,
               "eco": "9",
+              "wides": 0,
+              "noBalls": 0
+            },
+            {
+              "name": "Prasidh Krishna",
+              "overs": "1",
+              "maidens": 0,
+              "runs": 3,
+              "wickets": 1,
+              "eco": "3",
               "wides": 0,
               "noBalls": 0
             }
@@ -1788,6 +1800,23 @@
           "runOuts": 0,
           "stumpings": 0
         },
+        "Shreyas Iyer": {
+          "played": true,
+          "runs": 18,
+          "balls": 11,
+          "fours": 0,
+          "sixes": 2,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "stumpings": 0
+        },
         "Priyansh Arya": {
           "played": true,
           "runs": 7,
@@ -1841,10 +1870,27 @@
         },
         "Prabhsimran Singh": {
           "played": true,
-          "runs": 28,
-          "balls": 19,
+          "runs": 37,
+          "balls": 24,
           "fours": 1,
-          "sixes": 3,
+          "sixes": 4,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "stumpings": 0
+        },
+        "Nehal Wadhera": {
+          "played": true,
+          "runs": 3,
+          "balls": 5,
+          "fours": 0,
+          "sixes": 0,
           "duck": false,
           "wickets": 0,
           "dots": 0,
@@ -1873,6 +1919,23 @@
           "runOuts": 0,
           "stumpings": 0
         },
+        "Prasidh Krishna": {
+          "played": true,
+          "runs": 0,
+          "balls": 0,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 1,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 6,
+          "runsConceded": 3,
+          "catches": 0,
+          "runOuts": 0,
+          "stumpings": 0
+        },
         "Rashid Khan": {
           "played": true,
           "runs": 0,
@@ -1880,12 +1943,12 @@
           "fours": 0,
           "sixes": 0,
           "duck": false,
-          "wickets": 0,
+          "wickets": 1,
           "dots": 0,
           "lbwBowled": 0,
           "maidens": 0,
-          "ballsBowled": 12,
-          "runsConceded": 13,
+          "ballsBowled": 24,
+          "runsConceded": 29,
           "catches": 0,
           "runOuts": 0,
           "stumpings": 0
@@ -1918,8 +1981,8 @@
           "dots": 0,
           "lbwBowled": 0,
           "maidens": 0,
-          "ballsBowled": 6,
-          "runsConceded": 9,
+          "ballsBowled": 12,
+          "runsConceded": 18,
           "catches": 0,
           "runOuts": 0,
           "stumpings": 0
@@ -2596,6 +2659,6 @@
   "lastUpdated": "2026-03-31T16:09:59.721Z",
   "dailyHits": {
     "date": "2026-03-31",
-    "count": 499
+    "count": 532
   }
 }
