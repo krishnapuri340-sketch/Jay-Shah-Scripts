@@ -77,13 +77,12 @@ body { background: var(--bg); }
 }
 .header-logo-ring::before {
   content: '';
-  position: absolute; inset: -2px; border-radius: 16px;
-  background: conic-gradient(from 0deg, var(--gold) 0deg, #fef08a 45deg, var(--gold) 90deg, #b45309 180deg, var(--gold) 270deg, #fef08a 315deg, var(--gold) 360deg);
-  animation: spinRing 4s linear infinite;
+  position: absolute; inset: -1.5px; border-radius: 16px;
+  background: linear-gradient(135deg, rgba(223,178,62,0.7) 0%, rgba(223,178,62,0.15) 50%, rgba(223,178,62,0.5) 100%);
   z-index: 0;
 }
 .header-logo-inner {
-  position: absolute; inset: 2px; border-radius: 13px; overflow: hidden;
+  position: absolute; inset: 1.5px; border-radius: 13px; overflow: hidden;
   background: #111; z-index: 1;
 }
 .header-logo {
@@ -91,7 +90,6 @@ body { background: var(--bg); }
   object-position: center 10%; display: block; transform: scale(1.1);
   transform-origin: center top;
 }
-@keyframes spinRing { to { transform: rotate(360deg); } }
 .header-title-row {
   display: flex; align-items: baseline; gap: 8px;
 }
