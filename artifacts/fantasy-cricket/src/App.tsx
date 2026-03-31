@@ -3549,7 +3549,6 @@ export default function App() {
                       </div>
                       <div style={{ fontSize: "1.3rem", fontWeight: 800, color: ft.color, lineHeight: 1 }}>{ownerScores[id]}</div>
                       <div style={{ fontSize: "0.55rem", color: "var(--text-3)", marginTop: 2 }}>{ft.owner}</div>
-                      {totalScorable > 0 && <div style={{ fontSize: "0.5rem", color: "var(--text-3)" }}>/{totalScorable}</div>}
                     </div>
                   );
                 })}
