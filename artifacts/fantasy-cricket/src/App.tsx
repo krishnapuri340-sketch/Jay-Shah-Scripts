@@ -185,38 +185,85 @@ function getH2H(a: string, b: string): { aWins: number; bWins: number } | null {
   return sorted[0] === a ? { aWins: data[0], bWins: data[1] } : { aWins: data[1], bWins: data[0] };
 }
 const VENUE_AVG: Record<string, { avg: number; high: number; note: string }> = {
-  "ACA Stadium":                                                     { avg: 160, high: 195, note: "Balanced" },
-  "Arun Jaitley Stadium":                                            { avg: 162, high: 213, note: "Balanced" },
-  "Bharat Ratna Shri Atal Bihari Vajpayee Ekana Cricket Stadium":   { avg: 163, high: 196, note: "Balanced" },
-  "Eden Gardens":                                                    { avg: 162, high: 222, note: "Seam-friendly" },
-  "Himachal Pradesh Cricket Association Stadium":                    { avg: 152, high: 192, note: "Batting tough" },
-  "M Chinnaswamy Stadium":                                           { avg: 170, high: 263, note: "Batters' paradise" },
-  "MA Chidambaram Stadium":                                          { avg: 155, high: 208, note: "Spin-friendly" },
-  "Narendra Modi Stadium":                                           { avg: 168, high: 224, note: "Flat wicket" },
-  "New International Cricket Stadium":                               { avg: 161, high: 186, note: "New venue" },
-  "Rajiv Gandhi International Stadium":                              { avg: 162, high: 204, note: "Balanced" },
-  "Sawai Mansingh Stadium":                                          { avg: 158, high: 211, note: "Slow & low" },
-  "Shaheed Veer Narayan Singh International Cricket Stadium":        { avg: 156, high: 190, note: "Bowler-friendly" },
-  "Wankhede Stadium":                                                { avg: 172, high: 235, note: "Small ground, pacers aid" },
+  "ACA Stadium":                                                     { avg: 168, high: 205, note: "Flat deck, batters love it" },
+  "Arun Jaitley Stadium":                                            { avg: 170, high: 220, note: "Good carry, pace-friendly" },
+  "Bharat Ratna Shri Atal Bihari Vajpayee Ekana Cricket Stadium":   { avg: 167, high: 200, note: "Grips late, tough to dominate" },
+  "Eden Gardens":                                                    { avg: 169, high: 227, note: "Bounce & carry, pacers thrive" },
+  "Himachal Pradesh Cricket Association Stadium":                    { avg: 160, high: 198, note: "Altitude swing, low-scoring" },
+  "M Chinnaswamy Stadium":                                           { avg: 192, high: 263, note: "Tiny ground, batting paradise" },
+  "MA Chidambaram Stadium":                                          { avg: 158, high: 213, note: "Slow turner, spinners dominate" },
+  "Narendra Modi Stadium":                                           { avg: 175, high: 228, note: "True surface, big hits carry" },
+  "New International Cricket Stadium":                               { avg: 164, high: 190, note: "New venue, balanced" },
+  "Rajiv Gandhi International Stadium":                              { avg: 172, high: 210, note: "Good batting surface" },
+  "Sawai Mansingh Stadium":                                          { avg: 163, high: 215, note: "Grips, spin effective" },
+  "Shaheed Veer Narayan Singh International Cricket Stadium":        { avg: 162, high: 195, note: "Bowler-friendly, grip & turn" },
+  "Wankhede Stadium":                                                { avg: 183, high: 240, note: "Compact ground, explosive scoring" },
 };
+
+const TEAM_BATTING: Record<string, number> = {
+  SRH: 8.8, RCB: 8.5, MI: 8.3, KKR: 8.1, RR: 8.0,
+  GT: 7.8, DC: 7.6, CSK: 7.5, PBKS: 7.3, LSG: 7.2
+};
+const TEAM_BOWLING: Record<string, number> = {
+  MI: 8.5, SRH: 8.0, KKR: 7.9, PBKS: 7.8, DC: 7.6,
+  CSK: 7.5, GT: 7.5, RR: 7.2, LSG: 7.0, RCB: 6.8
+};
+const _LEAGUE_BAT = 7.8;
+const _LEAGUE_BOWL = 7.6;
+
+function predictFirstInningsTotal(homeCode: string, awayCode: string, venueAvg: number): number {
+  const hBat = TEAM_BATTING[homeCode] ?? _LEAGUE_BAT;
+  const aBat = TEAM_BATTING[awayCode] ?? _LEAGUE_BAT;
+  const hBowl = TEAM_BOWLING[homeCode] ?? _LEAGUE_BOWL;
+  const aBowl = TEAM_BOWLING[awayCode] ?? _LEAGUE_BOWL;
+  const avgBat = (hBat + aBat) / 2;
+  const avgBowl = (hBowl + aBowl) / 2;
+  const batFactor = (avgBat - _LEAGUE_BAT) / _LEAGUE_BAT;
+  const bowlFactor = (avgBowl - _LEAGUE_BOWL) / _LEAGUE_BOWL;
+  const net = batFactor - bowlFactor * 0.65;
+  return Math.round(venueAvg * (1 + net));
+}
+
 function predictNextMatch(homeCode: string, awayCode: string): { pick: string | null; reason: string; homeW: number; awayW: number } {
   const h2h = getH2H(homeCode, awayCode);
   let homeScore = 1.0, awayScore = 0.0;
+
   if (h2h) {
     const diff = h2h.aWins - h2h.bWins;
     if (diff > 0) homeScore += Math.min(diff * 0.18, 2.2);
     else awayScore += Math.min(Math.abs(diff) * 0.18, 2.2);
   }
+
+  const homeBat = TEAM_BATTING[homeCode] ?? _LEAGUE_BAT;
+  const homeBowl = TEAM_BOWLING[homeCode] ?? _LEAGUE_BOWL;
+  const awayBat = TEAM_BATTING[awayCode] ?? _LEAGUE_BAT;
+  const awayBowl = TEAM_BOWLING[awayCode] ?? _LEAGUE_BOWL;
+  const homeStr = homeBat + homeBowl;
+  const awayStr = awayBat + awayBowl;
+  const squadDiff = homeStr - awayStr;
+  if (squadDiff > 0) homeScore += Math.min(squadDiff * 0.28, 1.6);
+  else awayScore += Math.min(Math.abs(squadDiff) * 0.28, 1.6);
+
   const edge = homeScore - awayScore;
   if (Math.abs(edge) < 0.4) return { pick: null, reason: "Too close to call", homeW: homeScore, awayW: awayScore };
+
   const pick = edge > 0 ? homeCode : awayCode;
   const isHome = pick === homeCode;
   const h2hLeads = h2h ? (isHome ? h2h.aWins > h2h.bWins : h2h.bWins > h2h.aWins) : false;
-  const reason = h2hLeads && Math.abs(edge) > 1.2
-    ? "Strong H2H edge"
-    : h2hLeads
-    ? "H2H + home advantage"
-    : "Home advantage";
+  const pickedStr = isHome ? homeStr : awayStr;
+  const oppStr = isHome ? awayStr : homeStr;
+  const squadEdge = pickedStr - oppStr;
+
+  let reason: string;
+  if (squadEdge > 1.8 && h2hLeads) reason = "Stronger squad + H2H dominance";
+  else if (squadEdge > 1.8) reason = "Clear squad quality edge";
+  else if (squadEdge > 0.8 && h2hLeads) reason = "H2H edge + stronger squad";
+  else if (squadEdge > 0.8) reason = "Better batting & bowling lineup";
+  else if (h2hLeads && Math.abs(edge) > 1.2) reason = "Strong H2H edge";
+  else if (h2hLeads) reason = "H2H + home advantage";
+  else if (squadEdge > 0) reason = "Slight squad advantage";
+  else reason = "Home advantage";
+
   return { pick, reason, homeW: homeScore, awayW: awayScore };
 }
 
@@ -2299,9 +2346,9 @@ export default function App() {
                         )}
                         {vd && (
                           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                            <span style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em", flexShrink: 0, minWidth: 90 }}>GROUND AVG</span>
+                            <span style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em", flexShrink: 0, minWidth: 90 }}>PRED TOTAL</span>
                             <span style={{ fontSize: "0.68rem" }}>
-                              <span style={{ fontWeight: 700, color: "var(--text)" }}>{vd.avg}</span>
+                              <span style={{ fontWeight: 700, color: "var(--text)" }}>{predictFirstInningsTotal(nextM.homeTeamCode, nextM.awayTeamCode, vd.avg)}</span>
                               <span style={{ fontSize: "0.6rem", color: "var(--text-3)", marginLeft: 6 }}>{vd.note}</span>
                             </span>
                           </div>
@@ -2312,6 +2359,7 @@ export default function App() {
                             <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
                               <img src={TEAM_LOGO_CDN[pred.pick]} alt={pred.pick} style={{ width: 15, height: 15, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
                               <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--gold)" }}>{pred.pick}</span>
+                              <span style={{ fontSize: "0.56rem", color: "var(--text-3)", fontStyle: "italic" }}>· {pred.reason}</span>
                             </div>
                           ) : (
                             <span style={{ fontSize: "0.6rem", color: "var(--text-3)", fontStyle: "italic" }}>{pred.reason}</span>
@@ -3237,9 +3285,9 @@ export default function App() {
                                 )}
                                 {vd && (
                                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                    <span style={{ fontSize: "0.52rem", color: "var(--text-3)", letterSpacing: "0.04em", minWidth: 70, flexShrink: 0 }}>GROUND AVG</span>
+                                    <span style={{ fontSize: "0.52rem", color: "var(--text-3)", letterSpacing: "0.04em", minWidth: 70, flexShrink: 0 }}>PRED TOTAL</span>
                                     <span style={{ fontSize: "0.65rem" }}>
-                                      <span style={{ fontWeight: 700, color: "var(--text)" }}>{vd.avg}</span>
+                                      <span style={{ fontWeight: 700, color: "var(--text)" }}>{predictFirstInningsTotal(m.homeTeamCode, m.awayTeamCode, vd.avg)}</span>
                                       {vd.note && <span style={{ fontSize: "0.58rem", color: "var(--text-3)", marginLeft: 5 }}>{vd.note}</span>}
                                     </span>
                                   </div>
@@ -3248,7 +3296,7 @@ export default function App() {
                                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                                     <span style={{ fontSize: "0.52rem", color: "var(--text-3)", letterSpacing: "0.04em", minWidth: 70, flexShrink: 0 }}>ALGO PICK</span>
                                     {pred.pick ? (
-                                      <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                      <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" as const }}>
                                         <img src={TEAM_LOGO_CDN[pred.pick]} alt={pred.pick} style={{ width: 13, height: 13, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
                                         <span style={{ fontSize: "0.65rem", fontWeight: 700, color: "var(--gold)" }}>{pred.pick}</span>
                                         {isDone && (() => {
@@ -3258,6 +3306,7 @@ export default function App() {
                                             ? <span style={{ fontSize: "0.65rem", color: "#22c55e" }}>✓</span>
                                             : <span style={{ fontSize: "0.65rem", color: "#f87171" }}>✗</span>;
                                         })()}
+                                        <span style={{ fontSize: "0.54rem", color: "var(--text-3)", fontStyle: "italic" }}>· {pred.reason}</span>
                                       </div>
                                     ) : (
                                       <span style={{ fontSize: "0.6rem", color: "var(--text-3)", fontStyle: "italic" }}>{pred.reason}</span>
