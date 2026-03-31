@@ -4,14 +4,13 @@ import { join } from "path";
 import { fetchMatchOverview, refreshLiveMatches } from "./ipl-points";
 
 // ── Shared data stores ────────────────────────────────────────────────────────
-// Resolve workspace root (cwd is /workspace in prod, /workspace/artifacts/api-server in dev)
+// Data lives in ipl-data/ relative to the server package root (artifacts/api-server/)
+// cwd is always artifacts/api-server/ in both dev and production
 const _cwd2 = process.cwd();
-const _workspaceRoot2 = existsSync(join(_cwd2, "artifacts/api-server")) ? _cwd2 : join(_cwd2, "../..");
-// Stored under .local/ipl-data/ — gitignored so changes survive git checkpoints/restores
 const _dataDir = (() => {
-  const preferred = join(_workspaceRoot2, ".local/ipl-data");
-  try { mkdirSync(preferred, { recursive: true }); } catch {}
-  return preferred;
+  const dir = join(_cwd2, "ipl-data");
+  try { mkdirSync(dir, { recursive: true }); } catch {}
+  return dir;
 })();
 
 const PRED_FILE = join(_dataDir, "ipl-predictions.json");
