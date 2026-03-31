@@ -3405,7 +3405,12 @@ export default function App() {
                   const ft = FANTASY_TEAMS[id];
                   return (
                     <div key={id} style={{ background: "var(--surface)", border: `1px solid ${ft.color}33`, borderRadius: 10, padding: "10px 4px", textAlign: "center" as const }}>
-                      <div style={{ fontSize: "0.6rem", marginBottom: 4 }}>{ft.emoji}</div>
+                      <div style={{ display: "flex", justifyContent: "center", marginBottom: 6 }}>
+                        <div style={{ position: "relative", width: 36, height: 36, borderRadius: "50%", border: `2px solid ${ft.color}80`, overflow: "hidden", flexShrink: 0 }}>
+                          <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: ft.avatarPosition || "center center", display: "block" }} />
+                          <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "radial-gradient(circle, transparent 40%, rgba(8,12,20,0.7) 80%, rgba(8,12,20,0.9) 100%)" }} />
+                        </div>
+                      </div>
                       <div style={{ fontSize: "1.3rem", fontWeight: 800, color: ft.color, lineHeight: 1 }}>{ownerScores[id]}</div>
                       <div style={{ fontSize: "0.55rem", color: "var(--text-3)", marginTop: 2 }}>{ft.owner}</div>
                       {totalScorable > 0 && <div style={{ fontSize: "0.5rem", color: "var(--text-3)" }}>/{totalScorable}</div>}
