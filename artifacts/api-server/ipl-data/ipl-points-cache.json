@@ -1488,10 +1488,13 @@
         "Shubman Gill": 73,
         "Jos Buttler": 70,
         "Yuzvendra Chahal": 68,
+        "Priyansh Arya": 17,
         "Marco Jansen": 40,
         "Arshdeep Singh": 2,
+        "Prabhsimran Singh": 32,
         "Sai Sudharsan": 25,
         "Rashid Khan": 4,
+        "Mohammed Siraj": 6,
         "Washington Sundar": 30
       },
       "innings": [
@@ -1640,6 +1643,77 @@
               "noBalls": 0
             }
           ]
+        },
+        {
+          "name": "Punjab Kings Inning 1",
+          "total": "38/1 (4.1 ov)",
+          "batting": [
+            {
+              "name": "Priyansh Arya",
+              "runs": 7,
+              "balls": 8,
+              "fours": 0,
+              "sixes": 1,
+              "sr": "87.5",
+              "dismissal": "catch",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Prabhsimran Singh",
+              "runs": 16,
+              "balls": 8,
+              "fours": 0,
+              "sixes": 2,
+              "sr": "200",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Cooper Connolly",
+              "runs": 15,
+              "balls": 9,
+              "fours": 1,
+              "sixes": 1,
+              "sr": "166.67",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            }
+          ],
+          "bowling": [
+            {
+              "name": "Mohammed Siraj",
+              "overs": "2",
+              "maidens": 0,
+              "runs": 15,
+              "wickets": 0,
+              "eco": "7.5",
+              "wides": 0,
+              "noBalls": 0
+            },
+            {
+              "name": "Kagiso Rabada",
+              "overs": "2",
+              "maidens": 0,
+              "runs": 22,
+              "wickets": 1,
+              "eco": "11",
+              "wides": 0,
+              "noBalls": 0
+            },
+            {
+              "name": "Ashok Sharma",
+              "overs": "0.1",
+              "maidens": 0,
+              "runs": 1,
+              "wickets": 0,
+              "eco": "6",
+              "wides": 0,
+              "noBalls": 0
+            }
+          ]
         }
       ],
       "playerStats": {
@@ -1694,6 +1768,23 @@
           "runOuts": 0,
           "stumpings": 0
         },
+        "Priyansh Arya": {
+          "played": true,
+          "runs": 7,
+          "balls": 8,
+          "fours": 0,
+          "sixes": 1,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "stumpings": 0
+        },
         "Marco Jansen": {
           "played": true,
           "runs": 0,
@@ -1728,6 +1819,23 @@
           "runOuts": 0,
           "stumpings": 0
         },
+        "Prabhsimran Singh": {
+          "played": true,
+          "runs": 16,
+          "balls": 8,
+          "fours": 0,
+          "sixes": 2,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "stumpings": 0
+        },
         "Sai Sudharsan": {
           "played": true,
           "runs": 13,
@@ -1758,6 +1866,23 @@
           "maidens": 0,
           "ballsBowled": 0,
           "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "stumpings": 0
+        },
+        "Mohammed Siraj": {
+          "played": true,
+          "runs": 0,
+          "balls": 0,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 12,
+          "runsConceded": 15,
           "catches": 0,
           "runOuts": 0,
           "stumpings": 0
@@ -2451,6 +2576,6 @@
   "lastUpdated": "2026-03-31T16:09:59.721Z",
   "dailyHits": {
     "date": "2026-03-31",
-    "count": 386
+    "count": 430
   }
 }

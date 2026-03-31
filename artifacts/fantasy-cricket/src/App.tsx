@@ -3156,8 +3156,9 @@ export default function App() {
                             <span style={{ fontSize: "0.55rem", color: "var(--text-3)", transition: "transform 0.2s", display: "inline-block", transform: isOpen ? "rotate(180deg)" : "none" }}>▼</span>
                           </div>
                         </div>
-                        {/* Expandable grid */}
+                        {/* Expandable grid + intel */}
                         {isOpen && (
+                          <>
                           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4, marginTop: 8 }}>
                             {PRED_OWNERS.map(ownerId => {
                               const ft = FANTASY_TEAMS[ownerId];
@@ -3215,6 +3216,58 @@ export default function App() {
                               );
                             })}
                           </div>
+                          {/* Match Intel — H2H, ground avg, algorithmic pick */}
+                          {(() => {
+                            const h2h = getH2H(m.homeTeamCode, m.awayTeamCode);
+                            const vd = VENUE_AVG[m.venue || ""];
+                            const pred = predictNextMatch(m.homeTeamCode, m.awayTeamCode);
+                            if (!h2h && !vd && !pred.pick) return null;
+                            return (
+                              <div style={{ marginTop: 8, borderTop: "1px solid var(--border)", paddingTop: 7, display: "flex", flexDirection: "column" as const, gap: 5 }}>
+                                <div style={{ fontSize: "0.52rem", color: "var(--text-3)", letterSpacing: "0.06em", fontWeight: 700 }}>MATCH INTEL</div>
+                                {h2h && (
+                                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                    <span style={{ fontSize: "0.52rem", color: "var(--text-3)", letterSpacing: "0.04em", minWidth: 70, flexShrink: 0 }}>H2H</span>
+                                    <span style={{ fontSize: "0.65rem" }}>
+                                      <span style={{ fontWeight: 700, color: h2h.aWins >= h2h.bWins ? "var(--text)" : "var(--text-3)" }}>{m.homeTeamCode} {h2h.aWins}</span>
+                                      <span style={{ margin: "0 4px", color: "var(--text-3)" }}>–</span>
+                                      <span style={{ fontWeight: 700, color: h2h.bWins > h2h.aWins ? "var(--text)" : "var(--text-3)" }}>{h2h.bWins} {m.awayTeamCode}</span>
+                                    </span>
+                                  </div>
+                                )}
+                                {vd && (
+                                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                    <span style={{ fontSize: "0.52rem", color: "var(--text-3)", letterSpacing: "0.04em", minWidth: 70, flexShrink: 0 }}>GROUND AVG</span>
+                                    <span style={{ fontSize: "0.65rem" }}>
+                                      <span style={{ fontWeight: 700, color: "var(--text)" }}>{vd.avg}</span>
+                                      {vd.note && <span style={{ fontSize: "0.58rem", color: "var(--text-3)", marginLeft: 5 }}>{vd.note}</span>}
+                                    </span>
+                                  </div>
+                                )}
+                                {(pred.pick || pred.reason) && (
+                                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                    <span style={{ fontSize: "0.52rem", color: "var(--text-3)", letterSpacing: "0.04em", minWidth: 70, flexShrink: 0 }}>ALGO PICK</span>
+                                    {pred.pick ? (
+                                      <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                        <img src={TEAM_LOGO_CDN[pred.pick]} alt={pred.pick} style={{ width: 13, height: 13, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                                        <span style={{ fontSize: "0.65rem", fontWeight: 700, color: "var(--gold)" }}>{pred.pick}</span>
+                                        {isDone && (() => {
+                                          const w = getMatchWinner(m);
+                                          if (!w || w === "tie") return null;
+                                          return pred.pick === w
+                                            ? <span style={{ fontSize: "0.65rem", color: "#22c55e" }}>✓</span>
+                                            : <span style={{ fontSize: "0.65rem", color: "#f87171" }}>✗</span>;
+                                        })()}
+                                      </div>
+                                    ) : (
+                                      <span style={{ fontSize: "0.6rem", color: "var(--text-3)", fontStyle: "italic" }}>{pred.reason}</span>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })()}
+                          </>
                         )}
                       </div>
                     );
