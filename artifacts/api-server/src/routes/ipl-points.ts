@@ -582,7 +582,7 @@ async function ensurePlayerIdMap(cache: PointsCache): Promise<void> {
   console.log(`[supabase] Player map ready: ${Object.keys(cache.playerIdMap).length} players`);
 }
 
-async function syncAuctionRoomScores(cache: PointsCache): Promise<boolean> {
+async function syncAuctionRoomScores(cache: PointsCache, force = false): Promise<boolean> {
   let changed = false;
   await ensurePlayerIdMap(cache);
   if (!Object.keys(cache.playerIdMap).length) return false;
@@ -596,19 +596,20 @@ async function syncAuctionRoomScores(cache: PointsCache): Promise<boolean> {
   const fixtureIds = [...new Set<string>(allScoreRows.map((r: any) => r.fixture_id))];
   if (!fixtureIds.length) return false;
 
-  // Fetch fixture metadata for any new fixture IDs
-  const newFixtureIds = fixtureIds.filter(id => !cache.supabaseScores[id]);
-  if (!newFixtureIds.length) return false;
+  // In normal mode only fetch fixture IDs we haven't seen yet.
+  // In force mode re-fetch ALL fixtures so any re-scored players are picked up.
+  const targetIds = force ? fixtureIds : fixtureIds.filter(id => !cache.supabaseScores[id]);
+  if (!targetIds.length) return false;
 
   const fixtureRows = await supabaseGet("tournament_fixtures", {
-    id: `in.(${newFixtureIds.join(",")})`,
+    id: `in.(${targetIds.join(",")})`,
     select: "id,team_a,team_b,match_date,match_number",
     limit: "100",
   });
   const fixtureMap: Record<string, any> = {};
   for (const f of fixtureRows) fixtureMap[f.id] = f;
 
-  for (const fixtureId of newFixtureIds) {
+  for (const fixtureId of targetIds) {
     const meta = fixtureMap[fixtureId];
     const scoreRows = await supabaseGet("player_fixture_scores", {
       tournament_id: `eq.${IPL_TOURNAMENT_ID}`,
@@ -637,7 +638,7 @@ async function syncAuctionRoomScores(cache: PointsCache): Promise<boolean> {
       matchDate: meta?.match_date ?? "",
       matchNumber: meta?.match_number ?? 0,
     };
-    console.log(`[supabase] Fixture ${matchLabel}: mapped ${Object.keys(points).length} fantasy players`);
+    console.log(`[supabase${force ? " force" : ""}] Fixture ${matchLabel}: mapped ${Object.keys(points).length} fantasy players`);
     changed = true;
   }
   return changed;
@@ -1289,7 +1290,7 @@ router.post("/ipl/points/sync-supabase", async (req, res) => {
   try {
     console.log("[admin] Force Supabase sync triggered by Raj");
     const before = Object.keys(pointsCache.supabaseScores || {}).length;
-    const changed = await syncAuctionRoomScores(pointsCache);
+    const changed = await syncAuctionRoomScores(pointsCache, true); // force=true: re-fetch ALL fixtures
     const after = Object.keys(pointsCache.supabaseScores || {}).length;
     if (changed) {
       pointsCache.lastUpdated = new Date().toISOString();
