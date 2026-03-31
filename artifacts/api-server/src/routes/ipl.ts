@@ -38,6 +38,61 @@ function saveServerPins(data: PinStore) {
 }
 let pinsCache: PinStore = loadServerPins();
 
+// ── Replit KV PIN persistence ────────────────────────────────────────────────
+// REPLIT_DB_URL is automatically available in both dev and deployed environments.
+// Data written here survives restarts, new deployments, and server restarts.
+const REPLIT_DB_URL = process.env.REPLIT_DB_URL;
+const PIN_KEY_PREFIX = "pin_";
+
+async function loadAllPinsFromKV(): Promise<PinStore | null> {
+  if (!REPLIT_DB_URL) return null;
+  try {
+    // List all keys that start with "pin_"
+    const listRes = await fetch(`${REPLIT_DB_URL}?prefix=${PIN_KEY_PREFIX}`, { signal: AbortSignal.timeout(6000) });
+    if (!listRes.ok) return null;
+    const text = await listRes.text();
+    const keys = text.split("\n").map(k => k.trim()).filter(Boolean);
+    if (!keys.length) return null;
+    const store: PinStore = { ...DEFAULT_PINS };
+    await Promise.all(keys.map(async key => {
+      const userId = key.slice(PIN_KEY_PREFIX.length);
+      const valRes = await fetch(`${REPLIT_DB_URL}/${encodeURIComponent(key)}`, { signal: AbortSignal.timeout(6000) });
+      if (valRes.ok) store[userId] = await valRes.text();
+    }));
+    return store;
+  } catch { return null; }
+}
+
+async function savePinToKV(userId: string, pin: string): Promise<boolean> {
+  if (!REPLIT_DB_URL) return false;
+  try {
+    const res = await fetch(REPLIT_DB_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `${PIN_KEY_PREFIX}${encodeURIComponent(userId)}=${encodeURIComponent(pin)}`,
+      signal: AbortSignal.timeout(6000),
+    });
+    return res.ok;
+  } catch { return false; }
+}
+
+// Warm up pinsCache from Replit KV on startup (non-blocking).
+// If KV is empty, seed it with the current local pins so they survive future deploys.
+loadAllPinsFromKV().then(async kv => {
+  if (kv) {
+    pinsCache = { ...pinsCache, ...kv };
+    saveServerPins(pinsCache);
+    console.log("[pins] Loaded from Replit KV:", Object.keys(kv).join(", "));
+  } else if (REPLIT_DB_URL) {
+    // KV available but empty — seed it with local pins so they survive the next deploy
+    console.log("[pins] Seeding Replit KV with current PINs...");
+    await Promise.all(Object.entries(pinsCache).map(([uid, pin]) => savePinToKV(uid, pin)));
+    console.log("[pins] Seeded Replit KV:", Object.keys(pinsCache).join(", "));
+  } else {
+    console.log("[pins] Replit KV unavailable — using local fallback");
+  }
+}).catch(() => {});
+
 const router: IRouter = Router();
 
 const IPL_COMPETITION_ID = 284;
@@ -375,35 +430,45 @@ function ownerOnly(req: any, res: any): boolean {
   return true;
 }
 
-// GET /api/ipl/pins → returns all PINs (admin only)
-router.get("/ipl/pins", (req, res) => {
+// GET /api/ipl/pins → returns all PINs (admin only), refreshed from Replit KV
+router.get("/ipl/pins", async (req, res) => {
   if (!ownerOnly(req, res)) return;
+  const kv = await loadAllPinsFromKV();
+  if (kv) { pinsCache = { ...pinsCache, ...kv }; saveServerPins(pinsCache); }
   res.json(pinsCache);
 });
 
 // POST /api/ipl/pins/validate → { userId, pin } — validate PIN (rate-limited)
-router.post("/ipl/pins/validate", (req, res) => {
+router.post("/ipl/pins/validate", async (req, res) => {
   const ip = String(req.headers["x-forwarded-for"] || req.socket.remoteAddress || "unknown");
   if (!checkRateLimit(ip)) return res.status(429).json({ error: "Too many attempts — try again in a minute" });
   const { userId, pin } = req.body as { userId?: string; pin?: string };
   if (!userId || !pin) return res.status(400).json({ error: "userId and pin required" });
+  // Always pull the freshest PIN from KV before validating
+  const kv = await loadAllPinsFromKV();
+  if (kv) { pinsCache = { ...pinsCache, ...kv }; saveServerPins(pinsCache); }
   const correct = pinsCache[userId];
   if (!correct || pin !== correct) return res.status(401).json({ error: "Invalid PIN" });
   return res.json({ ok: true, userId });
 });
 
 // POST /api/ipl/pins/:userId → { pin, oldPin } — update one user's PIN (admin only; oldPin required)
-router.post("/ipl/pins/:userId", (req, res) => {
+router.post("/ipl/pins/:userId", async (req, res) => {
   if (!ownerOnly(req, res)) return;
   const { userId } = req.params;
   const { pin, oldPin } = req.body as { pin?: string; oldPin?: string };
   if (!userId || !pin || !/^\d{4}$/.test(pin)) return res.status(400).json({ error: "userId and 4-digit pin required" });
   if (!oldPin) return res.status(400).json({ error: "Current PIN (oldPin) required" });
+  // Reload from KV so we compare against the real current PIN
+  const kv = await loadAllPinsFromKV();
+  if (kv) { pinsCache = { ...pinsCache, ...kv }; saveServerPins(pinsCache); }
   const current = pinsCache[userId];
   if (!current || oldPin !== current) return res.status(401).json({ error: "Current PIN does not match" });
   pinsCache[userId] = pin;
-  saveServerPins(pinsCache);
-  return res.json({ ok: true });
+  saveServerPins(pinsCache); // local backup as belt-and-suspenders
+  const savedToKV = await savePinToKV(userId, pin);
+  console.log(`[pins] ${userId} PIN updated — Replit KV: ${savedToKV}`);
+  return res.json({ ok: true, kv: savedToKV });
 });
 
 export default router;

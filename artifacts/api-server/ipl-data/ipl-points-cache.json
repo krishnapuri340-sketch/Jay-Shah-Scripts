@@ -1461,24 +1461,7 @@
       }
     },
     "2420": {
-      "points": {
-        "Shubman Gill": 73,
-        "Jos Buttler": 70,
-        "Yuzvendra Chahal": 68,
-        "Shreyas Iyer": 38,
-        "Priyansh Arya": 17,
-        "Marco Jansen": 41,
-        "Arshdeep Singh": 2,
-        "Prabhsimran Singh": 77,
-        "Nehal Wadhera": 7,
-        "Sai Sudharsan": 25,
-        "Prasidh Krishna": 102,
-        "Rashid Khan": 36,
-        "Mohammed Siraj": 6,
-        "Marcus Stoinis": 2,
-        "Shashank Singh": 8,
-        "Washington Sundar": 62
-      },
+      "points": {},
       "innings": [
         {
           "name": "Gujarat Titans Inning 1",
@@ -2119,6 +2102,30 @@
       "matchDate": "2026-03-30",
       "matchNumber": 3,
       "linkedIplId": "2419"
+    },
+    "e92389cf-976f-4a14-aa45-47a346271e10": {
+      "points": {
+        "Marco Jansen": 77,
+        "Prasidh Krishna": 134,
+        "Sai Sudharsan": 25,
+        "Arshdeep Singh": 36,
+        "Yuzvendra Chahal": 86,
+        "Prabhsimran Singh": 77,
+        "Shreyas Iyer": 46,
+        "Mohammed Siraj": 18,
+        "Priyansh Arya": 17,
+        "Rashid Khan": 64,
+        "Shashank Singh": 8,
+        "Jos Buttler": 78,
+        "Shubman Gill": 89,
+        "Marcus Stoinis": 2,
+        "Washington Sundar": 80,
+        "Nehal Wadhera": 7
+      },
+      "matchLabel": "Punjab Kings vs Gujarat Titans",
+      "matchDate": "2026-03-31",
+      "matchNumber": 4,
+      "linkedIplId": "2420"
     }
   },
   "playerIdMap": {
@@ -2725,7 +2732,7 @@
       "teamB": "Delhi Capitals"
     }
   },
-  "lastUpdated": "2026-03-31T16:09:59.721Z",
+  "lastUpdated": "2026-03-31T18:07:21.267Z",
   "dailyHits": {
     "date": "2026-03-31",
     "count": 571
