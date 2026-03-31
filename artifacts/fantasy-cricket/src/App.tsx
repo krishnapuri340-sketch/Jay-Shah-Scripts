@@ -1296,12 +1296,24 @@ export default function App() {
   };
 
   const shareMatchCard = async (m: any) => {
-    const W = 1080;
-    const PAD = 64;
+    const W = 1080, PAD = 56;
     const isLive = m.matchStarted && !m.matchEnded;
     const isDone = m.matchEnded;
-    const scores = (m.score || []) as Array<{ inning: string; r?: number; w?: number; o?: number; summary?: string }>;
-    const teams = (m.teamInfo || []) as Array<{ shortname: string; img: string }>;
+    const matchTeams = (m.teamInfo || []) as Array<{ shortname: string; img: string }>;
+    const scores = (m.score || []) as any[];
+
+    // Fetch scorecard if not already loaded (user may not have expanded the card)
+    let sc = scorecards[String(m.id)];
+    if (!sc) {
+      try {
+        const res = await fetch(`/api/ipl/scorecard/${String(m.id)}`);
+        if (res.ok) {
+          sc = await res.json();
+          setScorecards(prev => ({ ...prev, [String(m.id)]: sc }));
+        }
+      } catch (_) {}
+    }
+    const innings: any[] = sc?.innings || [];
 
     // Match number for fantasy points lookup
     const mNumMatch = (m.name || "").match(/(\d+)(?:st|nd|rd|th) Match/i);
@@ -1322,27 +1334,46 @@ export default function App() {
     }).filter(r => r.total !== 0).sort((a, b) => b.total - a.total);
     const hasFantasy = fantasyRows.length > 0;
 
-    // Dynamic height
+    // Row / section height constants
+    const ROW_BAT = 46;  // batting row (name + dismissal)
+    const ROW_BOWL = 34; // bowling row
+    const COL_HDR = 30;  // "BATTER" / "BOWLER" column header
+    const INN_HDR = 48;  // innings title bar
+    const INN_GAP = 28;  // spacer between innings
+
+    // Compute innings section height
+    let inningsH = 0;
+    for (const inn of innings) {
+      const batters = (inn.batting || []).filter((b: any) => !b.dnb);
+      const bowlers = inn.bowling || [];
+      inningsH += INN_HDR;
+      if (batters.length) inningsH += COL_HDR + batters.length * ROW_BAT;
+      if (bowlers.length) inningsH += 16 + COL_HDR + bowlers.length * ROW_BOWL;
+      inningsH += INN_GAP;
+    }
+
     const HEADER_H = 120;
-    const SEP = 1;
-    const TITLE_H = 110;
-    const META_H = 52;
-    const SCORE_H = scores.length * 68 + 32;
-    const RESULT_H = (isDone && m.status) ? 60 : 0;
-    const FANTASY_H = hasFantasy ? (52 + fantasyRows.length * 58 + 24) : 0;
-    const H = HEADER_H + SEP + TITLE_H + META_H + SCORE_H + RESULT_H + FANTASY_H + 56;
+    const TITLE_H  = 100;
+    const META_H   = 52;
+    const SCORE_H  = scores.length * 62 + 28;
+    const RESULT_H = isDone && m.status ? 52 : 0;
+    const FANTASY_H = hasFantasy ? 44 + fantasyRows.length * 52 + 20 : 0;
+    const H = HEADER_H + TITLE_H + META_H + SCORE_H + RESULT_H
+            + (innings.length > 0 ? inningsH + 20 : 0)
+            + FANTASY_H + 56;
 
     const canvas = document.createElement("canvas");
     canvas.width = W; canvas.height = H;
     const ctx = canvas.getContext("2d")!;
 
-    // Load assets
+    // Load logo
     const logoImg = new Image(); logoImg.crossOrigin = "anonymous";
     logoImg.src = `${import.meta.env.BASE_URL}app-icon.png`;
     await new Promise(r => { logoImg.onload = r; logoImg.onerror = r; });
 
+    // Load team logos
     const teamLogoImgs = await Promise.all(
-      teams.slice(0, 2).map(ti => new Promise<HTMLImageElement | null>(resolve => {
+      matchTeams.slice(0, 2).map(ti => new Promise<HTMLImageElement | null>(resolve => {
         const url = TEAM_LOGO_CDN[ti.shortname] || ti.img || "";
         if (!url) return resolve(null);
         const img = new Image(); img.crossOrigin = "anonymous";
@@ -1351,130 +1382,225 @@ export default function App() {
       }))
     );
 
-    // Helpers
     const goldGrad = ctx.createLinearGradient(0, 0, W, 0);
     goldGrad.addColorStop(0, "#a07832"); goldGrad.addColorStop(0.5, "#d4a843"); goldGrad.addColorStop(1, "#a07832");
     const cx = W / 2;
+    const hr = (yy: number) => {
+      ctx.strokeStyle = "#1d2235"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(PAD, yy); ctx.lineTo(W - PAD, yy); ctx.stroke();
+    };
 
-    // Background
+    // Background + top gold strip
     ctx.fillStyle = "#080c14"; ctx.fillRect(0, 0, W, H);
     ctx.fillStyle = goldGrad; ctx.fillRect(0, 0, W, 3);
 
-    // Header
-    const logoR = 22, logoX = PAD + logoR, logoY = 66;
+    // ── Header ──
+    const logoR = 22, logoX = PAD + logoR, logoY = 65;
     ctx.save(); ctx.beginPath(); ctx.arc(logoX, logoY, logoR, 0, Math.PI * 2); ctx.clip();
     if (logoImg.naturalWidth > 0) ctx.drawImage(logoImg, logoX - logoR, logoY - logoR, logoR * 2, logoR * 2);
     ctx.restore();
     ctx.textAlign = "left";
     ctx.font = "700 30px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#ffffff";
-    ctx.fillText("IPL Fantasy 2026", PAD + logoR * 2 + 16, 57);
-    ctx.font = "400 21px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
-    ctx.fillText("Match Scorecard", PAD + logoR * 2 + 16, 84);
+    ctx.fillText("IPL Fantasy 2026", PAD + logoR * 2 + 16, 56);
+    ctx.font = "400 20px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
+    ctx.fillText("Match Scorecard", PAD + logoR * 2 + 16, 82);
     ctx.textAlign = "right";
-    ctx.font = "600 22px -apple-system, Arial, sans-serif";
+    ctx.font = "600 21px -apple-system, Arial, sans-serif";
     ctx.fillStyle = isLive ? "#22c55e" : isDone ? "#52525b" : "#60a5fa";
-    ctx.fillText(isLive ? "● LIVE" : isDone ? "COMPLETED" : "UPCOMING", W - PAD, 70);
+    ctx.fillText(isLive ? "● LIVE" : isDone ? "COMPLETED" : "UPCOMING", W - PAD, 68);
+    hr(HEADER_H);
 
-    // Separator
-    ctx.strokeStyle = "#1c1c20"; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(PAD, HEADER_H); ctx.lineTo(W - PAD, HEADER_H); ctx.stroke();
+    let y = HEADER_H + 14;
 
-    let y = HEADER_H + 20;
-
-    // Team names
-    if (teams.length >= 2) {
-      const ta = teams[0], tb = teams[1];
+    // ── Team title ──
+    if (matchTeams.length >= 2) {
+      const ta = matchTeams[0], tb = matchTeams[1];
       const colA = IPL_COLORS[ta.shortname] || "#e4e4e7";
       const colB = IPL_COLORS[tb.shortname] || "#e4e4e7";
-      const logoSz = 56;
-      if (teamLogoImgs[0]) ctx.drawImage(teamLogoImgs[0], cx - 310, y + 8, logoSz, logoSz);
-      ctx.textAlign = "right"; ctx.font = "800 54px -apple-system, Arial, sans-serif"; ctx.fillStyle = colA;
-      ctx.fillText(ta.shortname, cx - 36, y + 54);
-      ctx.textAlign = "center"; ctx.font = "300 28px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#3f3f46";
-      ctx.fillText("vs", cx, y + 52);
-      ctx.textAlign = "left"; ctx.font = "800 54px -apple-system, Arial, sans-serif"; ctx.fillStyle = colB;
-      ctx.fillText(tb.shortname, cx + 36, y + 54);
-      if (teamLogoImgs[1]) ctx.drawImage(teamLogoImgs[1], cx + 254, y + 8, logoSz, logoSz);
+      const lSz = 50;
+      if (teamLogoImgs[0]) ctx.drawImage(teamLogoImgs[0], cx - 298, y + 6, lSz, lSz);
+      ctx.textAlign = "right"; ctx.font = "800 52px -apple-system, Arial, sans-serif"; ctx.fillStyle = colA;
+      ctx.fillText(ta.shortname, cx - 32, y + 52);
+      ctx.textAlign = "center"; ctx.font = "300 26px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#3f3f46";
+      ctx.fillText("vs", cx, y + 50);
+      ctx.textAlign = "left"; ctx.font = "800 52px -apple-system, Arial, sans-serif"; ctx.fillStyle = colB;
+      ctx.fillText(tb.shortname, cx + 32, y + 52);
+      if (teamLogoImgs[1]) ctx.drawImage(teamLogoImgs[1], cx + 248, y + 6, lSz, lSz);
     } else {
-      ctx.textAlign = "center"; ctx.font = "700 44px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#e4e4e7";
-      ctx.fillText((m.name || "").replace(/,\s*\d+(?:st|nd|rd|th) Match.*/i, ""), cx, y + 56);
+      ctx.textAlign = "center"; ctx.font = "700 42px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#e4e4e7";
+      ctx.fillText((m.name || "").replace(/,\s*\d+(?:st|nd|rd|th) Match.*/i, ""), cx, y + 52);
     }
     y += TITLE_H;
 
-    // Meta: match num + venue
-    const mNum = (m.name || "").replace(/.*?(\d+)(?:st|nd|rd|th) Match.*/i, "M$1");
+    // ── Meta: match number · venue · toss ──
+    const mNumStr = mNumMatch ? `M${mNumMatch[1]}` : "";
     const venue = m.venue ? m.venue.split(",")[0] : "";
-    const meta = [mNum !== m.name ? mNum : "", venue].filter(Boolean).join("  ·  ");
-    ctx.textAlign = "center"; ctx.font = "400 24px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
-    if (meta) ctx.fillText(meta, cx, y + 28);
+    const metaLine = [mNumStr, venue].filter(Boolean).join("  ·  ");
+    ctx.textAlign = "center"; ctx.font = "400 21px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
+    if (metaLine) ctx.fillText(metaLine, cx, y + 22);
+    if (sc?.overview?.toss) {
+      ctx.font = "400 17px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#3f3f46";
+      ctx.fillText(sc.overview.toss, cx, y + 44);
+    }
     y += META_H;
 
-    // Scores section
-    ctx.strokeStyle = "#1c1c20"; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(PAD, y); ctx.lineTo(W - PAD, y); ctx.stroke();
-    y += 20;
-
-    const colW = scores.length > 1 ? (W - PAD * 2 - 24) / 2 : W - PAD * 2;
-    scores.forEach((s, i) => {
-      const sx = PAD + i * (colW + 24);
-      const inn = (s.inning || "").replace(/ Innings?$/i, "");
+    // ── Quick score summary ──
+    hr(y); y += 18;
+    const sColW = scores.length > 1 ? (W - PAD * 2 - 20) / 2 : W - PAD * 2;
+    scores.forEach((s: any, i: number) => {
+      const sx = PAD + i * (sColW + 20);
+      const innLabel = (s.inning || "").replace(/ Innings?$/i, "");
       const scoreStr = s.summary || (s.r != null ? `${s.r}/${s.w}` : "—");
-      const overs = s.o != null ? `(${s.o} ov)` : "";
+      const oversStr = s.o != null ? `(${s.o} ov)` : "";
       ctx.textAlign = "left";
-      ctx.font = "400 20px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
-      ctx.fillText(inn, sx, y + 22);
-      ctx.font = "700 46px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#e4e4e7";
-      ctx.fillText(scoreStr, sx, y + 60);
-      if (overs) {
-        const scoreW = ctx.measureText(scoreStr).width;
-        ctx.font = "400 22px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
-        ctx.fillText(overs, sx + scoreW + 8, y + 60);
+      ctx.font = "400 18px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
+      ctx.fillText(innLabel, sx, y + 18);
+      ctx.font = "700 42px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#e4e4e7";
+      ctx.fillText(scoreStr, sx, y + 54);
+      if (oversStr) {
+        const sw = ctx.measureText(scoreStr).width;
+        ctx.font = "400 19px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
+        ctx.fillText(oversStr, sx + sw + 8, y + 54);
       }
     });
     y += SCORE_H;
 
-    // Result
+    // ── Result ──
     if (isDone && m.status) {
-      ctx.strokeStyle = "#1c1c20"; ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(PAD, y); ctx.lineTo(W - PAD, y); ctx.stroke();
-      y += 16;
-      ctx.textAlign = "center"; ctx.font = "500 28px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#60a5fa";
+      hr(y); y += 14;
+      ctx.textAlign = "center"; ctx.font = "600 25px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#60a5fa";
       ctx.fillText(m.status, cx, y + 28);
       y += RESULT_H;
     }
 
-    // Fantasy highlights
+    // ── Full scorecard innings ──
+    if (innings.length > 0) {
+      hr(y); y += 18;
+
+      // Right-edge x positions for batting columns
+      const B_SR  = W - PAD;
+      const B_6S  = B_SR  - 80;
+      const B_4S  = B_6S  - 74;
+      const B_B   = B_4S  - 74;
+      const B_R   = B_B   - 84;
+
+      // Right-edge x positions for bowling columns
+      const BW_ECO = W - PAD;
+      const BW_W   = BW_ECO - 74;
+      const BW_R   = BW_W   - 74;
+      const BW_M   = BW_R   - 74;
+      const BW_O   = BW_M   - 74;
+
+      for (const inn of innings) {
+        const batters = (inn.batting || []).filter((b: any) => !b.dnb);
+        const bowlers: any[] = inn.bowling || [];
+
+        // Innings title bar
+        ctx.textAlign = "left"; ctx.font = "700 22px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#71717a";
+        ctx.fillText((inn.name || "").toUpperCase(), PAD, y + 22);
+        ctx.textAlign = "right"; ctx.font = "700 22px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#e4e4e7";
+        ctx.fillText(inn.total || "", W - PAD, y + 22);
+        y += INN_HDR;
+
+        // ─ Batting table ─
+        if (batters.length > 0) {
+          // Column headers
+          ctx.fillStyle = "#3f3f46"; ctx.font = "600 15px -apple-system, Arial, sans-serif";
+          ctx.textAlign = "left";  ctx.fillText("BATTER", PAD, y + 19);
+          ctx.textAlign = "right";
+          ctx.fillText("R",   B_R,   y + 19);
+          ctx.fillText("B",   B_B,   y + 19);
+          ctx.fillText("4s",  B_4S,  y + 19);
+          ctx.fillText("6s",  B_6S,  y + 19);
+          ctx.fillText("SR",  B_SR,  y + 19);
+          y += COL_HDR;
+
+          for (const b of batters) {
+            // Name
+            ctx.textAlign = "left";
+            ctx.font = `${b.notOut ? "600" : "400"} 21px -apple-system, Arial, sans-serif`;
+            ctx.fillStyle = b.notOut ? "#22c55e" : "#e4e4e7";
+            ctx.fillText(b.name || "", PAD, y + 22);
+            // Dismissal (compact, below name)
+            if (b.dismissal) {
+              ctx.font = "400 13px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
+              const d = b.dismissal.length > 55 ? b.dismissal.slice(0, 53) + "…" : b.dismissal;
+              ctx.fillText(d, PAD, y + 38);
+            }
+            // Stats
+            ctx.textAlign = "right";
+            ctx.font = "700 21px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#e4e4e7";
+            ctx.fillText(String(b.runs ?? ""), B_R, y + 22);
+            ctx.font = "400 19px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#71717a";
+            ctx.fillText(String(b.balls ?? ""), B_B, y + 22);
+            ctx.fillStyle = "#60a5fa"; ctx.fillText(String(b.fours ?? ""), B_4S, y + 22);
+            ctx.fillStyle = "#a855f7"; ctx.fillText(String(b.sixes ?? ""), B_6S, y + 22);
+            ctx.fillStyle = "#71717a"; ctx.fillText(b.sr ? parseFloat(b.sr).toFixed(1) : "", B_SR, y + 22);
+            y += ROW_BAT;
+          }
+        }
+
+        // ─ Bowling table ─
+        if (bowlers.length > 0) {
+          y += 16;
+          // Column headers
+          ctx.fillStyle = "#3f3f46"; ctx.font = "600 15px -apple-system, Arial, sans-serif";
+          ctx.textAlign = "left";  ctx.fillText("BOWLER", PAD, y + 19);
+          ctx.textAlign = "right";
+          ctx.fillText("O",   BW_O,   y + 19);
+          ctx.fillText("M",   BW_M,   y + 19);
+          ctx.fillText("R",   BW_R,   y + 19);
+          ctx.fillText("W",   BW_W,   y + 19);
+          ctx.fillText("ECO", BW_ECO, y + 19);
+          y += COL_HDR;
+
+          for (const b of bowlers) {
+            ctx.textAlign = "left"; ctx.font = "400 21px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#e4e4e7";
+            ctx.fillText(b.name || "", PAD, y + 23);
+            ctx.textAlign = "right"; ctx.font = "400 19px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#71717a";
+            ctx.fillText(String(b.overs ?? ""),   BW_O,   y + 23);
+            ctx.fillText(String(b.maidens ?? ""), BW_M,   y + 23);
+            ctx.fillText(String(b.runs ?? ""),    BW_R,   y + 23);
+            ctx.font = "700 21px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#22c55e";
+            ctx.fillText(String(b.wickets ?? ""), BW_W,   y + 23);
+            ctx.font = "400 19px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#71717a";
+            ctx.fillText(b.eco ? parseFloat(b.eco).toFixed(2) : "", BW_ECO, y + 23);
+            y += ROW_BOWL;
+          }
+        }
+        y += INN_GAP;
+      }
+    }
+
+    // ── Fantasy highlights ──
     if (hasFantasy) {
-      ctx.strokeStyle = "#1c1c20"; ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(PAD, y); ctx.lineTo(W - PAD, y); ctx.stroke();
-      y += 16;
-      ctx.textAlign = "left"; ctx.font = "600 18px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#3f3f46";
+      hr(y); y += 14;
+      ctx.textAlign = "left"; ctx.font = "600 17px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#3f3f46";
       ctx.fillText("FANTASY POINTS THIS MATCH", PAD, y + 18);
       y += 36;
-      fantasyRows.forEach(({ ft, total, scorers }) => {
-        ctx.fillStyle = ft.color; ctx.fillRect(PAD, y + 4, 3, 36);
-        ctx.textAlign = "left"; ctx.font = "700 30px -apple-system, Arial, sans-serif"; ctx.fillStyle = ft.color;
-        ctx.fillText(ft.owner, PAD + 14, y + 30);
-        const scorerText = scorers.slice(0, 3).join("  ·  ");
-        ctx.font = "400 20px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
-        ctx.fillText(scorerText, PAD + 14 + ctx.measureText(ft.owner).width * 1.15 + 20, y + 30);
-        ctx.textAlign = "right"; ctx.font = "700 36px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#e4e4e7";
-        ctx.fillText(String(total), W - PAD, y + 32);
-        y += 58;
-      });
+      for (const { ft, total, scorers } of fantasyRows) {
+        ctx.fillStyle = ft.color; ctx.fillRect(PAD, y + 6, 3, 34);
+        ctx.textAlign = "left"; ctx.font = "700 26px -apple-system, Arial, sans-serif"; ctx.fillStyle = ft.color;
+        ctx.fillText(ft.owner, PAD + 13, y + 28);
+        ctx.font = "400 17px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
+        ctx.fillText(scorers.slice(0, 4).join("  ·  "), PAD + 13 + ctx.measureText(ft.owner).width + 16, y + 28);
+        ctx.textAlign = "right"; ctx.font = "700 32px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#e4e4e7";
+        ctx.fillText(String(total), W - PAD, y + 30);
+        y += 52;
+      }
     }
 
     // Gold bottom line
     ctx.fillStyle = goldGrad; ctx.fillRect(0, H - 3, W, 3);
 
-    // Share
+    // Share or download
     const blob = await new Promise<Blob | null>(r => canvas.toBlob(r, "image/png"));
     if (!blob) return;
-    const filename = teams.length >= 2
-      ? `ipl-${teams[0].shortname}-vs-${teams[1].shortname}.png`
+    const filename = matchTeams.length >= 2
+      ? `ipl-${matchTeams[0].shortname}-vs-${matchTeams[1].shortname}.png`
       : "ipl-match.png";
-    const title = teams.length >= 2
-      ? `${teams[0].shortname} vs ${teams[1].shortname} — IPL 2026`
+    const title = matchTeams.length >= 2
+      ? `${matchTeams[0].shortname} vs ${matchTeams[1].shortname} — IPL 2026`
       : "IPL 2026 Match";
     const file = new File([blob], filename, { type: "image/png" });
     try {
