@@ -241,6 +241,7 @@ const CACHE_TTL_IDLE = 90 * 1000;  // 90 s when no live match
 const CACHE_TTL_LIVE = 20 * 1000;  // 20 s when a match is active
 let matchesRefreshing = false;
 let currentLiveIplIds: string[] = []; // updated by each doRefreshMatches run
+let completedMatchIds = new Set<string>(); // updated by each doRefreshMatches run
 
 async function doRefreshMatches(): Promise<void> {
   if (matchesRefreshing) return;
@@ -283,6 +284,7 @@ async function doRefreshMatches(): Promise<void> {
       .map((m: any) => m.id);
     // Pre-warm scorecard overview cache for completed matches
     const completedIds = allMatches.filter((m: any) => m.matchEnded).map((m: any) => m.id);
+    completedMatchIds = new Set(completedIds); // keep module-level set in sync
     for (const id of completedIds) {
       fetchMatchOverview(id, true).catch(() => {});
     }
@@ -392,6 +394,10 @@ router.post("/ipl/predictions/:matchId", (req, res) => {
   const { matchId } = req.params;
   const { ownerId, pick } = req.body as { ownerId?: string; pick?: string | null };
   if (!matchId || !ownerId) return res.status(400).json({ error: "matchId and ownerId required" });
+  // Block prediction changes for completed matches — no exceptions, including admin
+  if (completedMatchIds.has(matchId)) {
+    return res.status(403).json({ error: "Match already completed — predictions are locked" });
+  }
   if (!predsCache[matchId]) predsCache[matchId] = {};
   predsCache[matchId][ownerId] = pick ?? null;
   savePreds(predsCache);

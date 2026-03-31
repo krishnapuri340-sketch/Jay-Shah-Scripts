@@ -3173,7 +3173,7 @@ export default function App() {
                     const PRED_OWNERS = ["rajveer","mombasa","mumbai","ponygoat"] as const;
                     const preds = predictions[matchIdStr] || {};
                     const winner = isDone ? getMatchWinner(m) : null;
-                    const isLocked = m.matchStarted && currentUser !== "rajveer";
+                    const isLocked = m.matchEnded || (m.matchStarted && currentUser !== "rajveer");
                     const correctCount = winner && winner !== "tie"
                       ? PRED_OWNERS.filter(id => preds[id] === winner).length : 0;
                     const anyPick = PRED_OWNERS.some(id => preds[id]);
