@@ -760,8 +760,9 @@ export default function App() {
     setLiveLoading(false);
   };
 
-  const fetchScorecard = async (matchId: string) => {
-    if (scorecards[matchId] || scorecardLoading === matchId) return;
+  const fetchScorecard = async (matchId: string, force = false) => {
+    if (!force && (scorecards[matchId] || scorecardLoading === matchId)) return;
+    if (scorecardLoading === matchId) return;
     setScorecardLoading(matchId);
     try {
       const res = await fetch(`/api/ipl/scorecard/${matchId}`);
@@ -850,14 +851,27 @@ export default function App() {
     } catch (_) {}
   };
 
-  const toggleMatch = (matchId: string, isCompleted: boolean) => {
+  const toggleMatch = (matchId: string, isCompleted: boolean, isLive = false) => {
     if (expandedMatchId === matchId) {
       setExpandedMatchId(null);
     } else {
       setExpandedMatchId(matchId);
-      if (isCompleted) fetchScorecard(matchId);
+      if (isCompleted || isLive) fetchScorecard(matchId);
     }
   };
+
+  // Auto-refresh scorecard every 30 s while a live match is expanded
+  useEffect(() => {
+    if (!expandedMatchId) return;
+    const liveIds = new Set(
+      liveMatches
+        .filter((m: any) => m.matchStarted && !m.matchEnded)
+        .map((m: any) => String(m.id))
+    );
+    if (!liveIds.has(expandedMatchId)) return;
+    const id = setInterval(() => fetchScorecard(expandedMatchId, true), 30_000);
+    return () => clearInterval(id);
+  }, [expandedMatchId, liveMatches]);
 
   // Cleanup retry timer on unmount
   useEffect(() => {
@@ -3210,7 +3224,7 @@ export default function App() {
                     <div style={{ marginTop: 10, borderTop: "1px solid var(--border)", paddingTop: 7 }}
                       onClick={e => e.stopPropagation()}>
                       {/* Toggle header */}
-                      <div onClick={() => toggleMatch(matchIdStr, true)}
+                      <div onClick={() => toggleMatch(matchIdStr, isDone, isLive)}
                         style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", userSelect: "none" as const }}>
                         <span style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em" }}>SCORECARD</span>
                         <span style={{ fontSize: "0.55rem", color: "var(--text-3)", display: "inline-block", transition: "transform 0.2s", transform: isExpanded ? "rotate(180deg)" : "none" }}>▼</span>
