@@ -4,10 +4,12 @@ import { join } from "path";
 import { fetchMatchOverview, refreshLiveMatches } from "./ipl-points";
 
 // ── Shared data stores ────────────────────────────────────────────────────────
-// Stored under .local/ipl-data/ — gitignored so changes survive git checkpoints/restores
+// Resolve workspace root (cwd is /workspace in prod, /workspace/artifacts/api-server in dev)
 const _cwd2 = process.cwd();
+const _workspaceRoot2 = existsSync(join(_cwd2, "artifacts/api-server")) ? _cwd2 : join(_cwd2, "../..");
+// Stored under .local/ipl-data/ — gitignored so changes survive git checkpoints/restores
 const _dataDir = (() => {
-  const preferred = join(_cwd2, ".local/ipl-data");
+  const preferred = join(_workspaceRoot2, ".local/ipl-data");
   try { mkdirSync(preferred, { recursive: true }); } catch {}
   return preferred;
 })();

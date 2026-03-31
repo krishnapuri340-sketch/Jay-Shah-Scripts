@@ -7,10 +7,12 @@ const router: IRouter = Router();
 const CRICAPI_KEY = process.env.CRICAPI_KEY;
 const CRICAPI_BASE = "https://api.cricapi.com/v1";
 
-// Stored under .local/ipl-data/ — gitignored so changes survive git checkpoints/restores
+// Resolve workspace root (cwd is /workspace in prod, /workspace/artifacts/api-server in dev)
 const _cwd = process.cwd();
+const _workspaceRoot = existsSync(join(_cwd, "artifacts/api-server")) ? _cwd : join(_cwd, "../..");
+// Stored under .local/ipl-data/ — gitignored so changes survive git checkpoints/restores
 const CACHE_FILE = (() => {
-  const dir = join(_cwd, ".local/ipl-data");
+  const dir = join(_workspaceRoot, ".local/ipl-data");
   try { mkdirSync(dir, { recursive: true }); } catch {}
   return join(dir, "ipl-points-cache.json");
 })();
