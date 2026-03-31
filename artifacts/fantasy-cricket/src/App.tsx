@@ -3125,7 +3125,7 @@ export default function App() {
                     const PRED_OWNERS = ["rajveer","mombasa","mumbai","ponygoat"] as const;
                     const preds = predictions[matchIdStr] || {};
                     const winner = isDone ? getMatchWinner(m) : null;
-                    const isLocked = m.matchStarted;
+                    const isLocked = m.matchStarted && currentUser !== "rajveer";
                     const correctCount = winner && winner !== "tie"
                       ? PRED_OWNERS.filter(id => preds[id] === winner).length : 0;
                     const anyPick = PRED_OWNERS.some(id => preds[id]);
@@ -3167,7 +3167,7 @@ export default function App() {
                               return (
                                 <div key={ownerId} style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 7px", borderRadius: 8, background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)" }}>
                                   <span style={{ fontSize: "0.6rem", color: ft.color, fontWeight: 700, minWidth: 30, flexShrink: 0 }}>{ft.owner}</span>
-                                  {(isLocked || ownerId !== currentUser) ? (
+                                  {(isLocked || (ownerId !== currentUser && currentUser !== "rajveer")) ? (
                                     <div style={{ display: "flex", alignItems: "center", gap: 3, flex: 1 }}>
                                       {pick ? (
                                         <>
