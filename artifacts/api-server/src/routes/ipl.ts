@@ -1,14 +1,16 @@
 import { Router, type IRouter } from "express";
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join } from "path";
+import { fileURLToPath } from "url";
 import { fetchMatchOverview, refreshLiveMatches } from "./ipl-points";
 
 // ── Shared data stores ────────────────────────────────────────────────────────
-// Data lives in ipl-data/ relative to the server package root (artifacts/api-server/)
-// cwd is always artifacts/api-server/ in both dev and production
-const _cwd2 = process.cwd();
+// Anchor data directory to the bundle file location (dist/index.mjs).
+// import.meta.url is preserved by esbuild and resolves to the actual output file,
+// so this works correctly regardless of the process working directory (dev or prod).
+const _bundleDir2 = fileURLToPath(new URL(".", import.meta.url));
 const _dataDir = (() => {
-  const dir = join(_cwd2, "ipl-data");
+  const dir = join(_bundleDir2, "../ipl-data");
   try { mkdirSync(dir, { recursive: true }); } catch {}
   return dir;
 })();

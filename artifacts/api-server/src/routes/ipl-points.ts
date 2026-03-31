@@ -1,17 +1,19 @@
 import { Router, type IRouter } from "express";
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join } from "path";
+import { fileURLToPath } from "url";
 
 const router: IRouter = Router();
 
 const CRICAPI_KEY = process.env.CRICAPI_KEY;
 const CRICAPI_BASE = "https://api.cricapi.com/v1";
 
-// Data lives in ipl-data/ relative to the server package root (artifacts/api-server/)
-// cwd is always artifacts/api-server/ in both dev and production
-const _cwd = process.cwd();
+// Anchor data directory to the bundle file location (dist/index.mjs).
+// import.meta.url is preserved by esbuild and resolves to the actual output file,
+// so this works correctly regardless of the process working directory (dev or prod).
+const _bundleDir = fileURLToPath(new URL(".", import.meta.url));
 const CACHE_FILE = (() => {
-  const dir = join(_cwd, "ipl-data");
+  const dir = join(_bundleDir, "../ipl-data");
   try { mkdirSync(dir, { recursive: true }); } catch {}
   return join(dir, "ipl-points-cache.json");
 })();
