@@ -391,12 +391,15 @@ router.post("/ipl/pins/validate", (req, res) => {
   return res.json({ ok: true, userId });
 });
 
-// POST /api/ipl/pins/:userId → { pin } — update one user's PIN (admin only)
+// POST /api/ipl/pins/:userId → { pin, oldPin } — update one user's PIN (admin only; oldPin required)
 router.post("/ipl/pins/:userId", (req, res) => {
   if (!ownerOnly(req, res)) return;
   const { userId } = req.params;
-  const { pin } = req.body as { pin?: string };
+  const { pin, oldPin } = req.body as { pin?: string; oldPin?: string };
   if (!userId || !pin || !/^\d{4}$/.test(pin)) return res.status(400).json({ error: "userId and 4-digit pin required" });
+  if (!oldPin) return res.status(400).json({ error: "Current PIN (oldPin) required" });
+  const current = pinsCache[userId];
+  if (!current || oldPin !== current) return res.status(401).json({ error: "Current PIN does not match" });
   pinsCache[userId] = pin;
   saveServerPins(pinsCache);
   return res.json({ ok: true });

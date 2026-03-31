@@ -624,6 +624,10 @@ export default function App() {
   const [userPins, setUserPins] = useState<Record<string, string>>(loadPins);
   const [pinEditTarget, setPinEditTarget] = useState<string | null>(null);
   const [pinEditVal, setPinEditVal] = useState("");
+  const [pinConfirmVal, setPinConfirmVal] = useState("");
+  const [pinStep, setPinStep] = useState<"confirm" | "new">("confirm");
+  const [pinConfirmError, setPinConfirmError] = useState(false);
+  const resetPinEdit = () => { setPinEditTarget(null); setPinEditVal(""); setPinConfirmVal(""); setPinStep("confirm"); setPinConfirmError(false); };
   const handleLogin = (userId: string) => { localStorage.setItem("ipl-current-user", userId); setCurrentUser(userId); setTab("home"); };
   const handleLogout = () => { localStorage.removeItem("ipl-current-user"); setCurrentUser(null); };
   const handleValidate = async (userId: string, pin: string): Promise<boolean> => {
@@ -641,16 +645,32 @@ export default function App() {
       return false;
     }
   };
+  const handleConfirmOldPin = async (uid: string) => {
+    if (pinConfirmVal.length !== 4) return;
+    try {
+      const res = await fetch("/api/ipl/pins/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: uid, pin: pinConfirmVal }),
+      });
+      if (res.ok) { setPinStep("new"); setPinConfirmError(false); }
+      else { setPinConfirmError(true); setPinConfirmVal(""); }
+    } catch {
+      if (pinConfirmVal === userPins[uid]) { setPinStep("new"); setPinConfirmError(false); }
+      else { setPinConfirmError(true); setPinConfirmVal(""); }
+    }
+  };
   const handleSavePin = async (uid: string) => {
     if (!/^\d{4}$/.test(pinEditVal)) return;
     const updated = { ...userPins, [uid]: pinEditVal };
     setUserPins(updated); savePins(updated);
-    setPinEditTarget(null); setPinEditVal("");
+    const savedOld = pinConfirmVal;
+    resetPinEdit();
     try {
       await fetch(`/api/ipl/pins/${encodeURIComponent(uid)}`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-Owner-Id": "rajveer" },
-        body: JSON.stringify({ pin: pinEditVal }),
+        body: JSON.stringify({ pin: pinEditVal, oldPin: savedOld }),
       });
     } catch (_) {}
   };
@@ -3637,85 +3657,162 @@ export default function App() {
                     {idx > 0 && <div style={{ height: 1, background: "rgba(255,255,255,0.04)", margin: "10px 0" }} />}
 
                     {isEditing ? (
-                      /* ── Edit mode: expanded card ── */
+                      /* ── Edit mode: two-step expanded card ── */
                       <div style={{ padding: "4px 0 8px" }}>
                         {/* User identity */}
-                        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
                           <span style={{ fontSize: "1.1rem" }}>{ft.emoji}</span>
                           <div>
                             <div style={{ fontSize: "0.72rem", fontWeight: 700, color: ft.color }}>{ft.owner}</div>
                             <div style={{ fontSize: "0.6rem", color: "#475569" }}>{ft.name}</div>
                           </div>
-                        </div>
-
-                        {/* 4-box PIN entry */}
-                        <div style={{ position: "relative" }}>
-                          <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
-                            {[0, 1, 2, 3].map(i => {
-                              const char = pinEditVal[i] || "";
-                              const isActive = pinEditVal.length === i;
-                              return (
-                                <div key={i} style={{
-                                  width: 48, height: 56,
-                                  display: "flex", alignItems: "center", justifyContent: "center",
-                                  border: `1.5px solid ${isActive ? ft.color : char ? `${ft.color}60` : "rgba(255,255,255,0.1)"}`,
-                                  borderRadius: 12,
-                                  background: char ? `${ft.color}12` : "rgba(255,255,255,0.03)",
-                                  fontSize: "1.6rem",
-                                  color: ft.color,
-                                  transition: "all 0.15s ease",
-                                  boxShadow: isActive ? `0 0 0 3px ${ft.color}25` : "none",
-                                }}>
-                                  {char ? "•" : ""}
-                                </div>
-                              );
-                            })}
+                          {/* Step indicator */}
+                          <div style={{ marginLeft: "auto", display: "flex", gap: 5 }}>
+                            {["confirm","new"].map((s, si) => (
+                              <div key={s} style={{
+                                width: 18, height: 4, borderRadius: 2,
+                                background: (pinStep === "confirm" ? si === 0 : si === 1) ? ft.color : "rgba(255,255,255,0.1)",
+                                transition: "background 0.3s ease",
+                              }} />
+                            ))}
                           </div>
-                          {/* transparent overlay input that captures keystrokes */}
-                          <input
-                            type="text"
-                            inputMode="numeric"
-                            pattern="\d{4}"
-                            maxLength={4}
-                            value={pinEditVal}
-                            onChange={e => setPinEditVal(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                            autoFocus
-                            style={{
-                              position: "absolute", inset: 0, opacity: 0,
-                              cursor: "text", width: "100%", height: "100%",
-                            }}
-                          />
                         </div>
 
-                        {/* Actions */}
-                        <div style={{ display: "flex", gap: 8, marginTop: 16, justifyContent: "center" }}>
-                          <button
-                            onClick={() => handleSavePin(ft.id)}
-                            disabled={pinEditVal.length !== 4}
-                            style={{
-                              flex: 1, maxWidth: 120,
-                              background: pinEditVal.length === 4 ? `${ft.color}22` : "rgba(255,255,255,0.04)",
-                              border: `1px solid ${pinEditVal.length === 4 ? `${ft.color}60` : "rgba(255,255,255,0.07)"}`,
-                              borderRadius: 10, padding: "9px 0", cursor: pinEditVal.length === 4 ? "pointer" : "default",
-                              color: pinEditVal.length === 4 ? ft.color : "#3f3f46",
-                              fontSize: "0.72rem", fontFamily: "inherit", fontWeight: 700,
-                              letterSpacing: "0.5px", transition: "all 0.15s ease",
-                            }}>
-                            Save
-                          </button>
-                          <button
-                            onClick={() => { setPinEditTarget(null); setPinEditVal(""); }}
-                            style={{
-                              flex: 1, maxWidth: 100,
-                              background: "transparent",
-                              border: "1px solid rgba(255,255,255,0.07)",
-                              borderRadius: 10, padding: "9px 0", cursor: "pointer",
-                              color: "#52525b", fontSize: "0.72rem", fontFamily: "inherit",
-                              transition: "all 0.15s ease",
-                            }}>
-                            Cancel
-                          </button>
+                        {/* Step label */}
+                        <div style={{ fontSize: "0.62rem", color: "#52525b", textAlign: "center", marginBottom: 14, letterSpacing: "0.5px" }}>
+                          {pinStep === "confirm" ? "CONFIRM CURRENT PIN" : "ENTER NEW PIN"}
                         </div>
+
+                        {/* Step 1 — confirm current PIN */}
+                        {pinStep === "confirm" && (() => {
+                          const val = pinConfirmVal;
+                          return (
+                            <div>
+                              <div style={{ position: "relative" }}>
+                                <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+                                  {[0, 1, 2, 3].map(i => {
+                                    const char = val[i] || "";
+                                    const isActive = val.length === i;
+                                    return (
+                                      <div key={i} style={{
+                                        width: 48, height: 56,
+                                        display: "flex", alignItems: "center", justifyContent: "center",
+                                        border: `1.5px solid ${pinConfirmError ? "#f87171" : isActive ? ft.color : char ? `${ft.color}60` : "rgba(255,255,255,0.1)"}`,
+                                        borderRadius: 12,
+                                        background: pinConfirmError ? "rgba(248,113,113,0.08)" : char ? `${ft.color}12` : "rgba(255,255,255,0.03)",
+                                        fontSize: "1.6rem", color: pinConfirmError ? "#f87171" : ft.color,
+                                        transition: "all 0.15s ease",
+                                        boxShadow: isActive ? `0 0 0 3px ${ft.color}25` : "none",
+                                      }}>
+                                        {char ? "•" : ""}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                                <input
+                                  type="text" inputMode="numeric" pattern="\d{4}" maxLength={4}
+                                  value={val}
+                                  onChange={e => { setPinConfirmVal(e.target.value.replace(/\D/g, "").slice(0, 4)); setPinConfirmError(false); }}
+                                  autoFocus
+                                  style={{ position: "absolute", inset: 0, opacity: 0, cursor: "text", width: "100%", height: "100%" }}
+                                />
+                              </div>
+                              {pinConfirmError && (
+                                <div style={{ textAlign: "center", color: "#f87171", fontSize: "0.62rem", marginTop: 10, letterSpacing: "0.3px" }}>
+                                  Incorrect PIN — try again
+                                </div>
+                              )}
+                              <div style={{ display: "flex", gap: 8, marginTop: 16, justifyContent: "center" }}>
+                                <button
+                                  onClick={() => handleConfirmOldPin(ft.id)}
+                                  disabled={val.length !== 4}
+                                  style={{
+                                    flex: 1, maxWidth: 130,
+                                    background: val.length === 4 ? `${ft.color}22` : "rgba(255,255,255,0.04)",
+                                    border: `1px solid ${val.length === 4 ? `${ft.color}60` : "rgba(255,255,255,0.07)"}`,
+                                    borderRadius: 10, padding: "9px 0", cursor: val.length === 4 ? "pointer" : "default",
+                                    color: val.length === 4 ? ft.color : "#3f3f46",
+                                    fontSize: "0.72rem", fontFamily: "inherit", fontWeight: 700, letterSpacing: "0.5px", transition: "all 0.15s ease",
+                                  }}>
+                                  Confirm →
+                                </button>
+                                <button
+                                  onClick={resetPinEdit}
+                                  style={{
+                                    flex: 1, maxWidth: 100, background: "transparent",
+                                    border: "1px solid rgba(255,255,255,0.07)",
+                                    borderRadius: 10, padding: "9px 0", cursor: "pointer",
+                                    color: "#52525b", fontSize: "0.72rem", fontFamily: "inherit", transition: "all 0.15s ease",
+                                  }}>
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })()}
+
+                        {/* Step 2 — enter new PIN */}
+                        {pinStep === "new" && (() => {
+                          const val = pinEditVal;
+                          return (
+                            <div>
+                              <div style={{ position: "relative" }}>
+                                <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+                                  {[0, 1, 2, 3].map(i => {
+                                    const char = val[i] || "";
+                                    const isActive = val.length === i;
+                                    return (
+                                      <div key={i} style={{
+                                        width: 48, height: 56,
+                                        display: "flex", alignItems: "center", justifyContent: "center",
+                                        border: `1.5px solid ${isActive ? ft.color : char ? `${ft.color}60` : "rgba(255,255,255,0.1)"}`,
+                                        borderRadius: 12,
+                                        background: char ? `${ft.color}12` : "rgba(255,255,255,0.03)",
+                                        fontSize: "1.6rem", color: ft.color,
+                                        transition: "all 0.15s ease",
+                                        boxShadow: isActive ? `0 0 0 3px ${ft.color}25` : "none",
+                                      }}>
+                                        {char ? "•" : ""}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                                <input
+                                  type="text" inputMode="numeric" pattern="\d{4}" maxLength={4}
+                                  value={val}
+                                  onChange={e => setPinEditVal(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                                  autoFocus
+                                  style={{ position: "absolute", inset: 0, opacity: 0, cursor: "text", width: "100%", height: "100%" }}
+                                />
+                              </div>
+                              <div style={{ display: "flex", gap: 8, marginTop: 16, justifyContent: "center" }}>
+                                <button
+                                  onClick={() => handleSavePin(ft.id)}
+                                  disabled={val.length !== 4}
+                                  style={{
+                                    flex: 1, maxWidth: 120,
+                                    background: val.length === 4 ? `${ft.color}22` : "rgba(255,255,255,0.04)",
+                                    border: `1px solid ${val.length === 4 ? `${ft.color}60` : "rgba(255,255,255,0.07)"}`,
+                                    borderRadius: 10, padding: "9px 0", cursor: val.length === 4 ? "pointer" : "default",
+                                    color: val.length === 4 ? ft.color : "#3f3f46",
+                                    fontSize: "0.72rem", fontFamily: "inherit", fontWeight: 700, letterSpacing: "0.5px", transition: "all 0.15s ease",
+                                  }}>
+                                  Save PIN
+                                </button>
+                                <button
+                                  onClick={() => { setPinStep("confirm"); setPinEditVal(""); setPinConfirmError(false); }}
+                                  style={{
+                                    flex: 1, maxWidth: 100, background: "transparent",
+                                    border: "1px solid rgba(255,255,255,0.07)",
+                                    borderRadius: 10, padding: "9px 0", cursor: "pointer",
+                                    color: "#52525b", fontSize: "0.72rem", fontFamily: "inherit", transition: "all 0.15s ease",
+                                  }}>
+                                  ← Back
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </div>
                     ) : (
                       /* ── Idle row ── */
@@ -3728,7 +3825,7 @@ export default function App() {
                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                           <span style={{ fontSize: "0.8rem", letterSpacing: "4px", color: "#27272a", fontFamily: "monospace", lineHeight: 1 }}>••••</span>
                           <button
-                            onClick={() => { setPinEditTarget(ft.id); setPinEditVal(userPins[ft.id] || ""); }}
+                            onClick={() => { setPinEditTarget(ft.id); setPinEditVal(""); setPinConfirmVal(""); setPinStep("confirm"); setPinConfirmError(false); }}
                             style={{
                               background: "transparent",
                               border: `1px solid rgba(255,255,255,0.08)`,
