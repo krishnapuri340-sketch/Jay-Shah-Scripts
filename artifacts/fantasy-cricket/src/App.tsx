@@ -1311,7 +1311,7 @@ export default function App() {
     const fantasyRows = Object.values(FANTASY_TEAMS).map(ft => {
       let total = 0;
       const scorers: string[] = [];
-      for (const p of ft.top11) {
+      for (const p of ft.players) {
         const entry = matchNum ? (playerMatchPoints[p.name] || []).find((e: any) => e.matchNum === matchNum) : null;
         if (entry && entry.pts !== 0) {
           total += entry.pts;
