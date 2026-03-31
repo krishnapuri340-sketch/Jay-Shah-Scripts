@@ -3591,6 +3591,7 @@ export default function App() {
   const renderAdmin = () => {
     const completedCount = liveMatches.filter((m: any) => m.matchEnded).length;
     const liveCount = liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded).length;
+    const scorecardTotal = completedCount + liveCount;
     const scoredPlayerCount = Object.keys(playerPoints).length;
     const totalPts = Object.values(playerPoints).reduce((s, v) => s + v, 0);
 
@@ -3763,7 +3764,9 @@ export default function App() {
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem" }}>
               <span style={{ color: "#64748b" }}>Scorecards fetched</span>
               <span style={{ color: processedMatches.length > 0 ? "#34d399" : "#475569" }}>
-                {processedMatches.length > 0 ? `✓ ${processedMatches.length} of ${completedCount}` : completedCount === 0 ? "No matches yet" : "Pending..."}
+                {processedMatches.length > 0
+                  ? `✓ ${processedMatches.length} of ${scorecardTotal}${liveCount > 0 ? ` (${liveCount} live)` : ""}`
+                  : scorecardTotal === 0 ? "No matches yet" : "Pending..."}
               </span>
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem" }}>
