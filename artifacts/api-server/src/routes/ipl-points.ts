@@ -1283,4 +1283,25 @@ router.post("/ipl/points/reset", async (req, res) => {
   res.json({ ok: true });
 });
 
+// POST /api/ipl/points/sync-supabase — force an immediate Supabase AuctionRoom sync (Raj only)
+router.post("/ipl/points/sync-supabase", async (req, res) => {
+  if (req.headers["x-owner-id"] !== "rajveer") return res.status(403).json({ error: "Forbidden" });
+  try {
+    console.log("[admin] Force Supabase sync triggered by Raj");
+    const before = Object.keys(pointsCache.supabaseScores || {}).length;
+    const changed = await syncAuctionRoomScores(pointsCache);
+    const after = Object.keys(pointsCache.supabaseScores || {}).length;
+    if (changed) {
+      pointsCache.lastUpdated = new Date().toISOString();
+      saveCache(pointsCache);
+    }
+    // Reset cooldown so next regular poll runs fresh
+    lastUpdateAttempt = 0;
+    res.json({ ok: true, changed, fixturesBefore: before, fixturesAfter: after });
+  } catch (err: any) {
+    console.error("[admin] Force Supabase sync error:", err);
+    res.status(500).json({ error: err.message || "Sync failed" });
+  }
+});
+
 export default router;

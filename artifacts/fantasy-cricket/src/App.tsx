@@ -450,6 +450,8 @@ export default function App() {
   const [notifStatus, setNotifStatus] = useState<'unsupported' | 'default' | 'granted' | 'denied'>('unsupported');
   const swRegRef = useRef<ServiceWorkerRegistration | null>(null);
   const [pointsLoading, setPointsLoading] = useState(false);
+  const [supabaseSyncing, setSupabaseSyncing] = useState(false);
+  const [supabaseSyncMsg, setSupabaseSyncMsg] = useState<string | null>(null);
   const [pointsUpdating, setPointsUpdating] = useState(false);
   const [pendingMatches, setPendingMatches] = useState(0);
   const [nextAttempt, setNextAttempt] = useState<string | null>(null);
@@ -585,6 +587,29 @@ export default function App() {
       }, 5000);
     }
     setPointsLoading(false);
+  };
+
+  const syncSupabase = async () => {
+    if (supabaseSyncing) return;
+    setSupabaseSyncing(true);
+    setSupabaseSyncMsg(null);
+    try {
+      const res = await fetch("/api/ipl/points/sync-supabase", {
+        method: "POST",
+        headers: { "X-Owner-Id": "rajveer" },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || `Server error ${res.status}`);
+      const msg = data.changed
+        ? `Synced ✓ — ${data.fixturesAfter} fixtures loaded`
+        : "Already up to date";
+      setSupabaseSyncMsg(msg);
+      // Refresh points display after sync
+      setTimeout(fetchPoints, 300);
+    } catch (e: any) {
+      setSupabaseSyncMsg("Sync failed: " + (e.message || "unknown error"));
+    }
+    setSupabaseSyncing(false);
   };
 
   const fetchLive = async () => {
@@ -3538,6 +3563,10 @@ export default function App() {
               onClick={fetchPoints} disabled={pointsLoading}>
               {pointsLoading ? <span className="spinner" /> : "⚡"} Fetch Points
             </button>
+            <button className="btn-primary" style={{ background: "rgba(34,197,94,0.1)", borderColor: "rgba(34,197,94,0.3)", color: "#22c55e" }}
+              onClick={syncSupabase} disabled={supabaseSyncing}>
+              {supabaseSyncing ? <span className="spinner" /> : "🗄️"} Sync AuctionRoom
+            </button>
             <button className="btn-danger" onClick={async () => {
               if (confirm("Reset all cached points? Points will re-sync from AuctionRoom.")) {
                 await fetch("/api/ipl/points/reset", { method: "POST", headers: { "X-Owner-Id": "rajveer" } });
@@ -3548,6 +3577,15 @@ export default function App() {
             }}>🗑️ Reset Cache</button>
           </>}
         </div>
+        {supabaseSyncMsg && (
+          <div style={{ fontSize: "0.7rem", marginTop: 8, padding: "6px 10px", borderRadius: 8,
+            background: supabaseSyncMsg.startsWith("Sync failed") ? "rgba(239,68,68,0.1)" : "rgba(34,197,94,0.1)",
+            color: supabaseSyncMsg.startsWith("Sync failed") ? "#f87171" : "#4ade80",
+            border: `1px solid ${supabaseSyncMsg.startsWith("Sync failed") ? "rgba(239,68,68,0.2)" : "rgba(34,197,94,0.2)"}`,
+          }}>
+            {supabaseSyncMsg}
+          </div>
+        )}
         {lastUpdated && (
           <div style={{ fontSize: "0.65rem", color: "#334155", marginTop: 10 }}>
             Schedule last updated: {lastUpdated.toLocaleTimeString()} · Total points tracked: {totalPts}
