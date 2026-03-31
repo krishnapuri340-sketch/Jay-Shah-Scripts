@@ -1487,8 +1487,9 @@
       "points": {
         "Shubman Gill": 73,
         "Jos Buttler": 70,
+        "Yuzvendra Chahal": 68,
         "Marco Jansen": 40,
-        "Arshdeep Singh": 0,
+        "Arshdeep Singh": 2,
         "Sai Sudharsan": 25,
         "Rashid Khan": 4,
         "Washington Sundar": 30
@@ -1496,7 +1497,7 @@
       "innings": [
         {
           "name": "Gujarat Titans Inning 1",
-          "total": "148/6 (19.5 ov)",
+          "total": "148/6 (20.0 ov)",
           "batting": [
             {
               "name": "Sai Sudharsan",
@@ -1578,7 +1579,7 @@
             {
               "name": "Rashid Khan",
               "runs": 0,
-              "balls": 0,
+              "balls": 1,
               "fours": 0,
               "sixes": 0,
               "sr": "0.00",
@@ -1590,12 +1591,12 @@
           "bowling": [
             {
               "name": "Arshdeep Singh",
-              "overs": "3.5",
+              "overs": "4",
               "maidens": 0,
-              "runs": 43,
+              "runs": 42,
               "wickets": 0,
-              "eco": "11.2",
-              "wides": 9,
+              "eco": "10.5",
+              "wides": 8,
               "noBalls": 1
             },
             {
@@ -1676,6 +1677,23 @@
           "runOuts": 0,
           "stumpings": 0
         },
+        "Yuzvendra Chahal": {
+          "played": true,
+          "runs": 0,
+          "balls": 0,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 2,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 24,
+          "runsConceded": 28,
+          "catches": 0,
+          "runOuts": 0,
+          "stumpings": 0
+        },
         "Marco Jansen": {
           "played": true,
           "runs": 0,
@@ -1704,8 +1722,8 @@
           "dots": 0,
           "lbwBowled": 0,
           "maidens": 0,
-          "ballsBowled": 23,
-          "runsConceded": 43,
+          "ballsBowled": 24,
+          "runsConceded": 42,
           "catches": 0,
           "runOuts": 0,
           "stumpings": 0
@@ -1730,7 +1748,7 @@
         "Rashid Khan": {
           "played": true,
           "runs": 0,
-          "balls": 0,
+          "balls": 1,
           "fours": 0,
           "sixes": 0,
           "duck": false,
@@ -2430,9 +2448,9 @@
       "teamB": "Delhi Capitals"
     }
   },
-  "lastUpdated": "2026-03-31T15:59:54.900Z",
+  "lastUpdated": "2026-03-31T16:05:59.622Z",
   "dailyHits": {
     "date": "2026-03-31",
-    "count": 299
+    "count": 338
   }
 }

@@ -525,11 +525,11 @@ const PLAYER_TEAMS: Record<string, string> = {
   "Mohammed Siraj": "gt", "Prasidh Krishna": "gt", "Rashid Khan": "gt",
   "Washington Sundar": "gt",
   // RR
-  "Yuzvendra Chahal": "rr", "Vaibhav Suryavanshi": "rr", "Dhruv Jurel": "rr",
+  "Vaibhav Suryavanshi": "rr", "Dhruv Jurel": "rr",
   "Riyan Parag": "rr", "Shimron Hetmyer": "rr", "Yashasvi Jaiswal": "rr",
   "Ravindra Jadeja": "rr",
   // PBKS
-  "Shreyas Iyer": "pbks", "Arshdeep Singh": "pbks", "Priyansh Arya": "pbks",
+  "Yuzvendra Chahal": "pbks", "Shreyas Iyer": "pbks", "Arshdeep Singh": "pbks", "Priyansh Arya": "pbks",
   "Marco Jansen": "pbks", "Prabhsimran Singh": "pbks", "Nehal Wadhera": "pbks",
   "Marcus Stoinis": "pbks", "Shashank Singh": "pbks",
   // MI
