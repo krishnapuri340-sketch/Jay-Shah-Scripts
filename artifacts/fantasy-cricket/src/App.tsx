@@ -433,13 +433,88 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
   );
 }
 
+// ── Module-level constants & pure utilities (never re-created on render) ─────
+
+const SWIPEABLE_TABS = ["home", "teams", "fixtures", "stats", "history"];
+const PULL_THRESHOLD = 72;
+
+const TABS = [
+  { id: "home",     label: "Leaderboard" },
+  { id: "teams",    label: "Teams"        },
+  { id: "fixtures", label: "Matches"      },
+  { id: "stats",    label: "Stats"        },
+  { id: "history",  label: "History"      },
+];
+
+const NAV_ICON: Record<string, JSX.Element> = {
+  home: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M8 21h8M12 17v4M17 3h3v5c0 2.5-1.5 4-4 4M7 3H4v5c0 2.5 1.5 4 4 4"/><path d="M7 3h10v8a5 5 0 0 1-10 0V3z"/>
+    </svg>
+  ),
+  teams: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="9" cy="7" r="3"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75M21 21v-2a4 4 0 0 0-3-3.87"/>
+    </svg>
+  ),
+  fixtures: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+    </svg>
+  ),
+  stats: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18 20V10M12 20V4M6 20v-6"/>
+    </svg>
+  ),
+  history: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+    </svg>
+  ),
+};
+
+interface PlayerStats {
+  played: boolean; runs: number; balls: number; fours: number; sixes: number;
+  duck: boolean; wickets: number; dots: number; lbwBowled: number;
+  maidens: number; ballsBowled: number; runsConceded: number;
+  catches: number; runOuts: number; stumpings: number;
+}
+
+const rankLabel = (i: number) => i === 0 ? "first" : i === 1 ? "second" : i === 2 ? "third" : "";
+
+const fmtDate = (d: string) => {
+  try { return new Date(d).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" }); }
+  catch { return d || ""; }
+};
+const fmtTime = (dt: string) => {
+  try { return new Date(dt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) + " local"; }
+  catch { return ""; }
+};
+const getMatchNum = (name: string) => {
+  const mx = (name || "").match(/(\d+)(?:st|nd|rd|th) Match/i);
+  return mx ? "M" + mx[1] : "";
+};
+
+const buildMatchPreviews = (matches: any[]) =>
+  matches.map((match: any) => {
+    const teamInfo: any[] = match.teamInfo || [];
+    const playingTeams = new Set(teamInfo.map((ti: any) => (ti.shortname || "").toUpperCase()));
+    const preview = Object.values(FANTASY_TEAMS).map(ft => ({
+      team: ft,
+      activePlayers: ft.players.filter(p => playingTeams.has(p.ipl.toUpperCase()))
+    })).filter(x => x.activePlayers.length > 0);
+    return { match, playingTeams: [...playingTeams], preview };
+  }).filter(item => item.playingTeams.length > 0);
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export default function App() {
   const [tab, setTab] = useState("home");
   const [historyYear, setHistoryYear] = useState<number | null>(null);
   const [selectedTeam, setSelectedTeam] = useState("rajveer");
   const [fixtureHomeAwayFilter, setFixtureHomeAwayFilter] = useState<"all" | "home" | "away">("all");
   const [playerPoints, setPlayerPoints] = useState<Record<string, number>>({});
-  interface PlayerStats { played: boolean; runs: number; balls: number; fours: number; sixes: number; duck: boolean; wickets: number; dots: number; lbwBowled: number; maidens: number; ballsBowled: number; runsConceded: number; catches: number; runOuts: number; stumpings: number; }
   const [playerMatchPoints, setPlayerMatchPoints] = useState<Record<string, Array<{ matchNum: number; label: string; pts: number; source: string; stats?: PlayerStats }>>>({});
   const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
   const [benchOpen, setBenchOpen] = useState(false);
@@ -447,8 +522,6 @@ export default function App() {
   const [adminBreakdownOpen, setAdminBreakdownOpen] = useState(false);
   const [liveMatches, setLiveMatches] = useState<any[]>([]);
   const [liveLoading, setLiveLoading] = useState(false);
-  const [notifStatus, setNotifStatus] = useState<'unsupported' | 'default' | 'granted' | 'denied'>('unsupported');
-  const swRegRef = useRef<ServiceWorkerRegistration | null>(null);
   const [pointsLoading, setPointsLoading] = useState(false);
   const [supabaseSyncing, setSupabaseSyncing] = useState(false);
   const [supabaseSyncMsg, setSupabaseSyncMsg] = useState<string | null>(null);
@@ -504,11 +577,9 @@ export default function App() {
   const swipeStartY = useRef(0);
   const swipeBlocked = useRef(false);
   const pointsRetryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const SWIPEABLE_TABS = ["home", "teams", "fixtures", "stats", "history"];
   // PTR refs
   const pullState = useRef({ active: false, startY: 0, startX: 0 });
   const pullYRef = useRef(0);
-  const PULL_THRESHOLD = 72;
   const sparkTipTimer = useRef<ReturnType<typeof setTimeout>>();
   // Always-fresh ref to refresh fn (avoids stale closure in PTR listener)
   const refreshFnRef = useRef(() => {});
@@ -758,62 +829,12 @@ export default function App() {
     fetchPredictions();
   }, [currentUser]);
 
-  // Register service worker for push notifications
+  // Register service worker for PWA offline support
   useEffect(() => {
-    if ('serviceWorker' in navigator && 'PushManager' in window) {
-      navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`)
-        .then(reg => {
-          swRegRef.current = reg;
-          setNotifStatus(Notification.permission as 'default' | 'granted' | 'denied');
-        })
-        .catch(() => setNotifStatus('unsupported'));
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(() => {});
     }
   }, []);
-
-  const urlBase64ToUint8Array = (b64: string): Uint8Array => {
-    const padding = '='.repeat((4 - b64.length % 4) % 4);
-    const base64 = (b64 + padding).replace(/-/g, '+').replace(/_/g, '/');
-    const raw = atob(base64);
-    return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
-  };
-
-  const enableNotifications = async () => {
-    if (!swRegRef.current) return;
-    try {
-      const perm = await Notification.requestPermission();
-      setNotifStatus(perm as 'default' | 'granted' | 'denied');
-      if (perm !== 'granted') return;
-      const res = await fetch('/api/push/vapid-public-key');
-      const { key } = await res.json();
-      const existing = await swRegRef.current.pushManager.getSubscription();
-      const sub = existing || (await swRegRef.current.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(key),
-      }));
-      await fetch('/api/push/subscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(sub),
-      });
-    } catch (e) {
-      console.warn('Push subscription failed:', e);
-    }
-  };
-
-  const disableNotifications = async () => {
-    const reg = swRegRef.current;
-    if (!reg) return;
-    const sub = await reg.pushManager.getSubscription();
-    if (sub) {
-      await fetch('/api/push/unsubscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ endpoint: sub.endpoint }),
-      });
-      await sub.unsubscribe();
-    }
-    setNotifStatus('default');
-  };
 
   // Adaptive polling — split by data freshness needs:
   //   Live status (fetchLive, standings): 20 s  — free IPL API, needs to be fast
@@ -825,9 +846,10 @@ export default function App() {
   useEffect(() => { setFixtureHomeAwayFilter("all"); }, [teamFilter]);
 
   useEffect(() => {
-    const idleDelay   = 60 * 60_000; // 60 min when nothing is live
-    const liveStatus  = 20_000;       // 20 s — match status / scorecard
-    const livePoints  = 45_000;       // 45 s — aligned with server CricAPI cooldown
+    if (!currentUser) return;
+    const idleDelay  = 60 * 60_000; // 60 min when nothing is live
+    const liveStatus = 20_000;       // 20 s — match status / scorecard
+    const livePoints = 45_000;       // 45 s — aligned with server CricAPI cooldown
     if (!isAnyMatchLive) {
       const ids = [
         setInterval(fetchLive,        idleDelay),
@@ -847,27 +869,26 @@ export default function App() {
       setInterval(fetchPredictions, livePoints),
     ];
     return () => ids.forEach(clearInterval);
-  }, [isAnyMatchLive]);
+  }, [isAnyMatchLive, currentUser]);
 
   // Fast-poll predictions when the Predictions view is open (picks can change up until match starts)
   useEffect(() => {
-    if (!(tab === "stats" && statsFilter === "predictions")) return;
+    if (!currentUser || !(tab === "stats" && statsFilter === "predictions")) return;
     const id = setInterval(fetchPredictions, 30_000);
     return () => clearInterval(id);
-  }, [tab, statsFilter]);
-
+  }, [tab, statsFilter, currentUser]);
 
   // Refresh when the user returns to the tab after being away
   useEffect(() => {
     const onVisible = () => {
-      if (document.visibilityState === "visible") {
+      if (document.visibilityState === "visible" && currentUser) {
         fetchLive();
         fetchPoints();
       }
     };
     document.addEventListener("visibilitychange", onVisible);
     return () => document.removeEventListener("visibilitychange", onVisible);
-  }, []);
+  }, [currentUser]);
 
   // Keep refreshFnRef up-to-date every render so PTR always calls the latest version
   useEffect(() => { refreshFnRef.current = () => { fetchLive(); fetchPoints(); }; });
@@ -1946,56 +1967,6 @@ export default function App() {
     },
   ];
 
-  const NAV_ICON: Record<string, JSX.Element> = {
-    home: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M8 21h8M12 17v4M17 3h3v5c0 2.5-1.5 4-4 4M7 3H4v5c0 2.5 1.5 4 4 4"/><path d="M7 3h10v8a5 5 0 0 1-10 0V3z"/>
-      </svg>
-    ),
-    teams: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="9" cy="7" r="3"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75M21 21v-2a4 4 0 0 0-3-3.87"/>
-      </svg>
-    ),
-    fixtures: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
-      </svg>
-    ),
-    stats: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M18 20V10M12 20V4M6 20v-6"/>
-      </svg>
-    ),
-    history: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-      </svg>
-    ),
-  };
-  const TABS = [
-    { id: "home", label: "Leaderboard" },
-    { id: "teams", label: "Teams" },
-    { id: "fixtures", label: "Matches" },
-    { id: "stats", label: "Stats" },
-    { id: "history", label: "History" },
-  ];
-
-  const rankLabel = (i: number) => i === 0 ? "first" : i === 1 ? "second" : i === 2 ? "third" : "";
-
-
-  // Helper: build preview data from a list of matches
-  const buildMatchPreviews = (matches: any[]) =>
-    matches.map((match: any) => {
-      const teamInfo: any[] = match.teamInfo || [];
-      const playingTeams = new Set(teamInfo.map((ti: any) => (ti.shortname || "").toUpperCase()));
-      const preview = Object.values(FANTASY_TEAMS).map(ft => ({
-        team: ft,
-        activePlayers: ft.players.filter(p => playingTeams.has(p.ipl.toUpperCase()))
-      })).filter(x => x.activePlayers.length > 0);
-      return { match, playingTeams: [...playingTeams], preview };
-    }).filter(item => item.playingTeams.length > 0);
-
   // Currently LIVE matches (started, not ended)
   const liveMatchPreviews = buildMatchPreviews(
     liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded)
@@ -2847,19 +2818,6 @@ export default function App() {
     const live = liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded);
     const completed = liveMatches.filter((m: any) => m.matchEnded);
     const upcoming = liveMatches.filter((m: any) => !m.matchStarted && !m.matchEnded);
-
-    const fmtDate = (d: string) => {
-      try { return new Date(d).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" }); }
-      catch (e) { return d || ""; }
-    };
-    const fmtTime = (dt: string) => {
-      try { return new Date(dt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) + " local"; }
-      catch (e) { return ""; }
-    };
-    const getMatchNum = (name: string) => {
-      const mx = (name || "").match(/(\d+)(?:st|nd|rd|th) Match/i);
-      return mx ? "M" + mx[1] : "";
-    };
 
     const activeFilter = matchFilter;
     const filteredMatches = liveMatches.filter((m: any) => {
