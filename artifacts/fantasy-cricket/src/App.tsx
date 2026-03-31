@@ -388,7 +388,13 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
 
       {/* Logo */}
       <div style={{ animation: "login-fade-up 0.3s ease-out", display: "flex", flexDirection: "column" as const, alignItems: "center", marginBottom: 48 }}>
-        <div style={{ width: 64, height: 64, borderRadius: 20, background: "linear-gradient(135deg, rgba(223,178,62,0.15) 0%, rgba(223,178,62,0.04) 100%)", border: "1px solid rgba(223,178,62,0.4)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.8rem", marginBottom: 18, boxShadow: "0 8px 24px rgba(0,0,0,0.4)" }}>🏏</div>
+        <div style={{ position: "relative", width: 96, height: 96, borderRadius: 26, marginBottom: 18, boxShadow: "0 0 0 2.5px #dfb23e, 0 12px 36px rgba(223,178,62,0.35)" }}>
+          <img
+            src={`${import.meta.env.BASE_URL}app-icon.png`}
+            alt="IPL Fantasy"
+            style={{ width: "100%", height: "100%", borderRadius: 26, objectFit: "cover", objectPosition: "center 10%", display: "block", transform: "scale(1.08)", transformOrigin: "center top" }}
+          />
+        </div>
         <div style={{ fontSize: "1.8rem", fontWeight: 900, color: "#ffffff", letterSpacing: "-0.04em", lineHeight: 1.1, fontFamily: "'Oswald', sans-serif", textTransform: "uppercase" }}>IPL Fantasy</div>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8 }}>
           <div style={{ width: 32, height: 1, background: "linear-gradient(90deg, transparent, rgba(223,178,62,0.5))" }} />

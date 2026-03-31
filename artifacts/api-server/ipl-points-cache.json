@@ -3,7 +3,8 @@
   "cricapiMatchIds": {
     "2417": "55fe0f15-6eb0-4ad5-835b-5564be4f6a21",
     "2418": "e02475c1-8f9a-4915-a9e8-d4dbc3441c96",
-    "2419": "d788e9f9-99bf-4650-a035-92a7e21b3d08"
+    "2419": "d788e9f9-99bf-4650-a035-92a7e21b3d08",
+    "2420": "11ff7db9-9c71-464e-afcb-5b03e4fa4b0a"
   },
   "processedMatches": {
     "2417": {
@@ -2149,9 +2150,9 @@
       "teamB": "Delhi Capitals"
     }
   },
-  "lastUpdated": "2026-03-31T13:25:58.185Z",
+  "lastUpdated": "2026-03-31T13:29:01.418Z",
   "dailyHits": {
     "date": "2026-03-31",
-    "count": 0
+    "count": 3
   }
 }
