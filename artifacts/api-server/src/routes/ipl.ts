@@ -1,13 +1,16 @@
 import { Router, type IRouter } from "express";
-import { readFileSync, writeFileSync, existsSync } from "fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join } from "path";
 import { fetchMatchOverview, refreshLiveMatches } from "./ipl-points";
 
 // ── Shared data stores ────────────────────────────────────────────────────────
+// Stored under .local/ipl-data/ — gitignored so changes survive git checkpoints/restores
 const _cwd2 = process.cwd();
-const _dataDir = existsSync(join(_cwd2, "artifacts/api-server"))
-  ? join(_cwd2, "artifacts/api-server")
-  : _cwd2;
+const _dataDir = (() => {
+  const preferred = join(_cwd2, ".local/ipl-data");
+  try { mkdirSync(preferred, { recursive: true }); } catch {}
+  return preferred;
+})();
 
 const PRED_FILE = join(_dataDir, "ipl-predictions.json");
 type PredStore = Record<string, Record<string, string | null>>;

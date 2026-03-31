@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { readFileSync, writeFileSync, existsSync } from "fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join } from "path";
 
 const router: IRouter = Router();
@@ -7,11 +7,13 @@ const router: IRouter = Router();
 const CRICAPI_KEY = process.env.CRICAPI_KEY;
 const CRICAPI_BASE = "https://api.cricapi.com/v1";
 
-// Works whether CWD is /workspace (production) or /workspace/artifacts/api-server (dev)
+// Stored under .local/ipl-data/ — gitignored so changes survive git checkpoints/restores
 const _cwd = process.cwd();
-const CACHE_FILE = existsSync(join(_cwd, "artifacts/api-server"))
-  ? join(_cwd, "artifacts/api-server/ipl-points-cache.json")
-  : join(_cwd, "ipl-points-cache.json");
+const CACHE_FILE = (() => {
+  const dir = join(_cwd, ".local/ipl-data");
+  try { mkdirSync(dir, { recursive: true }); } catch {}
+  return join(dir, "ipl-points-cache.json");
+})();
 
 interface PlayerStats {
   played: boolean;

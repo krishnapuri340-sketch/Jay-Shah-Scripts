@@ -861,6 +861,7 @@ export default function App() {
     fetchStandings();
     fetchStats();
     fetchPredictions();
+    if (currentUser === "rajveer") fetchPins();
   }, [currentUser]);
 
   // Register service worker for PWA offline support
