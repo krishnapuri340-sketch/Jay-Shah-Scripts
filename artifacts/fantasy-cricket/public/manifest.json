@@ -1,6 +1,6 @@
 {
-  "name": "IPL Fantasy 2026",
-  "short_name": "IPL Fantasy",
+  "name": "Indian Premier League 2026",
+  "short_name": "IPL 2026",
   "description": "Live fantasy cricket tracker for IPL 2026",
   "start_url": "/",
   "display": "standalone",

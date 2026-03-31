@@ -57,7 +57,7 @@ self.addEventListener("fetch", e => {
 self.addEventListener("push", e => {
   if (!e.data) return;
   let data;
-  try { data = e.data.json(); } catch { data = { title: "IPL Fantasy 2026", body: e.data.text() }; }
+  try { data = e.data.json(); } catch { data = { title: "Indian Premier League 2026", body: e.data.text() }; }
 
   const options = {
     body: data.body || "",
@@ -70,7 +70,7 @@ self.addEventListener("push", e => {
   };
   if (data.image) options.image = data.image;
 
-  e.waitUntil(self.registration.showNotification(data.title || "IPL Fantasy 2026", options));
+  e.waitUntil(self.registration.showNotification(data.title || "Indian Premier League 2026", options));
 });
 
 self.addEventListener("notificationclick", e => {

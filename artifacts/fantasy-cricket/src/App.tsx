@@ -391,11 +391,11 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
         <div style={{ position: "relative", width: 96, height: 96, borderRadius: 26, marginBottom: 18, boxShadow: "0 0 0 2.5px #dfb23e, 0 12px 36px rgba(223,178,62,0.35)" }}>
           <img
             src={`${import.meta.env.BASE_URL}app-icon.png`}
-            alt="IPL Fantasy"
+            alt="Indian Premier League"
             style={{ width: "100%", height: "100%", borderRadius: 26, objectFit: "cover", objectPosition: "center 10%", display: "block", transform: "scale(1.08)", transformOrigin: "center top" }}
           />
         </div>
-        <div style={{ fontSize: "1.8rem", fontWeight: 900, color: "#ffffff", letterSpacing: "-0.04em", lineHeight: 1.1, fontFamily: "'Oswald', sans-serif", textTransform: "uppercase" }}>IPL Fantasy</div>
+        <div style={{ fontSize: "1.4rem", fontWeight: 900, color: "#ffffff", letterSpacing: "-0.02em", lineHeight: 1.15, fontFamily: "'Oswald', sans-serif", textTransform: "uppercase", textAlign: "center" }}>Indian Premier League</div>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8 }}>
           <div style={{ width: 32, height: 1, background: "linear-gradient(90deg, transparent, rgba(223,178,62,0.5))" }} />
           <div style={{ fontSize: "0.65rem", color: "#dfb23e", letterSpacing: "0.25em", fontWeight: 700 }}>2026 SEASON</div>
@@ -1045,7 +1045,7 @@ export default function App() {
     ctx.textAlign = "left";
     ctx.font = "700 36px -apple-system, Arial, sans-serif";
     ctx.fillStyle = "#ffffff";
-    ctx.fillText("IPL Fantasy 2026", PAD + logoR * 2 + 18, 59);
+    ctx.fillText("Indian Premier League 2026", PAD + logoR * 2 + 18, 59);
     ctx.font = "400 23px -apple-system, Arial, sans-serif";
     ctx.fillStyle = "#52525b";
     ctx.fillText("Leaderboard", PAD + logoR * 2 + 18, 88);
@@ -1119,7 +1119,7 @@ export default function App() {
     const file = new File([blob], "ipl-fantasy-leaderboard.png", { type: "image/png" });
     try {
       if (navigator.share && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file], title: "IPL Fantasy 2026 — Leaderboard" });
+        await navigator.share({ files: [file], title: "Indian Premier League 2026 — Leaderboard" });
       } else {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -1173,7 +1173,7 @@ export default function App() {
     ctx.textAlign = "left";
     ctx.font = "600 24px -apple-system, Arial, sans-serif";
     ctx.fillStyle = "#f4f4f5";
-    ctx.fillText("IPL Fantasy 2026", 36 + logoR * 2 + 12, logoY - 4);
+    ctx.fillText("Indian Premier League 2026", 36 + logoR * 2 + 12, logoY - 4);
     ctx.font = "400 14px -apple-system, Arial, sans-serif";
     ctx.fillStyle = "#3f3f46";
     ctx.fillText("All Teams · Top 11", 36 + logoR * 2 + 12, logoY + 16);
@@ -1310,7 +1310,7 @@ export default function App() {
     const file = new File([blob], "ipl-fantasy-teams.png", { type: "image/png" });
     try {
       if (navigator.share && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file], title: "IPL Fantasy 2026 — All Teams" });
+        await navigator.share({ files: [file], title: "Indian Premier League 2026 — All Teams" });
       } else {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -1428,7 +1428,7 @@ export default function App() {
     ctx.restore();
     ctx.textAlign = "left";
     ctx.font = "700 30px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#ffffff";
-    ctx.fillText("IPL Fantasy 2026", PAD + logoR * 2 + 16, 56);
+    ctx.fillText("Indian Premier League 2026", PAD + logoR * 2 + 16, 56);
     ctx.font = "400 20px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
     ctx.fillText("Match Scorecard", PAD + logoR * 2 + 16, 82);
     ctx.textAlign = "right";
@@ -3924,7 +3924,7 @@ export default function App() {
                 </div>
               </div>
               <div className="header-title-row">
-                <span className="header-title">IPL Fantasy</span>
+                <span className="header-title">Indian Premier League</span>
                 <span className="header-year">2026</span>
               </div>
             </div>
