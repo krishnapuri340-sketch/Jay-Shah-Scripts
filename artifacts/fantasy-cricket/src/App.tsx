@@ -594,10 +594,7 @@ export default function App() {
     setSupabaseSyncing(true);
     setSupabaseSyncMsg(null);
     try {
-      const res = await fetch("/api/ipl/points/sync-supabase", {
-        method: "POST",
-        headers: { "X-Owner-Id": "rajveer" },
-      });
+      const res = await fetch("/api/ipl/points/sync-supabase", { method: "POST" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `Server error ${res.status}`);
       const msg = data.changed
@@ -1294,6 +1291,201 @@ export default function App() {
         document.body.appendChild(a); a.click();
         document.body.removeChild(a); URL.revokeObjectURL(url);
         setShowToast(true); setTimeout(() => setShowToast(false), 2500);
+      }
+    } catch { /* user cancelled */ }
+  };
+
+  const shareMatchCard = async (m: any) => {
+    const W = 1080;
+    const PAD = 64;
+    const isLive = m.matchStarted && !m.matchEnded;
+    const isDone = m.matchEnded;
+    const scores = (m.score || []) as Array<{ inning: string; r?: number; w?: number; o?: number; summary?: string }>;
+    const teams = (m.teamInfo || []) as Array<{ shortname: string; img: string }>;
+
+    // Match number for fantasy points lookup
+    const mNumMatch = (m.name || "").match(/(\d+)(?:st|nd|rd|th) Match/i);
+    const matchNum = mNumMatch ? parseInt(mNumMatch[1]) : null;
+
+    // Fantasy team totals for this match
+    const fantasyRows = Object.values(FANTASY_TEAMS).map(ft => {
+      let total = 0;
+      const scorers: string[] = [];
+      for (const p of ft.top11) {
+        const entry = matchNum ? (playerMatchPoints[p.name] || []).find((e: any) => e.matchNum === matchNum) : null;
+        if (entry && entry.pts !== 0) {
+          total += entry.pts;
+          scorers.push(`${p.name.split(" ").pop()} ${entry.pts > 0 ? "+" : ""}${entry.pts}`);
+        }
+      }
+      return { ft, total, scorers };
+    }).filter(r => r.total !== 0).sort((a, b) => b.total - a.total);
+    const hasFantasy = fantasyRows.length > 0;
+
+    // Dynamic height
+    const HEADER_H = 120;
+    const SEP = 1;
+    const TITLE_H = 110;
+    const META_H = 52;
+    const SCORE_H = scores.length * 68 + 32;
+    const RESULT_H = (isDone && m.status) ? 60 : 0;
+    const FANTASY_H = hasFantasy ? (52 + fantasyRows.length * 58 + 24) : 0;
+    const H = HEADER_H + SEP + TITLE_H + META_H + SCORE_H + RESULT_H + FANTASY_H + 56;
+
+    const canvas = document.createElement("canvas");
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext("2d")!;
+
+    // Load assets
+    const logoImg = new Image(); logoImg.crossOrigin = "anonymous";
+    logoImg.src = `${import.meta.env.BASE_URL}app-icon.png`;
+    await new Promise(r => { logoImg.onload = r; logoImg.onerror = r; });
+
+    const teamLogoImgs = await Promise.all(
+      teams.slice(0, 2).map(ti => new Promise<HTMLImageElement | null>(resolve => {
+        const url = TEAM_LOGO_CDN[ti.shortname] || ti.img || "";
+        if (!url) return resolve(null);
+        const img = new Image(); img.crossOrigin = "anonymous";
+        img.onload = () => resolve(img); img.onerror = () => resolve(null);
+        img.src = url;
+      }))
+    );
+
+    // Helpers
+    const goldGrad = ctx.createLinearGradient(0, 0, W, 0);
+    goldGrad.addColorStop(0, "#a07832"); goldGrad.addColorStop(0.5, "#d4a843"); goldGrad.addColorStop(1, "#a07832");
+    const cx = W / 2;
+
+    // Background
+    ctx.fillStyle = "#080c14"; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = goldGrad; ctx.fillRect(0, 0, W, 3);
+
+    // Header
+    const logoR = 22, logoX = PAD + logoR, logoY = 66;
+    ctx.save(); ctx.beginPath(); ctx.arc(logoX, logoY, logoR, 0, Math.PI * 2); ctx.clip();
+    if (logoImg.naturalWidth > 0) ctx.drawImage(logoImg, logoX - logoR, logoY - logoR, logoR * 2, logoR * 2);
+    ctx.restore();
+    ctx.textAlign = "left";
+    ctx.font = "700 30px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#ffffff";
+    ctx.fillText("IPL Fantasy 2026", PAD + logoR * 2 + 16, 57);
+    ctx.font = "400 21px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
+    ctx.fillText("Match Scorecard", PAD + logoR * 2 + 16, 84);
+    ctx.textAlign = "right";
+    ctx.font = "600 22px -apple-system, Arial, sans-serif";
+    ctx.fillStyle = isLive ? "#22c55e" : isDone ? "#52525b" : "#60a5fa";
+    ctx.fillText(isLive ? "● LIVE" : isDone ? "COMPLETED" : "UPCOMING", W - PAD, 70);
+
+    // Separator
+    ctx.strokeStyle = "#1c1c20"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(PAD, HEADER_H); ctx.lineTo(W - PAD, HEADER_H); ctx.stroke();
+
+    let y = HEADER_H + 20;
+
+    // Team names
+    if (teams.length >= 2) {
+      const ta = teams[0], tb = teams[1];
+      const colA = IPL_COLORS[ta.shortname] || "#e4e4e7";
+      const colB = IPL_COLORS[tb.shortname] || "#e4e4e7";
+      const logoSz = 56;
+      if (teamLogoImgs[0]) ctx.drawImage(teamLogoImgs[0], cx - 310, y + 8, logoSz, logoSz);
+      ctx.textAlign = "right"; ctx.font = "800 54px -apple-system, Arial, sans-serif"; ctx.fillStyle = colA;
+      ctx.fillText(ta.shortname, cx - 36, y + 54);
+      ctx.textAlign = "center"; ctx.font = "300 28px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#3f3f46";
+      ctx.fillText("vs", cx, y + 52);
+      ctx.textAlign = "left"; ctx.font = "800 54px -apple-system, Arial, sans-serif"; ctx.fillStyle = colB;
+      ctx.fillText(tb.shortname, cx + 36, y + 54);
+      if (teamLogoImgs[1]) ctx.drawImage(teamLogoImgs[1], cx + 254, y + 8, logoSz, logoSz);
+    } else {
+      ctx.textAlign = "center"; ctx.font = "700 44px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#e4e4e7";
+      ctx.fillText((m.name || "").replace(/,\s*\d+(?:st|nd|rd|th) Match.*/i, ""), cx, y + 56);
+    }
+    y += TITLE_H;
+
+    // Meta: match num + venue
+    const mNum = (m.name || "").replace(/.*?(\d+)(?:st|nd|rd|th) Match.*/i, "M$1");
+    const venue = m.venue ? m.venue.split(",")[0] : "";
+    const meta = [mNum !== m.name ? mNum : "", venue].filter(Boolean).join("  ·  ");
+    ctx.textAlign = "center"; ctx.font = "400 24px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
+    if (meta) ctx.fillText(meta, cx, y + 28);
+    y += META_H;
+
+    // Scores section
+    ctx.strokeStyle = "#1c1c20"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(PAD, y); ctx.lineTo(W - PAD, y); ctx.stroke();
+    y += 20;
+
+    const colW = scores.length > 1 ? (W - PAD * 2 - 24) / 2 : W - PAD * 2;
+    scores.forEach((s, i) => {
+      const sx = PAD + i * (colW + 24);
+      const inn = (s.inning || "").replace(/ Innings?$/i, "");
+      const scoreStr = s.summary || (s.r != null ? `${s.r}/${s.w}` : "—");
+      const overs = s.o != null ? `(${s.o} ov)` : "";
+      ctx.textAlign = "left";
+      ctx.font = "400 20px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
+      ctx.fillText(inn, sx, y + 22);
+      ctx.font = "700 46px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#e4e4e7";
+      ctx.fillText(scoreStr, sx, y + 60);
+      if (overs) {
+        const scoreW = ctx.measureText(scoreStr).width;
+        ctx.font = "400 22px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
+        ctx.fillText(overs, sx + scoreW + 8, y + 60);
+      }
+    });
+    y += SCORE_H;
+
+    // Result
+    if (isDone && m.status) {
+      ctx.strokeStyle = "#1c1c20"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(PAD, y); ctx.lineTo(W - PAD, y); ctx.stroke();
+      y += 16;
+      ctx.textAlign = "center"; ctx.font = "500 28px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#60a5fa";
+      ctx.fillText(m.status, cx, y + 28);
+      y += RESULT_H;
+    }
+
+    // Fantasy highlights
+    if (hasFantasy) {
+      ctx.strokeStyle = "#1c1c20"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(PAD, y); ctx.lineTo(W - PAD, y); ctx.stroke();
+      y += 16;
+      ctx.textAlign = "left"; ctx.font = "600 18px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#3f3f46";
+      ctx.fillText("FANTASY POINTS THIS MATCH", PAD, y + 18);
+      y += 36;
+      fantasyRows.forEach(({ ft, total, scorers }) => {
+        ctx.fillStyle = ft.color; ctx.fillRect(PAD, y + 4, 3, 36);
+        ctx.textAlign = "left"; ctx.font = "700 30px -apple-system, Arial, sans-serif"; ctx.fillStyle = ft.color;
+        ctx.fillText(ft.owner, PAD + 14, y + 30);
+        const scorerText = scorers.slice(0, 3).join("  ·  ");
+        ctx.font = "400 20px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
+        ctx.fillText(scorerText, PAD + 14 + ctx.measureText(ft.owner).width * 1.15 + 20, y + 30);
+        ctx.textAlign = "right"; ctx.font = "700 36px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#e4e4e7";
+        ctx.fillText(String(total), W - PAD, y + 32);
+        y += 58;
+      });
+    }
+
+    // Gold bottom line
+    ctx.fillStyle = goldGrad; ctx.fillRect(0, H - 3, W, 3);
+
+    // Share
+    const blob = await new Promise<Blob | null>(r => canvas.toBlob(r, "image/png"));
+    if (!blob) return;
+    const filename = teams.length >= 2
+      ? `ipl-${teams[0].shortname}-vs-${teams[1].shortname}.png`
+      : "ipl-match.png";
+    const title = teams.length >= 2
+      ? `${teams[0].shortname} vs ${teams[1].shortname} — IPL 2026`
+      : "IPL 2026 Match";
+    const file = new File([blob], filename, { type: "image/png" });
+    try {
+      if (navigator.share && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], title });
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = filename;
+        document.body.appendChild(a); a.click();
+        document.body.removeChild(a); URL.revokeObjectURL(url);
       }
     } catch { /* user cancelled */ }
   };
@@ -1997,7 +2189,7 @@ export default function App() {
             <span style={{ fontSize: "0.68rem" }}>Share</span>
           </button>
           <button className="btn-primary" style={{ padding: "5px 11px", fontSize: "0.7rem" }}
-            onClick={() => { fetchLive(); fetchPoints(); }} disabled={liveLoading || pointsLoading}>
+            onClick={() => { fetchLive(); fetchPoints(); syncSupabase(); }} disabled={liveLoading || pointsLoading}>
             {(liveLoading || pointsLoading) ? <span className="spinner" /> : null} Refresh
           </button>
         </div>
@@ -2755,6 +2947,15 @@ export default function App() {
                         }}>
                           {isHome ? "HOME" : "AWAY"}
                         </div>
+                      )}
+                      {(isLive || isDone) && (
+                        <button onClick={e => { e.stopPropagation(); shareMatchCard(m); }}
+                          title="Share scorecard"
+                          style={{ background: "none", border: "none", padding: "2px 4px", cursor: "pointer", color: "var(--text-3)", display: "flex", alignItems: "center" }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>
+                          </svg>
+                        </button>
                       )}
                     </div>
                   </div>

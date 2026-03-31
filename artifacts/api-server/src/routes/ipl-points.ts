@@ -552,6 +552,7 @@ const PLAYER_TEAMS: Record<string, string> = {
 
 let pointsUpdateInProgress = false;
 let lastUpdateAttempt = 0;
+let lastForceSyncAt = 0; // guards the open force-sync endpoint (30 s cooldown)
 let isLiveMatchActive = false; // dynamically tracks if any IPL match is currently live
 const LIVE_COOLDOWN_MS  = 45 * 1000;       // 45 s during live matches (safe for 2000/day limit)
 const IDLE_COOLDOWN_MS  = 16 * 60 * 1000; // 16 min when idle
@@ -1284,11 +1285,16 @@ router.post("/ipl/points/reset", async (req, res) => {
   res.json({ ok: true });
 });
 
-// POST /api/ipl/points/sync-supabase — force an immediate Supabase AuctionRoom sync (Raj only)
+// POST /api/ipl/points/sync-supabase — force an immediate Supabase AuctionRoom sync (anyone, 30 s cooldown)
 router.post("/ipl/points/sync-supabase", async (req, res) => {
-  if (req.headers["x-owner-id"] !== "rajveer") return res.status(403).json({ error: "Forbidden" });
+  const now = Date.now();
+  if (now - lastForceSyncAt < 30_000) {
+    const retryIn = Math.ceil((lastForceSyncAt + 30_000 - now) / 1000);
+    return res.json({ ok: true, skipped: true, retryIn, changed: false, fixturesBefore: 0, fixturesAfter: 0 });
+  }
+  lastForceSyncAt = now;
   try {
-    console.log("[admin] Force Supabase sync triggered by Raj");
+    console.log("[sync] Force Supabase sync triggered");
     const before = Object.keys(pointsCache.supabaseScores || {}).length;
     const changed = await syncAuctionRoomScores(pointsCache, true); // force=true: re-fetch ALL fixtures
     const after = Object.keys(pointsCache.supabaseScores || {}).length;

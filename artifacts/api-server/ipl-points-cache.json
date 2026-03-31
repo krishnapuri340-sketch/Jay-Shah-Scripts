@@ -1486,16 +1486,16 @@
   "supabaseScores": {
     "d741d6a3-31a1-4ad6-bbe9-69f07f1c3ee1": {
       "points": {
-        "Virat Kohli": 145,
-        "Phil Salt": 48,
-        "Rajat Patidar": 73,
         "Jitesh Sharma": 10,
-        "Tim David": 34,
-        "Krunal Pandya": 0,
-        "Bhuvneshwar Kumar": 54,
         "Abhishek Sharma": 17,
         "Travis Head": 23,
         "Ishan Kishan": 166,
+        "Virat Kohli": 145,
+        "Phil Salt": 48,
+        "Rajat Patidar": 73,
+        "Tim David": 34,
+        "Krunal Pandya": 0,
+        "Bhuvneshwar Kumar": 54,
         "Heinrich Klaasen": 71,
         "Harshal Patel": 2
       },
@@ -1508,8 +1508,8 @@
       "points": {
         "Suryakumar Yadav": 32,
         "Rohit Sharma": 162,
-        "Ryan Rickelton": 167,
         "Tilak Varma": 58,
+        "Ryan Rickelton": 167,
         "Hardik Pandya": 84,
         "Sherfane Rutherford": 12,
         "Trent Boult": 18,
@@ -1528,8 +1528,8 @@
     },
     "bd620723-6d40-4794-a046-c1f146af908a": {
       "points": {
-        "Dhruv Jurel": 64,
-        "Shimron Hetmyer": 4,
+        "Dhruv Jurel": 54,
+        "Shimron Hetmyer": 14,
         "Riyan Parag": 28,
         "Khaleel Ahmed": 30,
         "Ravindra Jadeja": 98,
@@ -2149,7 +2149,7 @@
       "teamB": "Delhi Capitals"
     }
   },
-  "lastUpdated": "2026-03-30T18:34:31.196Z",
+  "lastUpdated": "2026-03-31T13:02:07.382Z",
   "dailyHits": {
     "date": "2026-03-31",
     "count": 0
