@@ -379,6 +379,8 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
       <style>{`
         @keyframes login-fade-up { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
         @keyframes team-card-in { from { opacity:0; transform:scale(0.9) translateY(15px); } to { opacity:1; transform:scale(1) translateY(0); } }
+        @keyframes welcome-pop { from { opacity:0; transform:scale(0.88) translateY(6px); } to { opacity:1; transform:scale(1) translateY(0); } }
+        @keyframes login-icon-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .team-card { transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) !important; position: relative; overflow: hidden; }
         .team-card::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 100%); opacity: 0; transition: opacity 0.25s ease; }
         .team-card:hover { transform: translateY(-3px) !important; box-shadow: 0 10px 28px rgba(0,0,0,0.5) !important; border-color: rgba(255,255,255,0.25) !important; }
@@ -387,21 +389,49 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
       `}</style>
 
       {/* Logo */}
-      <div style={{ animation: "login-fade-up 0.3s ease-out", display: "flex", flexDirection: "column" as const, alignItems: "center", marginBottom: 48 }}>
-        <div style={{ position: "relative", width: 96, height: 96, borderRadius: 26, marginBottom: 18, boxShadow: "0 0 0 2.5px #dfb23e, 0 12px 36px rgba(223,178,62,0.35)" }}>
-          <img
-            src={`${import.meta.env.BASE_URL}app-icon.png`}
-            alt="Indian Premier League"
-            style={{ width: "100%", height: "100%", borderRadius: 26, objectFit: "cover", objectPosition: "center 10%", display: "block", transform: "scale(1.08)", transformOrigin: "center top" }}
-          />
-        </div>
-        <div style={{ fontSize: "1.4rem", fontWeight: 900, color: "#ffffff", letterSpacing: "-0.02em", lineHeight: 1.15, fontFamily: "'Oswald', sans-serif", textTransform: "uppercase", textAlign: "center" }}>Indian Premier League</div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8 }}>
-          <div style={{ width: 32, height: 1, background: "linear-gradient(90deg, transparent, rgba(223,178,62,0.5))" }} />
-          <div style={{ fontSize: "0.65rem", color: "#dfb23e", letterSpacing: "0.25em", fontWeight: 700 }}>2026 SEASON</div>
-          <div style={{ width: 32, height: 1, background: "linear-gradient(270deg, transparent, rgba(223,178,62,0.5))" }} />
-        </div>
-      </div>
+      {(() => {
+        const savedId = localStorage.getItem("ipl-current-user");
+        const savedTeam = savedId ? FANTASY_TEAMS[savedId] : null;
+        return (
+          <div style={{ animation: "login-fade-up 0.3s ease-out", display: "flex", flexDirection: "column" as const, alignItems: "center", marginBottom: savedTeam ? 28 : 48 }}>
+            {/* spinning ring icon */}
+            <div style={{ position: "relative", width: 96, height: 96, marginBottom: 18 }}>
+              <div style={{
+                position: "absolute", inset: -2, borderRadius: 28,
+                background: "conic-gradient(from 0deg, rgba(223,178,62,0) 0deg, rgba(223,178,62,0.7) 60deg, rgba(255,240,180,0.9) 90deg, rgba(223,178,62,0.7) 120deg, rgba(223,178,62,0) 180deg, rgba(223,178,62,0) 270deg, rgba(223,178,62,0.4) 330deg, rgba(223,178,62,0) 360deg)",
+                animation: "login-icon-spin 8s linear infinite",
+              }} />
+              <div style={{ position: "absolute", inset: 2, borderRadius: 25, background: "#0d1117", overflow: "hidden" }}>
+                <img
+                  src={`${import.meta.env.BASE_URL}app-icon.png`}
+                  alt="Indian Premier League"
+                  style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 10%", display: "block", transform: "scale(1.08)", transformOrigin: "center top" }}
+                />
+              </div>
+            </div>
+            <div style={{ fontSize: "1.4rem", fontWeight: 900, color: "#ffffff", letterSpacing: "-0.02em", lineHeight: 1.15, fontFamily: "'Oswald', sans-serif", textTransform: "uppercase", textAlign: "center" }}>Indian Premier League</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8 }}>
+              <div style={{ width: 32, height: 1, background: "linear-gradient(90deg, transparent, rgba(223,178,62,0.5))" }} />
+              <div style={{ fontSize: "0.65rem", color: "#dfb23e", letterSpacing: "0.25em", fontWeight: 700 }}>2026 SEASON</div>
+              <div style={{ width: 32, height: 1, background: "linear-gradient(270deg, transparent, rgba(223,178,62,0.5))" }} />
+            </div>
+            {savedTeam && (
+              <div style={{
+                marginTop: 20,
+                display: "inline-flex", alignItems: "center", gap: 8,
+                background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.25)",
+                borderRadius: 24, padding: "7px 16px",
+                animation: "welcome-pop 0.4s cubic-bezier(0.34,1.56,0.64,1) 0.15s both",
+              }}>
+                <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#10b981", boxShadow: "0 0 8px rgba(16,185,129,0.6)", flexShrink: 0 }} />
+                <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "#34d399", letterSpacing: "0.01em" }}>
+                  Welcome back, {savedTeam.owner}!
+                </span>
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {/* Label */}
       <div style={{ fontSize: "0.58rem", letterSpacing: "0.14em", color: "#52525b", textTransform: "uppercase" as const, marginBottom: 16, animation: "login-fade-up 0.35s ease-out" }}>
