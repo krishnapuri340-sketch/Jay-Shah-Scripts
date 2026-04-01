@@ -3375,65 +3375,92 @@ export default function App() {
                           <div style={{ fontSize: "0.65rem", fontWeight: 600, color: "var(--text-2)", letterSpacing: "0.06em", textTransform: "uppercase" as const, marginBottom: 8 }}>
                             {inn.name} · <span style={{ color: "var(--text)" }}>{inn.total}</span>
                           </div>
-                          {inn.batting?.length > 0 && (
-                            <div style={{ overflowX: "auto" }}>
-                              <table style={{ width: "100%", borderCollapse: "collapse" as const, fontSize: "0.68rem" }}>
-                                <thead>
-                                  <tr style={{ color: "var(--text-3)", borderBottom: "1px solid var(--border)" }}>
-                                    <th style={{ textAlign: "left" as const, padding: "4px 0", fontWeight: 600 }}>Batter</th>
-                                    <th style={{ textAlign: "right" as const, padding: "4px 4px", fontWeight: 600 }}>R</th>
-                                    <th style={{ textAlign: "right" as const, padding: "4px 4px", fontWeight: 600 }}>B</th>
-                                    <th style={{ textAlign: "right" as const, padding: "4px 4px", fontWeight: 600 }}>4s</th>
-                                    <th style={{ textAlign: "right" as const, padding: "4px 4px", fontWeight: 600 }}>6s</th>
-                                    <th style={{ textAlign: "right" as const, padding: "4px 4px", fontWeight: 600 }}>SR</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {inn.batting.filter((b: any) => !b.dnb).map((b: any, bi: number) => (
-                                    <tr key={bi} style={{ borderBottom: "1px solid var(--border)" }}>
-                                      <td style={{ padding: "5px 0" }}>
-                                        <div style={{ color: b.notOut ? "#22c55e" : "var(--text)" }}>{b.name}</div>
-                                        <div style={{ color: "var(--text-3)", fontSize: "0.58rem" }}>{b.dismissal}</div>
-                                      </td>
-                                      <td style={{ textAlign: "right" as const, padding: "5px 4px", color: "var(--text)", fontWeight: 700 }}>{b.runs}</td>
-                                      <td style={{ textAlign: "right" as const, padding: "5px 4px", color: "var(--text-3)" }}>{b.balls}</td>
-                                      <td style={{ textAlign: "right" as const, padding: "5px 4px", color: "var(--blue)" }}>{b.fours}</td>
-                                      <td style={{ textAlign: "right" as const, padding: "5px 4px", color: "#a855f7" }}>{b.sixes}</td>
-                                      <td style={{ textAlign: "right" as const, padding: "5px 4px", color: "var(--text-3)" }}>{parseFloat(b.sr).toFixed(1)}</td>
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </div>
-                          )}
-                          {inn.bowling?.length > 0 && (
-                            <div style={{ marginTop: 10, overflowX: "auto" }}>
-                              <table style={{ width: "100%", borderCollapse: "collapse" as const, fontSize: "0.68rem" }}>
-                                <thead>
-                                  <tr style={{ color: "var(--text-3)", borderBottom: "1px solid var(--border)" }}>
-                                    <th style={{ textAlign: "left" as const, padding: "4px 0", fontWeight: 600 }}>Bowler</th>
-                                    <th style={{ textAlign: "right" as const, padding: "4px 4px", fontWeight: 600 }}>O</th>
-                                    <th style={{ textAlign: "right" as const, padding: "4px 4px", fontWeight: 600 }}>M</th>
-                                    <th style={{ textAlign: "right" as const, padding: "4px 4px", fontWeight: 600 }}>R</th>
-                                    <th style={{ textAlign: "right" as const, padding: "4px 4px", fontWeight: 600 }}>W</th>
-                                    <th style={{ textAlign: "right" as const, padding: "4px 4px", fontWeight: 600 }}>ECO</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {inn.bowling.map((b: any, bi: number) => (
-                                    <tr key={bi} style={{ borderBottom: "1px solid var(--border)" }}>
-                                      <td style={{ padding: "5px 0", color: "var(--text)" }}>{b.name}</td>
-                                      <td style={{ textAlign: "right" as const, padding: "5px 4px", color: "var(--text-3)" }}>{b.overs}</td>
-                                      <td style={{ textAlign: "right" as const, padding: "5px 4px", color: "var(--text-3)" }}>{b.maidens}</td>
-                                      <td style={{ textAlign: "right" as const, padding: "5px 4px", color: "var(--text-3)" }}>{b.runs}</td>
-                                      <td style={{ textAlign: "right" as const, padding: "5px 4px", color: "#22c55e", fontWeight: 700 }}>{b.wickets}</td>
-                                      <td style={{ textAlign: "right" as const, padding: "5px 4px", color: "var(--text-3)" }}>{parseFloat(b.eco).toFixed(2)}</td>
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </div>
-                          )}
+                          {/* Shared column widths: name=auto, then 5 stat cols same in both tables */}
+                          {(() => {
+                            // col widths: [name, c1, c2, c3, c4, c5]
+                            // c1=R/O  c2=B/M  c3=4s/R  c4=6s/W  c5=SR/ECO
+                            const COL_W = ["auto", 34, 28, 30, 28, 46] as const;
+                            const colGroup = (
+                              <colgroup>
+                                <col style={{ width: COL_W[0] }} />
+                                {COL_W.slice(1).map((w, i) => <col key={i} style={{ width: w }} />)}
+                              </colgroup>
+                            );
+                            const tdNum = (extra?: React.CSSProperties): React.CSSProperties => ({
+                              textAlign: "right", padding: "5px 2px", ...extra,
+                            });
+                            const thNum = (): React.CSSProperties => ({
+                              textAlign: "right", padding: "4px 2px", fontWeight: 600,
+                            });
+                            const tblStyle: React.CSSProperties = {
+                              width: "100%", borderCollapse: "collapse", fontSize: "0.68rem", tableLayout: "fixed",
+                            };
+                            return (
+                              <>
+                                {inn.batting?.length > 0 && (
+                                  <div style={{ overflowX: "auto" }}>
+                                    <table style={tblStyle}>
+                                      {colGroup}
+                                      <thead>
+                                        <tr style={{ color: "var(--text-3)", borderBottom: "1px solid var(--border)" }}>
+                                          <th style={{ textAlign: "left", padding: "4px 0", fontWeight: 600 }}>Batter</th>
+                                          <th style={thNum()}>R</th>
+                                          <th style={thNum()}>B</th>
+                                          <th style={thNum()}>4s</th>
+                                          <th style={thNum()}>6s</th>
+                                          <th style={thNum()}>SR</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {inn.batting.filter((b: any) => !b.dnb).map((b: any, bi: number) => (
+                                          <tr key={bi} style={{ borderBottom: "1px solid var(--border)" }}>
+                                            <td style={{ padding: "5px 0" }}>
+                                              <div style={{ color: b.notOut ? "#22c55e" : "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{b.name}</div>
+                                              <div style={{ color: "var(--text-3)", fontSize: "0.58rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{b.dismissal}</div>
+                                            </td>
+                                            <td style={tdNum({ color: "var(--text)", fontWeight: 700 })}>{b.runs}</td>
+                                            <td style={tdNum({ color: "var(--text-3)" })}>{b.balls}</td>
+                                            <td style={tdNum({ color: "var(--blue)" })}>{b.fours}</td>
+                                            <td style={tdNum({ color: "#a855f7" })}>{b.sixes}</td>
+                                            <td style={tdNum({ color: "var(--text-3)" })}>{parseFloat(b.sr).toFixed(1)}</td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                )}
+                                {inn.bowling?.length > 0 && (
+                                  <div style={{ marginTop: 10, overflowX: "auto" }}>
+                                    <table style={tblStyle}>
+                                      {colGroup}
+                                      <thead>
+                                        <tr style={{ color: "var(--text-3)", borderBottom: "1px solid var(--border)" }}>
+                                          <th style={{ textAlign: "left", padding: "4px 0", fontWeight: 600 }}>Bowler</th>
+                                          <th style={thNum()}>O</th>
+                                          <th style={thNum()}>M</th>
+                                          <th style={thNum()}>R</th>
+                                          <th style={thNum()}>W</th>
+                                          <th style={thNum()}>ECO</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {inn.bowling.map((b: any, bi: number) => (
+                                          <tr key={bi} style={{ borderBottom: "1px solid var(--border)" }}>
+                                            <td style={{ padding: "5px 0", color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{b.name}</td>
+                                            <td style={tdNum({ color: "var(--text-3)" })}>{b.overs}</td>
+                                            <td style={tdNum({ color: "var(--text-3)" })}>{b.maidens}</td>
+                                            <td style={tdNum({ color: "var(--text-3)" })}>{b.runs}</td>
+                                            <td style={tdNum({ color: "#22c55e", fontWeight: 700 })}>{b.wickets}</td>
+                                            <td style={tdNum({ color: "var(--text-3)" })}>{parseFloat(b.eco).toFixed(2)}</td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                )}
+                              </>
+                            );
+                          })()}
                         </div>
                       ))}
                         </div>
