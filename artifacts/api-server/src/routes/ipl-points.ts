@@ -57,6 +57,7 @@ interface BowlingRow {
   eco: string;
   wides: number;
   noBalls: number;
+  dots?: number;
 }
 
 interface InningData {
@@ -346,7 +347,7 @@ function processScorecard(scorecard: any[]): { players: Record<string, PlayerSta
       const dots = parseInt(bowl.dots || bowl.d || bowl.D || "0") || 0;
       const eco = bowl.eco || (balls > 0 ? ((runsC / (balls / 6))).toFixed(2) : "0.00");
 
-      bowlingRows.push({ name, overs: String(bowl.o || "0"), maidens, runs: runsC, wickets, eco: String(eco), wides, noBalls });
+      bowlingRows.push({ name, overs: String(bowl.o || "0"), maidens, runs: runsC, wickets, eco: String(eco), wides, noBalls, dots });
 
       const p = getPlayer(name);
       p.ballsBowled = (p.ballsBowled || 0) + balls;
@@ -383,6 +384,78 @@ function processScorecard(scorecard: any[]): { players: Record<string, PlayerSta
   }
 
   return { players, innings };
+}
+
+// Derive fantasy points directly from pre-parsed InningData[] (e.g. from S3 innings feed).
+// Mirrors processScorecard logic but works on the already-normalised display format.
+function processInningsForPoints(
+  innings: InningData[],
+  allPlayers: string[],
+  homeTeam: string,
+  awayTeam: string,
+): ProcessedMatchData {
+  const rawStats: Record<string, PlayerStats> = {};
+  const getP = (name: string): PlayerStats => {
+    const key = normalizeName(name);
+    if (!rawStats[key]) {
+      rawStats[key] = { played: true, runs: 0, balls: 0, fours: 0, sixes: 0, duck: false,
+        wickets: 0, dots: 0, lbwBowled: 0, maidens: 0, ballsBowled: 0, runsConceded: 0,
+        catches: 0, runOuts: 0, stumpings: 0 };
+    }
+    return rawStats[key];
+  };
+
+  for (const inn of innings) {
+    for (const b of inn.batting) {
+      if (b.dnb) continue;
+      const p = getP(b.name);
+      p.runs += b.runs;
+      p.balls += b.balls;
+      p.fours += b.fours;
+      p.sixes += b.sixes;
+      if (!b.notOut && b.runs === 0) p.duck = true;
+
+      const parsed = parseDismissal(b.dismissal);
+      if (parsed.caught) {
+        const catcher = getP(parsed.caught);
+        if (!b.dismissal.toLowerCase().includes("& b")) catcher.catches++;
+      }
+      if (parsed.stumped) getP(parsed.stumped).stumpings++;
+      if (parsed.runOut) getP(parsed.runOut).runOuts++;
+      if (parsed.lbwBowled) {
+        const bMatch = b.dismissal.match(/\sb\s(.+)$/);
+        if (bMatch) getP(bMatch[1].trim()).lbwBowled++;
+      }
+    }
+
+    for (const b of inn.bowling) {
+      const p = getP(b.name);
+      p.ballsBowled += parseOversTooBalls(b.overs);
+      p.runsConceded += b.runs;
+      p.wickets += b.wickets;
+      p.maidens += b.maidens;
+      p.dots += b.dots ?? 0;
+    }
+  }
+
+  const points: Record<string, number> = {};
+  const playerStats: Record<string, PlayerStats> = {};
+  for (const fantasyName of allPlayers) {
+    const tc = PLAYER_TEAMS[fantasyName];
+    if (tc) {
+      if (!teamNamesMatch(homeTeam, tc) && !teamNamesMatch(awayTeam, tc)) continue;
+    }
+    const norm = normalizeName(fantasyName);
+    for (const [key, stats] of Object.entries(rawStats)) {
+      if (namesMatch(key, norm)) {
+        points[fantasyName] = calcPoints(stats);
+        playerStats[fantasyName] = stats;
+        break;
+      }
+    }
+  }
+
+  return { points, innings, playerStats };
 }
 
 async function cricapiGet(endpoint: string, params: Record<string, string> = {}): Promise<any> {
@@ -806,11 +879,37 @@ router.get("/ipl/points", async (req, res) => {
                 }
               }
 
-              // 2c. Determine which matches need CricAPI (live + recently completed without Supabase)
+              // 2c. Fill completed matches via S3 innings (free, official, no API credits)
+              const supabaseLinkedNow = new Set(
+                Object.values(pointsCache.supabaseScores).map(f => f.linkedIplId).filter(Boolean) as string[]
+              );
+              const s3NeedMatches = allMatches.filter((m: any) => {
+                if (m.MatchStatus !== "Post") return false;
+                const iplId = String(m.MatchID);
+                const cached = pointsCache.processedMatches[iplId];
+                return !cached || !cached.innings?.length || cached.innings.length < 2;
+              });
+              for (const iplMatch of s3NeedMatches) {
+                const iplId = String(iplMatch.MatchID);
+                try {
+                  const s3Innings = await fetchIplS3Innings(iplId, true);
+                  if (s3Innings.length >= 2) {
+                    const homeTeam = iplMatch.HomeTeamName || "";
+                    const awayTeam = iplMatch.AwayTeamName || "";
+                    const matchData = processInningsForPoints(s3Innings, FANTASY_PLAYER_NAMES, homeTeam, awayTeam);
+                    const isSupabaseCovered = supabaseLinkedNow.has(iplId);
+                    pointsCache.processedMatches[iplId] = isSupabaseCovered
+                      ? { points: {}, innings: matchData.innings, playerStats: matchData.playerStats }
+                      : matchData;
+                    const tag = isSupabaseCovered ? "S3-innings-only" : "S3-points";
+                    console.log(`[s3] ${tag} match ${iplId}: ${s3Innings.length} innings, ${Object.keys(matchData.points).length} pts`);
+                    saveCache(pointsCache);
+                  }
+                } catch (_) {}
+              }
+
+              // 2d. CricAPI for live matches + any completed matches S3 couldn't fill
               if (CRICAPI_KEY && pointsCache.dailyHits.count < DAILY_CALL_LIMIT) {
-                const supabaseLinkedNow = new Set(
-                  Object.values(pointsCache.supabaseScores).map(f => f.linkedIplId).filter(Boolean) as string[]
-                );
                 const liveMatches = allMatches.filter((m: any) => m.MatchStatus === "Live");
                 isLiveMatchActive = liveMatches.length > 0;
                 if (isLiveMatchActive) console.log(`[live] ${liveMatches.length} match(es) live — 1-min CricAPI cooldown active`);
@@ -818,7 +917,7 @@ router.get("/ipl/points", async (req, res) => {
                   if (m.MatchStatus !== "Post") return false;
                   const iplId = String(m.MatchID);
                   const cached = pointsCache.processedMatches[iplId];
-                  // Re-fetch if: no data, no innings, or only 1 innings (match should have 2 for stats)
+                  // Still incomplete after S3 pass — need CricAPI
                   return !cached || !cached.innings?.length || cached.innings.length < 2;
                 });
                 const needsCricapi = [...liveMatches, ...fallbackMatches].slice(0, 3);
@@ -1147,6 +1246,7 @@ async function fetchIplS3Innings(matchId: string, isCompleted: boolean): Promise
       name: (b.PlayerName || "").trim(), overs: String(b.Overs ?? ""), maidens: b.Maidens ?? 0,
       runs: b.Runs ?? 0, wickets: b.Wickets ?? 0, eco: String(b.Economy ?? ""),
       wides: b.Wides ?? 0, noBalls: b.NoBalls ?? 0,
+      dots: b.Dots ?? b.DotBalls ?? 0,
     })).filter((b: BowlingRow) => b.name);
     return { name: `${teamName} Inning ${n}`, total: totalStr, batting, bowling };
   };

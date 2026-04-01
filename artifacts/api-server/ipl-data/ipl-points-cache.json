@@ -2062,7 +2062,7 @@
         "Rishabh Pant": 15,
         "Nitish Rana": 31,
         "Lungi Ngidi": 104,
-        "Tristan Stubbs": 30,
+        "Tristan Stubbs": 33,
         "KL Rahul": 2,
         "Mitchell Marsh": 69,
         "Kuldeep Yadav": 66,
@@ -2204,7 +2204,8 @@
               "wickets": 0,
               "eco": "5.7",
               "wides": 2,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 0
             },
             {
               "name": "Lungi Ngidi",
@@ -2214,7 +2215,8 @@
               "wickets": 3,
               "eco": "7.4",
               "wides": 0,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 0
             },
             {
               "name": "Axar Patel",
@@ -2224,7 +2226,8 @@
               "wickets": 1,
               "eco": "5.7",
               "wides": 0,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 0
             },
             {
               "name": "T Natarajan",
@@ -2234,7 +2237,8 @@
               "wickets": 3,
               "eco": "7.2",
               "wides": 0,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 0
             },
             {
               "name": "Kuldeep Yadav",
@@ -2244,7 +2248,8 @@
               "wickets": 2,
               "eco": "7.8",
               "wides": 0,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 0
             },
             {
               "name": "Vipraj Nigam",
@@ -2254,13 +2259,14 @@
               "wickets": 0,
               "eco": "8",
               "wides": 0,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 0
             }
           ]
         },
         {
           "name": "Delhi Capitals Inning 1",
-          "total": "49/4 (9.1 ov)",
+          "total": "68/4 (10.4 ov)",
           "batting": [
             {
               "name": "KL Rahul",
@@ -2297,11 +2303,11 @@
             },
             {
               "name": "Sameer Rizvi",
-              "runs": 15,
-              "balls": 17,
-              "fours": 0,
+              "runs": 31,
+              "balls": 23,
+              "fours": 3,
               "sixes": 1,
-              "sr": "88.24",
+              "sr": "134.78",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -2319,11 +2325,11 @@
             },
             {
               "name": "Tristan Stubbs",
-              "runs": 18,
-              "balls": 14,
+              "runs": 21,
+              "balls": 17,
               "fours": 2,
               "sixes": 0,
-              "sr": "128.57",
+              "sr": "123.53",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -2338,7 +2344,8 @@
               "wickets": 1,
               "eco": "7",
               "wides": 4,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 0
             },
             {
               "name": "Prince Yadav",
@@ -2348,7 +2355,8 @@
               "wickets": 2,
               "eco": "7",
               "wides": 4,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 0
             },
             {
               "name": "Mohsin Khan",
@@ -2358,27 +2366,30 @@
               "wickets": 1,
               "eco": "1",
               "wides": 0,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 0
             },
             {
               "name": "Anrich Nortje",
-              "overs": "1",
+              "overs": "1.4",
               "maidens": 0,
-              "runs": 13,
+              "runs": 18,
               "wickets": 0,
-              "eco": "13",
+              "eco": "10.8",
               "wides": 2,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 0
             },
             {
               "name": "Shahbaz Ahmed",
-              "overs": "0.1",
+              "overs": "1",
               "maidens": 0,
-              "runs": 2,
+              "runs": 16,
               "wickets": 0,
-              "eco": "12",
+              "eco": "16",
               "wides": 0,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 0
             }
           ]
         }
@@ -2505,8 +2516,8 @@
         },
         "Tristan Stubbs": {
           "played": true,
-          "runs": 18,
-          "balls": 14,
+          "runs": 21,
+          "balls": 17,
           "fours": 2,
           "sixes": 0,
           "duck": false,
@@ -3281,9 +3292,9 @@
       "teamB": "Delhi Capitals"
     }
   },
-  "lastUpdated": "2026-04-01T16:50:08.404Z",
+  "lastUpdated": "2026-04-01T17:02:42.927Z",
   "dailyHits": {
     "date": "2026-04-01",
-    "count": 205
+    "count": 251
   }
 }
