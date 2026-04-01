@@ -2062,7 +2062,7 @@
         "Rishabh Pant": 15,
         "Nitish Rana": 31,
         "Lungi Ngidi": 104,
-        "Tristan Stubbs": 17,
+        "Tristan Stubbs": 20,
         "KL Rahul": 2,
         "Mitchell Marsh": 69,
         "Kuldeep Yadav": 66,
@@ -2260,7 +2260,7 @@
         },
         {
           "name": "Delhi Capitals Inning 1",
-          "total": "29/4 (7.2 ov)",
+          "total": "39/4 (8.0 ov)",
           "batting": [
             {
               "name": "KL Rahul",
@@ -2297,11 +2297,11 @@
             },
             {
               "name": "Sameer Rizvi",
-              "runs": 4,
-              "balls": 12,
+              "runs": 11,
+              "balls": 14,
               "fours": 0,
-              "sixes": 0,
-              "sr": "33.33",
+              "sixes": 1,
+              "sr": "78.57",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -2319,11 +2319,11 @@
             },
             {
               "name": "Tristan Stubbs",
-              "runs": 9,
-              "balls": 8,
+              "runs": 12,
+              "balls": 10,
               "fours": 1,
               "sixes": 0,
-              "sr": "112.5",
+              "sr": "120",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -2362,12 +2362,12 @@
             },
             {
               "name": "Anrich Nortje",
-              "overs": "0.2",
+              "overs": "1",
               "maidens": 0,
-              "runs": 2,
+              "runs": 13,
               "wickets": 0,
-              "eco": "6",
-              "wides": 1,
+              "eco": "13",
+              "wides": 2,
               "noBalls": 0
             }
           ]
@@ -2495,8 +2495,8 @@
         },
         "Tristan Stubbs": {
           "played": true,
-          "runs": 9,
-          "balls": 8,
+          "runs": 12,
+          "balls": 10,
           "fours": 1,
           "sixes": 0,
           "duck": false,
@@ -3274,6 +3274,6 @@
   "lastUpdated": "2026-04-01T16:33:41.305Z",
   "dailyHits": {
     "date": "2026-04-01",
-    "count": 144
+    "count": 156
   }
 }
