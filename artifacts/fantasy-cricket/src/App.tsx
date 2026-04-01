@@ -346,41 +346,32 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
   };
   const back = () => { if (!checking) setEntered(e => e.slice(0, -1)); };
 
-  // ── Cinematic background shared by both screens ───────────────────────────
+  // ── Cinematic background — real image + blended dark overlays ─────────────
+  const BASE = import.meta.env.BASE_URL;
   const cinematicBg = {
     position: "fixed" as const, inset: 0, zIndex: 1000,
     overflow: "hidden",
     background: `
       linear-gradient(to bottom,
-        rgba(4,3,2,0.97) 0%,
-        rgba(4,3,2,0.65) 10%,
-        rgba(0,0,0,0.08) 30%,
-        rgba(0,0,0,0.04) 48%,
-        rgba(0,0,0,0.12) 62%,
-        rgba(4,3,2,0.82) 80%,
-        rgba(4,3,2,0.98) 100%
+        rgba(5,3,2,0.90) 0%,
+        rgba(5,3,2,0.52) 14%,
+        rgba(5,3,2,0.10) 34%,
+        rgba(5,3,2,0.08) 52%,
+        rgba(5,3,2,0.42) 68%,
+        rgba(5,3,2,0.80) 80%,
+        rgba(5,3,2,0.97) 100%
       ),
-      radial-gradient(ellipse 28% 52% at 50% 60%, rgba(245,160,35,0.92) 0%, rgba(220,105,12,0.72) 22%, rgba(165,58,6,0.28) 52%, transparent 70%),
-      radial-gradient(ellipse 55% 22% at 50% 90%, rgba(245,120,22,0.45) 0%, transparent 65%),
-      radial-gradient(ellipse 90% 32% at 50% 78%, rgba(155,75,18,0.22) 0%, transparent 62%),
-      radial-gradient(ellipse 65% 28% at 22% 62%, rgba(205,155,82,0.14) 0%, transparent 58%),
-      radial-gradient(ellipse 60% 26% at 78% 58%, rgba(185,125,52,0.12) 0%, transparent 52%),
-      radial-gradient(ellipse 100% 40% at 50% 100%, rgba(85,32,6,0.55) 0%, transparent 55%),
-      radial-gradient(ellipse 140% 60% at 50% 115%, rgba(40,15,3,0.9) 0%, transparent 60%),
-      linear-gradient(185deg, #050302 0%, #1a1009 40%, #0e0804 70%, #050302 100%)
+      url(${BASE}login-bg.jpeg)
     `,
+    backgroundSize: "cover, cover",
+    backgroundPosition: "center top, center top",
+    backgroundRepeat: "no-repeat, no-repeat",
   };
 
   if (sel) {
     const ft = FANTASY_TEAMS[sel];
     return (
       <div style={{ ...cinematicBg, display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center" }}>
-        {/* Animated glow pulse layer */}
-        <div style={{
-          position: "absolute", inset: 0, pointerEvents: "none",
-          background: "radial-gradient(ellipse 30% 40% at 50% 60%, rgba(245,160,35,0.08) 0%, transparent 65%)",
-          animation: "loginGlowPulse 4s ease-in-out infinite",
-        }} />
         <style>{`
           @keyframes login-fade-up { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
           @keyframes loginGlowPulse { 0%,100%{opacity:0.6} 50%{opacity:1} }
@@ -453,12 +444,6 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
 
   return (
     <div style={{ ...cinematicBg, display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", padding: "0 24px" }}>
-      {/* Animated glow pulse */}
-      <div style={{
-        position: "absolute", inset: 0, pointerEvents: "none",
-        background: "radial-gradient(ellipse 32% 42% at 50% 60%, rgba(245,160,35,0.07) 0%, transparent 65%)",
-        animation: "loginGlowPulse 5s ease-in-out infinite",
-      }} />
       <style>{`
         @keyframes login-fade-up { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
         @keyframes team-card-in { from { opacity:0; transform:scale(0.88) translateY(18px); } to { opacity:1; transform:scale(1) translateY(0); } }
