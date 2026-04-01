@@ -3455,10 +3455,10 @@ export default function App() {
                                             <div key={bi} style={{ display: "grid", gridTemplateColumns: BGRID, padding: "8px 12px", borderBottom: isLastBat ? "none" : "1px solid var(--border)", alignItems: "start" }}>
                                               <div style={{ minWidth: 0, paddingRight: 6 }}>
                                                 <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                                                  {isF && <span style={{ fontSize: "0.44rem", background: "rgba(74,222,128,0.15)", color: "#4ade80", borderRadius: 4, padding: "1px 4px", flexShrink: 0, fontWeight: 800, letterSpacing: "0.02em" }}>F</span>}
                                                   <span style={{ fontSize: SZ_NAME, fontWeight: showNotOut ? 700 : 500, color: showNotOut ? "#4ade80" : "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
                                                     {b.name}{showNotOut ? "*" : ""}
                                                   </span>
+                                                  {isF && <span style={{ fontSize: "0.44rem", background: "rgba(74,222,128,0.15)", color: "#4ade80", borderRadius: 4, padding: "1px 4px", flexShrink: 0, fontWeight: 800, letterSpacing: "0.02em" }}>F</span>}
                                                 </div>
                                                 {b.dismissal && b.dismissal !== "not out" && b.dismissal !== "DNB" && (
                                                   <div style={{ fontSize: SZ_SUB, color: "var(--text-3)", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{b.dismissal}</div>
