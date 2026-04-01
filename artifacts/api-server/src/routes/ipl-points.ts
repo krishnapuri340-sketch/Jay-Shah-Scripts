@@ -1122,6 +1122,10 @@ router.get("/ipl/playing11", async (req, res) => {
 // Live matches: cached 30 s (score updates frequently)
 const summaryCache = new Map<string, { data: any; timestamp: number; isCompleted: boolean }>();
 
+// Tracks which completed matches we've already attempted a lazy CricAPI scorecard fetch for
+// (prevents hammering the API if the scorecard genuinely isn't available yet)
+const lazyFetchAttempted = new Set<string>();
+
 export async function fetchMatchOverview(matchId: string, isCompleted: boolean): Promise<any> {
   const entry = summaryCache.get(matchId);
   const ttl = isCompleted ? Infinity : 30_000;
@@ -1163,9 +1167,49 @@ export async function fetchMatchOverview(matchId: string, isCompleted: boolean):
 
 router.get("/ipl/scorecard/:matchId", async (req, res) => {
   const { matchId } = req.params;
-  const cached = pointsCache.processedMatches[matchId];
-  const innings = cached?.innings || [];
-  const isCompleted = !!cached;   // if it's in our points cache it's been processed → done
+
+  // Reload in-memory cache from disk if stale (same 30 s TTL as other routes)
+  if (Date.now() - lastPointsCacheReload > 30000) {
+    pointsCache = loadCache();
+    lastPointsCacheReload = Date.now();
+  }
+
+  let cached = pointsCache.processedMatches[matchId];
+  let innings: any[] = cached?.innings || [];
+
+  // For completed matches that have no innings yet (e.g. the live poller stopped
+  // just before the final scorecard was written), do one lazy CricAPI fetch per
+  // match so the scorecard appears without needing an admin action.
+  if (!innings.length && CRICAPI_KEY && !lazyFetchAttempted.has(matchId)) {
+    lazyFetchAttempted.add(matchId);
+    const cricapiId = (pointsCache.cricapiMatchIds || {})[matchId];
+    if (cricapiId) {
+      try {
+        const meta = (pointsCache.matchMetadata || {})[matchId];
+        const matchData = await processSingleMatch(
+          cricapiId, FANTASY_PLAYER_NAMES, meta?.teamA || "", meta?.teamB || ""
+        );
+        if (matchData.innings.length > 0) {
+          const isSupabaseCovered = Object.values(pointsCache.supabaseScores || {})
+            .some((f: any) => f.linkedIplId === matchId);
+          pointsCache.processedMatches[matchId] = isSupabaseCovered
+            ? { points: {}, innings: matchData.innings, playerStats: matchData.playerStats || {} }
+            : matchData;
+          saveCache(pointsCache);
+          innings = matchData.innings;
+          cached = pointsCache.processedMatches[matchId];
+          console.log(`[scorecard] Lazy-fetched ${matchId}: ${innings.length} innings`);
+        } else {
+          // If CricAPI returned nothing, allow a retry on the next request
+          lazyFetchAttempted.delete(matchId);
+        }
+      } catch (_) {
+        lazyFetchAttempted.delete(matchId);
+      }
+    }
+  }
+
+  const isCompleted = !!cached;
 
   // Return innings immediately from in-memory cache while overview fetches in parallel
   const overviewPromise = fetchMatchOverview(matchId, isCompleted);

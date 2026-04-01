@@ -842,14 +842,39 @@ export default function App() {
   };
 
   const fetchScorecard = async (matchId: string, force = false) => {
-    if (!force && (scorecards[matchId] || scorecardLoading === matchId)) return;
+    // Don't re-fetch if we already have a scorecard with actual innings data
+    // (hasScorecard: false entries are NOT cached — they retry on each open)
+    const existing = scorecards[matchId];
+    if (!force && existing?.hasScorecard && scorecardLoading !== matchId) return;
     if (scorecardLoading === matchId) return;
     setScorecardLoading(matchId);
     try {
       const res = await fetch(`/api/ipl/scorecard/${matchId}`);
       if (res.ok) {
         const data = await res.json();
-        setScorecards(prev => ({ ...prev, [matchId]: data }));
+        // Only cache if we got real innings; otherwise let the next open retry
+        if (data.hasScorecard) {
+          setScorecards(prev => ({ ...prev, [matchId]: data }));
+        } else {
+          // Still display the overview/result even without innings
+          setScorecards(prev => {
+            const updated = { ...prev, [matchId]: data };
+            // But don't permanently mark it as "loaded" — clear after display
+            return updated;
+          });
+          // Clear after rendering so next open retries from server
+          setTimeout(() => {
+            setScorecards(prev => {
+              const cur = prev[matchId];
+              if (cur && !cur.hasScorecard) {
+                const next = { ...prev };
+                delete next[matchId];
+                return next;
+              }
+              return prev;
+            });
+          }, 5000);
+        }
       }
     } catch (_) {}
     setScorecardLoading(null);
