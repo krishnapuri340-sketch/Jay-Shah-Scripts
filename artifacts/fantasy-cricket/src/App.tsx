@@ -2412,7 +2412,7 @@ export default function App() {
               position: "absolute", inset: -6, zIndex: 0,
               backgroundImage: `url(${import.meta.env.BASE_URL}countdown-bg.jpeg)`,
               backgroundSize: "cover", backgroundPosition: "center 40%",
-              filter: "blur(10px) brightness(0.22) saturate(1.2)",
+              filter: "blur(5px) brightness(0.22) saturate(1.2)",
             }} />
             {/* Warm amber vignette — bleeds into the amber timer colour */}
             <div style={{
