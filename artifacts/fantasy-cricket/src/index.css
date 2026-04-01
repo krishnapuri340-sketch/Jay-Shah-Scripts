@@ -842,6 +842,27 @@ body { background: var(--bg); }
 .light-mode .player-detail { background: rgba(0,0,0,0.03); }
 .light-mode .scorecard-section { background: rgba(0,0,0,0.02); }
 
+/* Innings header / body (scorecard collapsible) */
+.inn-hdr {
+  background: rgba(0,0,0,0.45);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.inn-body {
+  border: 1px solid rgba(255,255,255,0.1);
+  border-top: none;
+  border-radius: 0 0 7px 7px;
+  padding-bottom: 4px;
+  background: rgba(0,0,0,0.5);
+}
+.light-mode .inn-hdr {
+  background: var(--surface-2);
+  border-color: var(--border-2);
+}
+.light-mode .inn-body {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
 /* Live pill */
 .light-mode .live-pill { background: rgba(10,158,104,0.09); border-color: rgba(10,158,104,0.18); color: var(--live); }
 .light-mode .live-dot { background: var(--live); }

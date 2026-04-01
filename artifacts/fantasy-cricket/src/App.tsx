@@ -3609,14 +3609,12 @@ export default function App() {
                         return (
                           <div key={idx} style={{ marginBottom: idx < (sc?.innings?.length ?? 1) - 1 ? 10 : 0 }}>
                             {/* Collapsible innings header */}
-                            <div onClick={toggleInn} style={{
+                            <div onClick={toggleInn} className="inn-hdr" style={{
                               display: "flex", alignItems: "center", justifyContent: "space-between",
                               cursor: "pointer", userSelect: "none",
                               padding: "6px 10px",
                               borderRadius: isCollapsed ? 7 : "7px 7px 0 0",
-                              background: "rgba(0,0,0,0.45)",
-                              border: "1px solid rgba(255,255,255,0.1)",
-                              borderBottom: isCollapsed ? "1px solid rgba(255,255,255,0.1)" : "none",
+                              borderBottom: isCollapsed ? undefined : "none",
                             }}>
                               <div style={{ fontSize: "0.63rem", fontWeight: 700, color: "var(--text)", letterSpacing: "0.06em", textTransform: "uppercase" as const }}>
                                 {inn.name} · <span style={{ color: "#f5a623" }}>{inn.total}</span>
@@ -3625,7 +3623,7 @@ export default function App() {
                             </div>
 
                             {!isCollapsed && (
-                              <div style={{ border: "1px solid rgba(255,255,255,0.1)", borderTop: "none", borderRadius: "0 0 7px 7px", paddingBottom: 4, background: "rgba(0,0,0,0.5)" }}>
+                              <div className="inn-body">
                                 {inn.batting?.length > 0 && (
                                   <div style={{ overflowX: "auto" }}>
                                     <table style={tblStyle}>
