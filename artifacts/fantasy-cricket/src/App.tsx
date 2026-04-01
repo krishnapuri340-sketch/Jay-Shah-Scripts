@@ -3338,7 +3338,13 @@ export default function App() {
                       </div>
                     </div>
                   ) : (
-                    <div style={{ fontSize: "0.88rem", fontWeight: 700, color: "var(--text)", marginBottom: 10 }}>{(m.name || "").replace(/,\s*\d+(?:st|nd|rd|th) Match.*/i, "")}</div>
+                    <div style={{ fontSize: "0.88rem", fontWeight: 700, color: "var(--text)", marginBottom: 4 }}>{(m.name || "").replace(/,\s*\d+(?:st|nd|rd|th) Match.*/i, "")}</div>
+                  )}
+                  {/* ── Venue — compact line below teams ── */}
+                  {m.venue && (
+                    <div style={{ fontSize: "0.5rem", color: "var(--text-3)", marginBottom: 8, paddingLeft: 1, letterSpacing: "0.01em" }}>
+                      🏟 {m.venue.split(",")[0]}
+                    </div>
                   )}
                   {/* Interactive score lines — tap to expand innings scorecard */}
                   {(isDone || isLive) ? (
@@ -3523,14 +3529,6 @@ export default function App() {
                         </div>
                       ))}
                     </>
-                  )}
-                  {/* ── Venue strip ── */}
-                  {m.venue && (
-                    <div className="match-venue">
-                      <span style={{ opacity: 0.6 }}>🏟</span>
-                      <span>{m.venue.split(",")[0]}</span>
-                      {m.homeTeamCode && <span style={{ opacity: 0.5 }}>· {m.homeTeamCode}</span>}
-                    </div>
                   )}
                   </div>{/* end match-card-inner */}
 
