@@ -3340,19 +3340,19 @@ export default function App() {
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
                     {teams.length > 0 ? teams.map((ti: any, i: number) => (
-                      <div key={i} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                        {i === 1 && <span style={{ color: "var(--text-3)", fontSize: "0.6rem", margin: "0 2px" }}>vs</span>}
-                        <img src={TEAM_LOGO_CDN[ti.shortname] || ti.img} alt={ti.shortname} style={{ width: 18, height: 18, objectFit: "contain" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                        <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text)" }}>{ti.shortname}</span>
+                      <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        {i === 1 && <span style={{ fontFamily: "'Oswald', sans-serif", color: "var(--text-3)", fontSize: "0.65rem", letterSpacing: "0.1em", margin: "0 1px" }}>VS</span>}
+                        <img src={TEAM_LOGO_CDN[ti.shortname] || ti.img} alt={ti.shortname} style={{ width: 20, height: 20, objectFit: "contain", filter: "drop-shadow(0 1px 4px rgba(0,0,0,0.7))" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                        <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "1.05rem", fontWeight: 500, letterSpacing: "0.05em", color: "var(--text)", textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>{ti.shortname}</span>
                       </div>
                     )) : (
-                      <div style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text)" }}>{(m.name || "").replace(/,\s*\d+(?:st|nd|rd|th) Match.*/i, "")}</div>
+                      <div style={{ fontFamily: "'Oswald', sans-serif", fontSize: "1rem", fontWeight: 500, letterSpacing: "0.04em", color: "var(--text)", textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>{(m.name || "").replace(/,\s*\d+(?:st|nd|rd|th) Match.*/i, "")}</div>
                     )}
                   </div>
                   {(m.score || []).map((s: any, i: number) => (
                     <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.72rem", color: "var(--text-2)", padding: "3px 0", borderTop: i === 0 ? "1px solid var(--border)" : "none" }}>
-                      <span style={{ color: "var(--text-3)" }}>{(s.inning || "").replace(" Innings", "").replace(" Inning", "")}</span>
-                      <span style={{ fontWeight: 600, color: "var(--text-2)" }}>
+                      <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.68rem", letterSpacing: "0.04em", color: "var(--text-3)" }}>{(s.inning || "").replace(" Innings", "").replace(" Inning", "")}</span>
+                      <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.78rem", fontWeight: 500, letterSpacing: "0.03em", color: "var(--text-2)" }}>
                         {s.summary || (s.r != null ? `${s.r}/${s.w} (${s.o}ov)` : "")}
                       </span>
                     </div>
@@ -3397,7 +3397,7 @@ export default function App() {
                       <div onClick={e => e.stopPropagation()} style={{ marginTop: 10, borderTop: "1px solid var(--border)", paddingTop: 7 }}>
                         {/* Tappable header row */}
                         <div onClick={togglePred} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", userSelect: "none" as const }}>
-                          <span style={{ fontSize: "0.57rem", color: "var(--text-3)", fontWeight: 600, letterSpacing: "0.06em" }}>
+                          <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.62rem", color: "var(--text-3)", fontWeight: 400, letterSpacing: "0.14em" }}>
                             {isDone ? "PREDICTIONS" : isLocked ? "🔒 PREDICTIONS" : "📊 PREDICT"}
                           </span>
                           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -3473,7 +3473,7 @@ export default function App() {
                             if (!h2h && !vd && !pred.pick) return null;
                             return (
                               <div style={{ marginTop: 8, borderTop: "1px solid var(--border)", paddingTop: 7, display: "flex", flexDirection: "column" as const, gap: 5 }}>
-                                <div style={{ fontSize: "0.52rem", color: "var(--text-3)", letterSpacing: "0.06em", fontWeight: 700 }}>MATCH INTEL</div>
+                                <div style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.62rem", color: "var(--text-3)", letterSpacing: "0.14em", fontWeight: 400 }}>MATCH INTEL</div>
                                 {h2h && (
                                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                                     <span style={{ fontSize: "0.52rem", color: "var(--text-3)", letterSpacing: "0.04em", minWidth: 70, flexShrink: 0 }}>H2H</span>
@@ -3529,7 +3529,7 @@ export default function App() {
                       {/* Toggle header */}
                       <div onClick={() => toggleMatch(matchIdStr, isDone, isLive)}
                         style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", userSelect: "none" as const }}>
-                        <span style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em" }}>SCORECARD</span>
+                        <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.62rem", color: "var(--text-3)", fontWeight: 400, letterSpacing: "0.14em" }}>SCORECARD</span>
                         <span style={{ fontSize: "0.55rem", color: "var(--text-3)", display: "inline-block", transition: "transform 0.2s", transform: isExpanded ? "rotate(180deg)" : "none" }}>▼</span>
                       </div>
                       {isExpanded && (
