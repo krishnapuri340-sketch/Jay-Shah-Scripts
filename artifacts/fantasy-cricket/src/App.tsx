@@ -3485,7 +3485,6 @@ export default function App() {
                                             </div>
                                             {inn.bowling.map((b: any, bi: number) => {
                                               const eco = parseFloat(b.eco || "0");
-                                              const ecoColor = eco > 10 ? "var(--red)" : eco < 7 ? "#4ade80" : "var(--text-3)";
                                               const wkts = parseInt(b.wickets) || 0;
                                               const isF = allFantasyNames.has(b.name);
                                               const isLastBowl = bi === inn.bowling.length - 1;
@@ -3498,9 +3497,9 @@ export default function App() {
                                                   </div>
                                                   <div style={{ ...S_STAT, color: "var(--text-3)" }}>{b.overs}</div>
                                                   <div style={{ ...S_STAT, color: "var(--text-3)" }}>{b.maidens}</div>
-                                                  <div style={{ ...S_STAT, fontWeight: 600, color: "var(--text-2)" }}>{b.runs}</div>
-                                                  <div style={{ ...S_STAT, fontWeight: wkts > 0 ? 600 : 400, color: wkts >= 3 ? "var(--gold)" : wkts > 0 ? "var(--text)" : "var(--text-3)" }}>{b.wickets}</div>
-                                                  <div style={{ ...S_STAT, color: ecoColor }}>{eco.toFixed(2)}</div>
+                                                  <div style={{ ...S_STAT, color: "var(--text-2)" }}>{b.runs}</div>
+                                                  <div style={{ ...S_STAT, fontWeight: wkts >= 3 ? 600 : 400, color: wkts >= 3 ? "var(--gold)" : "var(--text-3)" }}>{b.wickets}</div>
+                                                  <div style={{ ...S_STAT, color: "var(--text-3)" }}>{eco.toFixed(2)}</div>
                                                 </div>
                                               );
                                             })}
