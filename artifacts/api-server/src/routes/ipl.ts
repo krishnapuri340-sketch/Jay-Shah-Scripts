@@ -2,7 +2,10 @@ import { Router, type IRouter } from "express";
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join } from "path";
 import { fileURLToPath } from "url";
+import pkg from "pg";
 import { fetchMatchOverview, refreshLiveMatches } from "./ipl-points";
+
+const { Pool } = pkg;
 
 // ── Shared data stores ────────────────────────────────────────────────────────
 // Anchor data directory to the bundle file location (dist/index.mjs).
@@ -38,58 +41,51 @@ function saveServerPins(data: PinStore) {
 }
 let pinsCache: PinStore = loadServerPins();
 
-// ── Replit KV PIN persistence ────────────────────────────────────────────────
-// REPLIT_DB_URL is automatically available in both dev and deployed environments.
-// Data written here survives restarts, new deployments, and server restarts.
-const REPLIT_DB_URL = process.env.REPLIT_DB_URL;
-const PIN_KEY_PREFIX = "pin_";
+// ── PostgreSQL PIN persistence ──────────────────────────────────────────────
+// Uses Replit's provisioned PostgreSQL (DATABASE_URL secret) which is available
+// in BOTH development and deployed production environments — unlike REPLIT_DB_URL
+// (KV store) which is NOT injected into deployed containers.
+const pgPool = process.env.DATABASE_URL
+  ? new Pool({ connectionString: process.env.DATABASE_URL, max: 3, idleTimeoutMillis: 30000 })
+  : null;
 
-async function loadAllPinsFromKV(): Promise<PinStore | null> {
-  if (!REPLIT_DB_URL) return null;
+async function loadAllPinsFromPG(): Promise<PinStore | null> {
+  if (!pgPool) return null;
   try {
-    // List all keys that start with "pin_"
-    const listRes = await fetch(`${REPLIT_DB_URL}?prefix=${PIN_KEY_PREFIX}`, { signal: AbortSignal.timeout(6000) });
-    if (!listRes.ok) return null;
-    const text = await listRes.text();
-    const keys = text.split("\n").map(k => k.trim()).filter(Boolean);
-    if (!keys.length) return null;
+    const { rows } = await pgPool.query("SELECT user_id, pin FROM ipl_pins");
+    if (!rows.length) return null;
     const store: PinStore = { ...DEFAULT_PINS };
-    await Promise.all(keys.map(async key => {
-      const userId = key.slice(PIN_KEY_PREFIX.length);
-      const valRes = await fetch(`${REPLIT_DB_URL}/${encodeURIComponent(key)}`, { signal: AbortSignal.timeout(6000) });
-      if (valRes.ok) store[userId] = await valRes.text();
-    }));
+    for (const row of rows) store[row.user_id] = row.pin;
     return store;
-  } catch { return null; }
+  } catch (e) { console.warn("[pins] PG load error:", e); return null; }
 }
 
-async function savePinToKV(userId: string, pin: string): Promise<boolean> {
-  if (!REPLIT_DB_URL) return false;
+async function savePinToPG(userId: string, pin: string): Promise<boolean> {
+  if (!pgPool) return false;
   try {
-    const res = await fetch(REPLIT_DB_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `${PIN_KEY_PREFIX}${encodeURIComponent(userId)}=${encodeURIComponent(pin)}`,
-      signal: AbortSignal.timeout(6000),
-    });
-    return res.ok;
-  } catch { return false; }
+    await pgPool.query(
+      `INSERT INTO ipl_pins (user_id, pin, updated_at) VALUES ($1, $2, NOW())
+       ON CONFLICT (user_id) DO UPDATE SET pin = EXCLUDED.pin, updated_at = NOW()`,
+      [userId, pin]
+    );
+    return true;
+  } catch (e) { console.warn("[pins] PG save error:", e); return false; }
 }
 
-// Warm up pinsCache from Replit KV on startup (non-blocking).
-// If KV is empty, seed it with the current local pins so they survive future deploys.
-loadAllPinsFromKV().then(async kv => {
-  if (kv) {
-    pinsCache = { ...pinsCache, ...kv };
+// Warm up pinsCache from PostgreSQL on startup (non-blocking).
+loadAllPinsFromPG().then(pg => {
+  if (pg) {
+    pinsCache = { ...pinsCache, ...pg };
     saveServerPins(pinsCache);
-    console.log("[pins] Loaded from Replit KV:", Object.keys(kv).join(", "));
-  } else if (REPLIT_DB_URL) {
-    // KV available but empty — seed it with local pins so they survive the next deploy
-    console.log("[pins] Seeding Replit KV with current PINs...");
-    await Promise.all(Object.entries(pinsCache).map(([uid, pin]) => savePinToKV(uid, pin)));
-    console.log("[pins] Seeded Replit KV:", Object.keys(pinsCache).join(", "));
+    console.log("[pins] Loaded from PostgreSQL:", Object.keys(pg).join(", "));
+  } else if (pgPool) {
+    // PG connected but no rows yet — seed table with current defaults
+    console.log("[pins] Seeding PostgreSQL with current PINs...");
+    Promise.all(Object.entries(pinsCache).map(([uid, pin]) => savePinToPG(uid, pin)))
+      .then(() => console.log("[pins] Seeded PostgreSQL:", Object.keys(pinsCache).join(", ")))
+      .catch(() => {});
   } else {
-    console.log("[pins] Replit KV unavailable — using local fallback");
+    console.log("[pins] PostgreSQL unavailable — using local fallback");
   }
 }).catch(() => {});
 
@@ -450,9 +446,9 @@ router.post("/ipl/pins/validate", async (req, res) => {
   if (!checkRateLimit(ip)) return res.status(429).json({ error: "Too many attempts — try again in a minute" });
   const { userId, pin } = req.body as { userId?: string; pin?: string };
   if (!userId || !pin) return res.status(400).json({ error: "userId and pin required" });
-  // Always pull the freshest PIN from KV before validating
-  const kv = await loadAllPinsFromKV();
-  if (kv) { pinsCache = { ...pinsCache, ...kv }; saveServerPins(pinsCache); }
+  // Always pull the freshest PIN from PostgreSQL before validating
+  const pg = await loadAllPinsFromPG();
+  if (pg) { pinsCache = { ...pinsCache, ...pg }; saveServerPins(pinsCache); }
   const correct = pinsCache[userId];
   if (!correct || pin !== correct) return res.status(401).json({ error: "Invalid PIN" });
   return res.json({ ok: true, userId });
@@ -465,16 +461,16 @@ router.post("/ipl/pins/:userId", async (req, res) => {
   const { pin, oldPin } = req.body as { pin?: string; oldPin?: string };
   if (!userId || !pin || !/^\d{4}$/.test(pin)) return res.status(400).json({ error: "userId and 4-digit pin required" });
   if (!oldPin) return res.status(400).json({ error: "Current PIN (oldPin) required" });
-  // Reload from KV so we compare against the real current PIN
-  const kv = await loadAllPinsFromKV();
-  if (kv) { pinsCache = { ...pinsCache, ...kv }; saveServerPins(pinsCache); }
+  // Reload from PostgreSQL so we compare against the real current PIN
+  const pg = await loadAllPinsFromPG();
+  if (pg) { pinsCache = { ...pinsCache, ...pg }; saveServerPins(pinsCache); }
   const current = pinsCache[userId];
   if (!current || oldPin !== current) return res.status(401).json({ error: "Current PIN does not match" });
   pinsCache[userId] = pin;
-  saveServerPins(pinsCache); // local backup as belt-and-suspenders
-  const savedToKV = await savePinToKV(userId, pin);
-  console.log(`[pins] ${userId} PIN updated — Replit KV: ${savedToKV}`);
-  return res.json({ ok: true, kv: savedToKV });
+  saveServerPins(pinsCache); // local file backup (belt-and-suspenders)
+  const savedToPG = await savePinToPG(userId, pin);
+  console.log(`[pins] ${userId} PIN updated — PostgreSQL: ${savedToPG}`);
+  return res.json({ ok: true, kv: savedToPG });
 });
 
 export default router;
