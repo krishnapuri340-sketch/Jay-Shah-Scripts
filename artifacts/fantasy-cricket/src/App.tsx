@@ -3595,15 +3595,15 @@ export default function App() {
                         };
 
                         // Shared table config
-                        const COL_W = ["auto", 34, 28, 30, 28, 46] as const;
+                        const COL_W = ["auto", 36, 28, 30, 28, 54] as const;
                         const colGroup = (
                           <colgroup>
                             <col style={{ width: COL_W[0] }} />
                             {COL_W.slice(1).map((w, i) => <col key={i} style={{ width: w }} />)}
                           </colgroup>
                         );
-                        const tdNum = (extra?: React.CSSProperties): React.CSSProperties => ({ textAlign: "right", padding: "5px 2px", ...extra });
-                        const thNum = (): React.CSSProperties => ({ textAlign: "right", padding: "4px 2px", fontWeight: 600 });
+                        const tdNum = (extra?: React.CSSProperties): React.CSSProperties => ({ textAlign: "right", paddingTop: 5, paddingBottom: 5, paddingLeft: 2, paddingRight: 5, ...extra });
+                        const thNum = (extra?: React.CSSProperties): React.CSSProperties => ({ textAlign: "right", paddingTop: 4, paddingBottom: 4, paddingLeft: 2, paddingRight: 5, fontWeight: 600, ...extra });
                         const tblStyle: React.CSSProperties = { width: "100%", borderCollapse: "collapse", fontSize: "0.68rem", tableLayout: "fixed" };
 
                         return (
@@ -3612,20 +3612,20 @@ export default function App() {
                             <div onClick={toggleInn} style={{
                               display: "flex", alignItems: "center", justifyContent: "space-between",
                               cursor: "pointer", userSelect: "none",
-                              padding: "5px 8px",
+                              padding: "6px 10px",
                               borderRadius: isCollapsed ? 7 : "7px 7px 0 0",
-                              background: "rgba(255,255,255,0.035)",
-                              border: "1px solid var(--border)",
-                              borderBottom: isCollapsed ? "1px solid var(--border)" : "none",
+                              background: "rgba(0,0,0,0.45)",
+                              border: "1px solid rgba(255,255,255,0.1)",
+                              borderBottom: isCollapsed ? "1px solid rgba(255,255,255,0.1)" : "none",
                             }}>
-                              <div style={{ fontSize: "0.63rem", fontWeight: 700, color: "var(--text-2)", letterSpacing: "0.06em", textTransform: "uppercase" as const }}>
-                                {inn.name} · <span style={{ color: "var(--text)" }}>{inn.total}</span>
+                              <div style={{ fontSize: "0.63rem", fontWeight: 700, color: "var(--text)", letterSpacing: "0.06em", textTransform: "uppercase" as const }}>
+                                {inn.name} · <span style={{ color: "#f5a623" }}>{inn.total}</span>
                               </div>
                               <span style={{ fontSize: "0.5rem", color: "var(--text-3)", display: "inline-block", transition: "transform 0.2s", transform: isCollapsed ? "none" : "rotate(180deg)" }}>▼</span>
                             </div>
 
                             {!isCollapsed && (
-                              <div style={{ border: "1px solid var(--border)", borderTop: "none", borderRadius: "0 0 7px 7px", paddingBottom: 4 }}>
+                              <div style={{ border: "1px solid rgba(255,255,255,0.1)", borderTop: "none", borderRadius: "0 0 7px 7px", paddingBottom: 4, background: "rgba(0,0,0,0.5)" }}>
                                 {inn.batting?.length > 0 && (
                                   <div style={{ overflowX: "auto" }}>
                                     <table style={tblStyle}>
@@ -3637,7 +3637,7 @@ export default function App() {
                                           <th style={thNum()}>B</th>
                                           <th style={thNum()}>4s</th>
                                           <th style={thNum()}>6s</th>
-                                          <th style={thNum()}>SR</th>
+                                          <th style={thNum({ paddingRight: 9 })}>SR</th>
                                         </tr>
                                       </thead>
                                       <tbody>
@@ -3658,7 +3658,7 @@ export default function App() {
                                               <td style={tdNum({ color: "var(--text-3)" })}>{b.balls}</td>
                                               <td style={tdNum({ color: b.fours > 0 ? "var(--blue)" : "var(--text-3)" })}>{b.fours}</td>
                                               <td style={tdNum({ color: b.sixes > 0 ? "#a855f7" : "var(--text-3)" })}>{b.sixes}</td>
-                                              <td style={tdNum({ color: src, fontSize: "0.62rem" })}>{parseFloat(b.sr).toFixed(1)}</td>
+                                              <td style={tdNum({ color: src, fontSize: "0.62rem", paddingRight: 9 })}>{parseFloat(b.sr).toFixed(1)}</td>
                                             </tr>
                                           );
                                         })}
@@ -3677,7 +3677,7 @@ export default function App() {
                                           <th style={thNum()}>M</th>
                                           <th style={thNum()}>R</th>
                                           <th style={thNum()}>W</th>
-                                          <th style={thNum()}>ECO</th>
+                                          <th style={thNum({ paddingRight: 9 })}>ECO</th>
                                         </tr>
                                       </thead>
                                       <tbody>
@@ -3697,7 +3697,7 @@ export default function App() {
                                               <td style={tdNum({ color: b.maidens > 0 ? "#f59e0b" : "var(--text-3)" })}>{b.maidens}</td>
                                               <td style={tdNum({ color: "var(--text-3)" })}>{b.runs}</td>
                                               <td style={tdNum({ color: wc, fontWeight: b.wickets > 0 ? 700 : 400 })}>{b.wickets}</td>
-                                              <td style={tdNum({ color: ec, fontSize: "0.62rem" })}>{parseFloat(b.eco).toFixed(2)}</td>
+                                              <td style={tdNum({ color: ec, fontSize: "0.62rem", paddingRight: 9 })}>{parseFloat(b.eco).toFixed(2)}</td>
                                             </tr>
                                           );
                                         })}
