@@ -3171,7 +3171,12 @@ export default function App() {
                   {/* Prediction section — collapsible */}
                   {m.homeTeamCode && m.awayTeamCode && (() => {
                     const PRED_OWNERS = ["rajveer","mombasa","mumbai","ponygoat"] as const;
-                    const preds = predictions[matchIdStr] || {};
+                    const rawPreds = predictions[matchIdStr] || {};
+                    // Filter out stale picks for teams not playing in this match
+                    const validTeams = new Set([m.homeTeamCode, m.awayTeamCode].filter(Boolean));
+                    const preds = Object.fromEntries(
+                      Object.entries(rawPreds).map(([uid, pick]) => [uid, validTeams.has(pick as string) ? pick : null])
+                    );
                     const winner = isDone ? getMatchWinner(m) : null;
                     const isLocked = m.matchEnded || (m.matchStarted && currentUser !== "rajveer");
                     const correctCount = winner && winner !== "tie"

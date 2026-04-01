@@ -398,6 +398,16 @@ router.post("/ipl/predictions/:matchId", (req, res) => {
   if (completedMatchIds.has(matchId)) {
     return res.status(403).json({ error: "Match already completed — predictions are locked" });
   }
+  // Validate pick against the two teams actually playing in this match
+  if (pick != null) {
+    const matchData = (cache?.data?.matches || []).find((m: any) => String(m.id) === matchId);
+    if (matchData) {
+      const validTeams = new Set([matchData.homeTeamCode, matchData.awayTeamCode].filter(Boolean));
+      if (!validTeams.has(pick)) {
+        return res.status(400).json({ error: `Invalid pick: ${pick} is not playing in this match` });
+      }
+    }
+  }
   if (!predsCache[matchId]) predsCache[matchId] = {};
   predsCache[matchId][ownerId] = pick ?? null;
   savePreds(predsCache);
