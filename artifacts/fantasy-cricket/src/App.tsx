@@ -3408,10 +3408,17 @@ export default function App() {
                           if (eco < 12) return "#f59e0b";
                           return "#f87171";
                         };
-                        // Find which fantasy team owns this player (exact name match only)
+                        // Find which fantasy team owns this player
                         const findFt = (name: string) => {
-                          const norm = (s: string) => s.trim().toLowerCase();
-                          const sn = norm(name);
+                          const norm = (s: string) => s
+                            .replace(/\s*\(.*?\)\s*/g, "") // strip suffixes like (RP), (c)
+                            .trim().toLowerCase();
+                          // Known spelling variants: scorecard form → teams.ts form
+                          const ALIASES: Record<string, string> = {
+                            "mohammad shami": "mohammed shami",
+                            "md shami": "mohammed shami",
+                          };
+                          const sn = ALIASES[norm(name)] ?? norm(name);
                           for (const ft of Object.values(FANTASY_TEAMS)) {
                             if (ft.players.some(p => norm(p.name) === sn)) return ft;
                           }
