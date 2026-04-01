@@ -2054,20 +2054,7 @@
       }
     },
     "2421": {
-      "points": {
-        "Axar Patel": 38,
-        "Nicholas Pooran": 16,
-        "Mohammed Shami": 39,
-        "Aiden Markram": 25,
-        "Rishabh Pant": 15,
-        "Nitish Rana": 31,
-        "Lungi Ngidi": 104,
-        "Tristan Stubbs": 65,
-        "KL Rahul": 2,
-        "Mitchell Marsh": 69,
-        "Kuldeep Yadav": 66,
-        "T Natarajan": 104
-      },
+      "points": {},
       "innings": [
         {
           "name": "Lucknow Super Giants Inning 1",
@@ -2697,6 +2684,26 @@
       "matchDate": "2026-03-31",
       "matchNumber": 4,
       "linkedIplId": "2420"
+    },
+    "ef5d276d-ab91-4288-a264-2e4746d5efff": {
+      "points": {
+        "Axar Patel": 64,
+        "Rishabh Pant": 23,
+        "Kuldeep Yadav": 98,
+        "Nitish Rana": 31,
+        "Tristan Stubbs": 81,
+        "T Natarajan": 120,
+        "Mohammed Shami": 63,
+        "Mitchell Marsh": 69,
+        "Aiden Markram": 29,
+        "KL Rahul": 10,
+        "Lungi Ngidi": 130,
+        "Nicholas Pooran": 16
+      },
+      "matchLabel": "Lucknow Super Giants vs Delhi Capitals",
+      "matchDate": "2026-04-01",
+      "matchNumber": 5,
+      "linkedIplId": "2421"
     }
   },
   "playerIdMap": {
@@ -3303,7 +3310,7 @@
       "teamB": "Delhi Capitals"
     }
   },
-  "lastUpdated": "2026-04-01T18:13:26.008Z",
+  "lastUpdated": "2026-04-01T18:32:02.237Z",
   "dailyHits": {
     "date": "2026-04-01",
     "count": 340
