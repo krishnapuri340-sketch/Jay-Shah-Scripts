@@ -3414,12 +3414,13 @@ export default function App() {
                                   {hasData && (() => {
                                     const allFantasyNames = new Set(Object.values(FANTASY_TEAMS).flatMap((t: any) => t.players.map((p: any) => p.name || p)));
                                     const batters = inn.batting.filter((b: any) => !b.dnb);
-                                    // Unified grid — same column count, visually paired
-                                    const BGRID = "minmax(0,1fr) 40px 34px 28px 28px 46px";
-                                    const WGRID = "minmax(0,1fr) 40px 34px 28px 28px 46px";
+                                    // Shared grid — col2: R/O  col3: B/M  col4: 4s/R  col5: 6s/W  col6: SR/ECO
+                                    const SGRID = "minmax(0,1fr) 36px 30px 28px 24px 44px";
+                                    const BGRID = SGRID;
+                                    const WGRID = SGRID;
                                     // Shared style constants
-                                    const SZ_NAME = "0.78rem";
-                                    const SZ_STAT = "0.74rem";
+                                    const SZ_NAME = "0.76rem";
+                                    const SZ_STAT = "0.70rem";
                                     const SZ_HDR  = "0.5rem";
                                     const SZ_SUB  = "0.54rem";
                                     const S_STAT: React.CSSProperties = { textAlign: "right", fontSize: SZ_STAT, fontVariantNumeric: "tabular-nums", lineHeight: 1 };
@@ -3439,8 +3440,8 @@ export default function App() {
                                         {/* ── Batting section ── */}
                                         <div style={{ display: "grid", gridTemplateColumns: BGRID, padding: "6px 12px 5px", background: "var(--glass)", borderBottom: "1px solid var(--border)", borderTop: "1px solid var(--border)" }}>
                                           <div style={{ fontSize: SZ_HDR, fontWeight: 700, letterSpacing: "0.08em", color: "var(--text-3)" }}>BATTING</div>
-                                          {(["R","B","4s","6s","SR"] as const).map((h, hi) => (
-                                            <div key={h} style={{ ...S_HDR, color: hi===2?"var(--blue)":hi===3?"#a855f7":"var(--text-3)" }}>{h}</div>
+                                          {(["R","B","4s","6s","SR"] as const).map((h) => (
+                                            <div key={h} style={{ ...S_HDR }}>{h}</div>
                                           ))}
                                         </div>
                                         {batters.map((b: any, bi: number) => {
