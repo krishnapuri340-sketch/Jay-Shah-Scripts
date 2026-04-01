@@ -355,20 +355,22 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
   const BgLayers = () => (
     <>
       <img src={`${BASE}login-bg.jpeg`} alt="" style={{
-        position: "absolute", inset: 0, width: "100%", height: "100%",
-        objectFit: "cover", objectPosition: "center center",
+        position: "absolute", left: 0, right: 0,
+        top: "12%", height: "100%",
+        width: "100%",
+        objectFit: "cover", objectPosition: "center top",
         transform: "scaleY(-1)", pointerEvents: "none", userSelect: "none",
       }} />
       <div style={{
         position: "absolute", inset: 0, pointerEvents: "none",
         background: `linear-gradient(to bottom,
-          rgba(4,2,1,0.97) 0%,
-          rgba(4,2,1,0.82) 10%,
-          rgba(4,2,1,0.38) 26%,
-          rgba(4,2,1,0.10) 46%,
-          rgba(4,2,1,0.04) 65%,
-          rgba(4,2,1,0.08) 82%,
-          rgba(4,2,1,0.22) 100%
+          rgba(4,2,1,0.98) 0%,
+          rgba(4,2,1,0.88) 12%,
+          rgba(4,2,1,0.60) 28%,
+          rgba(4,2,1,0.28) 44%,
+          rgba(4,2,1,0.08) 62%,
+          rgba(4,2,1,0.04) 78%,
+          rgba(4,2,1,0.18) 100%
         )`,
       }} />
     </>
@@ -402,9 +404,9 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
             </div>
           </div>
 
-          <div style={{ fontSize: "1.45rem", fontWeight: 800, color: "#fff", letterSpacing: "-0.02em", marginBottom: 4, textShadow: "0 2px 24px rgba(0,0,0,0.9)" }}>{ft.owner}</div>
-          <div style={{ fontSize: "0.65rem", color: ft.color, letterSpacing: "0.08em", fontWeight: 700, marginBottom: 2, opacity: 0.9, textShadow: "0 1px 8px rgba(0,0,0,0.6)" }}>{ft.name}</div>
-          <div style={{ fontSize: "0.56rem", color: "rgba(255,255,255,0.35)", letterSpacing: "0.2em", marginBottom: 40, fontWeight: 700, textTransform: "uppercase" as const }}>Enter your PIN</div>
+          <div style={{ fontSize: "1.45rem", fontWeight: 800, color: "#fff", letterSpacing: "-0.02em", marginBottom: 4, textShadow: "0 2px 8px rgba(0,0,0,1), 0 4px 24px rgba(0,0,0,0.95)" }}>{ft.owner}</div>
+          <div style={{ fontSize: "0.65rem", color: ft.color, letterSpacing: "0.08em", fontWeight: 700, marginBottom: 2, textShadow: "0 1px 6px rgba(0,0,0,0.95), 0 2px 12px rgba(0,0,0,0.8)" }}>{ft.name}</div>
+          <div style={{ fontSize: "0.56rem", color: "rgba(255,255,255,0.8)", letterSpacing: "0.2em", marginBottom: 40, fontWeight: 700, textTransform: "uppercase" as const, textShadow: "0 1px 6px rgba(0,0,0,1)" }}>Enter your PIN</div>
 
           {/* PIN dots */}
           <div className={shake ? "pin-dot-shake" : ""} style={{ display: "flex", gap: 20, marginBottom: wrong ? 10 : 44, animation: shake ? "pin-shake 0.55s ease" : "none" }}>
@@ -483,13 +485,13 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
               </div>
             </div>
 
-            <div style={{ fontSize: "1.45rem", fontWeight: 900, color: "#fdf8f2", letterSpacing: "-0.01em", lineHeight: 1.15, fontFamily: "'Oswald', sans-serif", textTransform: "uppercase", textAlign: "center", textShadow: "0 2px 20px rgba(0,0,0,0.9)" }}>
+            <div style={{ fontSize: "1.45rem", fontWeight: 900, color: "#fff", letterSpacing: "-0.01em", lineHeight: 1.15, fontFamily: "'Oswald', sans-serif", textTransform: "uppercase", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,1), 0 4px 32px rgba(0,0,0,0.95), 0 0 2px rgba(0,0,0,1)" }}>
               Indian Premier League
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 10 }}>
-              <div style={{ width: 36, height: 1, background: "linear-gradient(90deg, transparent, rgba(245,166,35,0.55))" }} />
-              <div style={{ fontSize: "0.63rem", color: "#f5a623", letterSpacing: "0.28em", fontWeight: 800 }}>2026 SEASON</div>
-              <div style={{ width: 36, height: 1, background: "linear-gradient(270deg, transparent, rgba(245,166,35,0.55))" }} />
+              <div style={{ width: 36, height: 1, background: "linear-gradient(90deg, transparent, rgba(245,166,35,0.8))" }} />
+              <div style={{ fontSize: "0.63rem", color: "#f5a623", letterSpacing: "0.28em", fontWeight: 800, textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>2026 SEASON</div>
+              <div style={{ width: 36, height: 1, background: "linear-gradient(270deg, transparent, rgba(245,166,35,0.8))" }} />
             </div>
 
             {savedTeam && (
@@ -512,7 +514,7 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
       })()}
 
       {/* Label */}
-      <div style={{ position: "relative", zIndex: 2, fontSize: "0.56rem", letterSpacing: "0.2em", color: "rgba(255,255,255,0.65)", textTransform: "uppercase" as const, marginBottom: 18, marginTop: -28, fontWeight: 800, animation: "login-fade-up 0.4s ease-out", textShadow: "0 1px 8px rgba(0,0,0,0.8)" }}>
+      <div style={{ position: "relative", zIndex: 2, fontSize: "0.56rem", letterSpacing: "0.2em", color: "#fff", textTransform: "uppercase" as const, marginBottom: 18, marginTop: -28, fontWeight: 800, animation: "login-fade-up 0.4s ease-out", textShadow: "0 1px 6px rgba(0,0,0,1), 0 2px 16px rgba(0,0,0,0.9)" }}>
         Select your team
       </div>
 
