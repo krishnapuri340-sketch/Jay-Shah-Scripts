@@ -912,27 +912,10 @@ export default function App() {
       const res = await fetch("/api/ipl/predictions");
       if (res.ok) {
         const server: Record<string, Record<string, string | null>> = await res.json();
-        const local = loadLocalPreds();
-        // Merge: start with server as baseline, then LOCAL overwrites — local is always most recent
-        const merged: Record<string, Record<string, string | null>> = { ...server };
-        Object.entries(local).forEach(([matchId, picks]) => {
-          merged[matchId] = { ...(merged[matchId] || {}), ...picks };
-        });
-        // Push back any local pick that the server doesn't have or that differs from server
-        Object.entries(local).forEach(([matchId, picks]) => {
-          Object.entries(picks).forEach(([ownerId, pick]) => {
-            const serverPick = server[matchId]?.[ownerId];
-            if (pick && pick !== serverPick) {
-              fetch(`/api/ipl/predictions/${encodeURIComponent(matchId)}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ ownerId, pick }),
-              }).catch(() => {});
-            }
-          });
-        });
-        saveLocalPreds(merged);
-        setPredictions(merged);
+        // Server is the source of truth — always use it directly.
+        // Local cache is only a fallback for offline use.
+        saveLocalPreds(server);
+        setPredictions(server);
       }
     } catch (_) {
       // On network failure, use local cache
