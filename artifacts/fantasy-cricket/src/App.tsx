@@ -3479,10 +3479,10 @@ export default function App() {
                                             <tr key={bi} style={{ borderBottom: "1px solid var(--border)", background: ft ? `${ft.color}09` : "transparent" }}>
                                               <td style={{ padding: "5px 0 5px 6px" }}>
                                                 <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                                                  {ft && <span style={{ fontSize: "0.5rem", fontWeight: 800, color: ft.color, background: `${ft.color}1a`, borderRadius: 3, padding: "0 3px", lineHeight: "1.5", flexShrink: 0 }}>F</span>}
                                                   <span style={{ color: b.notOut ? "#22c55e" : "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: ft ? 600 : 400 }}>{b.name}</span>
+                                                  {ft && <span style={{ fontSize: "0.5rem", fontWeight: 800, color: ft.color, background: `${ft.color}1a`, borderRadius: 3, padding: "0 3px", lineHeight: "1.5", flexShrink: 0 }}>F</span>}
                                                 </div>
-                                                <div style={{ color: "var(--text-3)", fontSize: "0.58rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", paddingLeft: ft ? 16 : 0 }}>{b.dismissal}</div>
+                                                <div style={{ color: "var(--text-3)", fontSize: "0.58rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{b.dismissal}</div>
                                               </td>
                                               <td style={tdNum({ color: rc, fontWeight: b.runs >= 30 ? 700 : 400 })}>{b.runs}</td>
                                               <td style={tdNum({ color: "var(--text-3)" })}>{b.balls}</td>
@@ -3519,8 +3519,8 @@ export default function App() {
                                             <tr key={bi} style={{ borderBottom: "1px solid var(--border)", background: ft ? `${ft.color}09` : "transparent" }}>
                                               <td style={{ padding: "5px 0 5px 6px", overflow: "hidden" }}>
                                                 <div style={{ display: "flex", alignItems: "center", gap: 4, overflow: "hidden" }}>
-                                                  {ft && <span style={{ fontSize: "0.5rem", fontWeight: 800, color: ft.color, background: `${ft.color}1a`, borderRadius: 3, padding: "0 3px", lineHeight: "1.5", flexShrink: 0 }}>F</span>}
                                                   <span style={{ color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: ft ? 600 : 400 }}>{b.name}</span>
+                                                  {ft && <span style={{ fontSize: "0.5rem", fontWeight: 800, color: ft.color, background: `${ft.color}1a`, borderRadius: 3, padding: "0 3px", lineHeight: "1.5", flexShrink: 0 }}>F</span>}
                                                 </div>
                                               </td>
                                               <td style={tdNum({ color: "var(--text-3)" })}>{b.overs}</td>
