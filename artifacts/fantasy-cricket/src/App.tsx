@@ -2513,18 +2513,12 @@ export default function App() {
 
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, marginTop: countdown ? 16 : 0 }}>
         <div className="sec-title" style={{ marginBottom: 0 }}>Leaderboard</div>
-        <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-          <button className="btn-primary" style={{ padding: "6px 10px", display: "flex", alignItems: "center", gap: 5 }} onClick={shareLeaderboard} title="Share leaderboard">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>
-            </svg>
-            <span style={{ fontSize: "0.68rem" }}>Share</span>
-          </button>
-          <button className="btn-primary" style={{ padding: "5px 11px", fontSize: "0.7rem" }}
-            onClick={() => { fetchLive(); fetchPoints(); }} disabled={liveLoading || pointsLoading}>
-            {(liveLoading || pointsLoading) ? <span className="spinner" /> : null} Refresh
-          </button>
-        </div>
+        <button className="btn-primary" style={{ padding: "6px 10px", display: "flex", alignItems: "center", gap: 5 }} onClick={shareLeaderboard} title="Share leaderboard">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>
+          </svg>
+          <span style={{ fontSize: "0.68rem" }}>Share</span>
+        </button>
       </div>
       <div>
       {teamScores.map((s, i) => (
