@@ -1353,6 +1353,52 @@ export async function refreshLiveMatches(liveIplIds: string[]): Promise<void> {
   }
 }
 
+// POST /api/ipl/scorecard/prefetch-s3 — prefetch IPL S3 innings for all known match IDs (admin only)
+router.post("/ipl/scorecard/prefetch-s3", async (req, res) => {
+  if (req.headers["x-owner-id"] !== "rajveer") return res.status(403).json({ error: "Forbidden" });
+
+  const allIds = Object.keys(pointsCache.matchMetadata || {});
+  if (allIds.length === 0) return res.json({ ok: true, found: 0, missing: 0, foundIds: [], missingIds: [] });
+
+  const foundIds: string[] = [];
+  const missingIds: string[] = [];
+
+  // Fetch each match sequentially to avoid hammering S3
+  for (const matchId of allIds) {
+    const isCompleted = !!pointsCache.processedMatches[matchId];
+    // Check cache first; only refetch if not already cached
+    const cached = s3InningsCache.get(matchId);
+    if (cached && cached.data.length > 0) {
+      foundIds.push(matchId);
+      continue;
+    }
+    try {
+      const r = await fetch(`${IPL_S3_BASE}/${matchId}-Innings1.js`, {
+        headers: { "User-Agent": "Mozilla/5.0 (compatible; IPLFetcher/1.0)" },
+        signal: AbortSignal.timeout(5000),
+      });
+      if (r.ok) {
+        // Full fetch via the helper — populates the cache
+        const innings = await fetchIplS3Innings(matchId, isCompleted);
+        if (innings.length > 0) {
+          foundIds.push(matchId);
+        } else {
+          missingIds.push(matchId);
+        }
+      } else {
+        missingIds.push(matchId);
+      }
+    } catch {
+      missingIds.push(matchId);
+    }
+    // Small delay to be polite to S3
+    await new Promise(r => setTimeout(r, 80));
+  }
+
+  console.log(`[prefetch-s3] Done: ${foundIds.length} found, ${missingIds.length} missing`);
+  res.json({ ok: true, found: foundIds.length, missing: missingIds.length, foundIds, missingIds });
+});
+
 router.post("/ipl/points/reset", async (req, res) => {
   if (req.headers["x-owner-id"] !== "rajveer") return res.status(403).json({ error: "Forbidden" });
   pointsCache = {

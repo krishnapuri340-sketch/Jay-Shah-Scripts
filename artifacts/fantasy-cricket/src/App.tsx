@@ -608,6 +608,8 @@ export default function App() {
   const [pointsLoading, setPointsLoading] = useState(false);
   const [supabaseSyncing, setSupabaseSyncing] = useState(false);
   const [supabaseSyncMsg, setSupabaseSyncMsg] = useState<string | null>(null);
+  const [s3Prefetching, setS3Prefetching] = useState(false);
+  const [s3PrefetchResult, setS3PrefetchResult] = useState<{ found: number; missing: number; foundIds: string[]; missingIds: string[] } | null>(null);
   const [pointsUpdating, setPointsUpdating] = useState(false);
   const [pendingMatches, setPendingMatches] = useState(0);
   const [nextAttempt, setNextAttempt] = useState<string | null>(null);
@@ -781,6 +783,24 @@ export default function App() {
       setSupabaseSyncMsg("Sync failed: " + (e.message || "unknown error"));
     }
     setSupabaseSyncing(false);
+  };
+
+  const prefetchS3Scorecards = async () => {
+    if (s3Prefetching) return;
+    setS3Prefetching(true);
+    setS3PrefetchResult(null);
+    try {
+      const res = await fetch("/api/ipl/scorecard/prefetch-s3", {
+        method: "POST",
+        headers: { "X-Owner-Id": "rajveer" },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || `Server error ${res.status}`);
+      setS3PrefetchResult(data);
+    } catch (e: any) {
+      setS3PrefetchResult({ found: 0, missing: 0, foundIds: [], missingIds: ["Error: " + (e.message || "unknown")] });
+    }
+    setS3Prefetching(false);
   };
 
   const fetchLive = async () => {
@@ -4094,6 +4114,10 @@ export default function App() {
               onClick={syncSupabase} disabled={supabaseSyncing}>
               {supabaseSyncing ? <span className="spinner" /> : "🗄️"} Sync AuctionRoom
             </button>
+            <button className="btn-primary" style={{ background: "rgba(168,85,247,0.1)", borderColor: "rgba(168,85,247,0.3)", color: "#a855f7" }}
+              onClick={prefetchS3Scorecards} disabled={s3Prefetching}>
+              {s3Prefetching ? <span className="spinner" /> : "📡"} Pre-fetch S3 Scorecards
+            </button>
             <button className="btn-danger" onClick={async () => {
               if (confirm("Reset all cached points? Points will re-sync from AuctionRoom.")) {
                 await fetch("/api/ipl/points/reset", { method: "POST", headers: { "X-Owner-Id": "rajveer" } });
@@ -4111,6 +4135,33 @@ export default function App() {
             border: `1px solid ${supabaseSyncMsg.startsWith("Sync failed") ? "rgba(239,68,68,0.2)" : "rgba(34,197,94,0.2)"}`,
           }}>
             {supabaseSyncMsg}
+          </div>
+        )}
+        {s3PrefetchResult && (
+          <div style={{ marginTop: 8, padding: "10px 12px", borderRadius: 10,
+            background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.2)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: s3PrefetchResult.foundIds.length > 0 ? 8 : 0 }}>
+              <span style={{ fontSize: "0.72rem", color: "#a855f7", fontWeight: 700 }}>
+                📡 S3 Scorecard Prefetch
+              </span>
+              <span style={{ fontSize: "0.72rem", color: "#94a3b8" }}>
+                <span style={{ color: "#4ade80" }}>✓ {s3PrefetchResult.found} found</span>
+                {" · "}
+                <span style={{ color: s3PrefetchResult.missing > 0 ? "#94a3b8" : "#4ade80" }}>{s3PrefetchResult.missing} not yet available</span>
+              </span>
+            </div>
+            {s3PrefetchResult.foundIds.length > 0 && (
+              <div style={{ fontSize: "0.6rem", color: "#64748b", lineHeight: 1.6 }}>
+                <span style={{ color: "#4ade80" }}>Found IDs: </span>
+                {s3PrefetchResult.foundIds.join(", ")}
+              </div>
+            )}
+            {s3PrefetchResult.missingIds.length > 0 && (
+              <div style={{ fontSize: "0.6rem", color: "#64748b", marginTop: 4, lineHeight: 1.6 }}>
+                <span style={{ color: "#94a3b8" }}>Not yet on S3: </span>
+                {s3PrefetchResult.missingIds.join(", ")}
+              </div>
+            )}
           </div>
         )}
         {lastUpdated && (
