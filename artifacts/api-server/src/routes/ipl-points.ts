@@ -299,7 +299,7 @@ function processScorecard(scorecard: any[]): { players: Record<string, PlayerSta
     for (const bat of batting) {
       const name = bat?.batsman?.name || bat?.batsmanName || "";
       if (!name) continue;
-      const dismissal = bat["out/not-out"] || bat.dismissal || "";
+      const dismissal = bat.dismissal || bat["out/not-out"] || "";
       const isDnb = dismissal.toLowerCase() === "dnb" || dismissal.toLowerCase() === "did not bat";
       const notOut = !isDnb && (dismissal.toLowerCase().includes("not out") || dismissal === "");
 
@@ -364,7 +364,7 @@ function processScorecard(scorecard: any[]): { players: Record<string, PlayerSta
 
     // LBW/bowled bonus: parse bowler name from dismissal text
     for (const bat of batting) {
-      const dismissal = bat["out/not-out"] || bat.dismissal || "";
+      const dismissal = bat.dismissal || bat["out/not-out"] || "";
       const parsed = parseDismissal(dismissal);
       if (parsed.lbwBowled) {
         const bowlerMatch = dismissal.match(/\sb\s(.+)$/);
@@ -1247,7 +1247,7 @@ async function fetchIplS3Innings(matchId: string, isCompleted: boolean): Promise
         sr: String(b.StrikeRate ?? "0"), dismissal: b.OutDesc || (notOut ? "not out" : ""), notOut, dnb };
     }).filter((b: BattingRow) => b.name);
     const bowling: BowlingRow[] = (inn.BowlingCard || []).map((b: any) => ({
-      name: (b.PlayerName || "").trim(), overs: String(b.Overs ?? ""), maidens: b.Maidens ?? 0,
+      name: (b.PlayerName || "").replace(/\s*\([^)]*\)\s*$/, "").trim(), overs: String(b.Overs ?? ""), maidens: b.Maidens ?? 0,
       runs: b.Runs ?? 0, wickets: b.Wickets ?? 0, eco: String(b.Economy ?? ""),
       wides: b.Wides ?? 0, noBalls: b.NoBalls ?? 0,
       dots: b.Dots ?? b.DotBalls ?? 0,
@@ -1431,25 +1431,47 @@ export async function refreshLiveMatches(liveIplIds: string[]): Promise<void> {
       Object.values(pointsCache.supabaseScores || {}).map(f => f.linkedIplId).filter(Boolean) as string[]
     );
     for (const iplId of liveIplIds) {
-      const cricapiId = (pointsCache.cricapiMatchIds || {})[iplId];
-      if (!cricapiId) continue;
       if (pointsCache.dailyHits.count >= DAILY_CALL_LIMIT) break;
+      const meta = (pointsCache.matchMetadata || {})[iplId];
+      const isSupabaseCovered = supabaseLinkedNow.has(iplId);
+
+      // ── Try S3 first (free, official, has full dismissal text like "Caught X Bowled Y") ──
+      let usedS3 = false;
       try {
-        const meta = (pointsCache.matchMetadata || {})[iplId];
-        const matchData = await processSingleMatch(
-          cricapiId, FANTASY_PLAYER_NAMES,
-          meta?.teamA || "", meta?.teamB || ""
-        );
-        if (matchData.innings.length > 0 || Object.keys(matchData.points).length > 0) {
-          const isSupabaseCovered = supabaseLinkedNow.has(iplId);
+        const s3Innings = await fetchIplS3Innings(iplId, false); // 30-second TTL for live
+        if (s3Innings.length > 0) {
+          const matchData = processInningsForPoints(
+            s3Innings, FANTASY_PLAYER_NAMES,
+            meta?.teamA || "", meta?.teamB || ""
+          );
           pointsCache.processedMatches[iplId] = isSupabaseCovered
             ? { points: {}, innings: matchData.innings, playerStats: matchData.playerStats }
             : matchData;
-          console.log(`[live-poll] Match ${iplId} updated: ${matchData.innings.length} innings, ${Object.keys(matchData.points).length} pts`);
+          console.log(`[live-poll] Match ${iplId} S3 updated: ${s3Innings.length} innings, ${Object.keys(matchData.points).length} pts`);
           saveCache(pointsCache);
+          usedS3 = true;
         }
-      } catch (e: any) {
-        console.error(`[live-poll] CricAPI error for match ${iplId}:`, e?.message);
+      } catch (_) {}
+
+      // ── Fall back to CricAPI only if S3 had no data ──
+      if (!usedS3) {
+        const cricapiId = (pointsCache.cricapiMatchIds || {})[iplId];
+        if (!cricapiId) continue;
+        try {
+          const matchData = await processSingleMatch(
+            cricapiId, FANTASY_PLAYER_NAMES,
+            meta?.teamA || "", meta?.teamB || ""
+          );
+          if (matchData.innings.length > 0 || Object.keys(matchData.points).length > 0) {
+            pointsCache.processedMatches[iplId] = isSupabaseCovered
+              ? { points: {}, innings: matchData.innings, playerStats: matchData.playerStats }
+              : matchData;
+            console.log(`[live-poll] Match ${iplId} CricAPI updated: ${matchData.innings.length} innings, ${Object.keys(matchData.points).length} pts`);
+            saveCache(pointsCache);
+          }
+        } catch (e: any) {
+          console.error(`[live-poll] CricAPI error for match ${iplId}:`, e?.message);
+        }
       }
     }
   } finally {
