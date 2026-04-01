@@ -346,35 +346,41 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
   };
   const back = () => { if (!checking) setEntered(e => e.slice(0, -1)); };
 
-  // ── Cinematic background — real image + blended dark overlays ─────────────
+  // ── Cinematic background — image flipped so sky sits at bottom ───────────
   const BASE = import.meta.env.BASE_URL;
-  const cinematicBg = {
-    position: "fixed" as const, inset: 0, zIndex: 1000,
-    overflow: "hidden",
-    background: `
-      linear-gradient(to bottom,
-        rgba(5,3,2,0.90) 0%,
-        rgba(5,3,2,0.52) 14%,
-        rgba(5,3,2,0.10) 34%,
-        rgba(5,3,2,0.08) 52%,
-        rgba(5,3,2,0.42) 68%,
-        rgba(5,3,2,0.80) 80%,
-        rgba(5,3,2,0.97) 100%
-      ),
-      url(${BASE}login-bg.jpeg)
-    `,
-    backgroundSize: "cover, cover",
-    backgroundPosition: "center top, center top",
-    backgroundRepeat: "no-repeat, no-repeat",
+  const cinematicBg: React.CSSProperties = {
+    position: "fixed", inset: 0, zIndex: 1000, overflow: "hidden",
   };
+  // Shared bg layers: flipped image (sky → bottom) + dark-top gradient
+  const BgLayers = () => (
+    <>
+      <img src={`${BASE}login-bg.jpeg`} alt="" style={{
+        position: "absolute", inset: 0, width: "100%", height: "100%",
+        objectFit: "cover", objectPosition: "center center",
+        transform: "scaleY(-1)", pointerEvents: "none", userSelect: "none",
+      }} />
+      <div style={{
+        position: "absolute", inset: 0, pointerEvents: "none",
+        background: `linear-gradient(to bottom,
+          rgba(4,2,1,0.97) 0%,
+          rgba(4,2,1,0.82) 10%,
+          rgba(4,2,1,0.38) 26%,
+          rgba(4,2,1,0.10) 46%,
+          rgba(4,2,1,0.04) 65%,
+          rgba(4,2,1,0.08) 82%,
+          rgba(4,2,1,0.22) 100%
+        )`,
+      }} />
+    </>
+  );
 
   if (sel) {
     const ft = FANTASY_TEAMS[sel];
     return (
       <div style={{ ...cinematicBg, display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center" }}>
+        <BgLayers />
         <style>{`
           @keyframes login-fade-up { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
-          @keyframes loginGlowPulse { 0%,100%{opacity:0.6} 50%{opacity:1} }
           @keyframes pin-shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(6px)} }
           .pin-dot-fill { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
           .pin-dot-fill.filled { transform: scale(1.15); }
@@ -383,27 +389,22 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
         `}</style>
 
         <button onClick={() => { setSel(null); setEntered(""); setWrong(false); }}
-          style={{ position: "absolute", top: 22, left: 20, zIndex: 2, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,200,120,0.15)", borderRadius: 12, padding: "7px 16px", color: "#a09080", fontSize: "0.72rem", cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 5, backdropFilter: "blur(12px)" }}>
+          style={{ position: "absolute", top: 22, left: 20, zIndex: 2, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 12, padding: "7px 16px", color: "#d0c0b0", fontSize: "0.72rem", cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 5, backdropFilter: "blur(24px) saturate(1.4)" }}>
           ← Back
         </button>
 
         <div style={{ position: "relative", zIndex: 2, animation: "login-fade-up 0.38s ease-out", display: "flex", flexDirection: "column" as const, alignItems: "center" }}>
           {/* Avatar with warm glow ring */}
           <div style={{ position: "relative", marginBottom: 20 }}>
-            <div style={{
-              position: "absolute", inset: -8, borderRadius: "50%",
-              background: `radial-gradient(circle, ${ft.color}30 0%, transparent 70%)`,
-              filter: "blur(10px)",
-            }} />
-            <div style={{ width: 90, height: 90, borderRadius: "50%", border: `2.5px solid ${ft.color}80`, overflow: "hidden", boxShadow: `0 0 0 5px ${ft.color}18, 0 10px 36px rgba(0,0,0,0.6)`, position: "relative" as const }}>
+            <div style={{ position: "absolute", inset: -10, borderRadius: "50%", background: `radial-gradient(circle, ${ft.color}40 0%, transparent 70%)`, filter: "blur(14px)" }} />
+            <div style={{ width: 90, height: 90, borderRadius: "50%", border: `2px solid rgba(255,255,255,0.22)`, overflow: "hidden", boxShadow: `0 0 0 5px rgba(255,255,255,0.06), 0 10px 40px rgba(0,0,0,0.5)`, position: "relative" as const, backdropFilter: "blur(4px)" }}>
               <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center center", display: "block" }} />
-              <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "radial-gradient(circle, transparent 42%, rgba(4,3,2,0.7) 72%, rgba(4,3,2,0.95) 100%)" }} />
             </div>
           </div>
 
-          <div style={{ fontSize: "1.45rem", fontWeight: 800, color: "#fdf8f2", letterSpacing: "-0.02em", marginBottom: 4, textShadow: "0 2px 20px rgba(0,0,0,0.8)" }}>{ft.owner}</div>
-          <div style={{ fontSize: "0.65rem", color: ft.color, letterSpacing: "0.08em", fontWeight: 700, marginBottom: 2, opacity: 0.9 }}>{ft.name}</div>
-          <div style={{ fontSize: "0.56rem", color: "rgba(255,200,120,0.4)", letterSpacing: "0.18em", marginBottom: 40, fontWeight: 700, textTransform: "uppercase" as const }}>Enter your PIN</div>
+          <div style={{ fontSize: "1.45rem", fontWeight: 800, color: "#fff", letterSpacing: "-0.02em", marginBottom: 4, textShadow: "0 2px 24px rgba(0,0,0,0.9)" }}>{ft.owner}</div>
+          <div style={{ fontSize: "0.65rem", color: ft.color, letterSpacing: "0.08em", fontWeight: 700, marginBottom: 2, opacity: 0.9, textShadow: "0 1px 8px rgba(0,0,0,0.6)" }}>{ft.name}</div>
+          <div style={{ fontSize: "0.56rem", color: "rgba(255,255,255,0.35)", letterSpacing: "0.2em", marginBottom: 40, fontWeight: 700, textTransform: "uppercase" as const }}>Enter your PIN</div>
 
           {/* PIN dots */}
           <div className={shake ? "pin-dot-shake" : ""} style={{ display: "flex", gap: 20, marginBottom: wrong ? 10 : 44, animation: shake ? "pin-shake 0.55s ease" : "none" }}>
@@ -411,29 +412,29 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
               <div key={i} className={`pin-dot-fill ${i < entered.length ? "filled" : ""}`} style={{
                 width: 16, height: 16, borderRadius: "50%",
                 background: i < entered.length ? ft.color : "transparent",
-                border: `2px solid ${i < entered.length ? ft.color : "rgba(255,200,120,0.2)"}`,
-                boxShadow: i < entered.length ? `0 0 12px ${ft.color}60` : "none",
+                border: `2px solid ${i < entered.length ? ft.color : "rgba(255,255,255,0.25)"}`,
+                boxShadow: i < entered.length ? `0 0 14px ${ft.color}70` : "none",
               }} />
             ))}
           </div>
 
-          {wrong && <div style={{ fontSize: "0.65rem", color: "#f87171", marginBottom: 18, letterSpacing: "0.04em", fontWeight: 600 }}>✕ Wrong PIN — try again</div>}
-          {checking && <div style={{ fontSize: "0.62rem", color: "rgba(255,200,120,0.5)", marginBottom: 12, letterSpacing: "0.06em" }}>Checking…</div>}
+          {wrong && <div style={{ fontSize: "0.65rem", color: "#ff8888", marginBottom: 18, letterSpacing: "0.04em", fontWeight: 600, textShadow: "0 1px 8px rgba(0,0,0,0.6)" }}>✕ Wrong PIN — try again</div>}
+          {checking && <div style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.4)", marginBottom: 12, letterSpacing: "0.06em" }}>Checking…</div>}
 
-          {/* Numpad — glass keys */}
+          {/* Numpad — frosted glass keys */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 76px)", gap: 12, width: "fit-content", opacity: checking ? 0.4 : 1, pointerEvents: checking ? "none" : "auto" }}>
             {["1","2","3","4","5","6","7","8","9","","0","⌫"].map((k, i) => (
               k === "" ? <div key={i} /> :
               <button key={i} className="num-key" onClick={() => k === "⌫" ? back() : digit(k)} style={{
-                background: k === "⌫" ? "rgba(248,113,113,0.08)" : "rgba(255,255,255,0.07)",
-                border: `1px solid ${k === "⌫" ? "rgba(248,113,113,0.3)" : "rgba(255,200,120,0.12)"}`,
+                background: k === "⌫" ? "rgba(255,80,80,0.15)" : "rgba(255,255,255,0.11)",
+                border: `1px solid ${k === "⌫" ? "rgba(255,100,100,0.3)" : "rgba(255,255,255,0.22)"}`,
                 borderRadius: 22, width: 76, height: 76,
-                fontSize: k === "⌫" ? "1.2rem" : "1.65rem", fontWeight: 400,
-                color: k === "⌫" ? "#f87171" : "#fdf8f2",
+                fontSize: k === "⌫" ? "1.2rem" : "1.65rem", fontWeight: 300,
+                color: k === "⌫" ? "#ff8888" : "#fff",
                 cursor: "pointer", fontFamily: "inherit",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                backdropFilter: "blur(20px)",
-                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 16px rgba(0,0,0,0.35)",
+                backdropFilter: "blur(32px) saturate(1.8)",
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.2), 0 4px 20px rgba(0,0,0,0.25)",
               }}>{k}</button>
             ))}
           </div>
@@ -444,15 +445,15 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
 
   return (
     <div style={{ ...cinematicBg, display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", padding: "0 24px" }}>
+      <BgLayers />
       <style>{`
         @keyframes login-fade-up { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
         @keyframes team-card-in { from { opacity:0; transform:scale(0.88) translateY(18px); } to { opacity:1; transform:scale(1) translateY(0); } }
         @keyframes welcome-pop { from { opacity:0; transform:scale(0.88) translateY(8px); } to { opacity:1; transform:scale(1) translateY(0); } }
         @keyframes login-icon-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes loginGlowPulse { 0%,100%{opacity:0.55} 50%{opacity:1} }
         .team-card { transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) !important; position: relative; overflow: hidden; }
-        .team-card::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,200,120,0.06) 0%, transparent 60%); opacity: 0; transition: opacity 0.25s ease; border-radius: inherit; }
-        .team-card:hover { transform: translateY(-4px) !important; }
+        .team-card::before { content: ""; position: absolute; inset: 0; background: linear-gradient(160deg, rgba(255,255,255,0.07) 0%, transparent 55%); opacity: 0; transition: opacity 0.25s ease; border-radius: inherit; }
+        .team-card:hover { transform: translateY(-4px) scale(1.01) !important; }
         .team-card:hover::before { opacity: 1; }
         .team-card:active { transform: scale(0.95) !important; transition: all 0.1s ease !important; }
       `}</style>
@@ -518,21 +519,20 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
       <div style={{ position: "relative", zIndex: 2, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, width: "100%", maxWidth: 400 }}>
         {Object.values(FANTASY_TEAMS).map((ft, idx) => (
           <button key={ft.id} className="team-card" onClick={() => setSel(ft.id)} style={{
-            background: `linear-gradient(160deg, ${ft.color}14 0%, rgba(255,255,255,0.04) 100%)`,
-            border: `1px solid ${ft.color}40`,
+            background: "rgba(8,5,3,0.25)",
+            border: "1px solid rgba(255,255,255,0.18)",
             borderRadius: 24, padding: "26px 16px 22px",
             cursor: "pointer", fontFamily: "inherit",
             display: "flex", flexDirection: "column" as const, alignItems: "center",
-            boxShadow: `0 8px 32px rgba(0,0,0,0.55), inset 0 1px 0 ${ft.color}18`,
+            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.22), inset 0 -1px 0 rgba(0,0,0,0.2), 0 8px 32px rgba(0,0,0,0.4)",
             animation: `team-card-in 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) ${idx * 0.09 + 0.1}s both`,
-            backdropFilter: "blur(20px)",
+            backdropFilter: "blur(36px) saturate(1.8)",
           }}>
-            <div style={{ width: 66, height: 66, borderRadius: "50%", border: `2px solid ${ft.color}75`, overflow: "hidden", marginBottom: 14, boxShadow: `0 0 0 4px ${ft.color}18, 0 6px 20px rgba(0,0,0,0.5)`, flexShrink: 0, position: "relative" as const }}>
+            <div style={{ width: 66, height: 66, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.22)", overflow: "hidden", marginBottom: 14, boxShadow: "0 0 0 4px rgba(255,255,255,0.06), 0 6px 24px rgba(0,0,0,0.45)", flexShrink: 0, position: "relative" as const }}>
               <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center center", display: "block" }} />
-              <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "radial-gradient(circle, transparent 42%, rgba(4,3,2,0.72) 72%, rgba(4,3,2,0.96) 100%)" }} />
             </div>
-            <div style={{ fontSize: "1rem", fontWeight: 800, color: "#fdf8f2", marginBottom: 5, letterSpacing: "-0.02em", textShadow: "0 1px 8px rgba(0,0,0,0.6)" }}>{ft.owner}</div>
-            <div style={{ fontSize: "0.62rem", color: ft.color, fontWeight: 700, lineHeight: 1.4, letterSpacing: "0.04em", opacity: 0.9 }}>{ft.name}</div>
+            <div style={{ fontSize: "1rem", fontWeight: 800, color: "#fff", marginBottom: 5, letterSpacing: "-0.02em", textShadow: "0 1px 12px rgba(0,0,0,0.7)" }}>{ft.owner}</div>
+            <div style={{ fontSize: "0.62rem", color: ft.color, fontWeight: 700, lineHeight: 1.4, letterSpacing: "0.04em" }}>{ft.name}</div>
           </button>
         ))}
       </div>
