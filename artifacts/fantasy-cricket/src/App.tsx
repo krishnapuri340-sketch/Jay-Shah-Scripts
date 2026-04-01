@@ -3466,8 +3466,8 @@ export default function App() {
                                               </div>
                                               <div style={{ ...S_STAT, fontWeight: 800, color: runColor }}>{b.runs}</div>
                                               <div style={{ ...S_STAT, color: "var(--text-3)" }}>{b.balls}</div>
-                                              <div style={{ ...S_STAT, color: "var(--blue)" }}>{b.fours}</div>
-                                              <div style={{ ...S_STAT, color: "#a855f7" }}>{b.sixes}</div>
+                                              <div style={{ ...S_STAT, color: "var(--text-2)" }}>{b.fours}</div>
+                                              <div style={{ ...S_STAT, color: "var(--text-2)" }}>{b.sixes}</div>
                                               <div style={{ ...S_STAT, color: "var(--text-3)" }}>{parseFloat(b.sr || "0").toFixed(0)}</div>
                                             </div>
                                           );
@@ -3495,9 +3495,9 @@ export default function App() {
                                                     <span style={{ fontSize: SZ_NAME, color: "var(--text)", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{b.name}</span>
                                                     {isF && <span style={{ fontSize: "0.44rem", background: "rgba(74,222,128,0.15)", color: "#4ade80", borderRadius: 4, padding: "1px 4px", flexShrink: 0, fontWeight: 800 }}>F</span>}
                                                   </div>
-                                                  <div style={{ ...S_STAT, color: "var(--text-2)" }}>{b.overs}</div>
-                                                  <div style={{ ...S_STAT, fontWeight: maidens > 0 ? 700 : 400, color: maidens > 0 ? "var(--gold)" : "var(--text-3)" }}>{b.maidens}</div>
-                                                  <div style={{ ...S_STAT, fontWeight: 600, color: "var(--text)" }}>{b.runs}</div>
+                                                  <div style={{ ...S_STAT, color: "var(--text-3)" }}>{b.overs}</div>
+                                                  <div style={{ ...S_STAT, color: "var(--text-3)" }}>{b.maidens}</div>
+                                                  <div style={{ ...S_STAT, fontWeight: 600, color: "var(--text-2)" }}>{b.runs}</div>
                                                   <div style={{ ...S_STAT, fontWeight: wkts > 0 ? 800 : 500, color: wkts >= 3 ? "var(--gold)" : wkts > 0 ? "#4ade80" : "var(--text-3)" }}>{b.wickets}</div>
                                                   <div style={{ ...S_STAT, color: ecoColor }}>{eco.toFixed(2)}</div>
                                                 </div>
