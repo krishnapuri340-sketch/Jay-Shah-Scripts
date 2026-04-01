@@ -610,6 +610,7 @@ export default function App() {
   const [supabaseSyncMsg, setSupabaseSyncMsg] = useState<string | null>(null);
   const [s3Prefetching, setS3Prefetching] = useState(false);
   const [s3PrefetchResult, setS3PrefetchResult] = useState<{ found: number; missing: number; foundIds: string[]; missingIds: string[] } | null>(null);
+  const [collapsedInnings, setCollapsedInnings] = useState<Set<string>>(new Set());
   const [pointsUpdating, setPointsUpdating] = useState(false);
   const [pendingMatches, setPendingMatches] = useState(0);
   const [nextAttempt, setNextAttempt] = useState<string | null>(null);
@@ -3370,40 +3371,98 @@ export default function App() {
                               Scorecard will appear once innings data is synced.
                             </div>
                           )}
-                      {(sc?.innings || []).map((inn: any, idx: number) => (
-                        <div key={idx} style={{ marginBottom: 16 }}>
-                          <div style={{ fontSize: "0.65rem", fontWeight: 600, color: "var(--text-2)", letterSpacing: "0.06em", textTransform: "uppercase" as const, marginBottom: 8 }}>
-                            {inn.name} · <span style={{ color: "var(--text)" }}>{inn.total}</span>
-                          </div>
-                          {/* Shared column widths: name=auto, then 5 stat cols same in both tables */}
-                          {(() => {
-                            // col widths: [name, c1, c2, c3, c4, c5]
-                            // c1=R/O  c2=B/M  c3=4s/R  c4=6s/W  c5=SR/ECO
-                            const COL_W = ["auto", 34, 28, 30, 28, 46] as const;
-                            const colGroup = (
-                              <colgroup>
-                                <col style={{ width: COL_W[0] }} />
-                                {COL_W.slice(1).map((w, i) => <col key={i} style={{ width: w }} />)}
-                              </colgroup>
-                            );
-                            const tdNum = (extra?: React.CSSProperties): React.CSSProperties => ({
-                              textAlign: "right", padding: "5px 2px", ...extra,
-                            });
-                            const thNum = (): React.CSSProperties => ({
-                              textAlign: "right", padding: "4px 2px", fontWeight: 600,
-                            });
-                            const tblStyle: React.CSSProperties = {
-                              width: "100%", borderCollapse: "collapse", fontSize: "0.68rem", tableLayout: "fixed",
-                            };
-                            return (
-                              <>
+                      {(sc?.innings || []).map((inn: any, idx: number) => {
+                        const innKey = `${matchIdStr}-${idx}`;
+                        const isCollapsed = collapsedInnings.has(innKey);
+                        const toggleInn = (e: React.MouseEvent) => {
+                          e.stopPropagation();
+                          setCollapsedInnings(prev => { const n = new Set(prev); n.has(innKey) ? n.delete(innKey) : n.add(innKey); return n; });
+                        };
+
+                        // Fantasy-scoring colour helpers
+                        const runsColor = (runs: number, balls: number) => {
+                          if (runs === 0 && balls > 0) return "#f87171";
+                          if (runs >= 100) return "#d4a843";
+                          if (runs >= 50) return "#fb923c";
+                          if (runs >= 30) return "#f59e0b";
+                          return "var(--text)";
+                        };
+                        const srColor = (sr: number, balls: number) => {
+                          if (balls < 5) return "var(--text-3)";
+                          if (sr >= 200) return "#22c55e";
+                          if (sr >= 150) return "#86efac";
+                          if (sr < 70) return "#f87171";
+                          return "var(--text-3)";
+                        };
+                        const wicketsColor = (w: number) => {
+                          if (w >= 4) return "#d4a843";
+                          if (w === 3) return "#22c55e";
+                          if (w === 2) return "#4ade80";
+                          if (w === 1) return "var(--text)";
+                          return "var(--text-3)";
+                        };
+                        const ecoColor = (eco: number) => {
+                          if (eco < 6) return "#22c55e";
+                          if (eco < 8) return "#86efac";
+                          if (eco < 10) return "var(--text-3)";
+                          if (eco < 12) return "#f59e0b";
+                          return "#f87171";
+                        };
+                        // Find which fantasy team owns this player (by name)
+                        const findFt = (name: string) => {
+                          const norm = (s: string) => s.trim().toLowerCase();
+                          const sn = norm(name);
+                          for (const ft of Object.values(FANTASY_TEAMS)) {
+                            if (ft.players.some(p => norm(p.name) === sn)) return ft;
+                          }
+                          const sLast = sn.split(" ").pop()!;
+                          if (sLast.length > 2) {
+                            for (const ft of Object.values(FANTASY_TEAMS)) {
+                              if (ft.players.some(p => norm(p.name).split(" ").pop() === sLast)) return ft;
+                            }
+                          }
+                          return null;
+                        };
+
+                        // Shared table config
+                        const COL_W = ["auto", 34, 28, 30, 28, 46] as const;
+                        const colGroup = (
+                          <colgroup>
+                            <col style={{ width: COL_W[0] }} />
+                            {COL_W.slice(1).map((w, i) => <col key={i} style={{ width: w }} />)}
+                          </colgroup>
+                        );
+                        const tdNum = (extra?: React.CSSProperties): React.CSSProperties => ({ textAlign: "right", padding: "5px 2px", ...extra });
+                        const thNum = (): React.CSSProperties => ({ textAlign: "right", padding: "4px 2px", fontWeight: 600 });
+                        const tblStyle: React.CSSProperties = { width: "100%", borderCollapse: "collapse", fontSize: "0.68rem", tableLayout: "fixed" };
+
+                        return (
+                          <div key={idx} style={{ marginBottom: idx < (sc?.innings?.length ?? 1) - 1 ? 10 : 0 }}>
+                            {/* Collapsible innings header */}
+                            <div onClick={toggleInn} style={{
+                              display: "flex", alignItems: "center", justifyContent: "space-between",
+                              cursor: "pointer", userSelect: "none",
+                              padding: "5px 8px",
+                              borderRadius: isCollapsed ? 7 : "7px 7px 0 0",
+                              background: "rgba(255,255,255,0.035)",
+                              border: "1px solid var(--border)",
+                              borderBottom: isCollapsed ? "1px solid var(--border)" : "none",
+                            }}>
+                              <div style={{ fontSize: "0.63rem", fontWeight: 700, color: "var(--text-2)", letterSpacing: "0.06em", textTransform: "uppercase" as const }}>
+                                {inn.name} · <span style={{ color: "var(--text)" }}>{inn.total}</span>
+                              </div>
+                              <span style={{ fontSize: "0.5rem", color: "var(--text-3)", display: "inline-block", transition: "transform 0.2s", transform: isCollapsed ? "none" : "rotate(180deg)" }}>▼</span>
+                            </div>
+
+                            {!isCollapsed && (
+                              <div style={{ border: "1px solid var(--border)", borderTop: "none", borderRadius: "0 0 7px 7px", paddingBottom: 4 }}>
                                 {inn.batting?.length > 0 && (
                                   <div style={{ overflowX: "auto" }}>
                                     <table style={tblStyle}>
                                       {colGroup}
                                       <thead>
                                         <tr style={{ color: "var(--text-3)", borderBottom: "1px solid var(--border)" }}>
-                                          <th style={{ textAlign: "left", padding: "4px 0", fontWeight: 600 }}>Batter</th>
+                                          <th style={{ textAlign: "left", padding: "4px 6px", fontWeight: 600 }}>Batter</th>
                                           <th style={thNum()}>R</th>
                                           <th style={thNum()}>B</th>
                                           <th style={thNum()}>4s</th>
@@ -3412,30 +3471,38 @@ export default function App() {
                                         </tr>
                                       </thead>
                                       <tbody>
-                                        {inn.batting.filter((b: any) => !b.dnb).map((b: any, bi: number) => (
-                                          <tr key={bi} style={{ borderBottom: "1px solid var(--border)" }}>
-                                            <td style={{ padding: "5px 0" }}>
-                                              <div style={{ color: b.notOut ? "#22c55e" : "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{b.name}</div>
-                                              <div style={{ color: "var(--text-3)", fontSize: "0.58rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{b.dismissal}</div>
-                                            </td>
-                                            <td style={tdNum({ color: "var(--text)", fontWeight: 700 })}>{b.runs}</td>
-                                            <td style={tdNum({ color: "var(--text-3)" })}>{b.balls}</td>
-                                            <td style={tdNum({ color: "var(--blue)" })}>{b.fours}</td>
-                                            <td style={tdNum({ color: "#a855f7" })}>{b.sixes}</td>
-                                            <td style={tdNum({ color: "var(--text-3)" })}>{parseFloat(b.sr).toFixed(1)}</td>
-                                          </tr>
-                                        ))}
+                                        {inn.batting.filter((b: any) => !b.dnb).map((b: any, bi: number) => {
+                                          const ft = findFt(b.name);
+                                          const rc = runsColor(b.runs, b.balls);
+                                          const src = srColor(parseFloat(b.sr), b.balls);
+                                          return (
+                                            <tr key={bi} style={{ borderBottom: "1px solid var(--border)", background: ft ? `${ft.color}09` : "transparent" }}>
+                                              <td style={{ padding: "5px 0 5px 6px" }}>
+                                                <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                                                  {ft && <div style={{ width: 3, minWidth: 3, height: 13, borderRadius: 2, background: ft.color }} />}
+                                                  <span style={{ color: b.notOut ? "#22c55e" : ft ? "var(--text)" : "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: ft ? 600 : 400 }}>{b.name}</span>
+                                                </div>
+                                                <div style={{ color: "var(--text-3)", fontSize: "0.58rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", paddingLeft: ft ? 8 : 0 }}>{b.dismissal}</div>
+                                              </td>
+                                              <td style={tdNum({ color: rc, fontWeight: b.runs >= 30 ? 700 : 400 })}>{b.runs}</td>
+                                              <td style={tdNum({ color: "var(--text-3)" })}>{b.balls}</td>
+                                              <td style={tdNum({ color: b.fours > 0 ? "var(--blue)" : "var(--text-3)" })}>{b.fours}</td>
+                                              <td style={tdNum({ color: b.sixes > 0 ? "#a855f7" : "var(--text-3)" })}>{b.sixes}</td>
+                                              <td style={tdNum({ color: src, fontSize: "0.62rem" })}>{parseFloat(b.sr).toFixed(1)}</td>
+                                            </tr>
+                                          );
+                                        })}
                                       </tbody>
                                     </table>
                                   </div>
                                 )}
                                 {inn.bowling?.length > 0 && (
-                                  <div style={{ marginTop: 10, overflowX: "auto" }}>
+                                  <div style={{ marginTop: 6, overflowX: "auto" }}>
                                     <table style={tblStyle}>
                                       {colGroup}
                                       <thead>
                                         <tr style={{ color: "var(--text-3)", borderBottom: "1px solid var(--border)" }}>
-                                          <th style={{ textAlign: "left", padding: "4px 0", fontWeight: 600 }}>Bowler</th>
+                                          <th style={{ textAlign: "left", padding: "4px 6px", fontWeight: 600 }}>Bowler</th>
                                           <th style={thNum()}>O</th>
                                           <th style={thNum()}>M</th>
                                           <th style={thNum()}>R</th>
@@ -3444,25 +3511,35 @@ export default function App() {
                                         </tr>
                                       </thead>
                                       <tbody>
-                                        {inn.bowling.map((b: any, bi: number) => (
-                                          <tr key={bi} style={{ borderBottom: "1px solid var(--border)" }}>
-                                            <td style={{ padding: "5px 0", color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{b.name}</td>
-                                            <td style={tdNum({ color: "var(--text-3)" })}>{b.overs}</td>
-                                            <td style={tdNum({ color: "var(--text-3)" })}>{b.maidens}</td>
-                                            <td style={tdNum({ color: "var(--text-3)" })}>{b.runs}</td>
-                                            <td style={tdNum({ color: "#22c55e", fontWeight: 700 })}>{b.wickets}</td>
-                                            <td style={tdNum({ color: "var(--text-3)" })}>{parseFloat(b.eco).toFixed(2)}</td>
-                                          </tr>
-                                        ))}
+                                        {inn.bowling.map((b: any, bi: number) => {
+                                          const ft = findFt(b.name);
+                                          const wc = wicketsColor(b.wickets);
+                                          const ec = ecoColor(parseFloat(b.eco));
+                                          return (
+                                            <tr key={bi} style={{ borderBottom: "1px solid var(--border)", background: ft ? `${ft.color}09` : "transparent" }}>
+                                              <td style={{ padding: "5px 0 5px 6px", overflow: "hidden" }}>
+                                                <div style={{ display: "flex", alignItems: "center", gap: 5, overflow: "hidden" }}>
+                                                  {ft && <div style={{ width: 3, minWidth: 3, height: 13, borderRadius: 2, background: ft.color }} />}
+                                                  <span style={{ color: ft ? "var(--text)" : "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: ft ? 600 : 400 }}>{b.name}</span>
+                                                </div>
+                                              </td>
+                                              <td style={tdNum({ color: "var(--text-3)" })}>{b.overs}</td>
+                                              <td style={tdNum({ color: b.maidens > 0 ? "#f59e0b" : "var(--text-3)" })}>{b.maidens}</td>
+                                              <td style={tdNum({ color: "var(--text-3)" })}>{b.runs}</td>
+                                              <td style={tdNum({ color: wc, fontWeight: b.wickets > 0 ? 700 : 400 })}>{b.wickets}</td>
+                                              <td style={tdNum({ color: ec, fontSize: "0.62rem" })}>{parseFloat(b.eco).toFixed(2)}</td>
+                                            </tr>
+                                          );
+                                        })}
                                       </tbody>
                                     </table>
                                   </div>
                                 )}
-                              </>
-                            );
-                          })()}
-                        </div>
-                      ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                         </div>
                       )}
                     </div>
