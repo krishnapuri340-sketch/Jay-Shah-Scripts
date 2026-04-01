@@ -4494,7 +4494,7 @@ export default function App() {
               </div>
               <div className="header-title-row">
                 <span className="header-title">Indian Premier League</span>
-                <span className="header-year">2026</span>
+                <span className="header-year">2026 · Fantasy</span>
               </div>
             </div>
             <div className="header-right">

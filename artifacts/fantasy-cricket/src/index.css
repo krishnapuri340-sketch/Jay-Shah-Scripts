@@ -98,13 +98,16 @@ body { background: var(--bg); }
   object-position: center 10%; display: block; transform: scale(1.1);
   transform-origin: center top;
 }
-.header-title-row { display: flex; align-items: baseline; gap: 8px; }
+.header-title-row { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
 .header-title {
   font-family: 'Oswald', sans-serif; text-transform: uppercase;
-  font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em;
-  color: var(--text); line-height: 1.2;
+  font-size: 0.92rem; font-weight: 600; letter-spacing: 0.07em;
+  color: var(--text); line-height: 1.1;
 }
-.header-year { font-size: 0.7rem; font-weight: 700; color: var(--gold); letter-spacing: 0.08em; }
+.header-year {
+  font-size: 0.52rem; font-weight: 800; color: var(--gold);
+  letter-spacing: 0.22em; text-transform: uppercase; opacity: 0.9;
+}
 .header-right { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
 
 /* user chip */
