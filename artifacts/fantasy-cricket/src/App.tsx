@@ -1782,13 +1782,16 @@ export default function App() {
 
           for (const b of batters) {
             const runs = parseInt(b.runs) || 0;
+            const balls = parseInt(b.balls) || 0;
+            const actuallyBattedShare = balls > 0 || runs > 0;
+            const showNotOutShare = b.notOut && actuallyBattedShare;
             const bRunColor = runs >= 100 ? "#d4a843" : runs >= 50 ? "#93c5fd" : "#f4f4f5";
             const isFantasyBat = allFantasyNamesShare.has(b.name);
             // Name
             ctx.textAlign = "left";
-            ctx.font = `${b.notOut ? "600" : "400"} 20px -apple-system, Arial, sans-serif`;
-            ctx.fillStyle = b.notOut ? "#4ade80" : "#e4e4e7";
-            const nameStr = (b.name || "") + (b.notOut ? "*" : "");
+            ctx.font = `${showNotOutShare ? "600" : "400"} 20px -apple-system, Arial, sans-serif`;
+            ctx.fillStyle = showNotOutShare ? "#4ade80" : "#e4e4e7";
+            const nameStr = (b.name || "") + (showNotOutShare ? "*" : "");
             ctx.fillText(nameStr, PAD + (isFantasyBat ? 28 : 0), y + 22);
             // Fantasy badge
             if (isFantasyBat) {
@@ -3373,16 +3376,9 @@ export default function App() {
                                 padding: "10px 0", cursor: "pointer", userSelect: "none" as const,
                                 borderTop: i > 0 ? "1px solid rgba(255,255,255,0.04)" : "none",
                               }}>
-                              <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-                                {TEAM_LOGO_CDN[teamCode] && (
-                                  <img src={TEAM_LOGO_CDN[teamCode]} alt={teamCode}
-                                    style={{ width: 24, height: 24, objectFit: "contain", flexShrink: 0, filter: "drop-shadow(0 1px 4px rgba(0,0,0,0.5))" }}
-                                    onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                                )}
-                                <div>
-                                  <div style={{ fontSize: "0.82rem", fontWeight: 700, color: teamColor, lineHeight: 1 }}>{teamCode}</div>
-                                  {isLive && i === (m.score?.length ?? 0) - 1 && <div style={{ fontSize: "0.48rem", color: "var(--live)", letterSpacing: "0.08em", marginTop: 2, fontWeight: 700 }}>● LIVE</div>}
-                                </div>
+                              <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                                <div style={{ fontSize: "0.82rem", fontWeight: 700, color: teamColor, lineHeight: 1 }}>{teamCode}</div>
+                                {isLive && i === (m.score?.length ?? 0) - 1 && <div style={{ fontSize: "0.48rem", color: "var(--live)", letterSpacing: "0.08em", fontWeight: 700 }}>● LIVE</div>}
                               </div>
                               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                                 <div style={{ textAlign: "right" as const }}>
@@ -3411,13 +3407,9 @@ export default function App() {
                                   return (
                                     <>
                                       {/* Innings header bar */}
-                                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 12px 7px", background: `linear-gradient(90deg, ${teamColor}16 0%, rgba(255,255,255,0.01) 100%)`, borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-                                        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                                          {TEAM_LOGO_CDN[teamCode] && <img src={TEAM_LOGO_CDN[teamCode]} alt={teamCode} style={{ width: 16, height: 16, objectFit: "contain", opacity: 0.9 }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />}
-                                          <span style={{ fontSize: "0.65rem", fontWeight: 800, color: teamColor, letterSpacing: "0.02em" }}>{teamCode}</span>
-                                          <span style={{ fontSize: "0.48rem", color: "rgba(255,255,255,0.25)", letterSpacing: "0.06em", fontWeight: 600 }}>INNINGS {i + 1}</span>
-                                        </div>
-                                        <span style={{ fontSize: "0.72rem", fontWeight: 800, color: "var(--text)", letterSpacing: "-0.01em" }}>{inn.total}</span>
+                                      <div style={{ display: "flex", alignItems: "center", padding: "8px 12px 7px", background: `linear-gradient(90deg, ${teamColor}18 0%, rgba(255,255,255,0.01) 100%)`, borderBottom: "1px solid rgba(255,255,255,0.06)", borderLeft: `3px solid ${teamColor}` }}>
+                                        <span style={{ fontSize: "0.65rem", fontWeight: 800, color: teamColor, letterSpacing: "0.02em" }}>{teamCode}</span>
+                                        <span style={{ fontSize: "0.48rem", color: "rgba(255,255,255,0.25)", letterSpacing: "0.07em", fontWeight: 600, marginLeft: 8 }}>INNINGS {i + 1}</span>
                                       </div>
 
                                       {/* Batting table */}
@@ -3429,6 +3421,9 @@ export default function App() {
                                       {batters.map((b: any, bi: number) => {
                                         const isF = allFantasyNames.has(b.name);
                                         const runs = parseInt(b.runs) || 0;
+                                        const balls = parseInt(b.balls) || 0;
+                                        const actuallyBatted = balls > 0 || runs > 0;
+                                        const showNotOut = b.notOut && actuallyBatted;
                                         const runColor = runs >= 100 ? "#d4a843" : runs >= 50 ? "#93c5fd" : runs >= 30 ? "var(--text)" : "var(--text-2)";
                                         const isLastBat = bi === batters.length - 1;
                                         return (
@@ -3436,8 +3431,8 @@ export default function App() {
                                             <div style={{ minWidth: 0, paddingRight: 6 }}>
                                               <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 2 }}>
                                                 {isF && <span style={{ fontSize: "0.4rem", background: "rgba(74,222,128,0.18)", color: "#4ade80", borderRadius: 3, padding: "1px 3px", flexShrink: 0, letterSpacing: "0.04em", fontWeight: 800 }}>F</span>}
-                                                <span style={{ fontSize: "0.74rem", fontWeight: b.notOut ? 700 : 500, color: b.notOut ? "#4ade80" : "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
-                                                  {b.name}{b.notOut ? "*" : ""}
+                                                <span style={{ fontSize: "0.74rem", fontWeight: showNotOut ? 700 : 500, color: showNotOut ? "#4ade80" : "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+                                                  {b.name}{showNotOut ? "*" : ""}
                                                 </span>
                                               </div>
                                               {b.dismissal && b.dismissal !== "not out" && b.dismissal !== "DNB" && (
