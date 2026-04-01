@@ -2547,7 +2547,7 @@ export default function App() {
                     position: "absolute", inset: -6, zIndex: 0,
                     backgroundImage: `url(${LB_BG[s.id]})`,
                     backgroundSize: "cover", backgroundPosition: "center 30%",
-                    filter: "blur(9px) brightness(0.28) saturate(1.4)",
+                    filter: "blur(11px) brightness(0.28) saturate(1.4)",
                   }} />
                   {/* Subtle vignette overlay for extra depth */}
                   <div style={{
