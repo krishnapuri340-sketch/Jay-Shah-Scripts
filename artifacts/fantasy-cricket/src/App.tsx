@@ -3299,6 +3299,18 @@ export default function App() {
               const isHome = teamFilter.size > 0 ? teamFilter.has(m.homeTeamCode) : null;
               return (
                 <div key={m.id} className="match-card">
+                  {/* Stadium backdrop */}
+                  <div style={{
+                    position: "absolute", inset: -4, zIndex: 0,
+                    backgroundImage: `url(${import.meta.env.BASE_URL}match-bg.jpeg)`,
+                    backgroundSize: "cover", backgroundPosition: "center 35%",
+                    filter: "blur(3px) brightness(0.14) saturate(0.85)",
+                  }} />
+                  <div style={{
+                    position: "absolute", inset: 0, zIndex: 1,
+                    background: "linear-gradient(160deg, rgba(14,11,9,0.78) 0%, rgba(8,6,5,0.88) 100%)",
+                  }} />
+                  <div style={{ position: "relative", zIndex: 2 }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                     <div className="match-status" style={{ color: statusColor }}>
                       {statusLabel}
@@ -3708,6 +3720,7 @@ export default function App() {
                       )}
                     </div>
                   )}
+                  </div>{/* /zIndex-2 wrapper */}
                 </div>
               );
             })}
