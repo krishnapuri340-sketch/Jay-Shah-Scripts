@@ -3288,7 +3288,7 @@ export default function App() {
                       {statusLabel}
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                      {mNum && <div style={{ fontSize: "0.56rem", color: "rgba(255,255,255,0.25)", fontWeight: 700, letterSpacing: "0.07em" }}>{mNum}</div>}
+                      {mNum && <div style={{ fontSize: "0.56rem", color: "var(--text-3)", fontWeight: 700, letterSpacing: "0.07em" }}>{mNum}</div>}
                       {isHome !== null && (
                         <div style={{
                           fontSize: "0.5rem", fontWeight: 700, padding: "2px 6px", borderRadius: 20, letterSpacing: "0.07em",
@@ -3302,7 +3302,7 @@ export default function App() {
                       {(isLive || isDone) && (
                         <button onClick={e => { e.stopPropagation(); shareMatchCard(m); }}
                           title="Share scorecard"
-                          style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.09)", borderRadius: 8, padding: "4px 7px", cursor: "pointer", color: "rgba(255,255,255,0.35)", display: "flex", alignItems: "center", backdropFilter: "blur(4px)", transition: "all 0.15s" }}>
+                          className="btn-share-match">
                           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>
                           </svg>
