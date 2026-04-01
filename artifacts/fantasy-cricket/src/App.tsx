@@ -3342,159 +3342,173 @@ export default function App() {
                   )}
                   {/* Interactive score lines — tap to expand innings scorecard */}
                   {(isDone || isLive) ? (
-                    <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", marginTop: 2 }} onClick={e => e.stopPropagation()}>
-                      {(m.score || []).map((s: any, i: number) => {
-                        const innKey = `${matchIdStr}-inn${i}`;
-                        const isInnOpen = expandedInnings.has(innKey);
-                        const rawInning = (s.inning || "");
-                        const teamCode = teams[i]?.shortname
-                          || Object.keys(TEAM_LOGO_CDN).find(code => rawInning.includes(code))
-                          || (m.homeTeamCode && i === 0 ? m.homeTeamCode : m.awayTeamCode)
-                          || "";
-                        const teamColor = IPL_COLORS[teamCode] || "var(--text)";
-                        const inn = sc?.innings?.[i];
-                        const hasData = !!inn?.batting?.length;
-                        const runDisplay = s.r != null ? `${s.r}/${s.w ?? 0}` : s.summary?.split("(")[0]?.trim() || "—";
-                        const overDisplay = s.o ? `(${s.o} ov)` : s.summary?.match(/\(([^)]+)\)/)?.[1] ? `(${s.summary.match(/\(([^)]+)\)/)[1]})` : "";
-                        return (
-                          <div key={i}>
-                            {/* Score row — tappable */}
-                            <div
-                              onClick={() => {
-                                if (!scorecards[matchIdStr]?.hasScorecard) {
-                                  setExpandedMatchId(matchIdStr);
-                                  fetchScorecard(matchIdStr);
-                                }
-                                setExpandedInnings(prev => {
-                                  const next = new Set(prev);
-                                  if (next.has(innKey)) next.delete(innKey); else next.add(innKey);
-                                  return next;
-                                });
-                              }}
-                              style={{
-                                display: "flex", alignItems: "center", justifyContent: "space-between",
-                                padding: "10px 0", cursor: "pointer", userSelect: "none" as const,
-                                borderTop: i > 0 ? "1px solid rgba(255,255,255,0.04)" : "none",
-                              }}>
-                              <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                                <div style={{ fontSize: "0.82rem", fontWeight: 700, color: teamColor, lineHeight: 1 }}>{teamCode}</div>
-                                {isLive && i === (m.score?.length ?? 0) - 1 && <div style={{ fontSize: "0.48rem", color: "var(--live)", letterSpacing: "0.08em", fontWeight: 700 }}>● LIVE</div>}
-                              </div>
-                              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                                <div style={{ textAlign: "right" as const }}>
-                                  <div style={{ fontSize: "1rem", fontWeight: 800, letterSpacing: "-0.03em", color: "var(--text)", lineHeight: 1 }}>{runDisplay}</div>
-                                  <div style={{ fontSize: "0.54rem", color: "rgba(255,255,255,0.3)", marginTop: 2 }}>{overDisplay}</div>
+                    <div style={{ borderTop: "1px solid var(--border)", marginTop: 2 }} onClick={e => e.stopPropagation()}>
+                      {(() => {
+                        // Sort so batting-first team (Inning 1) always appears first
+                        const rawScores = (m.score || []) as any[];
+                        const displayScores = [...rawScores].sort((a, b) => {
+                          const aNum = parseInt((a.inning || "").match(/(\d+)/)?.[1] || "9");
+                          const bNum = parseInt((b.inning || "").match(/(\d+)/)?.[1] || "9");
+                          return aNum - bNum;
+                        });
+                        return displayScores.map((s: any, dispIdx: number) => {
+                          const innKey = `${matchIdStr}-inn${dispIdx}`;
+                          const isInnOpen = expandedInnings.has(innKey);
+                          const rawInning = (s.inning || "");
+                          // Detect team from inning name text (most reliable)
+                          const teamCode = Object.keys(TEAM_LOGO_CDN).find(code => rawInning.includes(code))
+                            || (dispIdx === 0 ? m.homeTeamCode : m.awayTeamCode)
+                            || "";
+                          const teamColor = IPL_COLORS[teamCode] || "var(--text)";
+                          // Match innings data by index (sc.innings is already batting-order sorted)
+                          const inn = sc?.innings?.[dispIdx];
+                          const hasData = !!inn?.batting?.length;
+                          const runDisplay = s.r != null ? `${s.r}/${s.w ?? 0}` : s.summary?.split("(")[0]?.trim() || "—";
+                          const overDisplay = s.o ? `(${s.o} ov)` : s.summary?.match(/\(([^)]+)\)/)?.[1] ? `(${s.summary.match(/\(([^)]+)\)/)[1]})` : "";
+                          const isLastInn = dispIdx === displayScores.length - 1;
+                          return (
+                            <div key={dispIdx}>
+                              {/* Score row — tappable */}
+                              <div
+                                onClick={() => {
+                                  if (!scorecards[matchIdStr]?.hasScorecard) {
+                                    setExpandedMatchId(matchIdStr);
+                                    fetchScorecard(matchIdStr);
+                                  }
+                                  setExpandedInnings(prev => {
+                                    const next = new Set(prev);
+                                    if (next.has(innKey)) next.delete(innKey); else next.add(innKey);
+                                    return next;
+                                  });
+                                }}
+                                style={{
+                                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                                  padding: "9px 0", cursor: "pointer", userSelect: "none" as const,
+                                  borderTop: dispIdx > 0 ? "1px solid var(--border)" : "none",
+                                }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                                  <div style={{ fontSize: "0.82rem", fontWeight: 700, color: teamColor, lineHeight: 1 }}>{teamCode}</div>
+                                  {isLive && isLastInn && <div style={{ fontSize: "0.44rem", color: "var(--live)", letterSpacing: "0.08em", fontWeight: 700 }}>● LIVE</div>}
                                 </div>
-                                <span style={{
-                                  fontSize: "0.5rem", color: isInnOpen ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.2)",
-                                  transition: "transform 0.2s", display: "inline-block",
-                                  transform: isInnOpen ? "rotate(180deg)" : "none", width: 10, flexShrink: 0,
-                                }}>▼</span>
+                                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                  <div style={{ textAlign: "right" as const }}>
+                                    <div style={{ fontSize: "1rem", fontWeight: 800, letterSpacing: "-0.03em", color: "var(--text)", lineHeight: 1 }}>{runDisplay}</div>
+                                    <div style={{ fontSize: "0.52rem", color: "var(--text-3)", marginTop: 2 }}>{overDisplay}</div>
+                                  </div>
+                                  <span style={{
+                                    fontSize: "0.48rem", color: isInnOpen ? "var(--text-2)" : "var(--text-3)",
+                                    transition: "transform 0.2s", display: "inline-block",
+                                    transform: isInnOpen ? "rotate(180deg)" : "none", width: 10, flexShrink: 0,
+                                  }}>▼</span>
+                                </div>
                               </div>
-                            </div>
-                            {/* Inline innings panel */}
-                            {isInnOpen && (
-                              <div style={{ marginBottom: 10, borderRadius: 10, overflow: "hidden", border: "1px solid rgba(255,255,255,0.07)", background: "rgba(10,14,22,0.8)" }}>
-                                {isLoadingSc && !hasData && (
-                                  <div style={{ padding: "14px", fontSize: "0.68rem", color: "rgba(255,255,255,0.3)", textAlign: "center" as const }}>Loading scorecard…</div>
-                                )}
-                                {!isLoadingSc && !hasData && sc && !sc.hasScorecard && (
-                                  <div style={{ padding: "14px", fontSize: "0.68rem", color: "rgba(255,255,255,0.3)", textAlign: "center" as const }}>Scorecard not available yet.</div>
-                                )}
-                                {hasData && (() => {
-                                  const allFantasyNames = new Set(Object.values(FANTASY_TEAMS).flatMap((t: any) => t.players.map((p: any) => p.name || p)));
-                                  const batters = inn.batting.filter((b: any) => !b.dnb);
-                                  return (
-                                    <>
-                                      {/* Innings header bar */}
-                                      <div style={{ display: "flex", alignItems: "center", padding: "8px 12px 7px", background: `linear-gradient(90deg, ${teamColor}18 0%, rgba(255,255,255,0.01) 100%)`, borderBottom: "1px solid rgba(255,255,255,0.06)", borderLeft: `3px solid ${teamColor}` }}>
-                                        <span style={{ fontSize: "0.65rem", fontWeight: 800, color: teamColor, letterSpacing: "0.02em" }}>{teamCode}</span>
-                                        <span style={{ fontSize: "0.48rem", color: "rgba(255,255,255,0.25)", letterSpacing: "0.07em", fontWeight: 600, marginLeft: 8 }}>INNINGS {i + 1}</span>
-                                      </div>
-
-                                      {/* Batting table */}
-                                      <div style={{ display: "grid", gridTemplateColumns: "1fr 32px 30px 24px 24px 38px", padding: "5px 12px 4px", background: "rgba(255,255,255,0.018)", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-                                        {["BATTER","R","B","4s","6s","SR"].map((h, hi) => (
-                                          <div key={h} style={{ fontSize: "0.46rem", fontWeight: 700, color: hi===3?"rgba(96,165,250,0.55)":hi===4?"rgba(168,85,247,0.55)":"rgba(255,255,255,0.22)", letterSpacing: "0.09em", textAlign: hi > 0 ? "right" as const : "left" as const }}>{h}</div>
-                                        ))}
-                                      </div>
-                                      {batters.map((b: any, bi: number) => {
-                                        const isF = allFantasyNames.has(b.name);
-                                        const runs = parseInt(b.runs) || 0;
-                                        const balls = parseInt(b.balls) || 0;
-                                        const actuallyBatted = balls > 0 || runs > 0;
-                                        const showNotOut = b.notOut && actuallyBatted;
-                                        const runColor = runs >= 100 ? "#d4a843" : runs >= 50 ? "#93c5fd" : runs >= 30 ? "var(--text)" : "var(--text-2)";
-                                        const isLastBat = bi === batters.length - 1;
-                                        return (
-                                          <div key={bi} style={{ display: "grid", gridTemplateColumns: "1fr 32px 30px 24px 24px 38px", padding: "7px 12px", borderBottom: isLastBat ? "none" : "1px solid rgba(255,255,255,0.028)", alignItems: "start" }}>
-                                            <div style={{ minWidth: 0, paddingRight: 6 }}>
-                                              <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 2 }}>
-                                                {isF && <span style={{ fontSize: "0.4rem", background: "rgba(74,222,128,0.18)", color: "#4ade80", borderRadius: 3, padding: "1px 3px", flexShrink: 0, letterSpacing: "0.04em", fontWeight: 800 }}>F</span>}
-                                                <span style={{ fontSize: "0.74rem", fontWeight: showNotOut ? 700 : 500, color: showNotOut ? "#4ade80" : "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
-                                                  {b.name}{showNotOut ? "*" : ""}
-                                                </span>
-                                              </div>
-                                              {b.dismissal && b.dismissal !== "not out" && b.dismissal !== "DNB" && (
-                                                <div style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.2)", lineHeight: 1.35, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{b.dismissal}</div>
-                                              )}
-                                            </div>
-                                            <div style={{ textAlign: "right" as const, fontSize: "0.88rem", fontWeight: 800, color: runColor, lineHeight: 1, paddingTop: 2 }}>{b.runs}</div>
-                                            <div style={{ textAlign: "right" as const, fontSize: "0.66rem", color: "rgba(255,255,255,0.28)", paddingTop: 3 }}>{b.balls}</div>
-                                            <div style={{ textAlign: "right" as const, fontSize: "0.66rem", color: "rgba(96,165,250,0.75)", paddingTop: 3 }}>{b.fours}</div>
-                                            <div style={{ textAlign: "right" as const, fontSize: "0.66rem", color: "rgba(168,85,247,0.75)", paddingTop: 3 }}>{b.sixes}</div>
-                                            <div style={{ textAlign: "right" as const, fontSize: "0.62rem", color: "rgba(255,255,255,0.22)", paddingTop: 3 }}>{parseFloat(b.sr || "0").toFixed(0)}</div>
-                                          </div>
-                                        );
-                                      })}
-
-                                      {/* Bowling table */}
-                                      {inn.bowling?.length > 0 && (
-                                        <div style={{ borderTop: "2px solid rgba(255,255,255,0.04)" }}>
-                                          <div style={{ display: "grid", gridTemplateColumns: "1fr 30px 18px 30px 26px 38px", padding: "5px 12px 4px", background: "rgba(255,255,255,0.018)", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-                                            {["BOWLER","O","M","R","W","ECO"].map((h, hi) => (
-                                              <div key={h} style={{ fontSize: "0.46rem", fontWeight: 700, color: hi===4?"rgba(74,222,128,0.55)":"rgba(255,255,255,0.22)", letterSpacing: "0.09em", textAlign: hi > 0 ? "right" as const : "left" as const }}>{h}</div>
-                                            ))}
-                                          </div>
-                                          {inn.bowling.map((b: any, bi: number) => {
-                                            const eco = parseFloat(b.eco || "0");
-                                            const ecoColor = eco > 10 ? "#f87171" : eco < 7 ? "#4ade80" : "rgba(255,255,255,0.28)";
-                                            const wkts = parseInt(b.wickets) || 0;
-                                            const isF = allFantasyNames.has(b.name);
-                                            const isLastBowl = bi === inn.bowling.length - 1;
-                                            return (
-                                              <div key={bi} style={{ display: "grid", gridTemplateColumns: "1fr 30px 18px 30px 26px 38px", padding: "7px 12px", borderBottom: isLastBowl ? "none" : "1px solid rgba(255,255,255,0.028)", alignItems: "center" }}>
-                                                <div style={{ display: "flex", alignItems: "center", gap: 4, minWidth: 0 }}>
-                                                  {isF && <span style={{ fontSize: "0.4rem", background: "rgba(74,222,128,0.18)", color: "#4ade80", borderRadius: 3, padding: "1px 3px", flexShrink: 0, fontWeight: 800 }}>F</span>}
-                                                  <span style={{ fontSize: "0.72rem", color: "var(--text-2)", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{b.name}</span>
-                                                </div>
-                                                <div style={{ textAlign: "right" as const, fontSize: "0.66rem", color: "rgba(255,255,255,0.28)" }}>{b.overs}</div>
-                                                <div style={{ textAlign: "right" as const, fontSize: "0.66rem", color: "rgba(255,255,255,0.28)" }}>{b.maidens}</div>
-                                                <div style={{ textAlign: "right" as const, fontSize: "0.66rem", color: "rgba(255,255,255,0.28)" }}>{b.runs}</div>
-                                                <div style={{ textAlign: "right" as const, fontSize: "0.85rem", fontWeight: wkts > 0 ? 800 : 400, color: wkts >= 3 ? "#d4a843" : wkts > 0 ? "#4ade80" : "rgba(255,255,255,0.22)" }}>{b.wickets}</div>
-                                                <div style={{ textAlign: "right" as const, fontSize: "0.66rem", color: ecoColor }}>{eco.toFixed(2)}</div>
-                                              </div>
-                                            );
-                                          })}
+                              {/* Inline innings panel */}
+                              {isInnOpen && (
+                                <div style={{ marginBottom: 10, borderRadius: 10, overflow: "hidden", border: "1px solid var(--border)", background: "var(--surface)" }}>
+                                  {isLoadingSc && !hasData && (
+                                    <div style={{ padding: "14px", fontSize: "0.68rem", color: "var(--text-3)", textAlign: "center" as const }}>Loading scorecard…</div>
+                                  )}
+                                  {!isLoadingSc && !hasData && sc && !sc.hasScorecard && (
+                                    <div style={{ padding: "14px", fontSize: "0.68rem", color: "var(--text-3)", textAlign: "center" as const }}>Scorecard not available yet.</div>
+                                  )}
+                                  {hasData && (() => {
+                                    const allFantasyNames = new Set(Object.values(FANTASY_TEAMS).flatMap((t: any) => t.players.map((p: any) => p.name || p)));
+                                    const batters = inn.batting.filter((b: any) => !b.dnb);
+                                    const BGRID = "1fr 36px 32px 26px 26px 42px";
+                                    const WGRID = "1fr 34px 22px 32px 26px 42px";
+                                    return (
+                                      <>
+                                        {/* Innings header bar */}
+                                        <div style={{ display: "flex", alignItems: "center", padding: "8px 12px", background: `${teamColor}14`, borderBottom: "1px solid var(--border)", borderLeft: `3px solid ${teamColor}` }}>
+                                          <span style={{ fontSize: "0.68rem", fontWeight: 800, color: teamColor, letterSpacing: "0.01em" }}>{teamCode}</span>
+                                          <span style={{ fontSize: "0.46rem", color: "var(--text-3)", letterSpacing: "0.07em", fontWeight: 700, marginLeft: 8, textTransform: "uppercase" as const }}>Innings {dispIdx + 1}</span>
                                         </div>
-                                      )}
-                                    </>
-                                  );
-                                })()}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
+
+                                        {/* Batting header */}
+                                        <div style={{ display: "grid", gridTemplateColumns: BGRID, padding: "5px 12px 4px", background: "var(--glass)", borderBottom: "1px solid var(--border)" }}>
+                                          {["BATTER","R","B","4s","6s","SR"].map((h, hi) => (
+                                            <div key={h} style={{ fontSize: "0.44rem", fontWeight: 700, color: hi===3?"var(--blue)":hi===4?"#a78bfa":"var(--text-3)", letterSpacing: "0.1em", textAlign: hi > 0 ? "right" as const : "left" as const, opacity: hi===3||hi===4?0.7:1 }}>{h}</div>
+                                          ))}
+                                        </div>
+                                        {/* Batting rows */}
+                                        {batters.map((b: any, bi: number) => {
+                                          const isF = allFantasyNames.has(b.name);
+                                          const runs = parseInt(b.runs) || 0;
+                                          const balls = parseInt(b.balls) || 0;
+                                          const actuallyBatted = balls > 0 || runs > 0;
+                                          const showNotOut = b.notOut && actuallyBatted;
+                                          const runColor = runs >= 100 ? "var(--gold)" : runs >= 50 ? "var(--blue)" : "var(--text)";
+                                          const isLastBat = bi === batters.length - 1;
+                                          return (
+                                            <div key={bi} style={{ display: "grid", gridTemplateColumns: BGRID, padding: "7px 12px", borderBottom: isLastBat ? "none" : "1px solid var(--border)", alignItems: "center" }}>
+                                              <div style={{ minWidth: 0, paddingRight: 4 }}>
+                                                <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                                  {isF && <span style={{ fontSize: "0.38rem", background: "rgba(74,222,128,0.18)", color: "#4ade80", borderRadius: 3, padding: "1px 3px", flexShrink: 0, fontWeight: 800 }}>F</span>}
+                                                  <span style={{ fontSize: "0.75rem", fontWeight: showNotOut ? 700 : 500, color: showNotOut ? "#4ade80" : "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+                                                    {b.name}{showNotOut ? "*" : ""}
+                                                  </span>
+                                                </div>
+                                                {b.dismissal && b.dismissal !== "not out" && b.dismissal !== "DNB" && (
+                                                  <div style={{ fontSize: "0.48rem", color: "var(--text-3)", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{b.dismissal}</div>
+                                                )}
+                                              </div>
+                                              <div style={{ textAlign: "right" as const, fontSize: "0.86rem", fontWeight: 800, color: runColor, lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{b.runs}</div>
+                                              <div style={{ textAlign: "right" as const, fontSize: "0.65rem", color: "var(--text-3)", fontVariantNumeric: "tabular-nums" }}>{b.balls}</div>
+                                              <div style={{ textAlign: "right" as const, fontSize: "0.65rem", color: "var(--blue)", fontVariantNumeric: "tabular-nums" }}>{b.fours}</div>
+                                              <div style={{ textAlign: "right" as const, fontSize: "0.65rem", color: "#a78bfa", fontVariantNumeric: "tabular-nums" }}>{b.sixes}</div>
+                                              <div style={{ textAlign: "right" as const, fontSize: "0.62rem", color: "var(--text-3)", fontVariantNumeric: "tabular-nums" }}>{parseFloat(b.sr || "0").toFixed(0)}</div>
+                                            </div>
+                                          );
+                                        })}
+
+                                        {/* Bowling table */}
+                                        {inn.bowling?.length > 0 && (
+                                          <div style={{ borderTop: "2px solid var(--border)" }}>
+                                            <div style={{ display: "grid", gridTemplateColumns: WGRID, padding: "5px 12px 4px", background: "var(--glass)", borderBottom: "1px solid var(--border)" }}>
+                                              {["BOWLER","O","M","R","W","ECO"].map((h, hi) => (
+                                                <div key={h} style={{ fontSize: "0.44rem", fontWeight: 700, color: hi===4?"#4ade80":"var(--text-3)", letterSpacing: "0.1em", textAlign: hi > 0 ? "right" as const : "left" as const, opacity: hi===4?0.8:1 }}>{h}</div>
+                                              ))}
+                                            </div>
+                                            {inn.bowling.map((b: any, bi: number) => {
+                                              const eco = parseFloat(b.eco || "0");
+                                              const ecoColor = eco > 10 ? "var(--red)" : eco < 7 ? "#4ade80" : "var(--text-3)";
+                                              const wkts = parseInt(b.wickets) || 0;
+                                              const isF = allFantasyNames.has(b.name);
+                                              const isLastBowl = bi === inn.bowling.length - 1;
+                                              return (
+                                                <div key={bi} style={{ display: "grid", gridTemplateColumns: WGRID, padding: "7px 12px", borderBottom: isLastBowl ? "none" : "1px solid var(--border)", alignItems: "center" }}>
+                                                  <div style={{ display: "flex", alignItems: "center", gap: 4, minWidth: 0 }}>
+                                                    {isF && <span style={{ fontSize: "0.38rem", background: "rgba(74,222,128,0.18)", color: "#4ade80", borderRadius: 3, padding: "1px 3px", flexShrink: 0, fontWeight: 800 }}>F</span>}
+                                                    <span style={{ fontSize: "0.73rem", color: "var(--text-2)", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{b.name}</span>
+                                                  </div>
+                                                  <div style={{ textAlign: "right" as const, fontSize: "0.65rem", color: "var(--text-3)", fontVariantNumeric: "tabular-nums" }}>{b.overs}</div>
+                                                  <div style={{ textAlign: "right" as const, fontSize: "0.65rem", color: "var(--text-3)", fontVariantNumeric: "tabular-nums" }}>{b.maidens}</div>
+                                                  <div style={{ textAlign: "right" as const, fontSize: "0.65rem", color: "var(--text-2)", fontVariantNumeric: "tabular-nums" }}>{b.runs}</div>
+                                                  <div style={{ textAlign: "right" as const, fontSize: "0.84rem", fontWeight: wkts > 0 ? 800 : 400, color: wkts >= 3 ? "var(--gold)" : wkts > 0 ? "#4ade80" : "var(--text-3)", fontVariantNumeric: "tabular-nums" }}>{b.wickets}</div>
+                                                  <div style={{ textAlign: "right" as const, fontSize: "0.65rem", color: ecoColor, fontVariantNumeric: "tabular-nums" }}>{eco.toFixed(2)}</div>
+                                                </div>
+                                              );
+                                            })}
+                                          </div>
+                                        )}
+                                      </>
+                                    );
+                                  })()}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        });
+                      })()}
                       {/* Toss line */}
-                      {isLive && m.toss && <div style={{ fontSize: "0.58rem", color: "rgba(255,255,255,0.28)", paddingTop: 6 }}>{m.toss}</div>}
-                      {sc?.overview?.toss && !isLive && <div style={{ fontSize: "0.54rem", color: "rgba(255,255,255,0.2)", paddingTop: 4 }}>{sc.overview.toss}</div>}
+                      {isLive && m.toss && <div style={{ fontSize: "0.56rem", color: "var(--text-3)", paddingTop: 6 }}>{m.toss}</div>}
+                      {sc?.overview?.toss && !isLive && <div style={{ fontSize: "0.52rem", color: "var(--text-3)", paddingTop: 4 }}>{sc.overview.toss}</div>}
                     </div>
                   ) : (
                     <>
                       {(m.score || []).map((s: any, i: number) => (
-                        <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.7rem", padding: "3px 0", borderTop: i === 0 ? "1px solid rgba(255,255,255,0.06)" : "none" }}>
-                          <span style={{ color: "rgba(255,255,255,0.28)" }}>{(s.inning || "").replace(" Innings", "").replace(" Inning", "")}</span>
+                        <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.7rem", padding: "3px 0", borderTop: i === 0 ? "1px solid var(--border)" : "none" }}>
+                          <span style={{ color: "var(--text-3)" }}>{(s.inning || "").replace(" Innings", "").replace(" Inning", "")}</span>
                           <span style={{ fontWeight: 600, color: "var(--text-2)" }}>{s.summary || (s.r != null ? `${s.r}/${s.w} (${s.o}ov)` : "")}</span>
                         </div>
                       ))}
