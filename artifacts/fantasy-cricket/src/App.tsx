@@ -3416,7 +3416,7 @@ export default function App() {
                                     const batters = inn.batting.filter((b: any) => !b.dnb);
                                     // Unified grid — same column count, visually paired
                                     const BGRID = "minmax(0,1fr) 40px 34px 28px 28px 46px";
-                                    const WGRID = "minmax(0,1fr) 40px 24px 34px 28px 46px";
+                                    const WGRID = "minmax(0,1fr) 40px 34px 28px 28px 46px";
                                     // Shared style constants
                                     const SZ_NAME = "0.78rem";
                                     const SZ_STAT = "0.74rem";
@@ -3449,7 +3449,7 @@ export default function App() {
                                           const balls = parseInt(b.balls) || 0;
                                           const actuallyBatted = balls > 0 || runs > 0;
                                           const showNotOut = b.notOut && actuallyBatted;
-                                          const runColor = runs >= 100 ? "var(--gold)" : runs >= 50 ? "var(--blue)" : "var(--text)";
+                                          const runColor = runs >= 100 ? "var(--gold)" : "var(--text)";
                                           const isLastBat = bi === batters.length - 1;
                                           return (
                                             <div key={bi} style={{ display: "grid", gridTemplateColumns: BGRID, padding: "8px 12px", borderBottom: isLastBat ? "none" : "1px solid var(--border)", alignItems: "start" }}>
@@ -3464,7 +3464,7 @@ export default function App() {
                                                   <div style={{ fontSize: SZ_SUB, color: "var(--text-3)", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{b.dismissal}</div>
                                                 )}
                                               </div>
-                                              <div style={{ ...S_STAT, fontWeight: 800, color: runColor }}>{b.runs}</div>
+                                              <div style={{ ...S_STAT, fontWeight: 600, color: runColor }}>{b.runs}</div>
                                               <div style={{ ...S_STAT, color: "var(--text-3)" }}>{b.balls}</div>
                                               <div style={{ ...S_STAT, color: "var(--text-2)" }}>{b.fours}</div>
                                               <div style={{ ...S_STAT, color: "var(--text-2)" }}>{b.sixes}</div>
@@ -3478,8 +3478,8 @@ export default function App() {
                                           <>
                                             <div style={{ display: "grid", gridTemplateColumns: WGRID, padding: "6px 12px 5px", background: "var(--glass)", borderTop: "2px solid var(--border-2)", borderBottom: "1px solid var(--border)" }}>
                                               <div style={{ fontSize: SZ_HDR, fontWeight: 700, letterSpacing: "0.08em", color: "var(--text-3)" }}>BOWLING</div>
-                                              {(["O","M","R","W","ECO"] as const).map((h, hi) => (
-                                                <div key={h} style={{ ...S_HDR, color: hi===3?"#4ade80":"var(--text-3)" }}>{h}</div>
+                                              {(["O","M","R","W","ECO"] as const).map((h) => (
+                                                <div key={h} style={{ ...S_HDR, color: "var(--text-3)" }}>{h}</div>
                                               ))}
                                             </div>
                                             {inn.bowling.map((b: any, bi: number) => {
@@ -3498,7 +3498,7 @@ export default function App() {
                                                   <div style={{ ...S_STAT, color: "var(--text-3)" }}>{b.overs}</div>
                                                   <div style={{ ...S_STAT, color: "var(--text-3)" }}>{b.maidens}</div>
                                                   <div style={{ ...S_STAT, fontWeight: 600, color: "var(--text-2)" }}>{b.runs}</div>
-                                                  <div style={{ ...S_STAT, fontWeight: wkts > 0 ? 800 : 500, color: wkts >= 3 ? "var(--gold)" : wkts > 0 ? "#4ade80" : "var(--text-3)" }}>{b.wickets}</div>
+                                                  <div style={{ ...S_STAT, fontWeight: wkts > 0 ? 600 : 400, color: wkts >= 3 ? "var(--gold)" : wkts > 0 ? "var(--text)" : "var(--text-3)" }}>{b.wickets}</div>
                                                   <div style={{ ...S_STAT, color: ecoColor }}>{eco.toFixed(2)}</div>
                                                 </div>
                                               );
