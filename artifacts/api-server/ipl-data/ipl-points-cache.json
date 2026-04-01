@@ -2058,7 +2058,7 @@
       "innings": [
         {
           "name": "Lucknow Super Giants Inning 1",
-          "total": "127/10 (18.4 ov)",
+          "total": "141/10 (18.4 ov)",
           "batting": [
             {
               "name": "Mitchell Marsh",
@@ -2066,19 +2066,19 @@
               "balls": 28,
               "fours": 2,
               "sixes": 3,
-              "sr": "125",
-              "dismissal": "catch",
+              "sr": "125.00",
+              "dismissal": "c Tristan Stubbs b Kuldeep Yadav",
               "notOut": false,
               "dnb": false
             },
             {
-              "name": "Rishabh Pant",
+              "name": "Rishabh Pant (c)",
               "runs": 7,
               "balls": 9,
               "fours": 1,
               "sixes": 0,
               "sr": "77.78",
-              "dismissal": "runout",
+              "dismissal": "run out (Mukesh Kumar)",
               "notOut": false,
               "dnb": false
             },
@@ -2088,8 +2088,8 @@
               "balls": 8,
               "fours": 1,
               "sixes": 1,
-              "sr": "137.5",
-              "dismissal": "bowled",
+              "sr": "137.50",
+              "dismissal": "b Axar Patel",
               "notOut": false,
               "dnb": false
             },
@@ -2100,7 +2100,7 @@
               "fours": 0,
               "sixes": 0,
               "sr": "0.00",
-              "dismissal": "catch",
+              "dismissal": "c K L Rahul b T Natarajan",
               "notOut": false,
               "dnb": false
             },
@@ -2110,8 +2110,8 @@
               "balls": 8,
               "fours": 1,
               "sixes": 0,
-              "sr": "100",
-              "dismissal": "bowled",
+              "sr": "100.00",
+              "dismissal": "b Lungisani Ngidi",
               "notOut": false,
               "dnb": false
             },
@@ -2121,8 +2121,8 @@
               "balls": 25,
               "fours": 3,
               "sixes": 1,
-              "sr": "144",
-              "dismissal": "catch",
+              "sr": "144.00",
+              "dismissal": "c David Miller b T Natarajan",
               "notOut": false,
               "dnb": false
             },
@@ -2133,12 +2133,12 @@
               "fours": 2,
               "sixes": 0,
               "sr": "127.27",
-              "dismissal": "cb",
+              "dismissal": "c & b Kuldeep Yadav",
               "notOut": false,
               "dnb": false
             },
             {
-              "name": "Shahbaz Ahmed",
+              "name": "Shahbaz Ahamad",
               "runs": 15,
               "balls": 16,
               "fours": 1,
@@ -2149,13 +2149,13 @@
               "dnb": false
             },
             {
-              "name": "Mohammed Shami",
+              "name": "Mohammad Shami",
               "runs": 1,
               "balls": 2,
               "fours": 0,
               "sixes": 0,
-              "sr": "50",
-              "dismissal": "catch",
+              "sr": "50.00",
+              "dismissal": "c Kuldeep Yadav b T Natarajan",
               "notOut": false,
               "dnb": false
             },
@@ -2166,7 +2166,7 @@
               "fours": 0,
               "sixes": 0,
               "sr": "0.00",
-              "dismissal": "catch",
+              "dismissal": "c Tristan Stubbs b Lungisani Ngidi",
               "notOut": false,
               "dnb": false
             },
@@ -2177,9 +2177,20 @@
               "fours": 0,
               "sixes": 0,
               "sr": "0.00",
-              "dismissal": "catch",
+              "dismissal": "c Mukesh Kumar b Lungisani Ngidi",
               "notOut": false,
               "dnb": false
+            },
+            {
+              "name": "Prince Yadav",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
             }
           ],
           "bowling": [
@@ -2189,21 +2200,21 @@
               "maidens": 0,
               "runs": 17,
               "wickets": 0,
-              "eco": "5.7",
+              "eco": "5.67",
               "wides": 2,
               "noBalls": 0,
-              "dots": 0
+              "dots": 11
             },
             {
-              "name": "Lungi Ngidi",
+              "name": "Lungisani Ngidi",
               "overs": "3.4",
               "maidens": 0,
               "runs": 27,
               "wickets": 3,
-              "eco": "7.4",
+              "eco": "7.36",
               "wides": 0,
               "noBalls": 0,
-              "dots": 0
+              "dots": 9
             },
             {
               "name": "Axar Patel",
@@ -2211,10 +2222,10 @@
               "maidens": 0,
               "runs": 17,
               "wickets": 1,
-              "eco": "5.7",
+              "eco": "5.67",
               "wides": 0,
               "noBalls": 0,
-              "dots": 0
+              "dots": 9
             },
             {
               "name": "T Natarajan",
@@ -2222,10 +2233,10 @@
               "maidens": 0,
               "runs": 29,
               "wickets": 3,
-              "eco": "7.2",
+              "eco": "7.25",
               "wides": 0,
               "noBalls": 0,
-              "dots": 0
+              "dots": 8
             },
             {
               "name": "Kuldeep Yadav",
@@ -2233,10 +2244,10 @@
               "maidens": 0,
               "runs": 31,
               "wickets": 2,
-              "eco": "7.8",
+              "eco": "7.75",
               "wides": 0,
               "noBalls": 0,
-              "dots": 0
+              "dots": 8
             },
             {
               "name": "Vipraj Nigam",
@@ -2247,22 +2258,22 @@
               "eco": "8",
               "wides": 0,
               "noBalls": 0,
-              "dots": 0
+              "dots": 2
             }
           ]
         },
         {
-          "name": "Delhi Capitals Inning 1",
-          "total": "119/4 (17.0 ov)",
+          "name": "Delhi Capitals Inning 2",
+          "total": "145/4 (17.1 ov)",
           "batting": [
             {
-              "name": "KL Rahul",
+              "name": "K L Rahul",
               "runs": 0,
               "balls": 1,
               "fours": 0,
               "sixes": 0,
               "sr": "0.00",
-              "dismissal": "catch",
+              "dismissal": "c Mohsin Khan b Mohammad Shami",
               "notOut": false,
               "dnb": false
             },
@@ -2272,8 +2283,8 @@
               "balls": 5,
               "fours": 0,
               "sixes": 0,
-              "sr": "20",
-              "dismissal": "catch",
+              "sr": "20.00",
+              "dismissal": "c Rishabh Pant b Prince Yadav",
               "notOut": false,
               "dnb": false
             },
@@ -2284,17 +2295,17 @@
               "fours": 2,
               "sixes": 1,
               "sr": "88.24",
-              "dismissal": "catch",
+              "dismissal": "c Abdul Samad b Mohsin Khan",
               "notOut": false,
               "dnb": false
             },
             {
               "name": "Sameer Rizvi",
-              "runs": 64,
-              "balls": 46,
+              "runs": 70,
+              "balls": 47,
               "fours": 5,
-              "sixes": 3,
-              "sr": "139.13",
+              "sixes": 4,
+              "sr": "148.94",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -2306,7 +2317,7 @@
               "fours": 0,
               "sixes": 0,
               "sr": "0.00",
-              "dismissal": "bowled",
+              "dismissal": "b Prince Yadav",
               "notOut": false,
               "dnb": false
             },
@@ -2320,11 +2331,77 @@
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
+            },
+            {
+              "name": "David Miller",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Vipraj Nigam",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Lungisani Ngidi",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Kuldeep Yadav",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Mukesh Kumar",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "T Natarajan",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
             }
           ],
           "bowling": [
             {
-              "name": "Mohammed Shami",
+              "name": "Mohammad Shami",
               "overs": "4",
               "maidens": 0,
               "runs": 28,
@@ -2332,7 +2409,7 @@
               "eco": "7",
               "wides": 4,
               "noBalls": 0,
-              "dots": 0
+              "dots": 12
             },
             {
               "name": "Prince Yadav",
@@ -2340,10 +2417,10 @@
               "maidens": 0,
               "runs": 20,
               "wickets": 2,
-              "eco": "6.7",
+              "eco": "6.67",
               "wides": 4,
               "noBalls": 0,
-              "dots": 0
+              "dots": 10
             },
             {
               "name": "Mohsin Khan",
@@ -2351,10 +2428,10 @@
               "maidens": 1,
               "runs": 19,
               "wickets": 1,
-              "eco": "4.8",
+              "eco": "4.75",
               "wides": 1,
               "noBalls": 0,
-              "dots": 0
+              "dots": 15
             },
             {
               "name": "Anrich Nortje",
@@ -2362,13 +2439,13 @@
               "maidens": 0,
               "runs": 39,
               "wickets": 0,
-              "eco": "9.8",
-              "wides": 7,
+              "eco": "9.75",
+              "wides": 3,
               "noBalls": 0,
-              "dots": 0
+              "dots": 7
             },
             {
-              "name": "Shahbaz Ahmed",
+              "name": "Shahbaz Ahamad",
               "overs": "1",
               "maidens": 0,
               "runs": 16,
@@ -2385,6 +2462,17 @@
               "runs": 13,
               "wickets": 0,
               "eco": "13",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 2
+            },
+            {
+              "name": "Abdul Samad",
+              "overs": "0.1",
+              "maidens": 0,
+              "runs": 6,
+              "wickets": 0,
+              "eco": "36",
               "wides": 0,
               "noBalls": 0,
               "dots": 0

@@ -1334,6 +1334,13 @@ router.get("/ipl/scorecard/:matchId", async (req, res) => {
     fetchMatchOverview(matchId, isCompleted).catch(() => null),
   ]);
 
+  // Write fresh S3 innings back to the persistent cache so the stats endpoint
+  // always reflects the final scorecard (fixes mid-innings snapshot freezes).
+  if (isCompleted && s3Innings.length > 0) {
+    pointsCache.processedMatches[matchId] = { ...cached, innings: s3Innings };
+    saveCache(pointsCache);
+  }
+
   // Use IPL S3 data if available (more accurate); fall back to CricAPI innings
   const innings = s3Innings.length > 0 ? s3Innings : (cached?.innings || []);
   res.json({ matchId, overview, innings, hasScorecard: innings.length > 0 });
@@ -1349,8 +1356,11 @@ router.get("/ipl/stats", (req, res) => {
   const battingStats: Record<string, { runs: number; fours: number; sixes: number; balls: number; innings: number; notOuts: number; hs: number }> = {};
   const bowlingStats: Record<string, { wickets: number; balls: number; runs: number; innings: number; bestW: number; bestR: number }> = {};
 
-  for (const matchData of Object.values(pointsCache.processedMatches)) {
-    for (const inning of matchData.innings || []) {
+  for (const [matchId, matchData] of Object.entries(pointsCache.processedMatches)) {
+    // Prefer in-memory S3 cache (fresh final data) over the JSON file snapshot
+    const s3Entry = s3InningsCache.get(matchId);
+    const inningsToUse = s3Entry?.data ?? matchData.innings ?? [];
+    for (const inning of inningsToUse) {
       for (const bat of inning.batting || []) {
         if (bat.dnb || !bat.name) continue;
         const k = bat.name;
