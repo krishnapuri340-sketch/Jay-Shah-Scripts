@@ -2676,6 +2676,13 @@ export default function App() {
     const hasNextMatch = nextMatchPlaying.size > 0;
     const hasAnyContext = hasLiveNow || hasNextMatch;
 
+    const TEAM_BG: Record<string, string> = {
+      rajveer:  `${import.meta.env.BASE_URL}lb-bg-rajveer.jpeg`,
+      mombasa:  `${import.meta.env.BASE_URL}lb-bg-mombasa.jpeg`,
+      mumbai:   `${import.meta.env.BASE_URL}lb-bg-mumbai.jpeg`,
+      ponygoat: `${import.meta.env.BASE_URL}lb-bg-ponygoat.jpeg`,
+    };
+
     return (
       <div>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
@@ -2708,9 +2715,20 @@ export default function App() {
         </div>
 
         <div className="team-header-card" style={{ "--team-color": t.color } as React.CSSProperties}>
-          <div style={{ flex: 1 }}>
-            <div className="team-hname" style={{ color: t.color }}>{t.name}</div>
-            <div style={{ fontSize: "0.7rem", color: "var(--text-3)", marginBottom: 4 }}>{t.owner}</div>
+          {/* Blurred team artwork background */}
+          <div style={{
+            position: "absolute", inset: -6, zIndex: 0,
+            backgroundImage: `url(${TEAM_BG[selectedTeam]})`,
+            backgroundSize: "cover", backgroundPosition: "center 30%",
+            filter: "blur(14px) brightness(0.28) saturate(1.4)",
+          }} />
+          <div style={{
+            position: "absolute", inset: 0, zIndex: 1,
+            background: `linear-gradient(135deg, ${t.color}18 0%, rgba(6,4,2,0.55) 100%)`,
+          }} />
+          <div style={{ flex: 1, position: "relative", zIndex: 2 }}>
+            <div className="team-hname" style={{ color: t.color, textShadow: "0 1px 6px rgba(0,0,0,1)" }}>{t.name}</div>
+            <div style={{ fontSize: "0.7rem", color: "var(--text-3)", marginBottom: 4, textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>{t.owner}</div>
             <div className="team-roles">
               {Object.entries(roleCounts).sort((a, b) => (b[1] as number) - (a[1] as number)).map(([role, n]) => (
                 <span key={role} className="role-badge"
@@ -2720,11 +2738,11 @@ export default function App() {
               ))}
             </div>
           </div>
-          <div style={{ textAlign: "right" }}>
-            <div className="team-htotal" style={{ color: Object.keys(playerPoints).length === 0 ? "var(--text-3)" : t.color }}>
+          <div style={{ textAlign: "right", position: "relative", zIndex: 2 }}>
+            <div className="team-htotal" style={{ color: Object.keys(playerPoints).length === 0 ? "var(--text-3)" : t.color, textShadow: `0 0 10px ${t.color}55, 0 1px 4px rgba(0,0,0,1)` }}>
               {Object.keys(playerPoints).length === 0 ? "—" : td.total}
             </div>
-            <div className="team-hlabel">total pts</div>
+            <div className="team-hlabel" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>total pts</div>
           </div>
         </div>
 
