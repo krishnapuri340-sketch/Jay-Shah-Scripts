@@ -3210,7 +3210,10 @@ export default function App() {
                           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4, marginTop: 8 }}>
                             {PRED_OWNERS.map(ownerId => {
                               const ft = FANTASY_TEAMS[ownerId];
-                              const pick = preds[ownerId] || null;
+                              const rawPick = preds[ownerId] || null;
+                              // Ignore a pick if the chosen team isn't actually playing this match
+                              const fixtureTeams = new Set([m.homeTeamCode, m.awayTeamCode]);
+                              const pick = rawPick && fixtureTeams.has(rawPick) ? rawPick : null;
                               const isCorrect = !!winner && winner !== "tie" && pick === winner;
                               const isWrong = !!winner && winner !== "tie" && pick !== null && pick !== winner;
                               return (
@@ -3528,7 +3531,12 @@ export default function App() {
             const winner = getMatchWinner(m);
             if (!winner || winner === "tie") return;
             const preds = predictions[String(m.id)] || {};
-            PRED_OWNERS.forEach(id => { if (preds[id] === winner) ownerScores[id]++; });
+            const teams = new Set([m.homeTeamCode, m.awayTeamCode]);
+            PRED_OWNERS.forEach(id => {
+              const pick = preds[id];
+              // Only count if the pick was actually for one of the two teams playing
+              if (pick && teams.has(pick) && pick === winner) ownerScores[id]++;
+            });
           });
 
           const totalScorable = sortedMatches.filter((m: any) => m.matchNum > 3 && m.matchEnded).length;
@@ -3599,7 +3607,10 @@ export default function App() {
                       </div>
                       {PRED_OWNERS.map(id => {
                         if (isNil) return <div key={id} style={{ textAlign: "center" as const, fontSize: "0.6rem", color: "var(--text-3)" }}>—</div>;
-                        const pick = preds[id] || null;
+                        const rawPick = preds[id] || null;
+                        // If the picked team isn't in this match, treat as no pick
+                        const matchTeams = new Set([m.homeTeamCode, m.awayTeamCode]);
+                        const pick = rawPick && matchTeams.has(rawPick) ? rawPick : null;
                         if (!pick) return (
                           <div key={id} style={{ textAlign: "center" as const, fontSize: "0.65rem", color: "var(--text-3)" }}>
                             {isUpcoming ? <span style={{ opacity: 0.4 }}>?</span> : "—"}
