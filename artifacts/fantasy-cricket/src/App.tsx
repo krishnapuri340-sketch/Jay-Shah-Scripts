@@ -2520,28 +2520,56 @@ export default function App() {
           <span style={{ fontSize: "0.68rem" }}>Share</span>
         </button>
       </div>
-      <div>
-      {teamScores.map((s, i) => (
-        <div key={s.id} className={`lb-card ${i === 0 ? "rank-first" : ""}`} onClick={() => { setSelectedTeam(s.id); setTab("teams"); }}>
-          <div className="lb-accent" style={{ background: s.team.color }} />
-          <div className="lb-inner">
-            <div className={`lb-rank ${rankLabel(i)}`}>{i + 1}</div>
-            <div className="lb-info">
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <div className={`lb-name ${i === 0 ? "first" : ""}`}>{s.team.name}</div>
+      {(() => {
+        const LB_BG: Record<string, string> = {
+          rajveer:  `${import.meta.env.BASE_URL}lb-bg-rajveer.jpeg`,
+          mombasa:  `${import.meta.env.BASE_URL}lb-bg-mombasa.jpeg`,
+          mumbai:   `${import.meta.env.BASE_URL}lb-bg-mumbai.jpeg`,
+          ponygoat: `${import.meta.env.BASE_URL}lb-bg-ponygoat.jpeg`,
+        };
+        return (
+          <div>
+          {teamScores.map((s, i) => (
+            <div key={s.id} className={`lb-card ${i === 0 ? "rank-first" : ""}`} onClick={() => { setSelectedTeam(s.id); setTab("teams"); }}>
+              {/* Blurred team artwork background */}
+              <div style={{
+                position: "absolute", inset: -6, zIndex: 0,
+                backgroundImage: `url(${LB_BG[s.id]})`,
+                backgroundSize: "cover", backgroundPosition: "center 30%",
+                filter: "blur(14px) brightness(0.28) saturate(1.4)",
+              }} />
+              {/* Subtle vignette overlay for extra depth */}
+              <div style={{
+                position: "absolute", inset: 0, zIndex: 1,
+                background: `linear-gradient(135deg, ${s.team.color}18 0%, rgba(6,4,2,0.55) 100%)`,
+              }} />
+              <div className="lb-accent" style={{ background: s.team.color, zIndex: 2, position: "relative" }} />
+              <div className="lb-inner" style={{ position: "relative", zIndex: 2 }}>
+                <div className={`lb-rank ${rankLabel(i)}`} style={{ textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>{i + 1}</div>
+                <div className="lb-info">
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <div className={`lb-name ${i === 0 ? "first" : ""}`}
+                      style={{ textShadow: "0 1px 6px rgba(0,0,0,1), 0 0 20px rgba(0,0,0,0.8)" }}>
+                      {s.team.name}
+                    </div>
+                  </div>
+                  <div className="lb-meta" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>
+                    {s.team.owner} · <span style={{ color: "#d4a843" }}>C:</span> {s.team.captain} · <span style={{ color: "var(--text-2)" }}>VC:</span> {s.team.vc}
+                  </div>
+                </div>
+                <div style={{ textAlign: "right", flexShrink: 0 }}>
+                  <div className={`lb-pts ${i === 0 ? "first" : ""}`}
+                    style={{ color: Object.keys(playerPoints).length === 0 ? "var(--text-3)" : s.team.color, textShadow: `0 0 18px ${s.team.color}99, 0 1px 6px rgba(0,0,0,1)` }}>
+                    {Object.keys(playerPoints).length === 0 ? "—" : s.total}
+                  </div>
+                  <div className="lb-pts-label" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>pts</div>
+                </div>
               </div>
-              <div className="lb-meta">{s.team.owner} · <span style={{ color: "#d4a843" }}>C:</span> {s.team.captain} · <span style={{ color: "var(--text-2)" }}>VC:</span> {s.team.vc}</div>
             </div>
-            <div style={{ textAlign: "right", flexShrink: 0 }}>
-              <div className={`lb-pts ${i === 0 ? "first" : ""}`} style={{ color: Object.keys(playerPoints).length === 0 ? "var(--text-3)" : s.team.color }}>
-                {Object.keys(playerPoints).length === 0 ? "—" : s.total}
-              </div>
-              <div className="lb-pts-label">pts</div>
-            </div>
+          ))}
           </div>
-        </div>
-      ))}
-      </div>
+        );
+      })()}
 
       {(() => {
         const liveNow = liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded);
