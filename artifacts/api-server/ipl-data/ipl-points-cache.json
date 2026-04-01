@@ -2062,7 +2062,7 @@
         "Rishabh Pant": 15,
         "Nitish Rana": 31,
         "Lungi Ngidi": 104,
-        "Tristan Stubbs": 20,
+        "Tristan Stubbs": 22,
         "KL Rahul": 2,
         "Mitchell Marsh": 69,
         "Kuldeep Yadav": 66,
@@ -2260,7 +2260,7 @@
         },
         {
           "name": "Delhi Capitals Inning 1",
-          "total": "39/4 (8.0 ov)",
+          "total": "43/4 (8.4 ov)",
           "batting": [
             {
               "name": "KL Rahul",
@@ -2297,11 +2297,11 @@
             },
             {
               "name": "Sameer Rizvi",
-              "runs": 11,
-              "balls": 14,
+              "runs": 13,
+              "balls": 16,
               "fours": 0,
               "sixes": 1,
-              "sr": "78.57",
+              "sr": "81.25",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -2319,11 +2319,11 @@
             },
             {
               "name": "Tristan Stubbs",
-              "runs": 12,
-              "balls": 10,
+              "runs": 14,
+              "balls": 12,
               "fours": 1,
               "sixes": 0,
-              "sr": "120",
+              "sr": "116.67",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -2332,11 +2332,11 @@
           "bowling": [
             {
               "name": "Mohammed Shami",
-              "overs": "3",
+              "overs": "3.4",
               "maidens": 0,
-              "runs": 20,
+              "runs": 24,
               "wickets": 1,
-              "eco": "6.7",
+              "eco": "6.5",
               "wides": 4,
               "noBalls": 0
             },
@@ -2419,8 +2419,8 @@
           "dots": 0,
           "lbwBowled": 0,
           "maidens": 0,
-          "ballsBowled": 18,
-          "runsConceded": 20,
+          "ballsBowled": 22,
+          "runsConceded": 24,
           "catches": 0,
           "runOuts": 0,
           "stumpings": 0
@@ -2495,8 +2495,8 @@
         },
         "Tristan Stubbs": {
           "played": true,
-          "runs": 12,
-          "balls": 10,
+          "runs": 14,
+          "balls": 12,
           "fours": 1,
           "sixes": 0,
           "duck": false,
@@ -3271,9 +3271,9 @@
       "teamB": "Delhi Capitals"
     }
   },
-  "lastUpdated": "2026-04-01T16:33:41.305Z",
+  "lastUpdated": "2026-04-01T16:50:08.404Z",
   "dailyHits": {
     "date": "2026-04-01",
-    "count": 170
+    "count": 183
   }
 }

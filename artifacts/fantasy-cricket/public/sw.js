@@ -1,4 +1,4 @@
-const SHELL_CACHE = "ipl-shell-v2";
+const SHELL_CACHE = "ipl-shell-v3";
 const SHELL_ASSETS = ["/", "/index.html", "/manifest.json", "/app-icon.png"];
 
 self.addEventListener("install", e => {
