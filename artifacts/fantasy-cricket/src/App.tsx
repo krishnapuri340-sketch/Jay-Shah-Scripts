@@ -3425,15 +3425,11 @@ export default function App() {
                                     const SZ_SUB  = "0.54rem";
                                     const S_STAT: React.CSSProperties = { textAlign: "right", fontSize: SZ_STAT, fontVariantNumeric: "tabular-nums", lineHeight: 1 };
                                     const S_HDR: React.CSSProperties  = { textAlign: "right", fontSize: SZ_HDR, fontWeight: 700, letterSpacing: "0.08em", color: "var(--text-3)" };
-                                    const fullName = IPL_FULL_NAMES[teamCode] || "";
                                     return (
                                       <>
                                         {/* ── Innings header ── */}
                                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 12px", background: `${teamColor}18`, borderLeft: `3px solid ${teamColor}` }}>
-                                          <div>
-                                            <div style={{ fontSize: "0.76rem", fontWeight: 800, color: teamColor, lineHeight: 1, letterSpacing: "0.02em" }}>{teamCode}</div>
-                                            {fullName && <div style={{ fontSize: "0.52rem", color: "var(--text-3)", marginTop: 2, lineHeight: 1 }}>{fullName}</div>}
-                                          </div>
+                                          <div style={{ fontSize: "0.76rem", fontWeight: 800, color: teamColor, lineHeight: 1, letterSpacing: "0.02em" }}>{teamCode}</div>
                                           <div style={{ fontSize: "0.48rem", fontWeight: 700, color: "var(--text-3)", background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 20, padding: "3px 9px", letterSpacing: "0.07em" }}>INN {dispIdx + 1}</div>
                                         </div>
 
