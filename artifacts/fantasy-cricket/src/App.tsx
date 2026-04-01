@@ -3340,10 +3340,11 @@ export default function App() {
                   ) : (
                     <div style={{ fontSize: "0.88rem", fontWeight: 700, color: "var(--text)", marginBottom: 4 }}>{(m.name || "").replace(/,\s*\d+(?:st|nd|rd|th) Match.*/i, "")}</div>
                   )}
-                  {/* ── Venue — compact line below teams ── */}
-                  {m.venue && (
-                    <div style={{ fontSize: "0.5rem", color: "var(--text-3)", marginBottom: 8, paddingLeft: 1, letterSpacing: "0.01em" }}>
-                      🏟 {m.venue.split(",")[0]}
+                  {/* ── Venue + toss — compact lines below teams ── */}
+                  {(m.venue || m.toss || sc?.overview?.toss) && (
+                    <div style={{ fontSize: "0.5rem", color: "var(--text-3)", marginBottom: 8, paddingLeft: 1, letterSpacing: "0.01em", display: "flex", flexDirection: "column" as const, gap: 2 }}>
+                      {m.venue && <span>🏟 {m.venue.split(",")[0]}</span>}
+                      {(sc?.overview?.toss || m.toss) && <span>🪙 {sc?.overview?.toss || m.toss}</span>}
                     </div>
                   )}
                   {/* Interactive score lines — tap to expand innings scorecard */}
@@ -3516,9 +3517,6 @@ export default function App() {
                           );
                         });
                       })()}
-                      {/* Toss line */}
-                      {isLive && m.toss && <div style={{ fontSize: "0.56rem", color: "var(--text-3)", paddingTop: 6 }}>{m.toss}</div>}
-                      {sc?.overview?.toss && !isLive && <div style={{ fontSize: "0.52rem", color: "var(--text-3)", paddingTop: 4 }}>{sc.overview.toss}</div>}
                     </div>
                   ) : (
                     <>
