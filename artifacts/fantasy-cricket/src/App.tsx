@@ -3869,8 +3869,8 @@ export default function App() {
                                 <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "radial-gradient(circle, transparent 40%, rgba(8,12,20,0.7) 80%, rgba(8,12,20,0.9) 100%)" }} />
                               </div>
                             </div>
-                            <div style={{ fontSize: "1.3rem", fontWeight: 800, color: ft.color, lineHeight: 1, textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>{ownerScores[id]}</div>
-                            <div style={{ fontSize: "0.55rem", color: "var(--text-3)", marginTop: 2 }}>{ft.owner}</div>
+                            <div style={{ fontSize: "1.3rem", fontWeight: 800, color: ft.color, lineHeight: 1, textShadow: "0 0 12px rgba(0,0,0,1), 0 2px 4px rgba(0,0,0,0.9)" }}>{ownerScores[id]}</div>
+                            <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.7)", marginTop: 2, textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>{ft.owner}</div>
                           </div>
                         </div>
                       );
