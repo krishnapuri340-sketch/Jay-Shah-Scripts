@@ -1178,178 +1178,113 @@ export default function App() {
   })();
 
   const shareLeaderboard = async () => {
-    // Instagram portrait format — 4:5 ratio, crisp on all devices
-    const W = 1080, H = 1350;
+    const W = 1080, H = 1000, PAD = 64;
     const canvas = document.createElement("canvas");
     canvas.width = W; canvas.height = H;
     const ctx = canvas.getContext("2d")!;
 
-    const BASE = import.meta.env.BASE_URL;
-    const loadImg = (src: string) => new Promise<HTMLImageElement>(res => {
-      const img = new Image(); img.crossOrigin = "anonymous";
-      img.onload = () => res(img); img.onerror = () => res(img); img.src = src;
-    });
+    // Load logo
+    const logoImg = new Image();
+    logoImg.crossOrigin = "anonymous";
+    logoImg.src = `${import.meta.env.BASE_URL}app-icon.png`;
+    await new Promise(res => { logoImg.onload = res; logoImg.onerror = res; });
 
-    // Load logo + all 4 team bg images in parallel
-    const [logoImg, ...bgImgs] = await Promise.all([
-      loadImg(`${BASE}app-icon.png`),
-      ...teamScores.map(s => loadImg(`${BASE}lb-bg-${s.id}.jpeg`)),
-    ]);
-
-    // ── Layout constants ──
-    const HEADER_H = 130;
-    const FOOTER_H = 54;
-    const GAP = 10;
-    const ROW_H = Math.floor((H - HEADER_H - FOOTER_H - GAP * 3) / 4);
-
-    // ── Global background ──
-    ctx.fillStyle = "#070504";
+    // — Background —
+    ctx.fillStyle = "#080c14";
     ctx.fillRect(0, 0, W, H);
 
-    // Amber gradient top line
+    // Gold top line (thin, tasteful)
     const goldGrad = ctx.createLinearGradient(0, 0, W, 0);
-    goldGrad.addColorStop(0, "rgba(160,120,50,0)");
-    goldGrad.addColorStop(0.25, "#d4a843");
-    goldGrad.addColorStop(0.75, "#d4a843");
-    goldGrad.addColorStop(1, "rgba(160,120,50,0)");
+    goldGrad.addColorStop(0, "#a07832"); goldGrad.addColorStop(0.5, "#d4a843"); goldGrad.addColorStop(1, "#a07832");
     ctx.fillStyle = goldGrad; ctx.fillRect(0, 0, W, 3);
 
-    // ── Header ──
-    const HCY = HEADER_H / 2;                    // vertical centre of header
-    const logoR = 32;
-    const logoX = 52 + logoR;
-
-    // Logo circle
+    // — Header —
+    // Logo circle (small, top-left)
+    const logoR = 26, logoX = PAD + logoR, logoY = 68;
     ctx.save();
-    ctx.beginPath(); ctx.arc(logoX, HCY, logoR, 0, Math.PI * 2); ctx.clip();
-    if (logoImg.naturalWidth) ctx.drawImage(logoImg, logoX - logoR, HCY - logoR, logoR * 2, logoR * 2);
+    ctx.beginPath(); ctx.arc(logoX, logoY, logoR, 0, Math.PI * 2); ctx.clip();
+    if (logoImg.naturalWidth > 0) ctx.drawImage(logoImg, logoX - logoR, logoY - logoR, logoR * 2, logoR * 2);
     ctx.restore();
-    // Amber ring around logo
-    ctx.strokeStyle = "rgba(212,168,67,0.5)"; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.arc(logoX, HCY, logoR + 1, 0, Math.PI * 2); ctx.stroke();
 
-    const TX = logoX + logoR + 20;
+    // App name + label (right of logo)
     ctx.textAlign = "left";
-    ctx.font = "700 46px Arial, sans-serif";
-    ctx.fillStyle = "#f1ede6";
-    ctx.fillText("INDIAN PREMIER LEAGUE", TX, HCY - 6);
-    ctx.font = "600 24px Arial, sans-serif";
-    ctx.fillStyle = "#d4a843";
-    ctx.fillText("2026 · FANTASY LEADERBOARD", TX, HCY + 26);
+    ctx.font = "700 36px -apple-system, Arial, sans-serif";
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText("Indian Premier League 2026", PAD + logoR * 2 + 18, 59);
+    ctx.font = "400 23px -apple-system, Arial, sans-serif";
+    ctx.fillStyle = "#52525b";
+    ctx.fillText("Leaderboard", PAD + logoR * 2 + 18, 88);
 
-    // Timestamp top-right
+    // Timestamp (top-right, muted)
     ctx.textAlign = "right";
-    ctx.font = "400 22px Arial, sans-serif";
-    ctx.fillStyle = "rgba(200,180,140,0.35)";
-    ctx.fillText(lastUpdated?.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) ?? "live", W - 44, HCY + 8);
+    ctx.font = "400 21px -apple-system, Arial, sans-serif";
+    ctx.fillStyle = "#3f3f46";
+    ctx.fillText(lastUpdated?.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) ?? "just now", W - PAD, 88);
 
-    // Thin amber separator under header
-    ctx.strokeStyle = "rgba(212,168,67,0.12)"; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(44, HEADER_H - 1); ctx.lineTo(W - 44, HEADER_H - 1); ctx.stroke();
+    // Thin separator line
+    ctx.strokeStyle = "#1c1c20"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(PAD, 116); ctx.lineTo(W - PAD, 116); ctx.stroke();
 
-    // ── Leaderboard rows ──
+    // — Rows —
+    const rowH = 200, startY = 132;
+
     teamScores.forEach((s, i) => {
-      const bgImg = bgImgs[i];
-      const ry = HEADER_H + i * (ROW_H + GAP);
+      const ry = startY + i * rowH;
       const isFirst = i === 0;
-      const hex2rgba = (hex: string, a: number) => {
-        const r = parseInt(hex.slice(1, 3), 16);
-        const g = parseInt(hex.slice(3, 5), 16);
-        const b = parseInt(hex.slice(5, 7), 16);
-        return `rgba(${r},${g},${b},${a})`;
-      };
 
-      // Clip to row bounds
-      ctx.save();
-      ctx.beginPath(); ctx.rect(0, ry, W, ROW_H); ctx.clip();
-
-      // Blurred team artwork — draw 120px oversized on every side so the blur
-      // has real pixels to pull from at the row edges (no faded-to-transparent fringe)
-      if (bgImg.naturalWidth) {
-        const OVF = 120;
-        const scale = Math.max((W + OVF * 2) / bgImg.naturalWidth, (ROW_H + OVF * 2) / bgImg.naturalHeight);
-        const sw = bgImg.naturalWidth * scale, sh = bgImg.naturalHeight * scale;
-        ctx.filter = "blur(22px) brightness(0.22) saturate(1.4)";
-        ctx.drawImage(bgImg, (W - sw) / 2, ry + (ROW_H - sh) / 2, sw, sh);
-        ctx.filter = "none";
-      } else {
-        ctx.fillStyle = "#100d0a";
-        ctx.fillRect(0, ry, W, ROW_H);
-      }
-
-      // Warm gradient overlay (matches app card design)
-      const overlay = ctx.createLinearGradient(0, ry, W, ry);
-      overlay.addColorStop(0, hex2rgba(s.team.color, 0.12));
-      overlay.addColorStop(1, "rgba(6,4,2,0.62)");
-      ctx.fillStyle = overlay; ctx.fillRect(0, ry, W, ROW_H);
-
-      ctx.restore();
-
-      // Left accent bar
-      ctx.fillStyle = s.team.color; ctx.fillRect(0, ry, 7, ROW_H);
-
-      // Ghost rank (large, team color tinted)
+      // Faint rank number (Sofascore-style ghost number, left)
       ctx.textAlign = "left";
-      ctx.font = `100 ${Math.round(ROW_H * 0.9)}px Arial, sans-serif`;
-      ctx.fillStyle = hex2rgba(s.team.color, 0.12);
-      ctx.fillText(String(i + 1), 28, ry + Math.round(ROW_H * 0.82));
+      ctx.font = `100 108px -apple-system, Arial, sans-serif`;
+      ctx.fillStyle = "#18181b";
+      ctx.fillText(String(i + 1), PAD, ry + 130);
 
-      const CY = ry + ROW_H / 2;
+      // Color dot
+      ctx.beginPath();
+      ctx.arc(PAD + 110, ry + 62, 8, 0, Math.PI * 2);
+      ctx.fillStyle = s.team.color;
+      ctx.fill();
 
       // Owner name (primary)
-      ctx.font = `700 68px Arial, sans-serif`;
-      ctx.fillStyle = "#f1ede6";
-      ctx.fillText(s.team.owner, 120, CY - 18);
+      ctx.textAlign = "left";
+      ctx.font = `600 52px -apple-system, Arial, sans-serif`;
+      ctx.fillStyle = isFirst ? "#ffffff" : "#e4e4e7";
+      ctx.fillText(s.team.owner, PAD + 130, ry + 78);
 
-      // Team name (secondary)
-      ctx.font = `400 30px Arial, sans-serif`;
-      ctx.fillStyle = "rgba(220,205,178,0.5)";
-      ctx.fillText(s.team.name, 120, CY + 24);
+      // Team name (secondary — smaller, muted)
+      ctx.font = `400 25px -apple-system, Arial, sans-serif`;
+      ctx.fillStyle = "#52525b";
+      ctx.fillText(s.team.name, PAD + 130, ry + 116);
 
-      // Captain & VC (smallest line)
-      ctx.font = `400 24px Arial, sans-serif`;
-      ctx.fillStyle = "rgba(200,185,150,0.38)";
-      ctx.fillText(`C: ${s.team.captain}  ·  VC: ${s.team.vc}`, 120, CY + 56);
-
-      // Points (right-aligned, team color for leader, else soft white)
+      // Points (right)
       ctx.textAlign = "right";
-      ctx.font = `700 90px Arial, sans-serif`;
-      ctx.fillStyle = isFirst ? "#f5a623" : (s.team.color + "dd");
-      if (Object.keys(playerPoints).length === 0) {
-        ctx.fillStyle = "rgba(200,185,150,0.3)";
-        ctx.fillText("—", W - 44, CY + 22);
-      } else {
-        ctx.fillText(String(s.total), W - 44, CY + 22);
-      }
+      ctx.font = `700 58px -apple-system, Arial, sans-serif`;
+      ctx.fillStyle = isFirst ? "#d4a843" : "#e4e4e7";
+      ctx.fillText(String(s.total), W - PAD, ry + 84);
 
-      ctx.font = `400 27px Arial, sans-serif`;
-      ctx.fillStyle = "rgba(200,185,150,0.35)";
-      ctx.fillText("pts", W - 44, CY + 54);
+      ctx.font = `400 21px -apple-system, Arial, sans-serif`;
+      ctx.fillStyle = "#3f3f46";
+      ctx.fillText("pts", W - PAD, ry + 118);
 
-      // Subtle row separator
+      // Row divider
       if (i < teamScores.length - 1) {
-        ctx.strokeStyle = "rgba(255,200,120,0.06)"; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(0, ry + ROW_H + GAP / 2); ctx.lineTo(W, ry + ROW_H + GAP / 2); ctx.stroke();
+        ctx.strokeStyle = "#111114"; ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(PAD + 110, ry + rowH - 4);
+        ctx.lineTo(W - PAD, ry + rowH - 4);
+        ctx.stroke();
       }
     });
 
-    // ── Footer ──
-    const FY = HEADER_H + 4 * ROW_H + 3 * GAP;
-    ctx.textAlign = "center";
-    ctx.font = "400 22px Arial, sans-serif";
-    ctx.fillStyle = "rgba(160,140,110,0.35)";
-    ctx.fillText("ipl.fantasy · 2026 season · updated live", W / 2, FY + FOOTER_H / 2 + 6);
-
-    // Bottom amber line
+    // Bottom gold line
     ctx.fillStyle = goldGrad; ctx.fillRect(0, H - 3, W, 3);
 
-    // ── Share ──
+    // Share
     const blob = await new Promise<Blob | null>(res => canvas.toBlob(res, "image/png"));
     if (!blob) return;
     const file = new File([blob], "ipl-fantasy-leaderboard.png", { type: "image/png" });
     try {
       if (navigator.share && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file], title: "IPL 2026 Fantasy — Leaderboard" });
+        await navigator.share({ files: [file], title: "Indian Premier League 2026 — Leaderboard" });
       } else {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
