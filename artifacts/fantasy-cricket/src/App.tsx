@@ -2521,7 +2521,7 @@ export default function App() {
             <span style={{ fontSize: "0.68rem" }}>Share</span>
           </button>
           <button className="btn-primary" style={{ padding: "5px 11px", fontSize: "0.7rem" }}
-            onClick={() => { fetchLive(); fetchPoints(); syncSupabase(); }} disabled={liveLoading || pointsLoading}>
+            onClick={() => { fetchLive(); fetchPoints(); }} disabled={liveLoading || pointsLoading}>
             {(liveLoading || pointsLoading) ? <span className="spinner" /> : null} Refresh
           </button>
         </div>
