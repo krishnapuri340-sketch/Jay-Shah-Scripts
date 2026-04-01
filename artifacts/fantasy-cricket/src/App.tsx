@@ -2407,15 +2407,27 @@ export default function App() {
         {/* Countdown to next match */}
         {countdown && (
           <div className="countdown-card" style={{ flexDirection: "column", alignItems: "stretch", gap: 10 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            {/* Blurred colosseum background */}
+            <div style={{
+              position: "absolute", inset: -6, zIndex: 0,
+              backgroundImage: `url(${import.meta.env.BASE_URL}countdown-bg.jpeg)`,
+              backgroundSize: "cover", backgroundPosition: "center 40%",
+              filter: "blur(10px) brightness(0.22) saturate(1.2)",
+            }} />
+            {/* Warm amber vignette — bleeds into the amber timer colour */}
+            <div style={{
+              position: "absolute", inset: 0, zIndex: 1,
+              background: "linear-gradient(160deg, rgba(245,166,35,0.12) 0%, rgba(6,4,2,0.6) 60%, rgba(6,4,2,0.75) 100%)",
+            }} />
+            <div style={{ position: "relative", zIndex: 2, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <div>
-                <div className="countdown-timer">{countdown.text}</div>
-                <div className="countdown-label">Next Match</div>
+                <div className="countdown-timer" style={{ textShadow: "0 0 20px rgba(245,166,35,0.5), 0 2px 8px rgba(0,0,0,1)" }}>{countdown.text}</div>
+                <div className="countdown-label" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>Next Match</div>
               </div>
               <div style={{ textAlign: "right" }}>
-                <div className="countdown-match">{countdown.matchName}</div>
+                <div className="countdown-match" style={{ textShadow: "0 1px 6px rgba(0,0,0,1)" }}>{countdown.matchName}</div>
                 {countdown.venue && (
-                  <div style={{ fontSize: "0.6rem", color: "var(--text-3)", marginTop: 3 }}>
+                  <div style={{ fontSize: "0.6rem", color: "var(--text-3)", marginTop: 3, textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>
                     🏟 {countdown.venue}{countdown.homeTeam ? ` (${countdown.homeTeam})` : ""}
                   </div>
                 )}
@@ -2435,7 +2447,7 @@ export default function App() {
               const hasIntel = h2h || vd;
               const sortedStakes = [...stakes].filter(s => s.count > 0).sort((a, b) => b.count - a.count);
               return (
-                <div style={{ borderTop: "1px solid var(--border)", paddingTop: 9, display: "flex", flexDirection: "column" as const, gap: 0 }}>
+                <div style={{ borderTop: "1px solid rgba(255,200,120,0.1)", paddingTop: 9, display: "flex", flexDirection: "column" as const, gap: 0, position: "relative", zIndex: 2 }}>
                   {/* Row 1: picks — consistent size, sorted by count */}
                   {sortedStakes.length > 0 && (
                     <div style={{ display: "flex", alignItems: "center", gap: 10, paddingBottom: 8 }}>
