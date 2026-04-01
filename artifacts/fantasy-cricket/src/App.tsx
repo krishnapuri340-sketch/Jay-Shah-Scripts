@@ -697,6 +697,7 @@ export default function App() {
   const swipeStartY = useRef(0);
   const swipeBlocked = useRef(false);
   const pointsRetryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pointsRetryCount = useRef(0);
   // PTR refs
   const pullState = useRef({ active: false, startY: 0, startX: 0 });
   const pullYRef = useRef(0);
@@ -759,6 +760,7 @@ export default function App() {
     } catch (_) {}
   };
 
+  const MAX_POINTS_RETRIES = 4;
   const fetchPoints = async () => {
     if (pointsLoading) return;
     setPointsLoading(true);
@@ -781,21 +783,27 @@ export default function App() {
         setNextAttempt(data.nextAttempt || null);
         if (data.dailyHits) setDailyHits(data.dailyHits);
         setPointsLastUpdated(new Date());
-        // If data came back empty (server still syncing on startup), retry quickly
-        if (Object.keys(pp).length === 0) {
+        // If data came back empty (server still syncing on startup), retry quickly — but cap attempts
+        if (Object.keys(pp).length === 0 && pointsRetryCount.current < MAX_POINTS_RETRIES) {
+          pointsRetryCount.current += 1;
           pointsRetryTimer.current = setTimeout(() => {
             pointsRetryTimer.current = null;
             fetchPoints();
           }, 4000);
+        } else {
+          pointsRetryCount.current = 0; // reset on success
         }
       }
     } catch (e: any) {
       setPointsError("Points fetch failed: " + (e.message || "Unknown error"));
-      // Retry on network failure too
-      pointsRetryTimer.current = setTimeout(() => {
-        pointsRetryTimer.current = null;
-        fetchPoints();
-      }, 5000);
+      // Retry on network failure — capped at MAX_POINTS_RETRIES
+      if (pointsRetryCount.current < MAX_POINTS_RETRIES) {
+        pointsRetryCount.current += 1;
+        pointsRetryTimer.current = setTimeout(() => {
+          pointsRetryTimer.current = null;
+          fetchPoints();
+        }, 5000);
+      }
     }
     setPointsLoading(false);
   };
@@ -1036,8 +1044,11 @@ export default function App() {
   useEffect(() => {
     const onVisible = () => {
       if (document.visibilityState === "visible" && currentUser) {
+        pointsRetryCount.current = 0; // allow fresh retries after coming back
         fetchLive();
         fetchPoints();
+        fetchPredictions();
+        fetchStandings();
       }
     };
     document.addEventListener("visibilitychange", onVisible);

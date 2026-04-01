@@ -394,9 +394,13 @@ router.post("/ipl/predictions/:matchId", (req, res) => {
   const { matchId } = req.params;
   const { ownerId, pick } = req.body as { ownerId?: string; pick?: string | null };
   if (!matchId || !ownerId) return res.status(400).json({ error: "matchId and ownerId required" });
-  // Block prediction changes for completed matches — no exceptions, including admin
+  // Block prediction changes for completed matches — no exceptions
   if (completedMatchIds.has(matchId)) {
     return res.status(403).json({ error: "Match already completed — predictions are locked" });
+  }
+  // Block prediction changes once a match has started (live) — no exceptions
+  if (currentLiveIplIds.includes(matchId)) {
+    return res.status(403).json({ error: "Match is live — predictions are locked" });
   }
   // Validate pick against the two teams actually playing in this match
   if (pick != null) {
