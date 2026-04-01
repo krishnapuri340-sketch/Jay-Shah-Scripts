@@ -1479,7 +1479,7 @@
               "dnb": false
             },
             {
-              "name": "Shubman Gill (c)",
+              "name": "Shubman Gill",
               "runs": 39,
               "balls": 27,
               "fours": 6,
@@ -1490,7 +1490,7 @@
               "dnb": false
             },
             {
-              "name": "Jos Buttler (wk)",
+              "name": "Jos Buttler",
               "runs": 38,
               "balls": 33,
               "fours": 3,
@@ -1523,7 +1523,7 @@
               "dnb": false
             },
             {
-              "name": "Shahrukh Khan  (RP)",
+              "name": "Shahrukh Khan",
               "runs": 4,
               "balls": 6,
               "fours": 0,
@@ -1556,13 +1556,13 @@
               "dnb": false
             },
             {
-              "name": "Prasidh Krishna  (IP)",
+              "name": "Prasidh Krishna",
               "runs": 0,
               "balls": 0,
               "fours": 0,
               "sixes": 0,
-              "sr": "NaN",
-              "dismissal": "",
+              "sr": "0.00",
+              "dismissal": "not out",
               "notOut": true,
               "dnb": false
             },
@@ -1572,8 +1572,8 @@
               "balls": 0,
               "fours": 0,
               "sixes": 0,
-              "sr": "NaN",
-              "dismissal": "",
+              "sr": "0.00",
+              "dismissal": "not out",
               "notOut": true,
               "dnb": false
             },
@@ -1583,8 +1583,8 @@
               "balls": 0,
               "fours": 0,
               "sixes": 0,
-              "sr": "NaN",
-              "dismissal": "",
+              "sr": "0.00",
+              "dismissal": "not out",
               "notOut": true,
               "dnb": false
             },
@@ -1594,8 +1594,8 @@
               "balls": 0,
               "fours": 0,
               "sixes": 0,
-              "sr": "NaN",
-              "dismissal": "",
+              "sr": "0.00",
+              "dismissal": "not out",
               "notOut": true,
               "dnb": false
             }
@@ -1642,7 +1642,7 @@
               "noBalls": 0
             },
             {
-              "name": "Yuzvendra Chahal (RP)",
+              "name": "Yuzvendra Chahal",
               "overs": "4",
               "maidens": 0,
               "runs": 28,
@@ -1658,7 +1658,7 @@
           "total": "165/7 (19.1 Overs)",
           "batting": [
             {
-              "name": "Priyansh Arya  (IP)",
+              "name": "Priyansh Arya",
               "runs": 7,
               "balls": 8,
               "fours": 0,
@@ -1669,7 +1669,7 @@
               "dnb": false
             },
             {
-              "name": "Prabhsimran Singh (wk)",
+              "name": "Prabhsimran Singh",
               "runs": 37,
               "balls": 24,
               "fours": 1,
@@ -1691,7 +1691,7 @@
               "dnb": false
             },
             {
-              "name": "Shreyas Iyer (c)",
+              "name": "Shreyas Iyer",
               "runs": 18,
               "balls": 11,
               "fours": 0,
@@ -1762,8 +1762,8 @@
               "balls": 0,
               "fours": 0,
               "sixes": 0,
-              "sr": "NaN",
-              "dismissal": "",
+              "sr": "0.00",
+              "dismissal": "not out",
               "notOut": true,
               "dnb": false
             },
@@ -1773,19 +1773,19 @@
               "balls": 0,
               "fours": 0,
               "sixes": 0,
-              "sr": "NaN",
-              "dismissal": "",
+              "sr": "0.00",
+              "dismissal": "not out",
               "notOut": true,
               "dnb": false
             },
             {
-              "name": "Yuzvendra Chahal  (RP)",
+              "name": "Yuzvendra Chahal",
               "runs": 0,
               "balls": 0,
               "fours": 0,
               "sixes": 0,
-              "sr": "NaN",
-              "dismissal": "",
+              "sr": "0.00",
+              "dismissal": "not out",
               "notOut": true,
               "dnb": false
             }
@@ -1842,7 +1842,7 @@
               "noBalls": 0
             },
             {
-              "name": "Prasidh Krishna (IP)",
+              "name": "Prasidh Krishna",
               "overs": "4",
               "maidens": 0,
               "runs": 29,
@@ -1868,7 +1868,7 @@
           "maidens": 0,
           "ballsBowled": 0,
           "runsConceded": 0,
-          "catches": 0,
+          "catches": 2,
           "runOuts": 0,
           "stumpings": 0
         },
@@ -1885,7 +1885,7 @@
           "maidens": 0,
           "ballsBowled": 0,
           "runsConceded": 0,
-          "catches": 0,
+          "catches": 1,
           "runOuts": 0,
           "stumpings": 0
         },
@@ -1897,7 +1897,7 @@
           "sixes": 0,
           "duck": false,
           "wickets": 2,
-          "dots": 0,
+          "dots": 9,
           "lbwBowled": 0,
           "maidens": 0,
           "ballsBowled": 24,
@@ -1919,7 +1919,7 @@
           "maidens": 0,
           "ballsBowled": 0,
           "runsConceded": 0,
-          "catches": 0,
+          "catches": 1,
           "runOuts": 0,
           "stumpings": 0
         },
@@ -1942,18 +1942,18 @@
         },
         "Marco Jansen": {
           "played": true,
-          "runs": 1,
-          "balls": 1,
+          "runs": 9,
+          "balls": 10,
           "fours": 0,
-          "sixes": 0,
+          "sixes": 1,
           "duck": false,
           "wickets": 1,
-          "dots": 0,
+          "dots": 8,
           "lbwBowled": 0,
           "maidens": 0,
           "ballsBowled": 24,
           "runsConceded": 20,
-          "catches": 0,
+          "catches": 1,
           "runOuts": 0,
           "stumpings": 0
         },
@@ -1965,12 +1965,12 @@
           "sixes": 0,
           "duck": false,
           "wickets": 0,
-          "dots": 0,
+          "dots": 9,
           "lbwBowled": 0,
           "maidens": 0,
           "ballsBowled": 24,
           "runsConceded": 42,
-          "catches": 0,
+          "catches": 2,
           "runOuts": 0,
           "stumpings": 0
         },
@@ -2033,12 +2033,12 @@
           "sixes": 0,
           "duck": false,
           "wickets": 3,
-          "dots": 0,
+          "dots": 11,
           "lbwBowled": 0,
           "maidens": 0,
-          "ballsBowled": 11,
-          "runsConceded": 5,
-          "catches": 0,
+          "ballsBowled": 24,
+          "runsConceded": 29,
+          "catches": 1,
           "runOuts": 0,
           "stumpings": 0
         },
@@ -2050,12 +2050,12 @@
           "sixes": 0,
           "duck": false,
           "wickets": 1,
-          "dots": 0,
+          "dots": 10,
           "lbwBowled": 0,
           "maidens": 0,
           "ballsBowled": 24,
           "runsConceded": 29,
-          "catches": 0,
+          "catches": 1,
           "runOuts": 0,
           "stumpings": 0
         },
@@ -2067,7 +2067,7 @@
           "sixes": 0,
           "duck": false,
           "wickets": 0,
-          "dots": 0,
+          "dots": 6,
           "lbwBowled": 0,
           "maidens": 0,
           "ballsBowled": 12,
@@ -2118,12 +2118,12 @@
           "sixes": 0,
           "duck": false,
           "wickets": 1,
-          "dots": 0,
+          "dots": 6,
           "lbwBowled": 0,
           "maidens": 0,
-          "ballsBowled": 18,
-          "runsConceded": 23,
-          "catches": 0,
+          "ballsBowled": 19,
+          "runsConceded": 27,
+          "catches": 1,
           "runOuts": 0,
           "stumpings": 0
         }
@@ -2820,7 +2820,7 @@
       "teamB": "Delhi Capitals"
     }
   },
-  "lastUpdated": "2026-04-01T01:00:03.082Z",
+  "lastUpdated": "2026-04-01T01:08:03.200Z",
   "dailyHits": {
     "date": "2026-04-01",
     "count": 0

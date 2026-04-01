@@ -3,7 +3,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join } from "path";
 import { fileURLToPath } from "url";
 import pkg from "pg";
-import { fetchMatchOverview, refreshLiveMatches } from "./ipl-points";
+import { fetchMatchOverview, refreshLiveMatches, backfillCompletedFromS3 } from "./ipl-points";
 
 const { Pool } = pkg;
 
@@ -284,7 +284,9 @@ async function doRefreshMatches(): Promise<void> {
     for (const id of completedIds) {
       fetchMatchOverview(id, true).catch(() => {});
     }
-    // Pull fresh CricAPI scorecard for each live match
+    // Try to backfill newly completed matches from S3 (available briefly after a match ends)
+    backfillCompletedFromS3(completedIds).catch(() => {});
+    // Pull live match scorecards — S3 primary, CricAPI fallback
     if (currentLiveIplIds.length > 0) {
       refreshLiveMatches(currentLiveIplIds).catch(() => {});
     }

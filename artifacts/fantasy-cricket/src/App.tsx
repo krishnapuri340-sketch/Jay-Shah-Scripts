@@ -809,12 +809,42 @@ export default function App() {
         ? `Synced ✓ — ${data.fixturesAfter} fixtures loaded`
         : "Already up to date";
       setSupabaseSyncMsg(msg);
-      // Refresh points display after sync
       setTimeout(fetchPoints, 300);
     } catch (e: any) {
       setSupabaseSyncMsg("Sync failed: " + (e.message || "unknown error"));
     }
     setSupabaseSyncing(false);
+  };
+
+  const [s3Syncing, setS3Syncing] = useState(false);
+  const [s3SyncMsg, setS3SyncMsg] = useState<string | null>(null);
+  const [s3MatchInput, setS3MatchInput] = useState("");
+
+  const fetchFromS3 = async (specificId?: string) => {
+    if (s3Syncing) return;
+    setS3Syncing(true);
+    setS3SyncMsg(null);
+    try {
+      const body: Record<string, string> = {};
+      if (specificId) body.iplId = specificId;
+      const res = await fetch("/api/ipl/points/backfill-s3", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Owner-Id": "rajveer" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || `Server error ${res.status}`);
+      if (data.filled > 0) {
+        setS3SyncMsg(`S3 ✓ — ${data.filled} match${data.filled > 1 ? "es" : ""} populated`);
+        setTimeout(fetchPoints, 300);
+      } else {
+        const tried = specificId || "all";
+        setS3SyncMsg(`No S3 data available for ${tried} (only latest match has live data)`);
+      }
+    } catch (e: any) {
+      setS3SyncMsg("S3 fetch failed: " + (e.message || "unknown error"));
+    }
+    setS3Syncing(false);
   };
 
   const fetchLive = async () => {
@@ -4159,6 +4189,10 @@ export default function App() {
               onClick={syncSupabase} disabled={supabaseSyncing}>
               {supabaseSyncing ? <span className="spinner" /> : "🗄️"} Sync AuctionRoom
             </button>
+            <button className="btn-primary" style={{ background: "rgba(251,191,36,0.1)", borderColor: "rgba(251,191,36,0.3)", color: "#fbbf24" }}
+              onClick={() => fetchFromS3(s3MatchInput.trim() || undefined)} disabled={s3Syncing}>
+              {s3Syncing ? <span className="spinner" /> : "☁️"} Fetch S3
+            </button>
             <button className="btn-danger" onClick={async () => {
               if (confirm("Reset all cached points? Points will re-sync from AuctionRoom.")) {
                 await fetch("/api/ipl/points/reset", { method: "POST", headers: { "X-Owner-Id": "rajveer" } });
@@ -4176,6 +4210,27 @@ export default function App() {
             border: `1px solid ${supabaseSyncMsg.startsWith("Sync failed") ? "rgba(239,68,68,0.2)" : "rgba(34,197,94,0.2)"}`,
           }}>
             {supabaseSyncMsg}
+          </div>
+        )}
+        {currentUser === "rajveer" && (
+          <div style={{ display: "flex", gap: 6, marginTop: 8, alignItems: "center" }}>
+            <input
+              type="text"
+              value={s3MatchInput}
+              onChange={e => setS3MatchInput(e.target.value)}
+              placeholder="Match ID (e.g. 2420) or blank for all"
+              style={{ flex: 1, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: 8, padding: "6px 10px", color: "var(--text)", fontSize: "0.75rem", outline: "none" }}
+            />
+          </div>
+        )}
+        {s3SyncMsg && (
+          <div style={{ fontSize: "0.7rem", marginTop: 6, padding: "6px 10px", borderRadius: 8,
+            background: s3SyncMsg.startsWith("S3 ✓") ? "rgba(251,191,36,0.08)" : "rgba(239,68,68,0.08)",
+            color: s3SyncMsg.startsWith("S3 ✓") ? "#fbbf24" : "#f87171",
+            border: `1px solid ${s3SyncMsg.startsWith("S3 ✓") ? "rgba(251,191,36,0.2)" : "rgba(239,68,68,0.2)"}`,
+          }}>
+            ☁️ {s3SyncMsg}
           </div>
         )}
         {lastUpdated && (
