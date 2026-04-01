@@ -360,6 +360,7 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
         width: "100%",
         objectFit: "cover", objectPosition: "center top",
         transform: "scaleY(-1)", pointerEvents: "none", userSelect: "none",
+        filter: "blur(5px) brightness(0.95)",
       }} />
       <div style={{
         position: "absolute", inset: 0, pointerEvents: "none",
