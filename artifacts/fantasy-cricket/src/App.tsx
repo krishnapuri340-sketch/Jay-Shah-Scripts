@@ -1644,15 +1644,25 @@ export default function App() {
       const ta = matchTeams[0], tb = matchTeams[1];
       const colA = IPL_COLORS[ta.shortname] || "#e4e4e7";
       const colB = IPL_COLORS[tb.shortname] || "#e4e4e7";
-      const lSz = 50;
-      if (teamLogoImgs[0]) ctx.drawImage(teamLogoImgs[0], cx - 298, y + 6, lSz, lSz);
-      ctx.textAlign = "right"; ctx.font = "800 52px -apple-system, Arial, sans-serif"; ctx.fillStyle = colA;
-      ctx.fillText(ta.shortname, cx - 32, y + 52);
-      ctx.textAlign = "center"; ctx.font = "300 26px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#3f3f46";
-      ctx.fillText("vs", cx, y + 50);
-      ctx.textAlign = "left"; ctx.font = "800 52px -apple-system, Arial, sans-serif"; ctx.fillStyle = colB;
-      ctx.fillText(tb.shortname, cx + 32, y + 52);
-      if (teamLogoImgs[1]) ctx.drawImage(teamLogoImgs[1], cx + 248, y + 6, lSz, lSz);
+      const lSz = 58;
+
+      // Team A side
+      if (teamLogoImgs[0]) ctx.drawImage(teamLogoImgs[0], PAD, y + 8, lSz, lSz);
+      ctx.textAlign = "left"; ctx.font = "900 58px -apple-system, Arial, sans-serif"; ctx.fillStyle = colA;
+      ctx.fillText(ta.shortname, PAD + lSz + 18, y + 58);
+      ctx.font = "400 18px -apple-system, Arial, sans-serif"; ctx.fillStyle = "rgba(255,255,255,0.28)";
+      ctx.fillText(IPL_FULL_NAMES[ta.shortname] || "", PAD + lSz + 18, y + 80);
+
+      // Team B side (right-aligned)
+      if (teamLogoImgs[1]) ctx.drawImage(teamLogoImgs[1], W - PAD - lSz, y + 8, lSz, lSz);
+      ctx.textAlign = "right"; ctx.font = "900 58px -apple-system, Arial, sans-serif"; ctx.fillStyle = colB;
+      ctx.fillText(tb.shortname, W - PAD - lSz - 18, y + 58);
+      ctx.font = "400 18px -apple-system, Arial, sans-serif"; ctx.fillStyle = "rgba(255,255,255,0.28)";
+      ctx.fillText(IPL_FULL_NAMES[tb.shortname] || "", W - PAD - lSz - 18, y + 80);
+
+      // VS badge in center
+      ctx.textAlign = "center"; ctx.font = "700 20px -apple-system, Arial, sans-serif"; ctx.fillStyle = "rgba(255,255,255,0.15)";
+      ctx.fillText("VS", cx, y + 50);
     } else {
       ctx.textAlign = "center"; ctx.font = "700 42px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#e4e4e7";
       ctx.fillText((m.name || "").replace(/,\s*\d+(?:st|nd|rd|th) Match.*/i, ""), cx, y + 52);
@@ -1663,40 +1673,49 @@ export default function App() {
     const mNumStr = mNumMatch ? `M${mNumMatch[1]}` : "";
     const venue = m.venue ? m.venue.split(",")[0] : "";
     const metaLine = [mNumStr, venue].filter(Boolean).join("  ·  ");
-    ctx.textAlign = "center"; ctx.font = "400 21px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
-    if (metaLine) ctx.fillText(metaLine, cx, y + 22);
+    if (metaLine) {
+      ctx.textAlign = "center"; ctx.font = "400 20px -apple-system, Arial, sans-serif"; ctx.fillStyle = "rgba(255,255,255,0.28)";
+      ctx.fillText(metaLine, cx, y + 24);
+    }
     if (sc?.overview?.toss) {
-      ctx.font = "400 17px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#3f3f46";
-      ctx.fillText(sc.overview.toss, cx, y + 44);
+      ctx.font = "400 16px -apple-system, Arial, sans-serif"; ctx.fillStyle = "rgba(255,255,255,0.18)";
+      ctx.fillText(sc.overview.toss, cx, y + 46);
     }
     y += META_H;
 
     // ── Quick score summary ──
-    hr(y); y += 18;
-    const sColW = scores.length > 1 ? (W - PAD * 2 - 20) / 2 : W - PAD * 2;
+    hr(y); y += 20;
+    const sColW = scores.length > 1 ? (W - PAD * 2 - 40) / 2 : W - PAD * 2;
     scores.forEach((s: any, i: number) => {
-      const sx = PAD + i * (sColW + 20);
-      const innLabel = (s.inning || "").replace(/ Innings?$/i, "");
+      const sx = PAD + i * (sColW + 40);
+      const teamCode = matchTeams[i]?.shortname || "";
+      const teamColor = IPL_COLORS[teamCode] || "#e4e4e7";
       const scoreStr = s.summary || (s.r != null ? `${s.r}/${s.w}` : "—");
       const oversStr = s.o != null ? `(${s.o} ov)` : "";
       ctx.textAlign = "left";
-      ctx.font = "400 18px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
-      ctx.fillText(innLabel, sx, y + 18);
-      ctx.font = "700 42px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#e4e4e7";
-      ctx.fillText(scoreStr, sx, y + 54);
+      // Team code in team color
+      ctx.font = "700 20px -apple-system, Arial, sans-serif"; ctx.fillStyle = teamColor;
+      ctx.fillText(teamCode, sx, y + 22);
+      // Score
+      ctx.font = "800 46px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#f4f4f5";
+      ctx.fillText(scoreStr, sx, y + 60);
       if (oversStr) {
         const sw = ctx.measureText(scoreStr).width;
-        ctx.font = "400 19px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
-        ctx.fillText(oversStr, sx + sw + 8, y + 54);
+        ctx.font = "400 20px -apple-system, Arial, sans-serif"; ctx.fillStyle = "rgba(255,255,255,0.35)";
+        ctx.fillText(oversStr, sx + sw + 10, y + 60);
       }
     });
     y += SCORE_H;
 
     // ── Result ──
     if (isDone && m.status) {
-      hr(y); y += 14;
-      ctx.textAlign = "center"; ctx.font = "600 25px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#60a5fa";
-      ctx.fillText(m.status, cx, y + 28);
+      // Result banner background
+      ctx.fillStyle = "rgba(96,165,250,0.07)";
+      ctx.fillRect(0, y, W, RESULT_H);
+      ctx.strokeStyle = "rgba(96,165,250,0.18)"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      ctx.textAlign = "center"; ctx.font = "600 26px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#93c5fd";
+      ctx.fillText("🏆  " + m.status, cx, y + RESULT_H / 2 + 9);
       y += RESULT_H;
     }
 
@@ -1718,73 +1737,117 @@ export default function App() {
       const BW_M   = BW_R   - 74;
       const BW_O   = BW_M   - 74;
 
-      for (const inn of innings) {
+      for (let innIdx = 0; innIdx < innings.length; innIdx++) {
+        const inn = innings[innIdx];
         const batters = (inn.batting || []).filter((b: any) => !b.dnb);
         const bowlers: any[] = inn.bowling || [];
+        // Detect team code from innings name or from matchTeams ordering
+        const innTeamCode = matchTeams[innIdx]?.shortname
+          || Object.keys(IPL_COLORS).find(k => (inn.name || "").includes(k))
+          || "";
+        const innTeamColor = IPL_COLORS[innTeamCode] || "#71717a";
 
-        // Innings title bar
-        ctx.textAlign = "left"; ctx.font = "700 22px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#71717a";
-        ctx.fillText((inn.name || "").toUpperCase(), PAD, y + 22);
-        ctx.textAlign = "right"; ctx.font = "700 22px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#e4e4e7";
-        ctx.fillText(inn.total || "", W - PAD, y + 22);
+        // Innings title bar — with colored team highlight
+        ctx.fillStyle = innTeamColor + "18";
+        ctx.fillRect(0, y, W, INN_HDR);
+        ctx.strokeStyle = innTeamColor + "30"; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+        // 4px left accent bar
+        ctx.fillStyle = innTeamColor;
+        ctx.fillRect(0, y, 4, INN_HDR);
+
+        ctx.textAlign = "left"; ctx.font = "700 22px -apple-system, Arial, sans-serif"; ctx.fillStyle = innTeamColor;
+        ctx.fillText(innTeamCode || (inn.name || "").toUpperCase().replace(/ INNINGS?$/, ""), PAD + 8, y + 30);
+        ctx.font = "400 16px -apple-system, Arial, sans-serif"; ctx.fillStyle = "rgba(255,255,255,0.25)";
+        ctx.fillText(`INNINGS ${innIdx + 1}`, PAD + 8 + ctx.measureText(innTeamCode || (inn.name || "")).width + 14, y + 30);
+        ctx.textAlign = "right"; ctx.font = "700 22px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#f4f4f5";
+        ctx.fillText(inn.total || "", W - PAD, y + 30);
         y += INN_HDR;
 
         // ─ Batting table ─
         if (batters.length > 0) {
+          const allFantasyNamesShare = new Set(Object.values(FANTASY_TEAMS).flatMap((t: any) => t.players.map((p: any) => p.name || p)));
           // Column headers
-          ctx.fillStyle = "#3f3f46"; ctx.font = "600 15px -apple-system, Arial, sans-serif";
-          ctx.textAlign = "left";  ctx.fillText("BATTER", PAD, y + 19);
+          ctx.fillStyle = "rgba(255,255,255,0.2)"; ctx.font = "600 14px -apple-system, Arial, sans-serif";
+          ctx.textAlign = "left";  ctx.fillText("BATTER", PAD, y + 18);
           ctx.textAlign = "right";
-          ctx.fillText("R",   B_R,   y + 19);
-          ctx.fillText("B",   B_B,   y + 19);
-          ctx.fillText("4s",  B_4S,  y + 19);
-          ctx.fillText("6s",  B_6S,  y + 19);
-          ctx.fillText("SR",  B_SR,  y + 19);
+          ctx.fillText("R",   B_R,   y + 18);
+          ctx.fillText("B",   B_B,   y + 18);
+          ctx.fillText("4s",  B_4S,  y + 18);
+          ctx.fillText("6s",  B_6S,  y + 18);
+          ctx.fillText("SR",  B_SR,  y + 18);
+          ctx.strokeStyle = "rgba(255,255,255,0.05)"; ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(PAD, y + COL_HDR - 2); ctx.lineTo(W - PAD, y + COL_HDR - 2); ctx.stroke();
           y += COL_HDR;
 
           for (const b of batters) {
+            const runs = parseInt(b.runs) || 0;
+            const bRunColor = runs >= 100 ? "#d4a843" : runs >= 50 ? "#93c5fd" : "#f4f4f5";
+            const isFantasyBat = allFantasyNamesShare.has(b.name);
             // Name
             ctx.textAlign = "left";
-            ctx.font = `${b.notOut ? "600" : "400"} 21px -apple-system, Arial, sans-serif`;
-            ctx.fillStyle = b.notOut ? "#22c55e" : "#e4e4e7";
-            ctx.fillText(b.name || "", PAD, y + 22);
-            // Dismissal (compact, below name)
-            if (b.dismissal) {
-              ctx.font = "400 13px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
-              const d = b.dismissal.length > 55 ? b.dismissal.slice(0, 53) + "…" : b.dismissal;
-              ctx.fillText(d, PAD, y + 38);
+            ctx.font = `${b.notOut ? "600" : "400"} 20px -apple-system, Arial, sans-serif`;
+            ctx.fillStyle = b.notOut ? "#4ade80" : "#e4e4e7";
+            const nameStr = (b.name || "") + (b.notOut ? "*" : "");
+            ctx.fillText(nameStr, PAD + (isFantasyBat ? 28 : 0), y + 22);
+            // Fantasy badge
+            if (isFantasyBat) {
+              ctx.fillStyle = "rgba(74,222,128,0.18)";
+              ctx.beginPath(); const bx = PAD, bby = y + 9, bw = 22, bh = 16, brd = 4;
+              ctx.moveTo(bx + brd, bby); ctx.lineTo(bx + bw - brd, bby); ctx.arcTo(bx + bw, bby, bx + bw, bby + brd, brd); ctx.lineTo(bx + bw, bby + bh - brd); ctx.arcTo(bx + bw, bby + bh, bx + bw - brd, bby + bh, brd); ctx.lineTo(bx + brd, bby + bh); ctx.arcTo(bx, bby + bh, bx, bby + bh - brd, brd); ctx.lineTo(bx, bby + brd); ctx.arcTo(bx, bby, bx + brd, bby, brd); ctx.closePath(); ctx.fill();
+              ctx.fillStyle = "#4ade80"; ctx.font = "700 11px -apple-system, Arial, sans-serif"; ctx.textAlign = "center";
+              ctx.fillText("F", PAD + 11, y + 21);
+              ctx.textAlign = "left";
+            }
+            // Dismissal
+            if (b.dismissal && b.dismissal !== "not out" && b.dismissal !== "DNB") {
+              ctx.font = "400 12px -apple-system, Arial, sans-serif"; ctx.fillStyle = "rgba(255,255,255,0.22)";
+              const d = b.dismissal.length > 52 ? b.dismissal.slice(0, 50) + "…" : b.dismissal;
+              ctx.fillText(d, PAD + (isFantasyBat ? 28 : 0), y + 38);
             }
             // Stats
             ctx.textAlign = "right";
-            ctx.font = "700 21px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#e4e4e7";
+            ctx.font = "700 22px -apple-system, Arial, sans-serif"; ctx.fillStyle = bRunColor;
             ctx.fillText(String(b.runs ?? ""), B_R, y + 22);
-            ctx.font = "400 19px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#71717a";
+            ctx.font = "400 18px -apple-system, Arial, sans-serif"; ctx.fillStyle = "rgba(255,255,255,0.3)";
             ctx.fillText(String(b.balls ?? ""), B_B, y + 22);
-            ctx.fillStyle = "#60a5fa"; ctx.fillText(String(b.fours ?? ""), B_4S, y + 22);
-            ctx.fillStyle = "#a855f7"; ctx.fillText(String(b.sixes ?? ""), B_6S, y + 22);
-            ctx.fillStyle = "#71717a"; ctx.fillText(b.sr ? parseFloat(b.sr).toFixed(1) : "", B_SR, y + 22);
+            ctx.fillStyle = "rgba(96,165,250,0.8)"; ctx.fillText(String(b.fours ?? ""), B_4S, y + 22);
+            ctx.fillStyle = "rgba(168,85,247,0.8)"; ctx.fillText(String(b.sixes ?? ""), B_6S, y + 22);
+            ctx.fillStyle = "rgba(255,255,255,0.28)"; ctx.fillText(b.sr ? parseFloat(b.sr).toFixed(0) : "", B_SR, y + 22);
             y += ROW_BAT;
           }
         }
 
         // ─ Bowling table ─
         if (bowlers.length > 0) {
+          const allFantasyNamesBowl = new Set(Object.values(FANTASY_TEAMS).flatMap((t: any) => t.players.map((p: any) => p.name || p)));
           y += 16;
           // Column headers
-          ctx.fillStyle = "#3f3f46"; ctx.font = "600 15px -apple-system, Arial, sans-serif";
-          ctx.textAlign = "left";  ctx.fillText("BOWLER", PAD, y + 19);
+          ctx.fillStyle = "rgba(255,255,255,0.2)"; ctx.font = "600 14px -apple-system, Arial, sans-serif";
+          ctx.textAlign = "left";  ctx.fillText("BOWLER", PAD, y + 18);
           ctx.textAlign = "right";
-          ctx.fillText("O",   BW_O,   y + 19);
-          ctx.fillText("M",   BW_M,   y + 19);
-          ctx.fillText("R",   BW_R,   y + 19);
-          ctx.fillText("W",   BW_W,   y + 19);
-          ctx.fillText("ECO", BW_ECO, y + 19);
+          ctx.fillText("O",   BW_O,   y + 18);
+          ctx.fillText("M",   BW_M,   y + 18);
+          ctx.fillText("R",   BW_R,   y + 18);
+          ctx.fillText("W",   BW_W,   y + 18);
+          ctx.fillText("ECO", BW_ECO, y + 18);
+          ctx.strokeStyle = "rgba(255,255,255,0.05)"; ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(PAD, y + COL_HDR - 2); ctx.lineTo(W - PAD, y + COL_HDR - 2); ctx.stroke();
           y += COL_HDR;
 
           for (const b of bowlers) {
-            ctx.textAlign = "left"; ctx.font = "400 21px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#e4e4e7";
-            ctx.fillText(b.name || "", PAD, y + 23);
-            ctx.textAlign = "right"; ctx.font = "400 19px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#71717a";
+            const isFBowl = allFantasyNamesBowl.has(b.name);
+            ctx.textAlign = "left"; ctx.font = "400 20px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#d4d4d8";
+            ctx.fillText(b.name || "", PAD + (isFBowl ? 28 : 0), y + 23);
+            if (isFBowl) {
+              ctx.fillStyle = "rgba(74,222,128,0.18)";
+              ctx.beginPath(); const bfx = PAD, bfy = y + 10, bfw = 22, bfh = 16, bfrd = 4;
+              ctx.moveTo(bfx + bfrd, bfy); ctx.lineTo(bfx + bfw - bfrd, bfy); ctx.arcTo(bfx + bfw, bfy, bfx + bfw, bfy + bfrd, bfrd); ctx.lineTo(bfx + bfw, bfy + bfh - bfrd); ctx.arcTo(bfx + bfw, bfy + bfh, bfx + bfw - bfrd, bfy + bfh, bfrd); ctx.lineTo(bfx + bfrd, bfy + bfh); ctx.arcTo(bfx, bfy + bfh, bfx, bfy + bfh - bfrd, bfrd); ctx.lineTo(bfx, bfy + bfrd); ctx.arcTo(bfx, bfy, bfx + bfrd, bfy, bfrd); ctx.closePath(); ctx.fill();
+              ctx.fillStyle = "#4ade80"; ctx.font = "700 11px -apple-system, Arial, sans-serif"; ctx.textAlign = "center";
+              ctx.fillText("F", PAD + 11, y + 23);
+              ctx.textAlign = "left";
+            }
+            ctx.textAlign = "right"; ctx.font = "400 18px -apple-system, Arial, sans-serif"; ctx.fillStyle = "rgba(255,255,255,0.3)";
             ctx.fillText(String(b.overs ?? ""),   BW_O,   y + 23);
             ctx.fillText(String(b.maidens ?? ""), BW_M,   y + 23);
             ctx.fillText(String(b.runs ?? ""),    BW_R,   y + 23);
@@ -1801,19 +1864,29 @@ export default function App() {
 
     // ── Fantasy highlights ──
     if (hasFantasy) {
-      hr(y); y += 14;
-      ctx.textAlign = "left"; ctx.font = "600 17px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#3f3f46";
-      ctx.fillText("FANTASY POINTS THIS MATCH", PAD, y + 18);
-      y += 36;
+      // Section header with gold accent
+      ctx.fillStyle = "rgba(232,188,72,0.08)"; ctx.fillRect(0, y, W, 42);
+      ctx.strokeStyle = "rgba(232,188,72,0.25)"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      ctx.fillStyle = "#d4a843"; ctx.fillRect(0, y, 4, 42);
+      ctx.textAlign = "left"; ctx.font = "600 15px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#d4a843";
+      ctx.fillText("FANTASY POINTS THIS MATCH", PAD + 8, y + 26);
+      y += 42;
       for (const { ft, total, scorers } of fantasyRows) {
-        ctx.fillStyle = ft.color; ctx.fillRect(PAD, y + 6, 3, 34);
-        ctx.textAlign = "left"; ctx.font = "700 26px -apple-system, Arial, sans-serif"; ctx.fillStyle = ft.color;
-        ctx.fillText(ft.owner, PAD + 13, y + 28);
-        ctx.font = "400 17px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
-        ctx.fillText(scorers.slice(0, 4).join("  ·  "), PAD + 13 + ctx.measureText(ft.owner).width + 16, y + 28);
-        ctx.textAlign = "right"; ctx.font = "700 32px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#e4e4e7";
-        ctx.fillText(String(total), W - PAD, y + 30);
-        y += 52;
+        // Subtle bg per row
+        ctx.fillStyle = ft.color + "08"; ctx.fillRect(0, y, W, 50);
+        // Left accent bar
+        ctx.fillStyle = ft.color; ctx.fillRect(0, y, 4, 50);
+        // Owner name
+        ctx.textAlign = "left"; ctx.font = "700 24px -apple-system, Arial, sans-serif"; ctx.fillStyle = ft.color;
+        ctx.fillText(ft.owner, PAD + 16, y + 26);
+        // Player contributors
+        ctx.font = "400 15px -apple-system, Arial, sans-serif"; ctx.fillStyle = "rgba(255,255,255,0.28)";
+        ctx.fillText(scorers.slice(0, 4).join("  ·  "), PAD + 16 + ctx.measureText(ft.owner).width + 18, y + 26);
+        // Total on right
+        ctx.textAlign = "right"; ctx.font = "700 30px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#f4f4f5";
+        ctx.fillText(String(total), W - PAD, y + 32);
+        y += 50;
       }
     }
 
@@ -3203,19 +3276,22 @@ export default function App() {
 
               const isHome = teamFilter.size > 0 ? teamFilter.has(m.homeTeamCode) : null;
               return (
-                <div key={m.id} className="match-card">
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                <div key={m.id} className={`match-card${isLive ? " is-live" : isDone ? " is-done" : ""}`}>
+                <div className="match-card-inner">
+                  {/* ── Top bar: status + match num + share ── */}
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
                     <div className="match-status" style={{ color: statusColor }}>
+                      {isLive && <span style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--live)", display: "inline-block", flexShrink: 0, boxShadow: "0 0 6px rgba(16,185,129,0.7)" }} />}
                       {statusLabel}
                     </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      {mNum && <div style={{ fontSize: "0.7rem", color: "var(--text-3)", fontWeight: 600 }}>{mNum}</div>}
+                    <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                      {mNum && <div style={{ fontSize: "0.56rem", color: "rgba(255,255,255,0.25)", fontWeight: 700, letterSpacing: "0.07em" }}>{mNum}</div>}
                       {isHome !== null && (
                         <div style={{
-                          fontSize: "0.55rem", fontWeight: 700, padding: "1px 6px", borderRadius: 8, letterSpacing: "0.06em",
-                          background: isHome ? "rgba(52,211,153,0.12)" : "rgba(148,163,184,0.1)",
-                          color: isHome ? "#34d399" : "#94a3b8",
-                          border: `1px solid ${isHome ? "rgba(52,211,153,0.25)" : "rgba(148,163,184,0.2)"}`,
+                          fontSize: "0.5rem", fontWeight: 700, padding: "2px 6px", borderRadius: 20, letterSpacing: "0.07em",
+                          background: isHome ? "rgba(52,211,153,0.1)" : "rgba(148,163,184,0.07)",
+                          color: isHome ? "#34d399" : "#64748b",
+                          border: `1px solid ${isHome ? "rgba(52,211,153,0.2)" : "rgba(148,163,184,0.15)"}`,
                         }}>
                           {isHome ? "HOME" : "AWAY"}
                         </div>
@@ -3223,28 +3299,47 @@ export default function App() {
                       {(isLive || isDone) && (
                         <button onClick={e => { e.stopPropagation(); shareMatchCard(m); }}
                           title="Share scorecard"
-                          style={{ background: "none", border: "none", padding: "2px 4px", cursor: "pointer", color: "var(--text-3)", display: "flex", alignItems: "center" }}>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                          style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.09)", borderRadius: 8, padding: "4px 7px", cursor: "pointer", color: "rgba(255,255,255,0.35)", display: "flex", alignItems: "center", backdropFilter: "blur(4px)", transition: "all 0.15s" }}>
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>
                           </svg>
                         </button>
                       )}
                     </div>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-                    {teams.length > 0 ? teams.map((ti: any, i: number) => (
-                      <div key={i} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                        {i === 1 && <span style={{ color: "var(--text-3)", fontSize: "0.6rem", margin: "0 2px" }}>vs</span>}
-                        <img src={TEAM_LOGO_CDN[ti.shortname] || ti.img} alt={ti.shortname} style={{ width: 18, height: 18, objectFit: "contain" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                        <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text)" }}>{ti.shortname}</span>
+
+                  {/* ── Team header ── */}
+                  {teams.length >= 2 ? (
+                    <div style={{ display: "flex", alignItems: "center", marginBottom: 10 }}>
+                      {/* Team A */}
+                      <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8 }}>
+                        <img src={TEAM_LOGO_CDN[teams[0].shortname] || teams[0].img} alt={teams[0].shortname}
+                          style={{ width: 30, height: 30, objectFit: "contain", flexShrink: 0, filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.5))" }}
+                          onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                        <div>
+                          <div style={{ fontSize: "1rem", fontWeight: 800, color: IPL_COLORS[teams[0].shortname] || "var(--text)", letterSpacing: "-0.01em", lineHeight: 1.05 }}>{teams[0].shortname}</div>
+                          <div style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.2)", marginTop: 2, lineHeight: 1 }}>{IPL_FULL_NAMES[teams[0].shortname] || ""}</div>
+                        </div>
                       </div>
-                    )) : (
-                      <div style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text)" }}>{(m.name || "").replace(/,\s*\d+(?:st|nd|rd|th) Match.*/i, "")}</div>
-                    )}
-                  </div>
+                      {/* VS divider */}
+                      <div style={{ flexShrink: 0, padding: "0 10px", fontSize: "0.5rem", color: "rgba(255,255,255,0.15)", fontWeight: 700, letterSpacing: "0.1em" }}>VS</div>
+                      {/* Team B */}
+                      <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8, justifyContent: "flex-end", flexDirection: "row-reverse" as const }}>
+                        <img src={TEAM_LOGO_CDN[teams[1].shortname] || teams[1].img} alt={teams[1].shortname}
+                          style={{ width: 30, height: 30, objectFit: "contain", flexShrink: 0, filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.5))" }}
+                          onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                        <div style={{ textAlign: "right" as const }}>
+                          <div style={{ fontSize: "1rem", fontWeight: 800, color: IPL_COLORS[teams[1].shortname] || "var(--text)", letterSpacing: "-0.01em", lineHeight: 1.05 }}>{teams[1].shortname}</div>
+                          <div style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.2)", marginTop: 2, lineHeight: 1 }}>{IPL_FULL_NAMES[teams[1].shortname] || ""}</div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: "0.88rem", fontWeight: 700, color: "var(--text)", marginBottom: 10 }}>{(m.name || "").replace(/,\s*\d+(?:st|nd|rd|th) Match.*/i, "")}</div>
+                  )}
                   {/* Interactive score lines — tap to expand innings scorecard */}
                   {(isDone || isLive) ? (
-                    <div style={{ borderTop: "1px solid var(--border)", marginTop: 4 }} onClick={e => e.stopPropagation()}>
+                    <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", marginTop: 2 }} onClick={e => e.stopPropagation()}>
                       {(m.score || []).map((s: any, i: number) => {
                         const innKey = `${matchIdStr}-inn${i}`;
                         const isInnOpen = expandedInnings.has(innKey);
@@ -3253,11 +3348,11 @@ export default function App() {
                           || Object.keys(TEAM_LOGO_CDN).find(code => rawInning.includes(code))
                           || (m.homeTeamCode && i === 0 ? m.homeTeamCode : m.awayTeamCode)
                           || "";
+                        const teamColor = IPL_COLORS[teamCode] || "var(--text)";
                         const inn = sc?.innings?.[i];
                         const hasData = !!inn?.batting?.length;
                         const runDisplay = s.r != null ? `${s.r}/${s.w ?? 0}` : s.summary?.split("(")[0]?.trim() || "—";
                         const overDisplay = s.o ? `(${s.o} ov)` : s.summary?.match(/\(([^)]+)\)/)?.[1] ? `(${s.summary.match(/\(([^)]+)\)/)[1]})` : "";
-                        const teamLabel = rawInning.replace(" Innings","").replace(" Inning","").trim();
                         return (
                           <div key={i}>
                             {/* Score row — tappable */}
@@ -3275,103 +3370,114 @@ export default function App() {
                               }}
                               style={{
                                 display: "flex", alignItems: "center", justifyContent: "space-between",
-                                padding: "9px 0", cursor: "pointer", userSelect: "none" as const,
-                                borderTop: i > 0 ? "1px dashed rgba(255,255,255,0.06)" : "none",
+                                padding: "10px 0", cursor: "pointer", userSelect: "none" as const,
+                                borderTop: i > 0 ? "1px solid rgba(255,255,255,0.04)" : "none",
                               }}>
-                              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
                                 {TEAM_LOGO_CDN[teamCode] && (
                                   <img src={TEAM_LOGO_CDN[teamCode]} alt={teamCode}
-                                    style={{ width: 22, height: 22, objectFit: "contain", flexShrink: 0 }}
+                                    style={{ width: 24, height: 24, objectFit: "contain", flexShrink: 0, filter: "drop-shadow(0 1px 4px rgba(0,0,0,0.5))" }}
                                     onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
                                 )}
                                 <div>
-                                  <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--text)", lineHeight: 1.1 }}>{teamCode || teamLabel}</div>
-                                  {isLive && i === (m.score?.length ?? 0) - 1 && <div style={{ fontSize: "0.54rem", color: "var(--live)", letterSpacing: "0.05em", marginTop: 1 }}>LIVE</div>}
+                                  <div style={{ fontSize: "0.82rem", fontWeight: 700, color: teamColor, lineHeight: 1 }}>{teamCode}</div>
+                                  {isLive && i === (m.score?.length ?? 0) - 1 && <div style={{ fontSize: "0.48rem", color: "var(--live)", letterSpacing: "0.08em", marginTop: 2, fontWeight: 700 }}>● LIVE</div>}
                                 </div>
                               </div>
                               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                                 <div style={{ textAlign: "right" as const }}>
-                                  <div style={{ fontSize: "0.95rem", fontWeight: 800, letterSpacing: "-0.03em", color: "var(--text)", lineHeight: 1 }}>{runDisplay}</div>
-                                  <div style={{ fontSize: "0.58rem", color: "var(--text-3)", marginTop: 1 }}>{overDisplay}</div>
+                                  <div style={{ fontSize: "1rem", fontWeight: 800, letterSpacing: "-0.03em", color: "var(--text)", lineHeight: 1 }}>{runDisplay}</div>
+                                  <div style={{ fontSize: "0.54rem", color: "rgba(255,255,255,0.3)", marginTop: 2 }}>{overDisplay}</div>
                                 </div>
                                 <span style={{
-                                  fontSize: "0.58rem", color: isInnOpen ? "var(--text-2)" : "var(--text-3)",
+                                  fontSize: "0.5rem", color: isInnOpen ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.2)",
                                   transition: "transform 0.2s", display: "inline-block",
-                                  transform: isInnOpen ? "rotate(180deg)" : "none", width: 10,
+                                  transform: isInnOpen ? "rotate(180deg)" : "none", width: 10, flexShrink: 0,
                                 }}>▼</span>
                               </div>
                             </div>
                             {/* Inline innings panel */}
                             {isInnOpen && (
-                              <div style={{ marginBottom: 10, borderRadius: 10, overflow: "hidden", border: "1px solid var(--border)", background: "rgba(255,255,255,0.015)" }}>
+                              <div style={{ marginBottom: 10, borderRadius: 10, overflow: "hidden", border: "1px solid rgba(255,255,255,0.07)", background: "rgba(10,14,22,0.8)" }}>
                                 {isLoadingSc && !hasData && (
-                                  <div style={{ padding: "12px 14px", fontSize: "0.7rem", color: "var(--text-3)" }}>Loading scorecard…</div>
+                                  <div style={{ padding: "14px", fontSize: "0.68rem", color: "rgba(255,255,255,0.3)", textAlign: "center" as const }}>Loading scorecard…</div>
                                 )}
                                 {!isLoadingSc && !hasData && sc && !sc.hasScorecard && (
-                                  <div style={{ padding: "12px 14px", fontSize: "0.7rem", color: "var(--text-3)" }}>Scorecard data not yet available.</div>
+                                  <div style={{ padding: "14px", fontSize: "0.68rem", color: "rgba(255,255,255,0.3)", textAlign: "center" as const }}>Scorecard not available yet.</div>
                                 )}
                                 {hasData && (() => {
                                   const allFantasyNames = new Set(Object.values(FANTASY_TEAMS).flatMap((t: any) => t.players.map((p: any) => p.name || p)));
+                                  const batters = inn.batting.filter((b: any) => !b.dnb);
                                   return (
                                     <>
-                                      {/* Batting table */}
-                                      <div>
-                                        <div style={{ display: "grid", gridTemplateColumns: "1fr 28px 28px 22px 22px 38px", padding: "6px 12px 4px", background: "rgba(255,255,255,0.04)", borderBottom: "1px solid var(--border)" }}>
-                                          {["BATTER","R","B","4s","6s","SR"].map((h, hi) => (
-                                            <div key={h} style={{ fontSize: "0.5rem", fontWeight: 700, color: hi===3?"var(--blue)":hi===4?"#a855f7":"var(--text-3)", letterSpacing: "0.07em", textAlign: hi > 0 ? "right" as const : "left" as const }}>{h}</div>
-                                          ))}
+                                      {/* Innings header bar */}
+                                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 12px 7px", background: `linear-gradient(90deg, ${teamColor}16 0%, rgba(255,255,255,0.01) 100%)`, borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                                        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                                          {TEAM_LOGO_CDN[teamCode] && <img src={TEAM_LOGO_CDN[teamCode]} alt={teamCode} style={{ width: 16, height: 16, objectFit: "contain", opacity: 0.9 }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />}
+                                          <span style={{ fontSize: "0.65rem", fontWeight: 800, color: teamColor, letterSpacing: "0.02em" }}>{teamCode}</span>
+                                          <span style={{ fontSize: "0.48rem", color: "rgba(255,255,255,0.25)", letterSpacing: "0.06em", fontWeight: 600 }}>INNINGS {i + 1}</span>
                                         </div>
-                                        {inn.batting.filter((b: any) => !b.dnb).map((b: any, bi: number) => {
-                                          const isF = allFantasyNames.has(b.name);
-                                          const runs = parseInt(b.runs) || 0;
-                                          const runColor = runs >= 100 ? "#d4a843" : runs >= 50 ? "#60a5fa" : "var(--text)";
-                                          return (
-                                            <div key={bi} style={{ display: "grid", gridTemplateColumns: "1fr 28px 28px 22px 22px 38px", padding: "6px 12px", borderBottom: "1px solid rgba(255,255,255,0.035)", alignItems: "start" }}>
-                                              <div>
-                                                <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                                                  <span style={{ fontSize: "0.73rem", fontWeight: 600, color: b.notOut ? "#4ade80" : "var(--text)" }}>{b.name}</span>
-                                                  {isF && <span style={{ fontSize: "0.45rem", background: "rgba(34,197,94,0.15)", color: "#4ade80", borderRadius: 3, padding: "1px 3px", flexShrink: 0, letterSpacing: "0.04em" }}>F</span>}
-                                                  {b.notOut && <span style={{ fontSize: "0.45rem", color: "#4ade80", flexShrink: 0 }}>*</span>}
-                                                </div>
-                                                <div style={{ fontSize: "0.55rem", color: "var(--text-3)", marginTop: 1, lineHeight: 1.3 }}>{b.dismissal !== "not out" && b.dismissal !== "DNB" ? b.dismissal : ""}</div>
-                                              </div>
-                                              <div style={{ textAlign: "right" as const, fontSize: "0.82rem", fontWeight: 800, color: runColor, paddingTop: 2 }}>{b.runs}</div>
-                                              <div style={{ textAlign: "right" as const, fontSize: "0.7rem", color: "var(--text-3)", paddingTop: 3 }}>{b.balls}</div>
-                                              <div style={{ textAlign: "right" as const, fontSize: "0.7rem", color: "var(--blue)", paddingTop: 3 }}>{b.fours}</div>
-                                              <div style={{ textAlign: "right" as const, fontSize: "0.7rem", color: "#a855f7", paddingTop: 3 }}>{b.sixes}</div>
-                                              <div style={{ textAlign: "right" as const, fontSize: "0.68rem", color: "var(--text-3)", paddingTop: 3 }}>{parseFloat(b.sr || "0").toFixed(0)}</div>
-                                            </div>
-                                          );
-                                        })}
-                                        {/* Total row */}
-                                        <div style={{ padding: "6px 12px", fontSize: "0.65rem", fontWeight: 700, color: "var(--text)", background: "rgba(255,255,255,0.03)", borderTop: "1px solid var(--border)", textAlign: "right" as const }}>
-                                          {inn.total}
-                                        </div>
+                                        <span style={{ fontSize: "0.72rem", fontWeight: 800, color: "var(--text)", letterSpacing: "-0.01em" }}>{inn.total}</span>
                                       </div>
+
+                                      {/* Batting table */}
+                                      <div style={{ display: "grid", gridTemplateColumns: "1fr 32px 30px 24px 24px 38px", padding: "5px 12px 4px", background: "rgba(255,255,255,0.018)", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                                        {["BATTER","R","B","4s","6s","SR"].map((h, hi) => (
+                                          <div key={h} style={{ fontSize: "0.46rem", fontWeight: 700, color: hi===3?"rgba(96,165,250,0.55)":hi===4?"rgba(168,85,247,0.55)":"rgba(255,255,255,0.22)", letterSpacing: "0.09em", textAlign: hi > 0 ? "right" as const : "left" as const }}>{h}</div>
+                                        ))}
+                                      </div>
+                                      {batters.map((b: any, bi: number) => {
+                                        const isF = allFantasyNames.has(b.name);
+                                        const runs = parseInt(b.runs) || 0;
+                                        const runColor = runs >= 100 ? "#d4a843" : runs >= 50 ? "#93c5fd" : runs >= 30 ? "var(--text)" : "var(--text-2)";
+                                        const isLastBat = bi === batters.length - 1;
+                                        return (
+                                          <div key={bi} style={{ display: "grid", gridTemplateColumns: "1fr 32px 30px 24px 24px 38px", padding: "7px 12px", borderBottom: isLastBat ? "none" : "1px solid rgba(255,255,255,0.028)", alignItems: "start" }}>
+                                            <div style={{ minWidth: 0, paddingRight: 6 }}>
+                                              <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 2 }}>
+                                                {isF && <span style={{ fontSize: "0.4rem", background: "rgba(74,222,128,0.18)", color: "#4ade80", borderRadius: 3, padding: "1px 3px", flexShrink: 0, letterSpacing: "0.04em", fontWeight: 800 }}>F</span>}
+                                                <span style={{ fontSize: "0.74rem", fontWeight: b.notOut ? 700 : 500, color: b.notOut ? "#4ade80" : "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+                                                  {b.name}{b.notOut ? "*" : ""}
+                                                </span>
+                                              </div>
+                                              {b.dismissal && b.dismissal !== "not out" && b.dismissal !== "DNB" && (
+                                                <div style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.2)", lineHeight: 1.35, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{b.dismissal}</div>
+                                              )}
+                                            </div>
+                                            <div style={{ textAlign: "right" as const, fontSize: "0.88rem", fontWeight: 800, color: runColor, lineHeight: 1, paddingTop: 2 }}>{b.runs}</div>
+                                            <div style={{ textAlign: "right" as const, fontSize: "0.66rem", color: "rgba(255,255,255,0.28)", paddingTop: 3 }}>{b.balls}</div>
+                                            <div style={{ textAlign: "right" as const, fontSize: "0.66rem", color: "rgba(96,165,250,0.75)", paddingTop: 3 }}>{b.fours}</div>
+                                            <div style={{ textAlign: "right" as const, fontSize: "0.66rem", color: "rgba(168,85,247,0.75)", paddingTop: 3 }}>{b.sixes}</div>
+                                            <div style={{ textAlign: "right" as const, fontSize: "0.62rem", color: "rgba(255,255,255,0.22)", paddingTop: 3 }}>{parseFloat(b.sr || "0").toFixed(0)}</div>
+                                          </div>
+                                        );
+                                      })}
+
                                       {/* Bowling table */}
                                       {inn.bowling?.length > 0 && (
-                                        <div style={{ borderTop: "2px solid rgba(255,255,255,0.07)" }}>
-                                          <div style={{ display: "grid", gridTemplateColumns: "1fr 30px 18px 28px 28px 38px", padding: "6px 12px 4px", background: "rgba(255,255,255,0.04)", borderBottom: "1px solid var(--border)" }}>
+                                        <div style={{ borderTop: "2px solid rgba(255,255,255,0.04)" }}>
+                                          <div style={{ display: "grid", gridTemplateColumns: "1fr 30px 18px 30px 26px 38px", padding: "5px 12px 4px", background: "rgba(255,255,255,0.018)", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
                                             {["BOWLER","O","M","R","W","ECO"].map((h, hi) => (
-                                              <div key={h} style={{ fontSize: "0.5rem", fontWeight: 700, color: hi===4?"#4ade80":"var(--text-3)", letterSpacing: "0.07em", textAlign: hi > 0 ? "right" as const : "left" as const }}>{h}</div>
+                                              <div key={h} style={{ fontSize: "0.46rem", fontWeight: 700, color: hi===4?"rgba(74,222,128,0.55)":"rgba(255,255,255,0.22)", letterSpacing: "0.09em", textAlign: hi > 0 ? "right" as const : "left" as const }}>{h}</div>
                                             ))}
                                           </div>
                                           {inn.bowling.map((b: any, bi: number) => {
                                             const eco = parseFloat(b.eco || "0");
-                                            const ecoColor = eco > 10 ? "#f87171" : eco < 7 ? "#4ade80" : "var(--text-3)";
+                                            const ecoColor = eco > 10 ? "#f87171" : eco < 7 ? "#4ade80" : "rgba(255,255,255,0.28)";
                                             const wkts = parseInt(b.wickets) || 0;
                                             const isF = allFantasyNames.has(b.name);
+                                            const isLastBowl = bi === inn.bowling.length - 1;
                                             return (
-                                              <div key={bi} style={{ display: "grid", gridTemplateColumns: "1fr 30px 18px 28px 28px 38px", padding: "6px 12px", borderBottom: "1px solid rgba(255,255,255,0.035)", alignItems: "center" }}>
-                                                <div style={{ display: "flex", alignItems: "center", gap: 4, overflow: "hidden" }}>
-                                                  <span style={{ fontSize: "0.72rem", color: "var(--text)", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{b.name}</span>
-                                                  {isF && <span style={{ fontSize: "0.45rem", background: "rgba(34,197,94,0.15)", color: "#4ade80", borderRadius: 3, padding: "1px 3px", flexShrink: 0 }}>F</span>}
+                                              <div key={bi} style={{ display: "grid", gridTemplateColumns: "1fr 30px 18px 30px 26px 38px", padding: "7px 12px", borderBottom: isLastBowl ? "none" : "1px solid rgba(255,255,255,0.028)", alignItems: "center" }}>
+                                                <div style={{ display: "flex", alignItems: "center", gap: 4, minWidth: 0 }}>
+                                                  {isF && <span style={{ fontSize: "0.4rem", background: "rgba(74,222,128,0.18)", color: "#4ade80", borderRadius: 3, padding: "1px 3px", flexShrink: 0, fontWeight: 800 }}>F</span>}
+                                                  <span style={{ fontSize: "0.72rem", color: "var(--text-2)", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{b.name}</span>
                                                 </div>
-                                                <div style={{ textAlign: "right" as const, fontSize: "0.7rem", color: "var(--text-3)" }}>{b.overs}</div>
-                                                <div style={{ textAlign: "right" as const, fontSize: "0.7rem", color: "var(--text-3)" }}>{b.maidens}</div>
-                                                <div style={{ textAlign: "right" as const, fontSize: "0.7rem", color: "var(--text-3)" }}>{b.runs}</div>
-                                                <div style={{ textAlign: "right" as const, fontSize: "0.8rem", fontWeight: wkts > 0 ? 700 : 400, color: wkts >= 3 ? "#d4a843" : wkts > 0 ? "#4ade80" : "var(--text-3)" }}>{b.wickets}</div>
-                                                <div style={{ textAlign: "right" as const, fontSize: "0.68rem", color: ecoColor }}>{eco.toFixed(2)}</div>
+                                                <div style={{ textAlign: "right" as const, fontSize: "0.66rem", color: "rgba(255,255,255,0.28)" }}>{b.overs}</div>
+                                                <div style={{ textAlign: "right" as const, fontSize: "0.66rem", color: "rgba(255,255,255,0.28)" }}>{b.maidens}</div>
+                                                <div style={{ textAlign: "right" as const, fontSize: "0.66rem", color: "rgba(255,255,255,0.28)" }}>{b.runs}</div>
+                                                <div style={{ textAlign: "right" as const, fontSize: "0.85rem", fontWeight: wkts > 0 ? 800 : 400, color: wkts >= 3 ? "#d4a843" : wkts > 0 ? "#4ade80" : "rgba(255,255,255,0.22)" }}>{b.wickets}</div>
+                                                <div style={{ textAlign: "right" as const, fontSize: "0.66rem", color: ecoColor }}>{eco.toFixed(2)}</div>
                                               </div>
                                             );
                                           })}
@@ -3385,27 +3491,38 @@ export default function App() {
                           </div>
                         );
                       })}
-                      {/* Match result + toss below scores */}
-                      {isDone && m.status && <div style={{ fontSize: "0.68rem", color: "var(--blue)", paddingTop: 6, paddingBottom: 2 }}>{m.status}</div>}
-                      {isLive && m.toss && <div style={{ fontSize: "0.62rem", color: "var(--text-2)", paddingTop: 4 }}>{m.toss}</div>}
-                      {sc?.overview?.toss && <div style={{ fontSize: "0.6rem", color: "var(--text-3)", paddingTop: 3 }}>{sc.overview.toss}</div>}
+                      {/* Toss line */}
+                      {isLive && m.toss && <div style={{ fontSize: "0.58rem", color: "rgba(255,255,255,0.28)", paddingTop: 6 }}>{m.toss}</div>}
+                      {sc?.overview?.toss && !isLive && <div style={{ fontSize: "0.54rem", color: "rgba(255,255,255,0.2)", paddingTop: 4 }}>{sc.overview.toss}</div>}
                     </div>
                   ) : (
                     <>
                       {(m.score || []).map((s: any, i: number) => (
-                        <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.72rem", color: "var(--text-2)", padding: "3px 0", borderTop: i === 0 ? "1px solid var(--border)" : "none" }}>
-                          <span style={{ color: "var(--text-3)" }}>{(s.inning || "").replace(" Innings", "").replace(" Inning", "")}</span>
+                        <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.7rem", padding: "3px 0", borderTop: i === 0 ? "1px solid rgba(255,255,255,0.06)" : "none" }}>
+                          <span style={{ color: "rgba(255,255,255,0.28)" }}>{(s.inning || "").replace(" Innings", "").replace(" Inning", "")}</span>
                           <span style={{ fontWeight: 600, color: "var(--text-2)" }}>{s.summary || (s.r != null ? `${s.r}/${s.w} (${s.o}ov)` : "")}</span>
                         </div>
                       ))}
                     </>
                   )}
+                  {/* ── Venue strip ── */}
                   {m.venue && (
                     <div className="match-venue">
-                      🏟 {m.venue}{m.homeTeamCode ? ` (${m.homeTeamCode})` : ""}
+                      <span style={{ opacity: 0.6 }}>🏟</span>
+                      <span>{m.venue.split(",")[0]}</span>
+                      {m.homeTeamCode && <span style={{ opacity: 0.5 }}>· {m.homeTeamCode}</span>}
                     </div>
                   )}
-                  {/* Prediction section — collapsible */}
+                  </div>{/* end match-card-inner */}
+
+                  {/* ── Result banner ── */}
+                  {isDone && m.status && (
+                    <div className="match-result-banner">
+                      <span style={{ opacity: 0.6, fontSize: "0.8rem" }}>🏆</span>
+                      {m.status}
+                    </div>
+                  )}
+                  {/* Prediction section — collapsible (padded wrapper) */}
                   {m.homeTeamCode && m.awayTeamCode && (() => {
                     const PRED_OWNERS = ["rajveer","mombasa","mumbai","ponygoat"] as const;
                     const preds = predictions[matchIdStr] || {};
@@ -3430,7 +3547,7 @@ export default function App() {
                       ? pickCount > 0 ? `${pickCount}/4 picked 🔒` : "🔒 Locked — no picks"
                       : pickCount > 0 ? `${pickCount}/4 picked` : "Tap to predict";
                     return (
-                      <div onClick={e => e.stopPropagation()} style={{ marginTop: 10, borderTop: "1px solid var(--border)", paddingTop: 7 }}>
+                      <div onClick={e => e.stopPropagation()} style={{ padding: "7px 16px 12px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
                         {/* Tappable header row */}
                         <div onClick={togglePred} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", userSelect: "none" as const }}>
                           <span style={{ fontSize: "0.57rem", color: "var(--text-3)", fontWeight: 600, letterSpacing: "0.06em" }}>
