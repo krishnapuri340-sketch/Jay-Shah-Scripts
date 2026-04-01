@@ -351,45 +351,30 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
     return (
       <div style={{
         position: "fixed", inset: 0, zIndex: 1000,
-        background: "#060a12",
+        background: "#080c14",
         display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center",
         overflow: "hidden",
       }}>
         <style>{`
           @keyframes login-fade-up { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
           @keyframes pin-shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(6px)} }
-          @keyframes loginOrbA { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(6%,4%) scale(1.12)} 66%{transform:translate(-4%,7%) scale(0.92)} }
-          @keyframes loginOrbB { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(-5%,-6%) scale(1.08)} 66%{transform:translate(5%,-2%) scale(0.94)} }
           .pin-dot-fill { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-          .pin-dot-fill.filled { transform: scale(1.2); }
+          .pin-dot-fill.filled { transform: scale(1.15); }
           .num-key { transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 4px 12px rgba(0,0,0,0.2); }
-          .num-key:active { transform: scale(0.88) translateY(2px); box-shadow: inset 0 1px 0 rgba(255,255,255,0.02), 0 2px 6px rgba(0,0,0,0.2); }
+          .num-key:active { transform: scale(0.9) translateY(2px); box-shadow: inset 0 1px 0 rgba(255,255,255,0.02), 0 2px 6px rgba(0,0,0,0.2); }
         `}</style>
 
-        {/* Atmospheric orbs */}
-        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
-          <div style={{ position: "absolute", top: "-10%", left: "-20%", width: "70%", height: "70%", borderRadius: "50%",
-            background: `radial-gradient(circle, ${ft.color}18 0%, transparent 70%)`,
-            animation: "loginOrbA 14s ease-in-out infinite" }} />
-          <div style={{ position: "absolute", bottom: "-15%", right: "-20%", width: "75%", height: "75%", borderRadius: "50%",
-            background: `radial-gradient(circle, ${ft.color}10 0%, transparent 70%)`,
-            animation: "loginOrbB 18s ease-in-out 2s infinite" }} />
-          <div style={{ position: "absolute", top: "40%", right: "10%", width: "40%", height: "40%", borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(96,165,250,0.04) 0%, transparent 70%)",
-            animation: "loginOrbA 22s ease-in-out 5s infinite reverse" }} />
-        </div>
-
         <button onClick={() => { setSel(null); setEntered(""); setWrong(false); }}
-          style={{ position: "absolute", top: 22, left: 20, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: "6px 14px", color: "#71717a", fontSize: "0.72rem", cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 5, backdropFilter: "blur(8px)" }}>
+          style={{ position: "absolute", top: 22, left: 20, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "6px 14px", color: "#71717a", fontSize: "0.72rem", cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 5 }}>
           ← Back
         </button>
 
         <div style={{ animation: "login-fade-up 0.35s ease-out", display: "flex", flexDirection: "column" as const, alignItems: "center" }}>
           {/* Avatar */}
-          <div style={{ position: "relative", marginBottom: 20 }}>
-            <div style={{ width: 92, height: 92, borderRadius: "50%", border: `2.5px solid ${ft.color}90`, overflow: "hidden", boxShadow: `0 0 0 5px ${ft.color}28, 0 0 32px ${ft.color}45, 0 8px 36px rgba(0,0,0,0.6)`, position: "relative" as const }}>
+          <div style={{ position: "relative", marginBottom: 18 }}>
+            <div style={{ width: 88, height: 88, borderRadius: "50%", border: `2.5px solid ${ft.color}70`, overflow: "hidden", boxShadow: `0 0 0 4px ${ft.color}20, 0 8px 28px rgba(0,0,0,0.5)`, position: "relative" as const }}>
               <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center center", display: "block" }} />
-              <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "radial-gradient(circle, transparent 38%, rgba(6,10,18,0.65) 68%, rgba(6,10,18,0.96) 100%)" }} />
+              <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "radial-gradient(circle, transparent 42%, rgba(8,12,20,0.75) 72%, rgba(8,12,20,0.97) 100%)" }} />
             </div>
           </div>
 
@@ -413,20 +398,16 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
           {checking && <div style={{ fontSize: "0.62rem", color: "#71717a", marginBottom: 12, letterSpacing: "0.06em" }}>Checking…</div>}
 
           {/* Numpad */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 76px)", gap: 12, width: "fit-content", opacity: checking ? 0.4 : 1, pointerEvents: checking ? "none" : "auto" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 76px)", gap: 14, width: "fit-content", opacity: checking ? 0.4 : 1, pointerEvents: checking ? "none" : "auto" }}>
             {["1","2","3","4","5","6","7","8","9","","0","⌫"].map((k, i) => (
               k === "" ? <div key={i} /> :
               <button key={i} className="num-key" onClick={() => k === "⌫" ? back() : digit(k)} style={{
-                background: k === "⌫" ? "rgba(248,113,113,0.08)" : "rgba(255,255,255,0.07)",
-                border: `1px solid ${k === "⌫" ? "rgba(248,113,113,0.3)" : "rgba(255,255,255,0.13)"}`,
-                borderRadius: 22, width: 76, height: 76,
-                fontSize: k === "⌫" ? "1.2rem" : "1.65rem", fontWeight: 500,
+                background: k === "⌫" ? "rgba(248,113,113,0.07)" : "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)",
+                border: `1px solid ${k === "⌫" ? "rgba(248,113,113,0.25)" : "rgba(255,255,255,0.12)"}`,
+                borderRadius: 20, width: 76, height: 76, fontSize: k === "⌫" ? "1.2rem" : "1.6rem", fontWeight: 500,
                 color: k === "⌫" ? "#f87171" : "#ffffff", cursor: "pointer", fontFamily: "inherit",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                backdropFilter: "blur(16px)",
-                boxShadow: k === "⌫"
-                  ? "inset 0 1px 0 rgba(248,113,113,0.1), 0 4px 12px rgba(0,0,0,0.3)"
-                  : "inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 12px rgba(0,0,0,0.25)",
+                backdropFilter: "blur(12px)",
               }}>{k}</button>
             ))}
           </div>
@@ -438,36 +419,21 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 1000,
-      background: "#060a12",
+      background: "#080c14",
       display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center",
       overflow: "hidden", padding: "0 24px",
     }}>
       <style>{`
         @keyframes login-fade-up { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
-        @keyframes team-card-in { from { opacity:0; transform:scale(0.88) translateY(18px); } to { opacity:1; transform:scale(1) translateY(0); } }
+        @keyframes team-card-in { from { opacity:0; transform:scale(0.9) translateY(15px); } to { opacity:1; transform:scale(1) translateY(0); } }
         @keyframes welcome-pop { from { opacity:0; transform:scale(0.88) translateY(6px); } to { opacity:1; transform:scale(1) translateY(0); } }
         @keyframes login-icon-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes loginOrbA { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(5%,4%) scale(1.1)} 66%{transform:translate(-3%,6%) scale(0.93)} }
-        @keyframes loginOrbB { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(-4%,-5%) scale(1.07)} 66%{transform:translate(4%,-2%) scale(0.94)} }
-        .team-card { transition: all 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) !important; position: relative; overflow: hidden; }
-        .team-card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, transparent 60%); opacity: 0; transition: opacity 0.28s ease; pointer-events: none; }
-        .team-card:hover { transform: translateY(-4px) scale(1.01) !important; box-shadow: 0 16px 40px rgba(0,0,0,0.6) !important; }
-        .team-card:hover::after { opacity: 1; }
-        .team-card:active { transform: scale(0.95) translateY(0) !important; transition: all 0.1s ease !important; }
+        .team-card { transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) !important; position: relative; overflow: hidden; }
+        .team-card::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 100%); opacity: 0; transition: opacity 0.25s ease; }
+        .team-card:hover { transform: translateY(-3px) !important; box-shadow: 0 10px 28px rgba(0,0,0,0.5) !important; border-color: rgba(255,255,255,0.25) !important; }
+        .team-card:hover::before { opacity: 1; }
+        .team-card:active { transform: scale(0.96) translateY(0) !important; transition: all 0.1s ease !important; }
       `}</style>
-
-      {/* Atmospheric background orbs */}
-      <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
-        <div style={{ position: "absolute", top: "-5%", left: "-15%", width: "65%", height: "60%", borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(232,188,72,0.08) 0%, transparent 70%)",
-          animation: "loginOrbA 16s ease-in-out infinite" }} />
-        <div style={{ position: "absolute", bottom: "0%", right: "-18%", width: "70%", height: "65%", borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(96,165,250,0.06) 0%, transparent 70%)",
-          animation: "loginOrbB 20s ease-in-out 4s infinite" }} />
-        <div style={{ position: "absolute", top: "55%", left: "-10%", width: "45%", height: "40%", borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(139,92,246,0.04) 0%, transparent 70%)",
-          animation: "loginOrbA 24s ease-in-out 8s infinite reverse" }} />
-      </div>
 
       {/* Logo */}
       {(() => {
@@ -523,21 +489,21 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, width: "100%", maxWidth: 400 }}>
         {Object.values(FANTASY_TEAMS).map((ft, idx) => (
           <button key={ft.id} className="team-card" onClick={() => setSel(ft.id)} style={{
-            background: `linear-gradient(160deg, ${ft.color}18 0%, rgba(10,15,26,0.9) 70%, rgba(6,10,18,0.95) 100%)`,
-            border: `1px solid ${ft.color}45`,
+            background: `linear-gradient(160deg, ${ft.color}12 0%, rgba(8,12,20,0.85) 100%)`,
+            border: `1px solid ${ft.color}35`,
             borderRadius: 24, padding: "28px 16px 24px",
             cursor: "pointer", fontFamily: "inherit",
             display: "flex", flexDirection: "column" as const, alignItems: "center",
-            boxShadow: `0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px ${ft.color}20, inset 0 1px 0 rgba(255,255,255,0.06)`,
-            animation: `team-card-in 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) ${idx * 0.09 + 0.08}s both`,
-            backdropFilter: "blur(16px)",
+            boxShadow: `0 8px 24px rgba(0,0,0,0.4)`,
+            animation: `team-card-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) ${idx * 0.08 + 0.1}s both`,
+            backdropFilter: "blur(12px)",
           }}>
-            <div style={{ width: 68, height: 68, borderRadius: "50%", border: `2.5px solid ${ft.color}80`, overflow: "hidden", marginBottom: 14, boxShadow: `0 0 0 4px ${ft.color}22, 0 0 20px ${ft.color}30`, flexShrink: 0, position: "relative" as const }}>
+            <div style={{ width: 64, height: 64, borderRadius: "50%", border: `2px solid ${ft.color}70`, overflow: "hidden", marginBottom: 14, boxShadow: `0 0 0 3px ${ft.color}20`, flexShrink: 0, position: "relative" as const }}>
               <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center center", display: "block" }} />
-              <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "radial-gradient(circle, transparent 40%, rgba(6,10,18,0.7) 70%, rgba(6,10,18,0.95) 100%)" }} />
+              <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "radial-gradient(circle, transparent 42%, rgba(8,12,20,0.75) 72%, rgba(8,12,20,0.97) 100%)" }} />
             </div>
             <div style={{ fontSize: "1rem", fontWeight: 800, color: "#ffffff", marginBottom: 5, letterSpacing: "-0.02em" }}>{ft.owner}</div>
-            <div style={{ fontSize: "0.62rem", color: ft.color, fontWeight: 600, lineHeight: 1.4, letterSpacing: "0.04em", opacity: 0.95 }}>{ft.name}</div>
+            <div style={{ fontSize: "0.62rem", color: ft.color, fontWeight: 600, lineHeight: 1.4, letterSpacing: "0.04em", opacity: 0.9 }}>{ft.name}</div>
           </button>
         ))}
       </div>
@@ -653,7 +619,6 @@ export default function App() {
   const [pointsError, setPointsError] = useState<string | null>(null);
   const [dataSources, setDataSources] = useState<{ iplOfficial: number; liveCount: number; competitionId?: number } | null>(null);
   const [expandedMatchId, setExpandedMatchId] = useState<string | null>(null);
-  const [expandedInnings, setExpandedInnings] = useState<Set<string>>(new Set());
   const [scorecards, setScorecards] = useState<Record<string, any>>({});
   const [scorecardLoading, setScorecardLoading] = useState<string | null>(null);
   const [standings, setStandings] = useState<any[]>([]);
@@ -810,42 +775,12 @@ export default function App() {
         ? `Synced ✓ — ${data.fixturesAfter} fixtures loaded`
         : "Already up to date";
       setSupabaseSyncMsg(msg);
+      // Refresh points display after sync
       setTimeout(fetchPoints, 300);
     } catch (e: any) {
       setSupabaseSyncMsg("Sync failed: " + (e.message || "unknown error"));
     }
     setSupabaseSyncing(false);
-  };
-
-  const [s3Syncing, setS3Syncing] = useState(false);
-  const [s3SyncMsg, setS3SyncMsg] = useState<string | null>(null);
-  const [s3MatchInput, setS3MatchInput] = useState("");
-
-  const fetchFromS3 = async (specificId?: string) => {
-    if (s3Syncing) return;
-    setS3Syncing(true);
-    setS3SyncMsg(null);
-    try {
-      const body: Record<string, string> = {};
-      if (specificId) body.iplId = specificId;
-      const res = await fetch("/api/ipl/points/backfill-s3", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-Owner-Id": "rajveer" },
-        body: JSON.stringify(body),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || `Server error ${res.status}`);
-      if (data.filled > 0) {
-        setS3SyncMsg(`S3 ✓ — ${data.filled} match${data.filled > 1 ? "es" : ""} populated`);
-        setTimeout(fetchPoints, 300);
-      } else {
-        const tried = specificId || "all";
-        setS3SyncMsg(`No S3 data available for ${tried} (only latest match has live data)`);
-      }
-    } catch (e: any) {
-      setS3SyncMsg("S3 fetch failed: " + (e.message || "unknown error"));
-    }
-    setS3Syncing(false);
   };
 
   const fetchLive = async () => {
@@ -873,39 +808,14 @@ export default function App() {
   };
 
   const fetchScorecard = async (matchId: string, force = false) => {
-    // Don't re-fetch if we already have a scorecard with actual innings data
-    // (hasScorecard: false entries are NOT cached — they retry on each open)
-    const existing = scorecards[matchId];
-    if (!force && existing?.hasScorecard && scorecardLoading !== matchId) return;
+    if (!force && (scorecards[matchId] || scorecardLoading === matchId)) return;
     if (scorecardLoading === matchId) return;
     setScorecardLoading(matchId);
     try {
       const res = await fetch(`/api/ipl/scorecard/${matchId}`);
       if (res.ok) {
         const data = await res.json();
-        // Only cache if we got real innings; otherwise let the next open retry
-        if (data.hasScorecard) {
-          setScorecards(prev => ({ ...prev, [matchId]: data }));
-        } else {
-          // Still display the overview/result even without innings
-          setScorecards(prev => {
-            const updated = { ...prev, [matchId]: data };
-            // But don't permanently mark it as "loaded" — clear after display
-            return updated;
-          });
-          // Clear after rendering so next open retries from server
-          setTimeout(() => {
-            setScorecards(prev => {
-              const cur = prev[matchId];
-              if (cur && !cur.hasScorecard) {
-                const next = { ...prev };
-                delete next[matchId];
-                return next;
-              }
-              return prev;
-            });
-          }, 5000);
-        }
+        setScorecards(prev => ({ ...prev, [matchId]: data }));
       }
     } catch (_) {}
     setScorecardLoading(null);
@@ -1644,25 +1554,15 @@ export default function App() {
       const ta = matchTeams[0], tb = matchTeams[1];
       const colA = IPL_COLORS[ta.shortname] || "#e4e4e7";
       const colB = IPL_COLORS[tb.shortname] || "#e4e4e7";
-      const lSz = 58;
-
-      // Team A side
-      if (teamLogoImgs[0]) ctx.drawImage(teamLogoImgs[0], PAD, y + 8, lSz, lSz);
-      ctx.textAlign = "left"; ctx.font = "900 58px -apple-system, Arial, sans-serif"; ctx.fillStyle = colA;
-      ctx.fillText(ta.shortname, PAD + lSz + 18, y + 58);
-      ctx.font = "400 18px -apple-system, Arial, sans-serif"; ctx.fillStyle = "rgba(255,255,255,0.28)";
-      ctx.fillText(IPL_FULL_NAMES[ta.shortname] || "", PAD + lSz + 18, y + 80);
-
-      // Team B side (right-aligned)
-      if (teamLogoImgs[1]) ctx.drawImage(teamLogoImgs[1], W - PAD - lSz, y + 8, lSz, lSz);
-      ctx.textAlign = "right"; ctx.font = "900 58px -apple-system, Arial, sans-serif"; ctx.fillStyle = colB;
-      ctx.fillText(tb.shortname, W - PAD - lSz - 18, y + 58);
-      ctx.font = "400 18px -apple-system, Arial, sans-serif"; ctx.fillStyle = "rgba(255,255,255,0.28)";
-      ctx.fillText(IPL_FULL_NAMES[tb.shortname] || "", W - PAD - lSz - 18, y + 80);
-
-      // VS badge in center
-      ctx.textAlign = "center"; ctx.font = "700 20px -apple-system, Arial, sans-serif"; ctx.fillStyle = "rgba(255,255,255,0.15)";
-      ctx.fillText("VS", cx, y + 50);
+      const lSz = 50;
+      if (teamLogoImgs[0]) ctx.drawImage(teamLogoImgs[0], cx - 298, y + 6, lSz, lSz);
+      ctx.textAlign = "right"; ctx.font = "800 52px -apple-system, Arial, sans-serif"; ctx.fillStyle = colA;
+      ctx.fillText(ta.shortname, cx - 32, y + 52);
+      ctx.textAlign = "center"; ctx.font = "300 26px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#3f3f46";
+      ctx.fillText("vs", cx, y + 50);
+      ctx.textAlign = "left"; ctx.font = "800 52px -apple-system, Arial, sans-serif"; ctx.fillStyle = colB;
+      ctx.fillText(tb.shortname, cx + 32, y + 52);
+      if (teamLogoImgs[1]) ctx.drawImage(teamLogoImgs[1], cx + 248, y + 6, lSz, lSz);
     } else {
       ctx.textAlign = "center"; ctx.font = "700 42px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#e4e4e7";
       ctx.fillText((m.name || "").replace(/,\s*\d+(?:st|nd|rd|th) Match.*/i, ""), cx, y + 52);
@@ -1673,49 +1573,40 @@ export default function App() {
     const mNumStr = mNumMatch ? `M${mNumMatch[1]}` : "";
     const venue = m.venue ? m.venue.split(",")[0] : "";
     const metaLine = [mNumStr, venue].filter(Boolean).join("  ·  ");
-    if (metaLine) {
-      ctx.textAlign = "center"; ctx.font = "400 20px -apple-system, Arial, sans-serif"; ctx.fillStyle = "rgba(255,255,255,0.28)";
-      ctx.fillText(metaLine, cx, y + 24);
-    }
+    ctx.textAlign = "center"; ctx.font = "400 21px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
+    if (metaLine) ctx.fillText(metaLine, cx, y + 22);
     if (sc?.overview?.toss) {
-      ctx.font = "400 16px -apple-system, Arial, sans-serif"; ctx.fillStyle = "rgba(255,255,255,0.18)";
-      ctx.fillText(sc.overview.toss, cx, y + 46);
+      ctx.font = "400 17px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#3f3f46";
+      ctx.fillText(sc.overview.toss, cx, y + 44);
     }
     y += META_H;
 
     // ── Quick score summary ──
-    hr(y); y += 20;
-    const sColW = scores.length > 1 ? (W - PAD * 2 - 40) / 2 : W - PAD * 2;
+    hr(y); y += 18;
+    const sColW = scores.length > 1 ? (W - PAD * 2 - 20) / 2 : W - PAD * 2;
     scores.forEach((s: any, i: number) => {
-      const sx = PAD + i * (sColW + 40);
-      const teamCode = matchTeams[i]?.shortname || "";
-      const teamColor = IPL_COLORS[teamCode] || "#e4e4e7";
+      const sx = PAD + i * (sColW + 20);
+      const innLabel = (s.inning || "").replace(/ Innings?$/i, "");
       const scoreStr = s.summary || (s.r != null ? `${s.r}/${s.w}` : "—");
       const oversStr = s.o != null ? `(${s.o} ov)` : "";
       ctx.textAlign = "left";
-      // Team code in team color
-      ctx.font = "700 20px -apple-system, Arial, sans-serif"; ctx.fillStyle = teamColor;
-      ctx.fillText(teamCode, sx, y + 22);
-      // Score
-      ctx.font = "800 46px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#f4f4f5";
-      ctx.fillText(scoreStr, sx, y + 60);
+      ctx.font = "400 18px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
+      ctx.fillText(innLabel, sx, y + 18);
+      ctx.font = "700 42px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#e4e4e7";
+      ctx.fillText(scoreStr, sx, y + 54);
       if (oversStr) {
         const sw = ctx.measureText(scoreStr).width;
-        ctx.font = "400 20px -apple-system, Arial, sans-serif"; ctx.fillStyle = "rgba(255,255,255,0.35)";
-        ctx.fillText(oversStr, sx + sw + 10, y + 60);
+        ctx.font = "400 19px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
+        ctx.fillText(oversStr, sx + sw + 8, y + 54);
       }
     });
     y += SCORE_H;
 
     // ── Result ──
     if (isDone && m.status) {
-      // Result banner background
-      ctx.fillStyle = "rgba(96,165,250,0.07)";
-      ctx.fillRect(0, y, W, RESULT_H);
-      ctx.strokeStyle = "rgba(96,165,250,0.18)"; ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
-      ctx.textAlign = "center"; ctx.font = "600 26px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#93c5fd";
-      ctx.fillText("🏆  " + m.status, cx, y + RESULT_H / 2 + 9);
+      hr(y); y += 14;
+      ctx.textAlign = "center"; ctx.font = "600 25px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#60a5fa";
+      ctx.fillText(m.status, cx, y + 28);
       y += RESULT_H;
     }
 
@@ -1737,120 +1628,73 @@ export default function App() {
       const BW_M   = BW_R   - 74;
       const BW_O   = BW_M   - 74;
 
-      for (let innIdx = 0; innIdx < innings.length; innIdx++) {
-        const inn = innings[innIdx];
+      for (const inn of innings) {
         const batters = (inn.batting || []).filter((b: any) => !b.dnb);
         const bowlers: any[] = inn.bowling || [];
-        // Detect team code from innings name or from matchTeams ordering
-        const innTeamCode = matchTeams[innIdx]?.shortname
-          || Object.keys(IPL_COLORS).find(k => (inn.name || "").includes(k))
-          || "";
-        const innTeamColor = IPL_COLORS[innTeamCode] || "#71717a";
 
-        // Innings title bar — with colored team highlight
-        ctx.fillStyle = innTeamColor + "18";
-        ctx.fillRect(0, y, W, INN_HDR);
-        ctx.strokeStyle = innTeamColor + "30"; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
-        // 4px left accent bar
-        ctx.fillStyle = innTeamColor;
-        ctx.fillRect(0, y, 4, INN_HDR);
-
-        ctx.textAlign = "left"; ctx.font = "700 22px -apple-system, Arial, sans-serif"; ctx.fillStyle = innTeamColor;
-        ctx.fillText(innTeamCode || (inn.name || "").toUpperCase().replace(/ INNINGS?$/, ""), PAD + 8, y + 30);
-        ctx.font = "400 16px -apple-system, Arial, sans-serif"; ctx.fillStyle = "rgba(255,255,255,0.25)";
-        ctx.fillText(`INNINGS ${innIdx + 1}`, PAD + 8 + ctx.measureText(innTeamCode || (inn.name || "")).width + 14, y + 30);
-        ctx.textAlign = "right"; ctx.font = "700 22px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#f4f4f5";
-        ctx.fillText(inn.total || "", W - PAD, y + 30);
+        // Innings title bar
+        ctx.textAlign = "left"; ctx.font = "700 22px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#71717a";
+        ctx.fillText((inn.name || "").toUpperCase(), PAD, y + 22);
+        ctx.textAlign = "right"; ctx.font = "700 22px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#e4e4e7";
+        ctx.fillText(inn.total || "", W - PAD, y + 22);
         y += INN_HDR;
 
         // ─ Batting table ─
         if (batters.length > 0) {
-          const allFantasyNamesShare = new Set(Object.values(FANTASY_TEAMS).flatMap((t: any) => t.players.map((p: any) => p.name || p)));
           // Column headers
-          ctx.fillStyle = "rgba(255,255,255,0.2)"; ctx.font = "600 14px -apple-system, Arial, sans-serif";
-          ctx.textAlign = "left";  ctx.fillText("BATTER", PAD, y + 18);
+          ctx.fillStyle = "#3f3f46"; ctx.font = "600 15px -apple-system, Arial, sans-serif";
+          ctx.textAlign = "left";  ctx.fillText("BATTER", PAD, y + 19);
           ctx.textAlign = "right";
-          ctx.fillText("R",   B_R,   y + 18);
-          ctx.fillText("B",   B_B,   y + 18);
-          ctx.fillText("4s",  B_4S,  y + 18);
-          ctx.fillText("6s",  B_6S,  y + 18);
-          ctx.fillText("SR",  B_SR,  y + 18);
-          ctx.strokeStyle = "rgba(255,255,255,0.05)"; ctx.lineWidth = 1;
-          ctx.beginPath(); ctx.moveTo(PAD, y + COL_HDR - 2); ctx.lineTo(W - PAD, y + COL_HDR - 2); ctx.stroke();
+          ctx.fillText("R",   B_R,   y + 19);
+          ctx.fillText("B",   B_B,   y + 19);
+          ctx.fillText("4s",  B_4S,  y + 19);
+          ctx.fillText("6s",  B_6S,  y + 19);
+          ctx.fillText("SR",  B_SR,  y + 19);
           y += COL_HDR;
 
           for (const b of batters) {
-            const runs = parseInt(b.runs) || 0;
-            const balls = parseInt(b.balls) || 0;
-            const actuallyBattedShare = balls > 0 || runs > 0;
-            const showNotOutShare = b.notOut && actuallyBattedShare;
-            const bRunColor = runs >= 100 ? "#d4a843" : runs >= 50 ? "#93c5fd" : "#f4f4f5";
-            const isFantasyBat = allFantasyNamesShare.has(b.name);
             // Name
             ctx.textAlign = "left";
-            ctx.font = `${showNotOutShare ? "600" : "400"} 20px -apple-system, Arial, sans-serif`;
-            ctx.fillStyle = showNotOutShare ? "#4ade80" : "#e4e4e7";
-            const nameStr = (b.name || "") + (showNotOutShare ? "*" : "");
-            ctx.fillText(nameStr, PAD + (isFantasyBat ? 28 : 0), y + 22);
-            // Fantasy badge
-            if (isFantasyBat) {
-              ctx.fillStyle = "rgba(74,222,128,0.18)";
-              ctx.beginPath(); const bx = PAD, bby = y + 9, bw = 22, bh = 16, brd = 4;
-              ctx.moveTo(bx + brd, bby); ctx.lineTo(bx + bw - brd, bby); ctx.arcTo(bx + bw, bby, bx + bw, bby + brd, brd); ctx.lineTo(bx + bw, bby + bh - brd); ctx.arcTo(bx + bw, bby + bh, bx + bw - brd, bby + bh, brd); ctx.lineTo(bx + brd, bby + bh); ctx.arcTo(bx, bby + bh, bx, bby + bh - brd, brd); ctx.lineTo(bx, bby + brd); ctx.arcTo(bx, bby, bx + brd, bby, brd); ctx.closePath(); ctx.fill();
-              ctx.fillStyle = "#4ade80"; ctx.font = "700 11px -apple-system, Arial, sans-serif"; ctx.textAlign = "center";
-              ctx.fillText("F", PAD + 11, y + 21);
-              ctx.textAlign = "left";
-            }
-            // Dismissal
-            if (b.dismissal && b.dismissal !== "not out" && b.dismissal !== "DNB") {
-              ctx.font = "400 12px -apple-system, Arial, sans-serif"; ctx.fillStyle = "rgba(255,255,255,0.22)";
-              const d = b.dismissal.length > 52 ? b.dismissal.slice(0, 50) + "…" : b.dismissal;
-              ctx.fillText(d, PAD + (isFantasyBat ? 28 : 0), y + 38);
+            ctx.font = `${b.notOut ? "600" : "400"} 21px -apple-system, Arial, sans-serif`;
+            ctx.fillStyle = b.notOut ? "#22c55e" : "#e4e4e7";
+            ctx.fillText(b.name || "", PAD, y + 22);
+            // Dismissal (compact, below name)
+            if (b.dismissal) {
+              ctx.font = "400 13px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
+              const d = b.dismissal.length > 55 ? b.dismissal.slice(0, 53) + "…" : b.dismissal;
+              ctx.fillText(d, PAD, y + 38);
             }
             // Stats
             ctx.textAlign = "right";
-            ctx.font = "700 22px -apple-system, Arial, sans-serif"; ctx.fillStyle = bRunColor;
+            ctx.font = "700 21px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#e4e4e7";
             ctx.fillText(String(b.runs ?? ""), B_R, y + 22);
-            ctx.font = "400 18px -apple-system, Arial, sans-serif"; ctx.fillStyle = "rgba(255,255,255,0.3)";
+            ctx.font = "400 19px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#71717a";
             ctx.fillText(String(b.balls ?? ""), B_B, y + 22);
-            ctx.fillStyle = "rgba(96,165,250,0.8)"; ctx.fillText(String(b.fours ?? ""), B_4S, y + 22);
-            ctx.fillStyle = "rgba(168,85,247,0.8)"; ctx.fillText(String(b.sixes ?? ""), B_6S, y + 22);
-            ctx.fillStyle = "rgba(255,255,255,0.28)"; ctx.fillText(b.sr ? parseFloat(b.sr).toFixed(0) : "", B_SR, y + 22);
+            ctx.fillStyle = "#60a5fa"; ctx.fillText(String(b.fours ?? ""), B_4S, y + 22);
+            ctx.fillStyle = "#a855f7"; ctx.fillText(String(b.sixes ?? ""), B_6S, y + 22);
+            ctx.fillStyle = "#71717a"; ctx.fillText(b.sr ? parseFloat(b.sr).toFixed(1) : "", B_SR, y + 22);
             y += ROW_BAT;
           }
         }
 
         // ─ Bowling table ─
         if (bowlers.length > 0) {
-          const allFantasyNamesBowl = new Set(Object.values(FANTASY_TEAMS).flatMap((t: any) => t.players.map((p: any) => p.name || p)));
           y += 16;
           // Column headers
-          ctx.fillStyle = "rgba(255,255,255,0.2)"; ctx.font = "600 14px -apple-system, Arial, sans-serif";
-          ctx.textAlign = "left";  ctx.fillText("BOWLER", PAD, y + 18);
+          ctx.fillStyle = "#3f3f46"; ctx.font = "600 15px -apple-system, Arial, sans-serif";
+          ctx.textAlign = "left";  ctx.fillText("BOWLER", PAD, y + 19);
           ctx.textAlign = "right";
-          ctx.fillText("O",   BW_O,   y + 18);
-          ctx.fillText("M",   BW_M,   y + 18);
-          ctx.fillText("R",   BW_R,   y + 18);
-          ctx.fillText("W",   BW_W,   y + 18);
-          ctx.fillText("ECO", BW_ECO, y + 18);
-          ctx.strokeStyle = "rgba(255,255,255,0.05)"; ctx.lineWidth = 1;
-          ctx.beginPath(); ctx.moveTo(PAD, y + COL_HDR - 2); ctx.lineTo(W - PAD, y + COL_HDR - 2); ctx.stroke();
+          ctx.fillText("O",   BW_O,   y + 19);
+          ctx.fillText("M",   BW_M,   y + 19);
+          ctx.fillText("R",   BW_R,   y + 19);
+          ctx.fillText("W",   BW_W,   y + 19);
+          ctx.fillText("ECO", BW_ECO, y + 19);
           y += COL_HDR;
 
           for (const b of bowlers) {
-            const isFBowl = allFantasyNamesBowl.has(b.name);
-            ctx.textAlign = "left"; ctx.font = "400 20px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#d4d4d8";
-            ctx.fillText(b.name || "", PAD + (isFBowl ? 28 : 0), y + 23);
-            if (isFBowl) {
-              ctx.fillStyle = "rgba(74,222,128,0.18)";
-              ctx.beginPath(); const bfx = PAD, bfy = y + 10, bfw = 22, bfh = 16, bfrd = 4;
-              ctx.moveTo(bfx + bfrd, bfy); ctx.lineTo(bfx + bfw - bfrd, bfy); ctx.arcTo(bfx + bfw, bfy, bfx + bfw, bfy + bfrd, bfrd); ctx.lineTo(bfx + bfw, bfy + bfh - bfrd); ctx.arcTo(bfx + bfw, bfy + bfh, bfx + bfw - bfrd, bfy + bfh, bfrd); ctx.lineTo(bfx + bfrd, bfy + bfh); ctx.arcTo(bfx, bfy + bfh, bfx, bfy + bfh - bfrd, bfrd); ctx.lineTo(bfx, bfy + bfrd); ctx.arcTo(bfx, bfy, bfx + bfrd, bfy, bfrd); ctx.closePath(); ctx.fill();
-              ctx.fillStyle = "#4ade80"; ctx.font = "700 11px -apple-system, Arial, sans-serif"; ctx.textAlign = "center";
-              ctx.fillText("F", PAD + 11, y + 23);
-              ctx.textAlign = "left";
-            }
-            ctx.textAlign = "right"; ctx.font = "400 18px -apple-system, Arial, sans-serif"; ctx.fillStyle = "rgba(255,255,255,0.3)";
+            ctx.textAlign = "left"; ctx.font = "400 21px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#e4e4e7";
+            ctx.fillText(b.name || "", PAD, y + 23);
+            ctx.textAlign = "right"; ctx.font = "400 19px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#71717a";
             ctx.fillText(String(b.overs ?? ""),   BW_O,   y + 23);
             ctx.fillText(String(b.maidens ?? ""), BW_M,   y + 23);
             ctx.fillText(String(b.runs ?? ""),    BW_R,   y + 23);
@@ -1867,29 +1711,19 @@ export default function App() {
 
     // ── Fantasy highlights ──
     if (hasFantasy) {
-      // Section header with gold accent
-      ctx.fillStyle = "rgba(232,188,72,0.08)"; ctx.fillRect(0, y, W, 42);
-      ctx.strokeStyle = "rgba(232,188,72,0.25)"; ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
-      ctx.fillStyle = "#d4a843"; ctx.fillRect(0, y, 4, 42);
-      ctx.textAlign = "left"; ctx.font = "600 15px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#d4a843";
-      ctx.fillText("FANTASY POINTS THIS MATCH", PAD + 8, y + 26);
-      y += 42;
+      hr(y); y += 14;
+      ctx.textAlign = "left"; ctx.font = "600 17px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#3f3f46";
+      ctx.fillText("FANTASY POINTS THIS MATCH", PAD, y + 18);
+      y += 36;
       for (const { ft, total, scorers } of fantasyRows) {
-        // Subtle bg per row
-        ctx.fillStyle = ft.color + "08"; ctx.fillRect(0, y, W, 50);
-        // Left accent bar
-        ctx.fillStyle = ft.color; ctx.fillRect(0, y, 4, 50);
-        // Owner name
-        ctx.textAlign = "left"; ctx.font = "700 24px -apple-system, Arial, sans-serif"; ctx.fillStyle = ft.color;
-        ctx.fillText(ft.owner, PAD + 16, y + 26);
-        // Player contributors
-        ctx.font = "400 15px -apple-system, Arial, sans-serif"; ctx.fillStyle = "rgba(255,255,255,0.28)";
-        ctx.fillText(scorers.slice(0, 4).join("  ·  "), PAD + 16 + ctx.measureText(ft.owner).width + 18, y + 26);
-        // Total on right
-        ctx.textAlign = "right"; ctx.font = "700 30px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#f4f4f5";
-        ctx.fillText(String(total), W - PAD, y + 32);
-        y += 50;
+        ctx.fillStyle = ft.color; ctx.fillRect(PAD, y + 6, 3, 34);
+        ctx.textAlign = "left"; ctx.font = "700 26px -apple-system, Arial, sans-serif"; ctx.fillStyle = ft.color;
+        ctx.fillText(ft.owner, PAD + 13, y + 28);
+        ctx.font = "400 17px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
+        ctx.fillText(scorers.slice(0, 4).join("  ·  "), PAD + 13 + ctx.measureText(ft.owner).width + 16, y + 28);
+        ctx.textAlign = "right"; ctx.font = "700 32px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#e4e4e7";
+        ctx.fillText(String(total), W - PAD, y + 30);
+        y += 52;
       }
     }
 
@@ -3269,6 +3103,7 @@ export default function App() {
             {matches.map((m: any) => {
               const isLive = m.matchStarted && !m.matchEnded;
               const isDone = m.matchEnded;
+              const isExpanded = expandedMatchId === String(m.id);
               const statusColor = isDone ? "var(--text-3)" : isLive ? "var(--live)" : "var(--blue)";
               const statusLabel = isDone ? "Completed" : isLive ? "Live" : fmtTime(m.dateTimeGMT);
               const mNum = getMatchNum(m.name);
@@ -3279,22 +3114,19 @@ export default function App() {
 
               const isHome = teamFilter.size > 0 ? teamFilter.has(m.homeTeamCode) : null;
               return (
-                <div key={m.id} className={`match-card${isLive ? " is-live" : isDone ? " is-done" : ""}`}>
-                <div className="match-card-inner">
-                  {/* ── Top bar: status + match num + share ── */}
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+                <div key={m.id} className="match-card">
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                     <div className="match-status" style={{ color: statusColor }}>
-                      {isLive && <span style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--live)", display: "inline-block", flexShrink: 0, boxShadow: "0 0 6px rgba(16,185,129,0.7)" }} />}
                       {statusLabel}
                     </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                      {mNum && <div style={{ fontSize: "0.56rem", color: "var(--text-3)", fontWeight: 700, letterSpacing: "0.07em" }}>{mNum}</div>}
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      {mNum && <div style={{ fontSize: "0.7rem", color: "var(--text-3)", fontWeight: 600 }}>{mNum}</div>}
                       {isHome !== null && (
                         <div style={{
-                          fontSize: "0.5rem", fontWeight: 700, padding: "2px 6px", borderRadius: 20, letterSpacing: "0.07em",
-                          background: isHome ? "rgba(52,211,153,0.1)" : "rgba(148,163,184,0.07)",
-                          color: isHome ? "#34d399" : "#64748b",
-                          border: `1px solid ${isHome ? "rgba(52,211,153,0.2)" : "rgba(148,163,184,0.15)"}`,
+                          fontSize: "0.55rem", fontWeight: 700, padding: "1px 6px", borderRadius: 8, letterSpacing: "0.06em",
+                          background: isHome ? "rgba(52,211,153,0.12)" : "rgba(148,163,184,0.1)",
+                          color: isHome ? "#34d399" : "#94a3b8",
+                          border: `1px solid ${isHome ? "rgba(52,211,153,0.25)" : "rgba(148,163,184,0.2)"}`,
                         }}>
                           {isHome ? "HOME" : "AWAY"}
                         </div>
@@ -3302,242 +3134,41 @@ export default function App() {
                       {(isLive || isDone) && (
                         <button onClick={e => { e.stopPropagation(); shareMatchCard(m); }}
                           title="Share scorecard"
-                          className="btn-share-match">
-                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          style={{ background: "none", border: "none", padding: "2px 4px", cursor: "pointer", color: "var(--text-3)", display: "flex", alignItems: "center" }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>
                           </svg>
                         </button>
                       )}
                     </div>
                   </div>
-
-                  {/* ── Team header ── */}
-                  {teams.length >= 2 ? (
-                    <div style={{ display: "flex", alignItems: "center", marginBottom: 10 }}>
-                      {/* Team A: logo left, text right of logo */}
-                      <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
-                        <img src={TEAM_LOGO_CDN[teams[0].shortname]} alt={teams[0].shortname}
-                          style={{ width: 28, height: 28, objectFit: "contain", flexShrink: 0, filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.5))" }}
-                          onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                        <div style={{ minWidth: 0 }}>
-                          <div style={{ fontSize: "1rem", fontWeight: 800, color: IPL_COLORS[teams[0].shortname] || "var(--text)", letterSpacing: "-0.01em", lineHeight: 1.1 }}>{teams[0].shortname}</div>
-                          <div style={{ fontSize: "0.46rem", color: "var(--text-3)", marginTop: 1, lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{IPL_FULL_NAMES[teams[0].shortname] || ""}</div>
-                        </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                    {teams.length > 0 ? teams.map((ti: any, i: number) => (
+                      <div key={i} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                        {i === 1 && <span style={{ color: "var(--text-3)", fontSize: "0.6rem", margin: "0 2px" }}>vs</span>}
+                        <img src={TEAM_LOGO_CDN[ti.shortname] || ti.img} alt={ti.shortname} style={{ width: 18, height: 18, objectFit: "contain" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                        <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text)" }}>{ti.shortname}</span>
                       </div>
-                      {/* VS divider */}
-                      <div style={{ flexShrink: 0, padding: "0 8px", fontSize: "0.46rem", color: "var(--text-3)", fontWeight: 700, letterSpacing: "0.1em" }}>VS</div>
-                      {/* Team B: text left of logo, logo right — mirrors Team A */}
-                      <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8, justifyContent: "flex-end", minWidth: 0 }}>
-                        <div style={{ textAlign: "right" as const, minWidth: 0 }}>
-                          <div style={{ fontSize: "1rem", fontWeight: 800, color: IPL_COLORS[teams[1].shortname] || "var(--text)", letterSpacing: "-0.01em", lineHeight: 1.1 }}>{teams[1].shortname}</div>
-                          <div style={{ fontSize: "0.46rem", color: "var(--text-3)", marginTop: 1, lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{IPL_FULL_NAMES[teams[1].shortname] || ""}</div>
-                        </div>
-                        <img src={TEAM_LOGO_CDN[teams[1].shortname]} alt={teams[1].shortname}
-                          style={{ width: 28, height: 28, objectFit: "contain", flexShrink: 0, filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.5))" }}
-                          onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                      </div>
+                    )) : (
+                      <div style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text)" }}>{(m.name || "").replace(/,\s*\d+(?:st|nd|rd|th) Match.*/i, "")}</div>
+                    )}
+                  </div>
+                  {(m.score || []).map((s: any, i: number) => (
+                    <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.72rem", color: "var(--text-2)", padding: "3px 0", borderTop: i === 0 ? "1px solid var(--border)" : "none" }}>
+                      <span style={{ color: "var(--text-3)" }}>{(s.inning || "").replace(" Innings", "").replace(" Inning", "")}</span>
+                      <span style={{ fontWeight: 600, color: "var(--text-2)" }}>
+                        {s.summary || (s.r != null ? `${s.r}/${s.w} (${s.o}ov)` : "")}
+                      </span>
                     </div>
-                  ) : (
-                    <div style={{ fontSize: "0.88rem", fontWeight: 700, color: "var(--text)", marginBottom: 4 }}>{(m.name || "").replace(/,\s*\d+(?:st|nd|rd|th) Match.*/i, "")}</div>
-                  )}
-                  {/* ── Venue + toss — compact lines below teams ── */}
-                  {(m.venue || m.toss || sc?.overview?.toss) && (
-                    <div style={{ fontSize: "0.5rem", color: "var(--text-3)", marginBottom: 8, paddingLeft: 1, letterSpacing: "0.01em", display: "flex", flexDirection: "column" as const, gap: 2 }}>
-                      {m.venue && <span>🏟 {m.venue.split(",")[0]}</span>}
-                      {(sc?.overview?.toss || m.toss) && <span>🪙 {sc?.overview?.toss || m.toss}</span>}
+                  ))}
+                  {isDone && m.status && <div style={{ fontSize: "0.68rem", color: "var(--blue)", marginTop: 5 }}>{m.status}</div>}
+                  {isLive && m.toss && <div style={{ fontSize: "0.65rem", color: "var(--text-2)", marginTop: 5 }}>{m.toss}</div>}
+                  {m.venue && (
+                    <div className="match-venue">
+                      🏟 {m.venue}{m.homeTeamCode ? ` (${m.homeTeamCode})` : ""}
                     </div>
                   )}
-                  {/* Interactive score lines — tap to expand innings scorecard */}
-                  {(isDone || isLive) ? (
-                    <div style={{ borderTop: "1px solid var(--border)", marginTop: 2 }} onClick={e => e.stopPropagation()}>
-                      {(() => {
-                        // Sort so batting-first team (Inning 1) always appears first
-                        const rawScores = (m.score || []) as any[];
-                        const displayScores = [...rawScores].sort((a, b) => {
-                          const aNum = parseInt((a.inning || "").match(/(\d+)/)?.[1] || "9");
-                          const bNum = parseInt((b.inning || "").match(/(\d+)/)?.[1] || "9");
-                          return aNum - bNum;
-                        });
-                        return displayScores.map((s: any, dispIdx: number) => {
-                          const innKey = `${matchIdStr}-inn${dispIdx}`;
-                          const isInnOpen = expandedInnings.has(innKey);
-                          const rawInning = (s.inning || "");
-                          // Detect team from inning name text (most reliable)
-                          const teamCode = Object.keys(TEAM_LOGO_CDN).find(code => rawInning.includes(code))
-                            || (dispIdx === 0 ? m.homeTeamCode : m.awayTeamCode)
-                            || "";
-                          const teamColor = IPL_COLORS[teamCode] || "var(--text)";
-                          // Match innings data by index (sc.innings is already batting-order sorted)
-                          const inn = sc?.innings?.[dispIdx];
-                          const hasData = !!inn?.batting?.length;
-                          const runDisplay = s.r != null ? `${s.r}/${s.w ?? 0}` : s.summary?.split("(")[0]?.trim() || "—";
-                          const overDisplay = s.o ? `(${s.o} ov)` : s.summary?.match(/\(([^)]+)\)/)?.[1] ? `(${s.summary.match(/\(([^)]+)\)/)[1]})` : "";
-                          const isLastInn = dispIdx === displayScores.length - 1;
-                          return (
-                            <div key={dispIdx}>
-                              {/* Score row — tappable */}
-                              <div
-                                onClick={() => {
-                                  if (!scorecards[matchIdStr]?.hasScorecard) {
-                                    setExpandedMatchId(matchIdStr);
-                                    fetchScorecard(matchIdStr);
-                                  }
-                                  setExpandedInnings(prev => {
-                                    const next = new Set(prev);
-                                    if (next.has(innKey)) next.delete(innKey); else next.add(innKey);
-                                    return next;
-                                  });
-                                }}
-                                style={{
-                                  display: "flex", alignItems: "center", justifyContent: "space-between",
-                                  padding: "9px 0", cursor: "pointer", userSelect: "none" as const,
-                                  borderTop: dispIdx > 0 ? "1px solid var(--border)" : "none",
-                                }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                                  <div style={{ fontSize: "0.82rem", fontWeight: 700, color: teamColor, lineHeight: 1 }}>{teamCode}</div>
-                                  {isLive && isLastInn && <div style={{ fontSize: "0.44rem", color: "var(--live)", letterSpacing: "0.08em", fontWeight: 700 }}>● LIVE</div>}
-                                </div>
-                                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                                  <div style={{ textAlign: "right" as const }}>
-                                    <div style={{ fontSize: "1rem", fontWeight: 800, letterSpacing: "-0.03em", color: "var(--text)", lineHeight: 1 }}>{runDisplay}</div>
-                                    <div style={{ fontSize: "0.52rem", color: "var(--text-3)", marginTop: 2 }}>{overDisplay}</div>
-                                  </div>
-                                  <span style={{
-                                    fontSize: "0.48rem", color: isInnOpen ? "var(--text-2)" : "var(--text-3)",
-                                    transition: "transform 0.2s", display: "inline-block",
-                                    transform: isInnOpen ? "rotate(180deg)" : "none", width: 10, flexShrink: 0,
-                                  }}>▼</span>
-                                </div>
-                              </div>
-                              {/* Inline innings panel */}
-                              {isInnOpen && (
-                                <div style={{ marginBottom: 10, borderRadius: 10, overflow: "hidden", border: "1px solid var(--border)", background: "var(--surface)" }}>
-                                  {isLoadingSc && !hasData && (
-                                    <div style={{ padding: "14px", fontSize: "0.68rem", color: "var(--text-3)", textAlign: "center" as const }}>Loading scorecard…</div>
-                                  )}
-                                  {!isLoadingSc && !hasData && sc && !sc.hasScorecard && (
-                                    <div style={{ padding: "14px", fontSize: "0.68rem", color: "var(--text-3)", textAlign: "center" as const }}>Scorecard not available yet.</div>
-                                  )}
-                                  {hasData && (() => {
-                                    const allFantasyNames = new Set(Object.values(FANTASY_TEAMS).flatMap((t: any) => t.players.map((p: any) => p.name || p)));
-                                    const batters = inn.batting.filter((b: any) => !b.dnb);
-                                    // Shared grid — col2: R/O  col3: B/M  col4: 4s/R  col5: 6s/W  col6: SR/ECO
-                                    const SGRID = "minmax(0,1fr) 36px 30px 28px 24px 44px";
-                                    const BGRID = SGRID;
-                                    const WGRID = SGRID;
-                                    // Shared style constants
-                                    const SZ_NAME = "0.73rem";
-                                    const SZ_STAT = "0.70rem";
-                                    const SZ_HDR  = "0.5rem";
-                                    const SZ_SUB  = "0.54rem";
-                                    const S_STAT: React.CSSProperties = { textAlign: "right", fontSize: SZ_STAT, fontVariantNumeric: "tabular-nums", lineHeight: 1 };
-                                    const S_HDR: React.CSSProperties  = { textAlign: "right", fontSize: SZ_HDR, fontWeight: 700, letterSpacing: "0.08em", color: "var(--text-3)" };
-                                    return (
-                                      <>
-                                        {/* ── Innings header ── */}
-                                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 12px", background: `${teamColor}18`, borderLeft: `3px solid ${teamColor}` }}>
-                                          <div style={{ fontSize: "0.76rem", fontWeight: 800, color: teamColor, lineHeight: 1, letterSpacing: "0.02em" }}>{teamCode}</div>
-                                          <div style={{ fontSize: "0.48rem", fontWeight: 700, color: "var(--text-3)", background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 20, padding: "3px 9px", letterSpacing: "0.07em" }}>INN {dispIdx + 1}</div>
-                                        </div>
-
-                                        {/* ── Batting section ── */}
-                                        <div style={{ display: "grid", gridTemplateColumns: BGRID, padding: "6px 12px 5px", background: "var(--glass)", borderBottom: "1px solid var(--border)", borderTop: "1px solid var(--border)" }}>
-                                          <div style={{ fontSize: SZ_HDR, fontWeight: 700, letterSpacing: "0.08em", color: "var(--text-3)" }}>BATTING</div>
-                                          {(["R","B","4s","6s","SR"] as const).map((h) => (
-                                            <div key={h} style={{ ...S_HDR }}>{h}</div>
-                                          ))}
-                                        </div>
-                                        {batters.map((b: any, bi: number) => {
-                                          const isF = allFantasyNames.has(b.name);
-                                          const runs = parseInt(b.runs) || 0;
-                                          const balls = parseInt(b.balls) || 0;
-                                          const actuallyBatted = balls > 0 || runs > 0;
-                                          const showNotOut = b.notOut && actuallyBatted;
-                                          const runColor = runs >= 100 ? "var(--gold)" : "var(--text)";
-                                          const isLastBat = bi === batters.length - 1;
-                                          return (
-                                            <div key={bi} style={{ display: "grid", gridTemplateColumns: BGRID, padding: "8px 12px", borderBottom: isLastBat ? "none" : "1px solid var(--border)", alignItems: "start" }}>
-                                              <div style={{ minWidth: 0, paddingRight: 6 }}>
-                                                <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                                                  <span style={{ fontSize: SZ_NAME, fontWeight: 500, color: showNotOut ? "#6ee7a0" : "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
-                                                    {b.name}{showNotOut ? "*" : ""}
-                                                  </span>
-                                                  {isF && <span style={{ fontSize: "0.44rem", background: "rgba(74,222,128,0.15)", color: "#4ade80", borderRadius: 4, padding: "1px 4px", flexShrink: 0, fontWeight: 800, letterSpacing: "0.02em" }}>F</span>}
-                                                </div>
-                                                {b.dismissal && b.dismissal !== "not out" && b.dismissal !== "DNB" && (
-                                                  <div style={{ fontSize: SZ_SUB, color: "var(--text-3)", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{b.dismissal}</div>
-                                                )}
-                                              </div>
-                                              <div style={{ ...S_STAT, fontWeight: 600, color: runColor }}>{b.runs}</div>
-                                              <div style={{ ...S_STAT, color: "var(--text-3)" }}>{b.balls}</div>
-                                              <div style={{ ...S_STAT, color: "var(--text-2)" }}>{b.fours}</div>
-                                              <div style={{ ...S_STAT, color: "var(--text-2)" }}>{b.sixes}</div>
-                                              <div style={{ ...S_STAT, color: "var(--text-3)" }}>{parseFloat(b.sr || "0").toFixed(0)}</div>
-                                            </div>
-                                          );
-                                        })}
-
-                                        {/* ── Bowling section ── */}
-                                        {inn.bowling?.length > 0 && (
-                                          <>
-                                            <div style={{ display: "grid", gridTemplateColumns: WGRID, padding: "6px 12px 5px", background: "var(--glass)", borderTop: "2px solid var(--border-2)", borderBottom: "1px solid var(--border)" }}>
-                                              <div style={{ fontSize: SZ_HDR, fontWeight: 700, letterSpacing: "0.08em", color: "var(--text-3)" }}>BOWLING</div>
-                                              {(["O","M","R","W","ECO"] as const).map((h) => (
-                                                <div key={h} style={{ ...S_HDR, color: "var(--text-3)" }}>{h}</div>
-                                              ))}
-                                            </div>
-                                            {inn.bowling.map((b: any, bi: number) => {
-                                              const eco = parseFloat(b.eco || "0");
-                                              const wkts = parseInt(b.wickets) || 0;
-                                              const isF = allFantasyNames.has(b.name);
-                                              const isLastBowl = bi === inn.bowling.length - 1;
-                                              const maidens = parseInt(b.maidens) || 0;
-                                              return (
-                                                <div key={bi} style={{ display: "grid", gridTemplateColumns: WGRID, padding: "8px 12px", borderBottom: isLastBowl ? "none" : "1px solid var(--border)", alignItems: "start" }}>
-                                                  <div style={{ display: "flex", alignItems: "center", gap: 5, minWidth: 0 }}>
-                                                    <span style={{ fontSize: SZ_NAME, color: "var(--text)", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{b.name}</span>
-                                                    {isF && <span style={{ fontSize: "0.44rem", background: "rgba(74,222,128,0.15)", color: "#4ade80", borderRadius: 4, padding: "1px 4px", flexShrink: 0, fontWeight: 800 }}>F</span>}
-                                                  </div>
-                                                  <div style={{ ...S_STAT, color: "var(--text-3)" }}>{b.overs}</div>
-                                                  <div style={{ ...S_STAT, color: "var(--text-3)" }}>{b.maidens}</div>
-                                                  <div style={{ ...S_STAT, color: "var(--text-2)" }}>{b.runs}</div>
-                                                  <div style={{ ...S_STAT, fontWeight: wkts >= 3 ? 600 : 400, color: wkts >= 3 ? "var(--gold)" : "var(--text-3)" }}>{b.wickets}</div>
-                                                  <div style={{ ...S_STAT, color: "var(--text-3)" }}>{eco.toFixed(2)}</div>
-                                                </div>
-                                              );
-                                            })}
-                                          </>
-                                        )}
-                                      </>
-                                    );
-                                  })()}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        });
-                      })()}
-                    </div>
-                  ) : (
-                    <>
-                      {(m.score || []).map((s: any, i: number) => (
-                        <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.7rem", padding: "3px 0", borderTop: i === 0 ? "1px solid var(--border)" : "none" }}>
-                          <span style={{ color: "var(--text-3)" }}>{(s.inning || "").replace(" Innings", "").replace(" Inning", "")}</span>
-                          <span style={{ fontWeight: 600, color: "var(--text-2)" }}>{s.summary || (s.r != null ? `${s.r}/${s.w} (${s.o}ov)` : "")}</span>
-                        </div>
-                      ))}
-                    </>
-                  )}
-                  </div>{/* end match-card-inner */}
-
-                  {/* ── Result banner ── */}
-                  {isDone && m.status && (
-                    <div className="match-result-banner">
-                      <span style={{ opacity: 0.6, fontSize: "0.8rem" }}>🏆</span>
-                      {m.status}
-                    </div>
-                  )}
-                  {/* Prediction section — collapsible (padded wrapper) */}
+                  {/* Prediction section — collapsible */}
                   {m.homeTeamCode && m.awayTeamCode && (() => {
                     const PRED_OWNERS = ["rajveer","mombasa","mumbai","ponygoat"] as const;
                     const preds = predictions[matchIdStr] || {};
@@ -3562,7 +3193,7 @@ export default function App() {
                       ? pickCount > 0 ? `${pickCount}/4 picked 🔒` : "🔒 Locked — no picks"
                       : pickCount > 0 ? `${pickCount}/4 picked` : "Tap to predict";
                     return (
-                      <div onClick={e => e.stopPropagation()} style={{ padding: "7px 16px 12px", borderTop: "1px solid var(--border)" }}>
+                      <div onClick={e => e.stopPropagation()} style={{ marginTop: 10, borderTop: "1px solid var(--border)", paddingTop: 7 }}>
                         {/* Tappable header row */}
                         <div onClick={togglePred} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", userSelect: "none" as const }}>
                           <span style={{ fontSize: "0.57rem", color: "var(--text-3)", fontWeight: 600, letterSpacing: "0.06em" }}>
@@ -3579,14 +3210,11 @@ export default function App() {
                           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4, marginTop: 8 }}>
                             {PRED_OWNERS.map(ownerId => {
                               const ft = FANTASY_TEAMS[ownerId];
-                              const rawPick = preds[ownerId] || null;
-                              // Ignore a pick if the chosen team isn't actually playing this match
-                              const fixtureTeams = new Set([m.homeTeamCode, m.awayTeamCode]);
-                              const pick = rawPick && fixtureTeams.has(rawPick) ? rawPick : null;
+                              const pick = preds[ownerId] || null;
                               const isCorrect = !!winner && winner !== "tie" && pick === winner;
                               const isWrong = !!winner && winner !== "tie" && pick !== null && pick !== winner;
                               return (
-                                <div key={ownerId} style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 7px", borderRadius: 8, background: "var(--glass)", border: "1px solid var(--border)" }}>
+                                <div key={ownerId} style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 7px", borderRadius: 8, background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)" }}>
                                   <span style={{ fontSize: "0.6rem", color: ft.color, fontWeight: 700, minWidth: 30, flexShrink: 0 }}>{ft.owner}</span>
                                   {(isLocked || (ownerId !== currentUser && currentUser !== "rajveer")) ? (
                                     <div style={{ display: "flex", alignItems: "center", gap: 3, flex: 1 }}>
@@ -3693,6 +3321,100 @@ export default function App() {
                       </div>
                     );
                   })()}
+                  {/* Scorecard collapsible — live and completed matches only */}
+                  {(isDone || isLive) && (
+                    <div style={{ marginTop: 10, borderTop: "1px solid var(--border)", paddingTop: 7 }}
+                      onClick={e => e.stopPropagation()}>
+                      {/* Toggle header */}
+                      <div onClick={() => toggleMatch(matchIdStr, isDone, isLive)}
+                        style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", userSelect: "none" as const }}>
+                        <span style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em" }}>SCORECARD</span>
+                        <span style={{ fontSize: "0.55rem", color: "var(--text-3)", display: "inline-block", transition: "transform 0.2s", transform: isExpanded ? "rotate(180deg)" : "none" }}>▼</span>
+                      </div>
+                      {isExpanded && (
+                        <div style={{ marginTop: 10 }}>
+                          {isLoadingSc && <div style={{ color: "var(--text-3)", fontSize: "0.72rem", padding: "8px 0" }}>Loading scorecard...</div>}
+                          {sc?.overview && (
+                            <div style={{ display: "flex", flexDirection: "column" as const, gap: 4, marginBottom: 12 }}>
+                              {sc.overview.toss && <div style={{ fontSize: "0.65rem", color: "var(--text-3)" }}>{sc.overview.toss}</div>}
+                              {sc.overview.result && <div style={{ fontSize: "0.68rem", color: "var(--text-2)", fontWeight: 500 }}>{sc.overview.result}</div>}
+                            </div>
+                          )}
+                          {sc && !sc.hasScorecard && (
+                            <div style={{ color: "var(--text-3)", fontSize: "0.72rem", padding: "4px 0" }}>
+                              Scorecard will appear once innings data is synced.
+                            </div>
+                          )}
+                      {(sc?.innings || []).map((inn: any, idx: number) => (
+                        <div key={idx} style={{ marginBottom: 16 }}>
+                          <div style={{ fontSize: "0.65rem", fontWeight: 600, color: "var(--text-2)", letterSpacing: "0.06em", textTransform: "uppercase" as const, marginBottom: 8 }}>
+                            {inn.name} · <span style={{ color: "var(--text)" }}>{inn.total}</span>
+                          </div>
+                          {inn.batting?.length > 0 && (
+                            <div style={{ overflowX: "auto" }}>
+                              <table style={{ width: "100%", borderCollapse: "collapse" as const, fontSize: "0.68rem" }}>
+                                <thead>
+                                  <tr style={{ color: "var(--text-3)", borderBottom: "1px solid var(--border)" }}>
+                                    <th style={{ textAlign: "left" as const, padding: "4px 0", fontWeight: 600 }}>Batter</th>
+                                    <th style={{ textAlign: "right" as const, padding: "4px 4px", fontWeight: 600 }}>R</th>
+                                    <th style={{ textAlign: "right" as const, padding: "4px 4px", fontWeight: 600 }}>B</th>
+                                    <th style={{ textAlign: "right" as const, padding: "4px 4px", fontWeight: 600 }}>4s</th>
+                                    <th style={{ textAlign: "right" as const, padding: "4px 4px", fontWeight: 600 }}>6s</th>
+                                    <th style={{ textAlign: "right" as const, padding: "4px 4px", fontWeight: 600 }}>SR</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {inn.batting.filter((b: any) => !b.dnb).map((b: any, bi: number) => (
+                                    <tr key={bi} style={{ borderBottom: "1px solid var(--border)" }}>
+                                      <td style={{ padding: "5px 0" }}>
+                                        <div style={{ color: b.notOut ? "#22c55e" : "var(--text)" }}>{b.name}</div>
+                                        <div style={{ color: "var(--text-3)", fontSize: "0.58rem" }}>{b.dismissal}</div>
+                                      </td>
+                                      <td style={{ textAlign: "right" as const, padding: "5px 4px", color: "var(--text)", fontWeight: 700 }}>{b.runs}</td>
+                                      <td style={{ textAlign: "right" as const, padding: "5px 4px", color: "var(--text-3)" }}>{b.balls}</td>
+                                      <td style={{ textAlign: "right" as const, padding: "5px 4px", color: "var(--blue)" }}>{b.fours}</td>
+                                      <td style={{ textAlign: "right" as const, padding: "5px 4px", color: "#a855f7" }}>{b.sixes}</td>
+                                      <td style={{ textAlign: "right" as const, padding: "5px 4px", color: "var(--text-3)" }}>{parseFloat(b.sr).toFixed(1)}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          )}
+                          {inn.bowling?.length > 0 && (
+                            <div style={{ marginTop: 10, overflowX: "auto" }}>
+                              <table style={{ width: "100%", borderCollapse: "collapse" as const, fontSize: "0.68rem" }}>
+                                <thead>
+                                  <tr style={{ color: "var(--text-3)", borderBottom: "1px solid var(--border)" }}>
+                                    <th style={{ textAlign: "left" as const, padding: "4px 0", fontWeight: 600 }}>Bowler</th>
+                                    <th style={{ textAlign: "right" as const, padding: "4px 4px", fontWeight: 600 }}>O</th>
+                                    <th style={{ textAlign: "right" as const, padding: "4px 4px", fontWeight: 600 }}>M</th>
+                                    <th style={{ textAlign: "right" as const, padding: "4px 4px", fontWeight: 600 }}>R</th>
+                                    <th style={{ textAlign: "right" as const, padding: "4px 4px", fontWeight: 600 }}>W</th>
+                                    <th style={{ textAlign: "right" as const, padding: "4px 4px", fontWeight: 600 }}>ECO</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {inn.bowling.map((b: any, bi: number) => (
+                                    <tr key={bi} style={{ borderBottom: "1px solid var(--border)" }}>
+                                      <td style={{ padding: "5px 0", color: "var(--text)" }}>{b.name}</td>
+                                      <td style={{ textAlign: "right" as const, padding: "5px 4px", color: "var(--text-3)" }}>{b.overs}</td>
+                                      <td style={{ textAlign: "right" as const, padding: "5px 4px", color: "var(--text-3)" }}>{b.maidens}</td>
+                                      <td style={{ textAlign: "right" as const, padding: "5px 4px", color: "var(--text-3)" }}>{b.runs}</td>
+                                      <td style={{ textAlign: "right" as const, padding: "5px 4px", color: "#22c55e", fontWeight: 700 }}>{b.wickets}</td>
+                                      <td style={{ textAlign: "right" as const, padding: "5px 4px", color: "var(--text-3)" }}>{parseFloat(b.eco).toFixed(2)}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -3806,12 +3528,7 @@ export default function App() {
             const winner = getMatchWinner(m);
             if (!winner || winner === "tie") return;
             const preds = predictions[String(m.id)] || {};
-            const teams = new Set([m.homeTeamCode, m.awayTeamCode]);
-            PRED_OWNERS.forEach(id => {
-              const pick = preds[id];
-              // Only count if the pick was actually for one of the two teams playing
-              if (pick && teams.has(pick) && pick === winner) ownerScores[id]++;
-            });
+            PRED_OWNERS.forEach(id => { if (preds[id] === winner) ownerScores[id]++; });
           });
 
           const totalScorable = sortedMatches.filter((m: any) => m.matchNum > 3 && m.matchEnded).length;
@@ -3882,10 +3599,7 @@ export default function App() {
                       </div>
                       {PRED_OWNERS.map(id => {
                         if (isNil) return <div key={id} style={{ textAlign: "center" as const, fontSize: "0.6rem", color: "var(--text-3)" }}>—</div>;
-                        const rawPick = preds[id] || null;
-                        // If the picked team isn't in this match, treat as no pick
-                        const matchTeams = new Set([m.homeTeamCode, m.awayTeamCode]);
-                        const pick = rawPick && matchTeams.has(rawPick) ? rawPick : null;
+                        const pick = preds[id] || null;
                         if (!pick) return (
                           <div key={id} style={{ textAlign: "center" as const, fontSize: "0.65rem", color: "var(--text-3)" }}>
                             {isUpcoming ? <span style={{ opacity: 0.4 }}>?</span> : "—"}
@@ -4375,10 +4089,6 @@ export default function App() {
               onClick={syncSupabase} disabled={supabaseSyncing}>
               {supabaseSyncing ? <span className="spinner" /> : "🗄️"} Sync AuctionRoom
             </button>
-            <button className="btn-primary" style={{ background: "rgba(251,191,36,0.1)", borderColor: "rgba(251,191,36,0.3)", color: "#fbbf24" }}
-              onClick={() => fetchFromS3(s3MatchInput.trim() || undefined)} disabled={s3Syncing}>
-              {s3Syncing ? <span className="spinner" /> : "☁️"} Fetch S3
-            </button>
             <button className="btn-danger" onClick={async () => {
               if (confirm("Reset all cached points? Points will re-sync from AuctionRoom.")) {
                 await fetch("/api/ipl/points/reset", { method: "POST", headers: { "X-Owner-Id": "rajveer" } });
@@ -4396,27 +4106,6 @@ export default function App() {
             border: `1px solid ${supabaseSyncMsg.startsWith("Sync failed") ? "rgba(239,68,68,0.2)" : "rgba(34,197,94,0.2)"}`,
           }}>
             {supabaseSyncMsg}
-          </div>
-        )}
-        {currentUser === "rajveer" && (
-          <div style={{ display: "flex", gap: 6, marginTop: 8, alignItems: "center" }}>
-            <input
-              type="text"
-              value={s3MatchInput}
-              onChange={e => setS3MatchInput(e.target.value)}
-              placeholder="Match ID (e.g. 2420) or blank for all"
-              style={{ flex: 1, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
-                borderRadius: 8, padding: "6px 10px", color: "var(--text)", fontSize: "0.75rem", outline: "none" }}
-            />
-          </div>
-        )}
-        {s3SyncMsg && (
-          <div style={{ fontSize: "0.7rem", marginTop: 6, padding: "6px 10px", borderRadius: 8,
-            background: s3SyncMsg.startsWith("S3 ✓") ? "rgba(251,191,36,0.08)" : "rgba(239,68,68,0.08)",
-            color: s3SyncMsg.startsWith("S3 ✓") ? "#fbbf24" : "#f87171",
-            border: `1px solid ${s3SyncMsg.startsWith("S3 ✓") ? "rgba(251,191,36,0.2)" : "rgba(239,68,68,0.2)"}`,
-          }}>
-            ☁️ {s3SyncMsg}
           </div>
         )}
         {lastUpdated && (
