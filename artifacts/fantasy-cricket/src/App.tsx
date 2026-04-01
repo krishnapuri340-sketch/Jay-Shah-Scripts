@@ -1649,6 +1649,45 @@ export default function App() {
       const BW_M   = BW_R   - 74;
       const BW_O   = BW_M   - 74;
 
+      // Fantasy-scoring colour helpers (mirrors the UI logic)
+      const findFtC = (name: string) => {
+        const norm = (s: string) => s.replace(/\s*\(.*?\)\s*/g, "").trim().toLowerCase();
+        const ALIASES: Record<string, string> = { "mohammad shami": "mohammed shami", "md shami": "mohammed shami" };
+        const sn = ALIASES[norm(name)] ?? norm(name);
+        for (const ft of Object.values(FANTASY_TEAMS)) {
+          if (ft.players.some(p => norm(p.name) === sn)) return ft;
+        }
+        return null;
+      };
+      const runsColorC = (runs: number, balls: number) => {
+        if (runs === 0 && balls > 0) return "#f87171";
+        if (runs >= 100) return "#d4a843";
+        if (runs >= 50) return "#fb923c";
+        if (runs >= 30) return "#f59e0b";
+        return "#e4e4e7";
+      };
+      const srColorC = (sr: number, balls: number) => {
+        if (balls < 5) return "#71717a";
+        if (sr >= 200) return "#22c55e";
+        if (sr >= 150) return "#86efac";
+        if (sr < 70) return "#f87171";
+        return "#71717a";
+      };
+      const wkColorC = (w: number) => {
+        if (w >= 4) return "#d4a843";
+        if (w === 3) return "#22c55e";
+        if (w === 2) return "#4ade80";
+        if (w === 1) return "#e4e4e7";
+        return "#71717a";
+      };
+      const ecoColorC = (eco: number) => {
+        if (eco < 6) return "#22c55e";
+        if (eco < 8) return "#86efac";
+        if (eco < 10) return "#71717a";
+        if (eco < 12) return "#f59e0b";
+        return "#f87171";
+      };
+
       for (const inn of innings) {
         const batters = (inn.batting || []).filter((b: any) => !b.dnb);
         const bowlers: any[] = inn.bowling || [];
@@ -1662,7 +1701,6 @@ export default function App() {
 
         // ─ Batting table ─
         if (batters.length > 0) {
-          // Column headers
           ctx.fillStyle = "#3f3f46"; ctx.font = "600 15px -apple-system, Arial, sans-serif";
           ctx.textAlign = "left";  ctx.fillText("BATTER", PAD, y + 19);
           ctx.textAlign = "right";
@@ -1674,26 +1712,47 @@ export default function App() {
           y += COL_HDR;
 
           for (const b of batters) {
-            // Name
+            const bFt = findFtC(b.name || "");
+            const rc  = runsColorC(b.runs, b.balls);
+            const src = srColorC(parseFloat(b.sr || "0"), b.balls);
+
+            // Name (bold if fantasy player)
             ctx.textAlign = "left";
-            ctx.font = `${b.notOut ? "600" : "400"} 21px -apple-system, Arial, sans-serif`;
+            ctx.font = `${bFt ? "700" : b.notOut ? "600" : "400"} 21px -apple-system, Arial, sans-serif`;
             ctx.fillStyle = b.notOut ? "#22c55e" : "#e4e4e7";
             ctx.fillText(b.name || "", PAD, y + 22);
-            // Dismissal (compact, below name)
+
+            // F badge to the right of name
+            if (bFt) {
+              const nW = ctx.measureText(b.name || "").width;
+              const bx = PAD + nW + 8, by = y + 8;
+              ctx.fillStyle = bFt.color + "28";
+              ctx.fillRect(bx, by, 22, 16);
+              ctx.font = "700 11px -apple-system, Arial, sans-serif";
+              ctx.fillStyle = bFt.color;
+              ctx.textAlign = "left";
+              ctx.fillText("F", bx + 5, by + 12);
+            }
+
+            // Dismissal
             if (b.dismissal) {
               ctx.font = "400 13px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
               const d = b.dismissal.length > 55 ? b.dismissal.slice(0, 53) + "…" : b.dismissal;
-              ctx.fillText(d, PAD, y + 38);
+              ctx.textAlign = "left"; ctx.fillText(d, PAD, y + 38);
             }
-            // Stats
+
+            // Stats — colour-coded
             ctx.textAlign = "right";
-            ctx.font = "700 21px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#e4e4e7";
+            ctx.font = "700 21px -apple-system, Arial, sans-serif"; ctx.fillStyle = rc;
             ctx.fillText(String(b.runs ?? ""), B_R, y + 22);
             ctx.font = "400 19px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#71717a";
             ctx.fillText(String(b.balls ?? ""), B_B, y + 22);
-            ctx.fillStyle = "#60a5fa"; ctx.fillText(String(b.fours ?? ""), B_4S, y + 22);
-            ctx.fillStyle = "#a855f7"; ctx.fillText(String(b.sixes ?? ""), B_6S, y + 22);
-            ctx.fillStyle = "#71717a"; ctx.fillText(b.sr ? parseFloat(b.sr).toFixed(1) : "", B_SR, y + 22);
+            ctx.fillStyle = b.fours > 0 ? "#60a5fa" : "#3f3f46";
+            ctx.fillText(String(b.fours ?? ""), B_4S, y + 22);
+            ctx.fillStyle = b.sixes > 0 ? "#a855f7" : "#3f3f46";
+            ctx.fillText(String(b.sixes ?? ""), B_6S, y + 22);
+            ctx.fillStyle = src;
+            ctx.fillText(b.sr ? parseFloat(b.sr).toFixed(1) : "", B_SR, y + 22);
             y += ROW_BAT;
           }
         }
@@ -1701,7 +1760,6 @@ export default function App() {
         // ─ Bowling table ─
         if (bowlers.length > 0) {
           y += 16;
-          // Column headers
           ctx.fillStyle = "#3f3f46"; ctx.font = "600 15px -apple-system, Arial, sans-serif";
           ctx.textAlign = "left";  ctx.fillText("BOWLER", PAD, y + 19);
           ctx.textAlign = "right";
@@ -1713,15 +1771,38 @@ export default function App() {
           y += COL_HDR;
 
           for (const b of bowlers) {
-            ctx.textAlign = "left"; ctx.font = "400 21px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#e4e4e7";
+            const bFt = findFtC(b.name || "");
+            const wc  = wkColorC(b.wickets);
+            const ec  = ecoColorC(parseFloat(b.eco || "0"));
+
+            // Name
+            ctx.textAlign = "left";
+            ctx.font = `${bFt ? "700" : "400"} 21px -apple-system, Arial, sans-serif`;
+            ctx.fillStyle = "#e4e4e7";
             ctx.fillText(b.name || "", PAD, y + 23);
+
+            // F badge
+            if (bFt) {
+              const nW = ctx.measureText(b.name || "").width;
+              const bx = PAD + nW + 8, by = y + 9;
+              ctx.fillStyle = bFt.color + "28";
+              ctx.fillRect(bx, by, 22, 16);
+              ctx.font = "700 11px -apple-system, Arial, sans-serif";
+              ctx.fillStyle = bFt.color;
+              ctx.textAlign = "left";
+              ctx.fillText("F", bx + 5, by + 12);
+            }
+
+            // Stats — colour-coded
             ctx.textAlign = "right"; ctx.font = "400 19px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#71717a";
             ctx.fillText(String(b.overs ?? ""),   BW_O,   y + 23);
+            ctx.fillStyle = b.maidens > 0 ? "#f59e0b" : "#71717a";
             ctx.fillText(String(b.maidens ?? ""), BW_M,   y + 23);
+            ctx.fillStyle = "#71717a";
             ctx.fillText(String(b.runs ?? ""),    BW_R,   y + 23);
-            ctx.font = "700 21px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#22c55e";
+            ctx.font = "700 21px -apple-system, Arial, sans-serif"; ctx.fillStyle = wc;
             ctx.fillText(String(b.wickets ?? ""), BW_W,   y + 23);
-            ctx.font = "400 19px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#71717a";
+            ctx.font = "400 19px -apple-system, Arial, sans-serif"; ctx.fillStyle = ec;
             ctx.fillText(b.eco ? parseFloat(b.eco).toFixed(2) : "", BW_ECO, y + 23);
             y += ROW_BOWL;
           }
