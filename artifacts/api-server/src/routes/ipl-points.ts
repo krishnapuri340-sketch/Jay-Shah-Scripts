@@ -539,13 +539,13 @@ const PLAYER_TEAMS: Record<string, string> = {
   "Deepak Chahar": "mi",
   // SRH
   "Travis Head": "srh", "Abhishek Sharma": "srh", "Ishan Kishan": "srh",
-  "Heinrich Klaasen": "srh", "Harshal Patel": "srh", "T Natarajan": "srh",
+  "Heinrich Klaasen": "srh", "Harshal Patel": "srh",
   // CSK
   "Sanju Samson": "csk", "Ruturaj Gaikwad": "csk", "Shivam Dube": "csk",
   "Dewald Brevis": "csk", "Prashant Veer": "csk", "Khaleel Ahmed": "csk",
   // DC
   "Axar Patel": "dc", "KL Rahul": "dc", "Kuldeep Yadav": "dc",
-  "Nitish Rana": "dc", "Lungi Ngidi": "dc", "Tristan Stubbs": "dc",
+  "Nitish Rana": "dc", "Lungi Ngidi": "dc", "Tristan Stubbs": "dc", "T Natarajan": "dc",
   // KKR
   "Sunil Narine": "kkr", "Rinku Singh": "kkr", "Cameron Green": "kkr",
   "Varun Chakravarthy": "kkr", "Ajinkya Rahane": "kkr", "Finn Allen": "kkr",
@@ -1122,6 +1122,57 @@ router.get("/ipl/playing11", async (req, res) => {
 // Live matches: cached 30 s (score updates frequently)
 const summaryCache = new Map<string, { data: any; timestamp: number; isCompleted: boolean }>();
 
+const IPL_S3_BASE = "https://ipl-stats-sports-mechanic.s3.ap-south-1.amazonaws.com/ipl/feeds";
+const s3InningsCache = new Map<string, { data: InningData[]; timestamp: number; isCompleted: boolean }>();
+
+async function fetchIplS3Innings(matchId: string, isCompleted: boolean): Promise<InningData[]> {
+  const entry = s3InningsCache.get(matchId);
+  const ttl = isCompleted ? Infinity : 30_000;
+  if (entry && (isCompleted || Date.now() - entry.timestamp < ttl)) return entry.data;
+
+  const parseInning = (raw: any, n: number): InningData | null => {
+    const inn = raw[`Innings${n}`];
+    if (!inn) return null;
+    const extras = (inn.Extras || [])[0] || {};
+    const totalStr = (extras.Total as string || "").replace(/\s*Overs\s*/i, " ov");
+    const teamName = extras.BattingTeamName || `Innings ${n}`;
+    const batting: BattingRow[] = (inn.BattingCard || []).map((b: any) => {
+      const name = (b.PlayerName || "").replace(/\s*\([^)]*\)\s*$/, "").trim();
+      const notOut = typeof b.OutDesc === "string" && b.OutDesc.toLowerCase().includes("not out");
+      const dnb = !notOut && (!b.OutDesc || b.OutDesc === "") && b.Balls === 0 && b.Runs === 0;
+      return { name, runs: b.Runs ?? 0, balls: b.Balls ?? 0, fours: b.Fours ?? 0, sixes: b.Sixes ?? 0,
+        sr: String(b.StrikeRate ?? "0"), dismissal: b.OutDesc || (notOut ? "not out" : ""), notOut, dnb };
+    }).filter((b: BattingRow) => b.name);
+    const bowling: BowlingRow[] = (inn.BowlingCard || []).map((b: any) => ({
+      name: (b.PlayerName || "").trim(), overs: String(b.Overs ?? ""), maidens: b.Maidens ?? 0,
+      runs: b.Runs ?? 0, wickets: b.Wickets ?? 0, eco: String(b.Economy ?? ""),
+      wides: b.Wides ?? 0, noBalls: b.NoBalls ?? 0,
+    })).filter((b: BowlingRow) => b.name);
+    return { name: `${teamName} Inning ${n}`, total: totalStr, batting, bowling };
+  };
+
+  const results: InningData[] = [];
+  for (const n of [1, 2]) {
+    try {
+      const r = await fetch(`${IPL_S3_BASE}/${matchId}-Innings${n}.js`, {
+        headers: { "User-Agent": "Mozilla/5.0 (compatible; IPLFetcher/1.0)" },
+        signal: AbortSignal.timeout(5000),
+      });
+      if (!r.ok) break;
+      const text = await r.text();
+      const cleaned = text.replace(/^[A-Za-z_$][A-Za-z0-9_$]*\(/, "").replace(/\)\s*;?\s*$/, "");
+      const parsed = JSON.parse(cleaned);
+      const inning = parseInning(parsed, n);
+      if (inning && (inning.batting.length > 0 || inning.bowling.length > 0)) results.push(inning);
+    } catch { break; }
+  }
+
+  if (results.length > 0) {
+    s3InningsCache.set(matchId, { data: results, timestamp: Date.now(), isCompleted });
+  }
+  return results;
+}
+
 export async function fetchMatchOverview(matchId: string, isCompleted: boolean): Promise<any> {
   const entry = summaryCache.get(matchId);
   const ttl = isCompleted ? Infinity : 30_000;
@@ -1164,22 +1215,16 @@ export async function fetchMatchOverview(matchId: string, isCompleted: boolean):
 router.get("/ipl/scorecard/:matchId", async (req, res) => {
   const { matchId } = req.params;
   const cached = pointsCache.processedMatches[matchId];
-  const innings = cached?.innings || [];
-  const isCompleted = !!cached;   // if it's in our points cache it's been processed → done
+  const isCompleted = !!cached;
 
-  // Return innings immediately from in-memory cache while overview fetches in parallel
-  const overviewPromise = fetchMatchOverview(matchId, isCompleted);
+  // Fetch IPL S3 innings (official, has full catches) + overview in parallel
+  const [s3Innings, overview] = await Promise.all([
+    fetchIplS3Innings(matchId, isCompleted).catch(() => [] as InningData[]),
+    fetchMatchOverview(matchId, isCompleted).catch(() => null),
+  ]);
 
-  // If we already have a cached summary, respond instantly; otherwise wait (max 4 s)
-  const cachedEntry = summaryCache.get(matchId);
-  if (cachedEntry) {
-    res.json({ matchId, overview: cachedEntry.data, innings, hasScorecard: innings.length > 0 });
-    // Still refresh in background if live
-    if (!isCompleted) overviewPromise.catch(() => {});
-    return;
-  }
-
-  const overview = await overviewPromise;
+  // Use IPL S3 data if available (more accurate); fall back to CricAPI innings
+  const innings = s3Innings.length > 0 ? s3Innings : (cached?.innings || []);
   res.json({ matchId, overview, innings, hasScorecard: innings.length > 0 });
 });
 
