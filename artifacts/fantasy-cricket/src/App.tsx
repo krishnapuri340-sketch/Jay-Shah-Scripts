@@ -653,6 +653,7 @@ export default function App() {
   const [pointsError, setPointsError] = useState<string | null>(null);
   const [dataSources, setDataSources] = useState<{ iplOfficial: number; liveCount: number; competitionId?: number } | null>(null);
   const [expandedMatchId, setExpandedMatchId] = useState<string | null>(null);
+  const [expandedInnings, setExpandedInnings] = useState<Set<string>>(new Set());
   const [scorecards, setScorecards] = useState<Record<string, any>>({});
   const [scorecardLoading, setScorecardLoading] = useState<string | null>(null);
   const [standings, setStandings] = useState<any[]>([]);
@@ -3192,7 +3193,6 @@ export default function App() {
             {matches.map((m: any) => {
               const isLive = m.matchStarted && !m.matchEnded;
               const isDone = m.matchEnded;
-              const isExpanded = expandedMatchId === String(m.id);
               const statusColor = isDone ? "var(--text-3)" : isLive ? "var(--live)" : "var(--blue)";
               const statusLabel = isDone ? "Completed" : isLive ? "Live" : fmtTime(m.dateTimeGMT);
               const mNum = getMatchNum(m.name);
@@ -3242,16 +3242,164 @@ export default function App() {
                       <div style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text)" }}>{(m.name || "").replace(/,\s*\d+(?:st|nd|rd|th) Match.*/i, "")}</div>
                     )}
                   </div>
-                  {(m.score || []).map((s: any, i: number) => (
-                    <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.72rem", color: "var(--text-2)", padding: "3px 0", borderTop: i === 0 ? "1px solid var(--border)" : "none" }}>
-                      <span style={{ color: "var(--text-3)" }}>{(s.inning || "").replace(" Innings", "").replace(" Inning", "")}</span>
-                      <span style={{ fontWeight: 600, color: "var(--text-2)" }}>
-                        {s.summary || (s.r != null ? `${s.r}/${s.w} (${s.o}ov)` : "")}
-                      </span>
+                  {/* Interactive score lines — tap to expand innings scorecard */}
+                  {(isDone || isLive) ? (
+                    <div style={{ borderTop: "1px solid var(--border)", marginTop: 4 }} onClick={e => e.stopPropagation()}>
+                      {(m.score || []).map((s: any, i: number) => {
+                        const innKey = `${matchIdStr}-inn${i}`;
+                        const isInnOpen = expandedInnings.has(innKey);
+                        const rawInning = (s.inning || "");
+                        const teamCode = teams[i]?.shortname
+                          || Object.keys(TEAM_LOGO_CDN).find(code => rawInning.includes(code))
+                          || (m.homeTeamCode && i === 0 ? m.homeTeamCode : m.awayTeamCode)
+                          || "";
+                        const inn = sc?.innings?.[i];
+                        const hasData = !!inn?.batting?.length;
+                        const runDisplay = s.r != null ? `${s.r}/${s.w ?? 0}` : s.summary?.split("(")[0]?.trim() || "—";
+                        const overDisplay = s.o ? `(${s.o} ov)` : s.summary?.match(/\(([^)]+)\)/)?.[1] ? `(${s.summary.match(/\(([^)]+)\)/)[1]})` : "";
+                        const teamLabel = rawInning.replace(" Innings","").replace(" Inning","").trim();
+                        return (
+                          <div key={i}>
+                            {/* Score row — tappable */}
+                            <div
+                              onClick={() => {
+                                if (!scorecards[matchIdStr]?.hasScorecard) {
+                                  setExpandedMatchId(matchIdStr);
+                                  fetchScorecard(matchIdStr);
+                                }
+                                setExpandedInnings(prev => {
+                                  const next = new Set(prev);
+                                  if (next.has(innKey)) next.delete(innKey); else next.add(innKey);
+                                  return next;
+                                });
+                              }}
+                              style={{
+                                display: "flex", alignItems: "center", justifyContent: "space-between",
+                                padding: "9px 0", cursor: "pointer", userSelect: "none" as const,
+                                borderTop: i > 0 ? "1px dashed rgba(255,255,255,0.06)" : "none",
+                              }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                {TEAM_LOGO_CDN[teamCode] && (
+                                  <img src={TEAM_LOGO_CDN[teamCode]} alt={teamCode}
+                                    style={{ width: 22, height: 22, objectFit: "contain", flexShrink: 0 }}
+                                    onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                                )}
+                                <div>
+                                  <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--text)", lineHeight: 1.1 }}>{teamCode || teamLabel}</div>
+                                  {isLive && i === (m.score?.length ?? 0) - 1 && <div style={{ fontSize: "0.54rem", color: "var(--live)", letterSpacing: "0.05em", marginTop: 1 }}>LIVE</div>}
+                                </div>
+                              </div>
+                              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                <div style={{ textAlign: "right" as const }}>
+                                  <div style={{ fontSize: "0.95rem", fontWeight: 800, letterSpacing: "-0.03em", color: "var(--text)", lineHeight: 1 }}>{runDisplay}</div>
+                                  <div style={{ fontSize: "0.58rem", color: "var(--text-3)", marginTop: 1 }}>{overDisplay}</div>
+                                </div>
+                                <span style={{
+                                  fontSize: "0.58rem", color: isInnOpen ? "var(--text-2)" : "var(--text-3)",
+                                  transition: "transform 0.2s", display: "inline-block",
+                                  transform: isInnOpen ? "rotate(180deg)" : "none", width: 10,
+                                }}>▼</span>
+                              </div>
+                            </div>
+                            {/* Inline innings panel */}
+                            {isInnOpen && (
+                              <div style={{ marginBottom: 10, borderRadius: 10, overflow: "hidden", border: "1px solid var(--border)", background: "rgba(255,255,255,0.015)" }}>
+                                {isLoadingSc && !hasData && (
+                                  <div style={{ padding: "12px 14px", fontSize: "0.7rem", color: "var(--text-3)" }}>Loading scorecard…</div>
+                                )}
+                                {!isLoadingSc && !hasData && sc && !sc.hasScorecard && (
+                                  <div style={{ padding: "12px 14px", fontSize: "0.7rem", color: "var(--text-3)" }}>Scorecard data not yet available.</div>
+                                )}
+                                {hasData && (() => {
+                                  const allFantasyNames = new Set(Object.values(FANTASY_TEAMS).flatMap((t: any) => t.players.map((p: any) => p.name || p)));
+                                  return (
+                                    <>
+                                      {/* Batting table */}
+                                      <div>
+                                        <div style={{ display: "grid", gridTemplateColumns: "1fr 28px 28px 22px 22px 38px", padding: "6px 12px 4px", background: "rgba(255,255,255,0.04)", borderBottom: "1px solid var(--border)" }}>
+                                          {["BATTER","R","B","4s","6s","SR"].map((h, hi) => (
+                                            <div key={h} style={{ fontSize: "0.5rem", fontWeight: 700, color: hi===3?"var(--blue)":hi===4?"#a855f7":"var(--text-3)", letterSpacing: "0.07em", textAlign: hi > 0 ? "right" as const : "left" as const }}>{h}</div>
+                                          ))}
+                                        </div>
+                                        {inn.batting.filter((b: any) => !b.dnb).map((b: any, bi: number) => {
+                                          const isF = allFantasyNames.has(b.name);
+                                          const runs = parseInt(b.runs) || 0;
+                                          const runColor = runs >= 100 ? "#d4a843" : runs >= 50 ? "#60a5fa" : "var(--text)";
+                                          return (
+                                            <div key={bi} style={{ display: "grid", gridTemplateColumns: "1fr 28px 28px 22px 22px 38px", padding: "6px 12px", borderBottom: "1px solid rgba(255,255,255,0.035)", alignItems: "start" }}>
+                                              <div>
+                                                <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                                  <span style={{ fontSize: "0.73rem", fontWeight: 600, color: b.notOut ? "#4ade80" : "var(--text)" }}>{b.name}</span>
+                                                  {isF && <span style={{ fontSize: "0.45rem", background: "rgba(34,197,94,0.15)", color: "#4ade80", borderRadius: 3, padding: "1px 3px", flexShrink: 0, letterSpacing: "0.04em" }}>F</span>}
+                                                  {b.notOut && <span style={{ fontSize: "0.45rem", color: "#4ade80", flexShrink: 0 }}>*</span>}
+                                                </div>
+                                                <div style={{ fontSize: "0.55rem", color: "var(--text-3)", marginTop: 1, lineHeight: 1.3 }}>{b.dismissal !== "not out" && b.dismissal !== "DNB" ? b.dismissal : ""}</div>
+                                              </div>
+                                              <div style={{ textAlign: "right" as const, fontSize: "0.82rem", fontWeight: 800, color: runColor, paddingTop: 2 }}>{b.runs}</div>
+                                              <div style={{ textAlign: "right" as const, fontSize: "0.7rem", color: "var(--text-3)", paddingTop: 3 }}>{b.balls}</div>
+                                              <div style={{ textAlign: "right" as const, fontSize: "0.7rem", color: "var(--blue)", paddingTop: 3 }}>{b.fours}</div>
+                                              <div style={{ textAlign: "right" as const, fontSize: "0.7rem", color: "#a855f7", paddingTop: 3 }}>{b.sixes}</div>
+                                              <div style={{ textAlign: "right" as const, fontSize: "0.68rem", color: "var(--text-3)", paddingTop: 3 }}>{parseFloat(b.sr || "0").toFixed(0)}</div>
+                                            </div>
+                                          );
+                                        })}
+                                        {/* Total row */}
+                                        <div style={{ padding: "6px 12px", fontSize: "0.65rem", fontWeight: 700, color: "var(--text)", background: "rgba(255,255,255,0.03)", borderTop: "1px solid var(--border)", textAlign: "right" as const }}>
+                                          {inn.total}
+                                        </div>
+                                      </div>
+                                      {/* Bowling table */}
+                                      {inn.bowling?.length > 0 && (
+                                        <div style={{ borderTop: "2px solid rgba(255,255,255,0.07)" }}>
+                                          <div style={{ display: "grid", gridTemplateColumns: "1fr 30px 18px 28px 28px 38px", padding: "6px 12px 4px", background: "rgba(255,255,255,0.04)", borderBottom: "1px solid var(--border)" }}>
+                                            {["BOWLER","O","M","R","W","ECO"].map((h, hi) => (
+                                              <div key={h} style={{ fontSize: "0.5rem", fontWeight: 700, color: hi===4?"#4ade80":"var(--text-3)", letterSpacing: "0.07em", textAlign: hi > 0 ? "right" as const : "left" as const }}>{h}</div>
+                                            ))}
+                                          </div>
+                                          {inn.bowling.map((b: any, bi: number) => {
+                                            const eco = parseFloat(b.eco || "0");
+                                            const ecoColor = eco > 10 ? "#f87171" : eco < 7 ? "#4ade80" : "var(--text-3)";
+                                            const wkts = parseInt(b.wickets) || 0;
+                                            const isF = allFantasyNames.has(b.name);
+                                            return (
+                                              <div key={bi} style={{ display: "grid", gridTemplateColumns: "1fr 30px 18px 28px 28px 38px", padding: "6px 12px", borderBottom: "1px solid rgba(255,255,255,0.035)", alignItems: "center" }}>
+                                                <div style={{ display: "flex", alignItems: "center", gap: 4, overflow: "hidden" }}>
+                                                  <span style={{ fontSize: "0.72rem", color: "var(--text)", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{b.name}</span>
+                                                  {isF && <span style={{ fontSize: "0.45rem", background: "rgba(34,197,94,0.15)", color: "#4ade80", borderRadius: 3, padding: "1px 3px", flexShrink: 0 }}>F</span>}
+                                                </div>
+                                                <div style={{ textAlign: "right" as const, fontSize: "0.7rem", color: "var(--text-3)" }}>{b.overs}</div>
+                                                <div style={{ textAlign: "right" as const, fontSize: "0.7rem", color: "var(--text-3)" }}>{b.maidens}</div>
+                                                <div style={{ textAlign: "right" as const, fontSize: "0.7rem", color: "var(--text-3)" }}>{b.runs}</div>
+                                                <div style={{ textAlign: "right" as const, fontSize: "0.8rem", fontWeight: wkts > 0 ? 700 : 400, color: wkts >= 3 ? "#d4a843" : wkts > 0 ? "#4ade80" : "var(--text-3)" }}>{b.wickets}</div>
+                                                <div style={{ textAlign: "right" as const, fontSize: "0.68rem", color: ecoColor }}>{eco.toFixed(2)}</div>
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+                                      )}
+                                    </>
+                                  );
+                                })()}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                      {/* Match result + toss below scores */}
+                      {isDone && m.status && <div style={{ fontSize: "0.68rem", color: "var(--blue)", paddingTop: 6, paddingBottom: 2 }}>{m.status}</div>}
+                      {isLive && m.toss && <div style={{ fontSize: "0.62rem", color: "var(--text-2)", paddingTop: 4 }}>{m.toss}</div>}
+                      {sc?.overview?.toss && <div style={{ fontSize: "0.6rem", color: "var(--text-3)", paddingTop: 3 }}>{sc.overview.toss}</div>}
                     </div>
-                  ))}
-                  {isDone && m.status && <div style={{ fontSize: "0.68rem", color: "var(--blue)", marginTop: 5 }}>{m.status}</div>}
-                  {isLive && m.toss && <div style={{ fontSize: "0.65rem", color: "var(--text-2)", marginTop: 5 }}>{m.toss}</div>}
+                  ) : (
+                    <>
+                      {(m.score || []).map((s: any, i: number) => (
+                        <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.72rem", color: "var(--text-2)", padding: "3px 0", borderTop: i === 0 ? "1px solid var(--border)" : "none" }}>
+                          <span style={{ color: "var(--text-3)" }}>{(s.inning || "").replace(" Innings", "").replace(" Inning", "")}</span>
+                          <span style={{ fontWeight: 600, color: "var(--text-2)" }}>{s.summary || (s.r != null ? `${s.r}/${s.w} (${s.o}ov)` : "")}</span>
+                        </div>
+                      ))}
+                    </>
+                  )}
                   {m.venue && (
                     <div className="match-venue">
                       🏟 {m.venue}{m.homeTeamCode ? ` (${m.homeTeamCode})` : ""}
@@ -3413,100 +3561,6 @@ export default function App() {
                       </div>
                     );
                   })()}
-                  {/* Scorecard collapsible — live and completed matches only */}
-                  {(isDone || isLive) && (
-                    <div style={{ marginTop: 10, borderTop: "1px solid var(--border)", paddingTop: 7 }}
-                      onClick={e => e.stopPropagation()}>
-                      {/* Toggle header */}
-                      <div onClick={() => toggleMatch(matchIdStr, isDone, isLive)}
-                        style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", userSelect: "none" as const }}>
-                        <span style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em" }}>SCORECARD</span>
-                        <span style={{ fontSize: "0.55rem", color: "var(--text-3)", display: "inline-block", transition: "transform 0.2s", transform: isExpanded ? "rotate(180deg)" : "none" }}>▼</span>
-                      </div>
-                      {isExpanded && (
-                        <div style={{ marginTop: 10 }}>
-                          {isLoadingSc && <div style={{ color: "var(--text-3)", fontSize: "0.72rem", padding: "8px 0" }}>Loading scorecard...</div>}
-                          {sc?.overview && (
-                            <div style={{ display: "flex", flexDirection: "column" as const, gap: 4, marginBottom: 12 }}>
-                              {sc.overview.toss && <div style={{ fontSize: "0.65rem", color: "var(--text-3)" }}>{sc.overview.toss}</div>}
-                              {sc.overview.result && <div style={{ fontSize: "0.68rem", color: "var(--text-2)", fontWeight: 500 }}>{sc.overview.result}</div>}
-                            </div>
-                          )}
-                          {sc && !sc.hasScorecard && (
-                            <div style={{ color: "var(--text-3)", fontSize: "0.72rem", padding: "4px 0" }}>
-                              Scorecard will appear once innings data is synced.
-                            </div>
-                          )}
-                      {(sc?.innings || []).map((inn: any, idx: number) => (
-                        <div key={idx} style={{ marginBottom: 16 }}>
-                          <div style={{ fontSize: "0.65rem", fontWeight: 600, color: "var(--text-2)", letterSpacing: "0.06em", textTransform: "uppercase" as const, marginBottom: 8 }}>
-                            {inn.name} · <span style={{ color: "var(--text)" }}>{inn.total}</span>
-                          </div>
-                          {inn.batting?.length > 0 && (
-                            <div style={{ overflowX: "auto" }}>
-                              <table style={{ width: "100%", borderCollapse: "collapse" as const, fontSize: "0.68rem" }}>
-                                <thead>
-                                  <tr style={{ color: "var(--text-3)", borderBottom: "1px solid var(--border)" }}>
-                                    <th style={{ textAlign: "left" as const, padding: "4px 0", fontWeight: 600 }}>Batter</th>
-                                    <th style={{ textAlign: "right" as const, padding: "4px 4px", fontWeight: 600 }}>R</th>
-                                    <th style={{ textAlign: "right" as const, padding: "4px 4px", fontWeight: 600 }}>B</th>
-                                    <th style={{ textAlign: "right" as const, padding: "4px 4px", fontWeight: 600 }}>4s</th>
-                                    <th style={{ textAlign: "right" as const, padding: "4px 4px", fontWeight: 600 }}>6s</th>
-                                    <th style={{ textAlign: "right" as const, padding: "4px 4px", fontWeight: 600 }}>SR</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {inn.batting.filter((b: any) => !b.dnb).map((b: any, bi: number) => (
-                                    <tr key={bi} style={{ borderBottom: "1px solid var(--border)" }}>
-                                      <td style={{ padding: "5px 0" }}>
-                                        <div style={{ color: b.notOut ? "#22c55e" : "var(--text)" }}>{b.name}</div>
-                                        <div style={{ color: "var(--text-3)", fontSize: "0.58rem" }}>{b.dismissal}</div>
-                                      </td>
-                                      <td style={{ textAlign: "right" as const, padding: "5px 4px", color: "var(--text)", fontWeight: 700 }}>{b.runs}</td>
-                                      <td style={{ textAlign: "right" as const, padding: "5px 4px", color: "var(--text-3)" }}>{b.balls}</td>
-                                      <td style={{ textAlign: "right" as const, padding: "5px 4px", color: "var(--blue)" }}>{b.fours}</td>
-                                      <td style={{ textAlign: "right" as const, padding: "5px 4px", color: "#a855f7" }}>{b.sixes}</td>
-                                      <td style={{ textAlign: "right" as const, padding: "5px 4px", color: "var(--text-3)" }}>{parseFloat(b.sr).toFixed(1)}</td>
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </div>
-                          )}
-                          {inn.bowling?.length > 0 && (
-                            <div style={{ marginTop: 10, overflowX: "auto" }}>
-                              <table style={{ width: "100%", borderCollapse: "collapse" as const, fontSize: "0.68rem" }}>
-                                <thead>
-                                  <tr style={{ color: "var(--text-3)", borderBottom: "1px solid var(--border)" }}>
-                                    <th style={{ textAlign: "left" as const, padding: "4px 0", fontWeight: 600 }}>Bowler</th>
-                                    <th style={{ textAlign: "right" as const, padding: "4px 4px", fontWeight: 600 }}>O</th>
-                                    <th style={{ textAlign: "right" as const, padding: "4px 4px", fontWeight: 600 }}>M</th>
-                                    <th style={{ textAlign: "right" as const, padding: "4px 4px", fontWeight: 600 }}>R</th>
-                                    <th style={{ textAlign: "right" as const, padding: "4px 4px", fontWeight: 600 }}>W</th>
-                                    <th style={{ textAlign: "right" as const, padding: "4px 4px", fontWeight: 600 }}>ECO</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {inn.bowling.map((b: any, bi: number) => (
-                                    <tr key={bi} style={{ borderBottom: "1px solid var(--border)" }}>
-                                      <td style={{ padding: "5px 0", color: "var(--text)" }}>{b.name}</td>
-                                      <td style={{ textAlign: "right" as const, padding: "5px 4px", color: "var(--text-3)" }}>{b.overs}</td>
-                                      <td style={{ textAlign: "right" as const, padding: "5px 4px", color: "var(--text-3)" }}>{b.maidens}</td>
-                                      <td style={{ textAlign: "right" as const, padding: "5px 4px", color: "var(--text-3)" }}>{b.runs}</td>
-                                      <td style={{ textAlign: "right" as const, padding: "5px 4px", color: "#22c55e", fontWeight: 700 }}>{b.wickets}</td>
-                                      <td style={{ textAlign: "right" as const, padding: "5px 4px", color: "var(--text-3)" }}>{parseFloat(b.eco).toFixed(2)}</td>
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </div>
               );
             })}
