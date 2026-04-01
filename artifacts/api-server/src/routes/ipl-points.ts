@@ -237,6 +237,9 @@ function namesMatch(a: string, b: string): boolean {
   const lastA = partsA[partsA.length - 1];
   const lastB = partsB[partsB.length - 1];
   if (lastA === lastB && lastA.length > 3) {
+    // If either side is just a surname (e.g. "Stubbs" extracted from dismissal text "c Stubbs b ..."),
+    // a matching last name is sufficient — no first-name comparison needed.
+    if (partsA.length === 1 || partsB.length === 1) return true;
     const firstA = partsA[0];
     const firstB = partsB[0];
     // Require at least 4 characters of first name to match (prevents "Abhinandan" matching "Arshdeep")
@@ -257,10 +260,11 @@ function parseDismissal(dismissal: string): { caught?: string; lbwBowled?: boole
   const d = (dismissal || "").toLowerCase().trim();
   if (!d || d === "not out" || d === "dnb") return {};
   const result: any = {};
-  const cMatch = d.match(/^c\s+(.+?)\s+b\s/);
+  // Handles short form "c Stubbs b Chahal" AND long form "caught Stubbs bowled Chahal" (S3 feed)
+  const cMatch = d.match(/^c\s+(.+?)\s+b\s/) || d.match(/^caught\s+(.+?)\s+bowled\s/);
   if (cMatch) result.caught = cMatch[1].trim();
-  if (/^lbw\s+b\s/.test(d) || /^b\s/.test(d)) result.lbwBowled = true;
-  const stMatch = d.match(/^st\s+(.+?)\s+b\s/);
+  if (/^lbw\s+b\s/.test(d) || /^b\s/.test(d) || /^lbw\s+bowled\s/.test(d) || /^bowled\s/.test(d)) result.lbwBowled = true;
+  const stMatch = d.match(/^st\s+(.+?)\s+b\s/) || d.match(/^stumped\s+(.+?)\s+bowled\s/);
   if (stMatch) result.stumped = stMatch[1].trim();
   const roMatch = d.match(/^run\s+out\s+\(([^/)]+)/);
   if (roMatch) result.runOut = roMatch[1].trim();
