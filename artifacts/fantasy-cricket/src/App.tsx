@@ -2403,209 +2403,205 @@ export default function App() {
 
   const renderHome = () => {
     return (
-    <div>
-      {/* Countdown to next match */}
-      {countdown && (
-        <div className="countdown-card" style={{ flexDirection: "column", alignItems: "stretch", gap: 10 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div>
-              <div className="countdown-timer">{countdown.text}</div>
-              <div className="countdown-label">Next Match</div>
-            </div>
-            <div style={{ textAlign: "right" }}>
-              <div className="countdown-match">{countdown.matchName}</div>
-              {countdown.venue && (
-                <div style={{ fontSize: "0.6rem", color: "var(--text-3)", marginTop: 3 }}>
-                  🏟 {countdown.venue}{countdown.homeTeam ? ` (${countdown.homeTeam})` : ""}
-                </div>
-              )}
-            </div>
-          </div>
-          {(() => {
-            const nextM = liveMatches.filter((m: any) => !m.matchStarted && m.dateTimeGMT)
-              .sort((a: any, b: any) => new Date(a.dateTimeGMT).getTime() - new Date(b.dateTimeGMT).getTime())[0];
-            if (!nextM?.homeTeamCode || !nextM?.awayTeamCode) return null;
-            const stakes = Object.values(FANTASY_TEAMS).map(ft => ({
-              owner: ft.owner, color: ft.color,
-              count: ft.players.filter((p: any) => p.ipl === nextM.homeTeamCode || p.ipl === nextM.awayTeamCode).length
-            }));
-            const h2h = getH2H(nextM.homeTeamCode, nextM.awayTeamCode);
-            const vd = VENUE_AVG[nextM.venue || ""];
-            const pred = predictNextMatch(nextM.homeTeamCode, nextM.awayTeamCode);
-            const hasIntel = h2h || vd;
-            const sortedStakes = [...stakes].filter(s => s.count > 0).sort((a, b) => b.count - a.count);
-            return (
-              <div style={{ borderTop: "1px solid var(--border)", paddingTop: 9, display: "flex", flexDirection: "column" as const, gap: 0 }}>
-                {/* Row 1: picks — consistent size, sorted by count */}
-                {sortedStakes.length > 0 && (
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, paddingBottom: 8 }}>
-                    <span style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em", flexShrink: 0 }}>PICKS</span>
-                    <div style={{ display: "flex", gap: 12, flexWrap: "wrap" as const }}>
-                      {sortedStakes.map(s => (
-                        <span key={s.owner} style={{ display: "flex", alignItems: "baseline", gap: 3 }}>
-                          <span style={{ fontSize: "0.68rem", fontWeight: 700, color: s.color }}>{s.owner}</span>
-                          <span style={{ fontSize: "0.6rem", fontWeight: 500, color: "var(--text-3)" }}>{s.count}</span>
-                        </span>
-                      ))}
-                    </div>
+      <div>
+        {/* Countdown to next match */}
+        {countdown && (
+          <div className="countdown-card" style={{ flexDirection: "column", alignItems: "stretch", gap: 10 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div>
+                <div className="countdown-timer">{countdown.text}</div>
+                <div className="countdown-label">Next Match</div>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <div className="countdown-match">{countdown.matchName}</div>
+                {countdown.venue && (
+                  <div style={{ fontSize: "0.6rem", color: "var(--text-3)", marginTop: 3 }}>
+                    🏟 {countdown.venue}{countdown.homeTeam ? ` (${countdown.homeTeam})` : ""}
                   </div>
                 )}
-                {/* Collapsible intel section */}
-                {hasIntel && (
-                  <div style={{ borderTop: "1px solid var(--border)", paddingTop: 7 }}>
-                    {/* Toggle row */}
-                    <div onClick={() => setIntelOpen(o => !o)}
-                      style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", userSelect: "none" as const }}>
-                      <span style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em" }}>MATCH INTEL</span>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                        {!intelOpen && pred.pick && (
-                          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                            <img src={TEAM_LOGO_CDN[pred.pick]} alt={pred.pick} style={{ width: 13, height: 13, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                            <span style={{ fontSize: "0.63rem", fontWeight: 700, color: "var(--gold)" }}>{pred.pick}</span>
-                          </div>
-                        )}
-                        <span style={{ fontSize: "0.55rem", color: "var(--text-3)", display: "inline-block", transition: "transform 0.2s", transform: intelOpen ? "rotate(180deg)" : "none" }}>▼</span>
+              </div>
+            </div>
+            {(() => {
+              const nextM = liveMatches.filter((m: any) => !m.matchStarted && m.dateTimeGMT)
+                .sort((a: any, b: any) => new Date(a.dateTimeGMT).getTime() - new Date(b.dateTimeGMT).getTime())[0];
+              if (!nextM?.homeTeamCode || !nextM?.awayTeamCode) return null;
+              const stakes = Object.values(FANTASY_TEAMS).map(ft => ({
+                owner: ft.owner, color: ft.color,
+                count: ft.players.filter((p: any) => p.ipl === nextM.homeTeamCode || p.ipl === nextM.awayTeamCode).length
+              }));
+              const h2h = getH2H(nextM.homeTeamCode, nextM.awayTeamCode);
+              const vd = VENUE_AVG[nextM.venue || ""];
+              const pred = predictNextMatch(nextM.homeTeamCode, nextM.awayTeamCode);
+              const hasIntel = h2h || vd;
+              const sortedStakes = [...stakes].filter(s => s.count > 0).sort((a, b) => b.count - a.count);
+              return (
+                <div style={{ borderTop: "1px solid var(--border)", paddingTop: 9, display: "flex", flexDirection: "column" as const, gap: 0 }}>
+                  {/* Row 1: picks — consistent size, sorted by count */}
+                  {sortedStakes.length > 0 && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, paddingBottom: 8 }}>
+                      <span style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em", flexShrink: 0 }}>PICKS</span>
+                      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" as const }}>
+                        {sortedStakes.map(s => (
+                          <span key={s.owner} style={{ display: "flex", alignItems: "baseline", gap: 3 }}>
+                            <span style={{ fontSize: "0.68rem", fontWeight: 700, color: s.color }}>{s.owner}</span>
+                            <span style={{ fontSize: "0.6rem", fontWeight: 500, color: "var(--text-3)" }}>{s.count}</span>
+                          </span>
+                        ))}
                       </div>
                     </div>
-                    {/* Expanded rows */}
-                    {intelOpen && (
-                      <div style={{ display: "flex", flexDirection: "column" as const, gap: 7, marginTop: 9 }}>
-                        {h2h && (
-                          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                            <span style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em", flexShrink: 0, minWidth: 90 }}>H2H</span>
-                            <span style={{ fontSize: "0.68rem" }}>
-                              <span style={{ fontWeight: 700, color: h2h.aWins >= h2h.bWins ? "var(--text)" : "var(--text-3)" }}>{nextM.homeTeamCode} {h2h.aWins}</span>
-                              <span style={{ margin: "0 5px", color: "var(--text-3)" }}>–</span>
-                              <span style={{ fontWeight: 700, color: h2h.bWins > h2h.aWins ? "var(--text)" : "var(--text-3)" }}>{h2h.bWins} {nextM.awayTeamCode}</span>
-                            </span>
-                          </div>
-                        )}
-                        {vd && (
-                          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                            <span style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em", flexShrink: 0, minWidth: 90 }}>PRED TOTAL</span>
-                            <span style={{ fontSize: "0.68rem" }}>
-                              <span style={{ fontWeight: 700, color: "var(--text)" }}>{predictFirstInningsTotal(nextM.homeTeamCode, nextM.awayTeamCode, vd.avg)}</span>
-                              <span style={{ fontSize: "0.6rem", color: "var(--text-3)", marginLeft: 6 }}>{vd.note}</span>
-                            </span>
-                          </div>
-                        )}
-                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                          <span style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em", flexShrink: 0, minWidth: 90 }}>MATCH PRED</span>
-                          {pred.pick ? (
-                            <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                              <img src={TEAM_LOGO_CDN[pred.pick]} alt={pred.pick} style={{ width: 15, height: 15, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                              <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--gold)" }}>{pred.pick}</span>
-                              <span style={{ fontSize: "0.56rem", color: "var(--text-3)", fontStyle: "italic" }}>· {pred.reason}</span>
+                  )}
+                  {/* Collapsible intel section */}
+                  {hasIntel && (
+                    <div style={{ borderTop: "1px solid var(--border)", paddingTop: 7 }}>
+                      {/* Toggle row */}
+                      <div onClick={() => setIntelOpen(o => !o)}
+                        style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", userSelect: "none" as const }}>
+                        <span style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em" }}>MATCH INTEL</span>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          {!intelOpen && pred.pick && (
+                            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                              <img src={TEAM_LOGO_CDN[pred.pick]} alt={pred.pick} style={{ width: 13, height: 13, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                              <span style={{ fontSize: "0.63rem", fontWeight: 700, color: "var(--gold)" }}>{pred.pick}</span>
                             </div>
-                          ) : (
-                            <span style={{ fontSize: "0.6rem", color: "var(--text-3)", fontStyle: "italic" }}>{pred.reason}</span>
                           )}
+                          <span style={{ fontSize: "0.55rem", color: "var(--text-3)", display: "inline-block", transition: "transform 0.2s", transform: intelOpen ? "rotate(180deg)" : "none" }}>▼</span>
                         </div>
                       </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          })()}
+                      {/* Expanded rows */}
+                      {intelOpen && (
+                        <div style={{ display: "flex", flexDirection: "column" as const, gap: 7, marginTop: 9 }}>
+                          {h2h && (
+                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                              <span style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em", flexShrink: 0, minWidth: 90 }}>H2H</span>
+                              <span style={{ fontSize: "0.68rem" }}>
+                                <span style={{ fontWeight: 700, color: h2h.aWins >= h2h.bWins ? "var(--text)" : "var(--text-3)" }}>{nextM.homeTeamCode} {h2h.aWins}</span>
+                                <span style={{ margin: "0 5px", color: "var(--text-3)" }}>–</span>
+                                <span style={{ fontWeight: 700, color: h2h.bWins > h2h.aWins ? "var(--text)" : "var(--text-3)" }}>{h2h.bWins} {nextM.awayTeamCode}</span>
+                              </span>
+                            </div>
+                          )}
+                          {vd && (
+                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                              <span style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em", flexShrink: 0, minWidth: 90 }}>PRED TOTAL</span>
+                              <span style={{ fontSize: "0.68rem" }}>
+                                <span style={{ fontWeight: 700, color: "var(--text)" }}>{predictFirstInningsTotal(nextM.homeTeamCode, nextM.awayTeamCode, vd.avg)}</span>
+                                <span style={{ fontSize: "0.6rem", color: "var(--text-3)", marginLeft: 6 }}>{vd.note}</span>
+                              </span>
+                            </div>
+                          )}
+                          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                            <span style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em", flexShrink: 0, minWidth: 90 }}>MATCH PRED</span>
+                            {pred.pick ? (
+                              <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                                <img src={TEAM_LOGO_CDN[pred.pick]} alt={pred.pick} style={{ width: 15, height: 15, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                                <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--gold)" }}>{pred.pick}</span>
+                                <span style={{ fontSize: "0.56rem", color: "var(--text-3)", fontStyle: "italic" }}>· {pred.reason}</span>
+                              </div>
+                            ) : (
+                              <span style={{ fontSize: "0.6rem", color: "var(--text-3)", fontStyle: "italic" }}>{pred.reason}</span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+          </div>
+        )}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, marginTop: countdown ? 16 : 0 }}>
+          <div className="sec-title" style={{ marginBottom: 0 }}>Leaderboard</div>
+          <button className="btn-primary" style={{ padding: "6px 10px", display: "flex", alignItems: "center", gap: 5 }} onClick={shareLeaderboard} title="Share leaderboard">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>
+            </svg>
+            <span style={{ fontSize: "0.68rem" }}>Share</span>
+          </button>
         </div>
-      )}
-
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, marginTop: countdown ? 16 : 0 }}>
-        <div className="sec-title" style={{ marginBottom: 0 }}>Leaderboard</div>
-        <button className="btn-primary" style={{ padding: "6px 10px", display: "flex", alignItems: "center", gap: 5 }} onClick={shareLeaderboard} title="Share leaderboard">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>
-          </svg>
-          <span style={{ fontSize: "0.68rem" }}>Share</span>
-        </button>
-      </div>
-      {(() => {
-        const LB_BG: Record<string, string> = {
-          rajveer:  `${import.meta.env.BASE_URL}lb-bg-rajveer.jpeg`,
-          mombasa:  `${import.meta.env.BASE_URL}lb-bg-mombasa.jpeg`,
-          mumbai:   `${import.meta.env.BASE_URL}lb-bg-mumbai.jpeg`,
-          ponygoat: `${import.meta.env.BASE_URL}lb-bg-ponygoat.jpeg`,
-        };
-        return (
-          <div>
-          {teamScores.map((s, i) => (
-            <div key={s.id} className={`lb-card ${i === 0 ? "rank-first" : ""}`} onClick={() => { setSelectedTeam(s.id); setTab("teams"); }}>
-              {/* Blurred team artwork background */}
-              <div style={{
-                position: "absolute", inset: -6, zIndex: 0,
-                backgroundImage: `url(${LB_BG[s.id]})`,
-                backgroundSize: "cover", backgroundPosition: "center 30%",
-                filter: "blur(14px) brightness(0.28) saturate(1.4)",
-              }} />
-              {/* Subtle vignette overlay for extra depth */}
-              <div style={{
-                position: "absolute", inset: 0, zIndex: 1,
-                background: `linear-gradient(135deg, ${s.team.color}18 0%, rgba(6,4,2,0.55) 100%)`,
-              }} />
-              <div className="lb-accent" style={{ background: s.team.color, zIndex: 2, position: "relative" }} />
-              <div className="lb-inner" style={{ position: "relative", zIndex: 2 }}>
-                <div className={`lb-rank ${rankLabel(i)}`} style={{ textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>{i + 1}</div>
-                <div className="lb-info">
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <div className={`lb-name ${i === 0 ? "first" : ""}`}
-                      style={{ textShadow: "0 1px 6px rgba(0,0,0,1), 0 0 20px rgba(0,0,0,0.8)" }}>
-                      {s.team.name}
+        {(() => {
+          const LB_BG: Record<string, string> = {
+            rajveer:  `${import.meta.env.BASE_URL}lb-bg-rajveer.jpeg`,
+            mombasa:  `${import.meta.env.BASE_URL}lb-bg-mombasa.jpeg`,
+            mumbai:   `${import.meta.env.BASE_URL}lb-bg-mumbai.jpeg`,
+            ponygoat: `${import.meta.env.BASE_URL}lb-bg-ponygoat.jpeg`,
+          };
+          return (
+            <div>
+              {teamScores.map((s, i) => (
+                <div key={s.id} className={`lb-card ${i === 0 ? "rank-first" : ""}`} onClick={() => { setSelectedTeam(s.id); setTab("teams"); }}>
+                  {/* Blurred team artwork background */}
+                  <div style={{
+                    position: "absolute", inset: -6, zIndex: 0,
+                    backgroundImage: `url(${LB_BG[s.id]})`,
+                    backgroundSize: "cover", backgroundPosition: "center 30%",
+                    filter: "blur(14px) brightness(0.28) saturate(1.4)",
+                  }} />
+                  {/* Subtle vignette overlay for extra depth */}
+                  <div style={{
+                    position: "absolute", inset: 0, zIndex: 1,
+                    background: `linear-gradient(135deg, ${s.team.color}18 0%, rgba(6,4,2,0.55) 100%)`,
+                  }} />
+                  <div className="lb-accent" style={{ background: s.team.color, zIndex: 2, position: "relative" }} />
+                  <div className="lb-inner" style={{ position: "relative", zIndex: 2 }}>
+                    <div className={`lb-rank ${rankLabel(i)}`} style={{ textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>{i + 1}</div>
+                    <div className="lb-info">
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <div className={`lb-name ${i === 0 ? "first" : ""}`}
+                          style={{ textShadow: "0 1px 6px rgba(0,0,0,1), 0 0 20px rgba(0,0,0,0.8)" }}>
+                          {s.team.name}
+                        </div>
+                      </div>
+                      <div className="lb-meta" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>
+                        {s.team.owner} · <span style={{ color: "#d4a843" }}>C:</span> {s.team.captain} · <span style={{ color: "var(--text-2)" }}>VC:</span> {s.team.vc}
+                      </div>
+                    </div>
+                    <div style={{ textAlign: "right", flexShrink: 0 }}>
+                      <div className="lb-pts first opacity-[1] bg-[transparent]"
+                        style={{ color: Object.keys(playerPoints).length === 0 ? "var(--text-3)" : s.team.color, textShadow: `0 0 18px ${s.team.color}99, 0 1px 6px rgba(0,0,0,1)` }}>
+                        {Object.keys(playerPoints).length === 0 ? "—" : s.total}
+                      </div>
+                      <div className="lb-pts-label" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>pts</div>
                     </div>
                   </div>
-                  <div className="lb-meta" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>
-                    {s.team.owner} · <span style={{ color: "#d4a843" }}>C:</span> {s.team.captain} · <span style={{ color: "var(--text-2)" }}>VC:</span> {s.team.vc}
-                  </div>
                 </div>
-                <div style={{ textAlign: "right", flexShrink: 0 }}>
-                  <div className={`lb-pts ${i === 0 ? "first" : ""}`}
-                    style={{ color: Object.keys(playerPoints).length === 0 ? "var(--text-3)" : s.team.color, textShadow: `0 0 18px ${s.team.color}99, 0 1px 6px rgba(0,0,0,1)` }}>
-                    {Object.keys(playerPoints).length === 0 ? "—" : s.total}
-                  </div>
-                  <div className="lb-pts-label" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>pts</div>
-                </div>
-              </div>
+              ))}
             </div>
-          ))}
-          </div>
-        );
-      })()}
-
-      {(() => {
-        const liveNow = liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded);
-        if (liveNow.length === 0) return null;
-        return (
-          <>
-            <div className="divider" />
-            <div className="sec-title">Live Now</div>
-            {liveNow.map((m: any) => (
-              <div key={m.id} className="match-card" onClick={() => { setTab("fixtures"); setMatchFilter("live"); }}
-                style={{ cursor: "pointer" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div className="match-status" style={{ color: "var(--live)" }}>Live</div>
-                  <div style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>View in Matches →</div>
+          );
+        })()}
+        {(() => {
+          const liveNow = liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded);
+          if (liveNow.length === 0) return null;
+          return (
+            <>
+              <div className="divider" />
+              <div className="sec-title">Live Now</div>
+              {liveNow.map((m: any) => (
+                <div key={m.id} className="match-card" onClick={() => { setTab("fixtures"); setMatchFilter("live"); }}
+                  style={{ cursor: "pointer" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div className="match-status" style={{ color: "var(--live)" }}>Live</div>
+                    <div style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>View in Matches →</div>
+                  </div>
+                  <div className="match-name">{m.name}</div>
+                  {(m.score || []).map((s: any, i: number) => (
+                    <div key={i} className="match-score" style={{ marginTop: 3 }}>
+                      <span style={{ color: "var(--text-3)", fontSize: "0.67rem" }}>{(s.inning || "").replace(" Innings", "").replace(" Inning", "")} </span>
+                      {s.summary || (s.r != null ? `${s.r}/${s.w} (${s.o} ov)` : "")}
+                    </div>
+                  ))}
+                  {m.toss && <div style={{ fontSize: "0.65rem", color: "var(--text-2)", marginTop: 5 }}>{m.toss}</div>}
+                  {m.venue && (
+                    <div className="match-venue">
+                      🏟 {m.venue}{m.homeTeamCode ? ` (${m.homeTeamCode})` : ""}
+                    </div>
+                  )}
                 </div>
-                <div className="match-name">{m.name}</div>
-                {(m.score || []).map((s: any, i: number) => (
-                  <div key={i} className="match-score" style={{ marginTop: 3 }}>
-                    <span style={{ color: "var(--text-3)", fontSize: "0.67rem" }}>{(s.inning || "").replace(" Innings", "").replace(" Inning", "")} </span>
-                    {s.summary || (s.r != null ? `${s.r}/${s.w} (${s.o} ov)` : "")}
-                  </div>
-                ))}
-                {m.toss && <div style={{ fontSize: "0.65rem", color: "var(--text-2)", marginTop: 5 }}>{m.toss}</div>}
-                {m.venue && (
-                  <div className="match-venue">
-                    🏟 {m.venue}{m.homeTeamCode ? ` (${m.homeTeamCode})` : ""}
-                  </div>
-                )}
-              </div>
-            ))}
-          </>
-        );
-      })()}
-
-
-    </div>
+              ))}
+            </>
+          );
+        })()}
+      </div>
     );
   };
 
@@ -4037,10 +4033,9 @@ export default function App() {
                   <div key={ft.id}>
                     {/* divider between entries */}
                     {idx > 0 && <div style={{ height: 1, background: "rgba(255,255,255,0.04)", margin: "10px 0" }} />}
-
                     {isEditing ? (
                       /* ── Edit mode: two-step expanded card ── */
-                      <div style={{ padding: "4px 0 8px" }}>
+                      (<div style={{ padding: "4px 0 8px" }}>
                         {/* User identity */}
                         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
                           <span style={{ fontSize: "1.1rem" }}>{ft.emoji}</span>
@@ -4059,12 +4054,10 @@ export default function App() {
                             ))}
                           </div>
                         </div>
-
                         {/* Step label */}
                         <div style={{ fontSize: "0.62rem", color: "#52525b", textAlign: "center", marginBottom: 14, letterSpacing: "0.5px" }}>
                           {pinStep === "confirm" ? "CONFIRM CURRENT PIN" : "ENTER NEW PIN"}
                         </div>
-
                         {/* Step 1 — confirm current PIN */}
                         {pinStep === "confirm" && (() => {
                           const val = pinConfirmVal;
@@ -4132,7 +4125,6 @@ export default function App() {
                             </div>
                           );
                         })()}
-
                         {/* Step 2 — enter new PIN */}
                         {pinStep === "new" && (() => {
                           const val = pinEditVal;
@@ -4195,10 +4187,10 @@ export default function App() {
                             </div>
                           );
                         })()}
-                      </div>
+                      </div>)
                     ) : (
                       /* ── Idle row ── */
-                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      (<div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                         <span style={{ fontSize: "1rem" }}>{ft.emoji}</span>
                         <div style={{ flex: 1 }}>
                           <div style={{ fontSize: "0.7rem", fontWeight: 600, color: ft.color }}>{ft.owner}</div>
@@ -4222,7 +4214,7 @@ export default function App() {
                             Change
                           </button>
                         </div>
-                      </div>
+                      </div>)
                     )}
                   </div>
                 );
