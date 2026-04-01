@@ -3836,23 +3836,48 @@ export default function App() {
           return (
             <>
               {/* Score cards */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, marginBottom: 12 }}>
-                {PRED_OWNERS.map(id => {
-                  const ft = FANTASY_TEAMS[id];
-                  return (
-                    <div key={id} style={{ background: "var(--surface)", border: `1px solid ${ft.color}33`, borderRadius: 10, padding: "10px 4px", textAlign: "center" as const }}>
-                      <div style={{ display: "flex", justifyContent: "center", marginBottom: 6 }}>
-                        <div style={{ position: "relative", width: 36, height: 36, borderRadius: "50%", border: `2px solid ${ft.color}80`, overflow: "hidden", flexShrink: 0 }}>
-                          <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: ft.avatarPosition || "center center", display: "block" }} />
-                          <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "radial-gradient(circle, transparent 40%, rgba(8,12,20,0.7) 80%, rgba(8,12,20,0.9) 100%)" }} />
+              {(() => {
+                const PRED_BG: Record<string, string> = {
+                  rajveer:  `${import.meta.env.BASE_URL}lb-bg-rajveer.jpeg`,
+                  mombasa:  `${import.meta.env.BASE_URL}lb-bg-mombasa.jpeg`,
+                  mumbai:   `${import.meta.env.BASE_URL}lb-bg-mumbai.jpeg`,
+                  ponygoat: `${import.meta.env.BASE_URL}lb-bg-ponygoat.jpeg`,
+                };
+                return (
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, marginBottom: 12 }}>
+                    {PRED_OWNERS.map(id => {
+                      const ft = FANTASY_TEAMS[id];
+                      return (
+                        <div key={id} style={{ position: "relative", border: `1px solid ${ft.color}33`, borderRadius: 10, padding: "10px 4px", textAlign: "center" as const, overflow: "hidden" }}>
+                          {/* Blurred team artwork background */}
+                          <div style={{
+                            position: "absolute", inset: -6, zIndex: 0,
+                            backgroundImage: `url(${PRED_BG[id]})`,
+                            backgroundSize: "cover", backgroundPosition: "center 30%",
+                            filter: "blur(11px) brightness(0.28) saturate(1.4)",
+                          }} />
+                          {/* Gradient overlay */}
+                          <div style={{
+                            position: "absolute", inset: 0, zIndex: 1,
+                            background: `linear-gradient(135deg, ${ft.color}18 0%, rgba(6,4,2,0.55) 100%)`,
+                          }} />
+                          {/* Content */}
+                          <div style={{ position: "relative", zIndex: 2 }}>
+                            <div style={{ display: "flex", justifyContent: "center", marginBottom: 6 }}>
+                              <div style={{ position: "relative", width: 36, height: 36, borderRadius: "50%", border: `2px solid ${ft.color}80`, overflow: "hidden", flexShrink: 0 }}>
+                                <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: ft.avatarPosition || "center center", display: "block" }} />
+                                <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "radial-gradient(circle, transparent 40%, rgba(8,12,20,0.7) 80%, rgba(8,12,20,0.9) 100%)" }} />
+                              </div>
+                            </div>
+                            <div style={{ fontSize: "1.3rem", fontWeight: 800, color: ft.color, lineHeight: 1, textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>{ownerScores[id]}</div>
+                            <div style={{ fontSize: "0.55rem", color: "var(--text-3)", marginTop: 2 }}>{ft.owner}</div>
+                          </div>
                         </div>
-                      </div>
-                      <div style={{ fontSize: "1.3rem", fontWeight: 800, color: ft.color, lineHeight: 1 }}>{ownerScores[id]}</div>
-                      <div style={{ fontSize: "0.55rem", color: "var(--text-3)", marginTop: 2 }}>{ft.owner}</div>
-                    </div>
-                  );
-                })}
-              </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
 
               {/* Match table */}
               {(() => {
