@@ -432,11 +432,11 @@ function ownerOnly(req: any, res: any): boolean {
   return true;
 }
 
-// GET /api/ipl/pins → returns all PINs (admin only), refreshed from Replit KV
+// GET /api/ipl/pins → returns all PINs (admin only), refreshed from PostgreSQL
 router.get("/ipl/pins", async (req, res) => {
   if (!ownerOnly(req, res)) return;
-  const kv = await loadAllPinsFromKV();
-  if (kv) { pinsCache = { ...pinsCache, ...kv }; saveServerPins(pinsCache); }
+  const pg = await loadAllPinsFromPG();
+  if (pg) { pinsCache = { ...pinsCache, ...pg }; saveServerPins(pinsCache); }
   res.json(pinsCache);
 });
 

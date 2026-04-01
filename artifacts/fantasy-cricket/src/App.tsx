@@ -351,30 +351,45 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
     return (
       <div style={{
         position: "fixed", inset: 0, zIndex: 1000,
-        background: "#080c14",
+        background: "#060a12",
         display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center",
         overflow: "hidden",
       }}>
         <style>{`
           @keyframes login-fade-up { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
           @keyframes pin-shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(6px)} }
+          @keyframes loginOrbA { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(6%,4%) scale(1.12)} 66%{transform:translate(-4%,7%) scale(0.92)} }
+          @keyframes loginOrbB { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(-5%,-6%) scale(1.08)} 66%{transform:translate(5%,-2%) scale(0.94)} }
           .pin-dot-fill { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-          .pin-dot-fill.filled { transform: scale(1.15); }
+          .pin-dot-fill.filled { transform: scale(1.2); }
           .num-key { transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 4px 12px rgba(0,0,0,0.2); }
-          .num-key:active { transform: scale(0.9) translateY(2px); box-shadow: inset 0 1px 0 rgba(255,255,255,0.02), 0 2px 6px rgba(0,0,0,0.2); }
+          .num-key:active { transform: scale(0.88) translateY(2px); box-shadow: inset 0 1px 0 rgba(255,255,255,0.02), 0 2px 6px rgba(0,0,0,0.2); }
         `}</style>
 
+        {/* Atmospheric orbs */}
+        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: "-10%", left: "-20%", width: "70%", height: "70%", borderRadius: "50%",
+            background: `radial-gradient(circle, ${ft.color}18 0%, transparent 70%)`,
+            animation: "loginOrbA 14s ease-in-out infinite" }} />
+          <div style={{ position: "absolute", bottom: "-15%", right: "-20%", width: "75%", height: "75%", borderRadius: "50%",
+            background: `radial-gradient(circle, ${ft.color}10 0%, transparent 70%)`,
+            animation: "loginOrbB 18s ease-in-out 2s infinite" }} />
+          <div style={{ position: "absolute", top: "40%", right: "10%", width: "40%", height: "40%", borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(96,165,250,0.04) 0%, transparent 70%)",
+            animation: "loginOrbA 22s ease-in-out 5s infinite reverse" }} />
+        </div>
+
         <button onClick={() => { setSel(null); setEntered(""); setWrong(false); }}
-          style={{ position: "absolute", top: 22, left: 20, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "6px 14px", color: "#71717a", fontSize: "0.72rem", cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 5 }}>
+          style={{ position: "absolute", top: 22, left: 20, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: "6px 14px", color: "#71717a", fontSize: "0.72rem", cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 5, backdropFilter: "blur(8px)" }}>
           ← Back
         </button>
 
         <div style={{ animation: "login-fade-up 0.35s ease-out", display: "flex", flexDirection: "column" as const, alignItems: "center" }}>
           {/* Avatar */}
-          <div style={{ position: "relative", marginBottom: 18 }}>
-            <div style={{ width: 88, height: 88, borderRadius: "50%", border: `2.5px solid ${ft.color}70`, overflow: "hidden", boxShadow: `0 0 0 4px ${ft.color}20, 0 8px 28px rgba(0,0,0,0.5)`, position: "relative" as const }}>
+          <div style={{ position: "relative", marginBottom: 20 }}>
+            <div style={{ width: 92, height: 92, borderRadius: "50%", border: `2.5px solid ${ft.color}90`, overflow: "hidden", boxShadow: `0 0 0 5px ${ft.color}28, 0 0 32px ${ft.color}45, 0 8px 36px rgba(0,0,0,0.6)`, position: "relative" as const }}>
               <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center center", display: "block" }} />
-              <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "radial-gradient(circle, transparent 42%, rgba(8,12,20,0.75) 72%, rgba(8,12,20,0.97) 100%)" }} />
+              <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "radial-gradient(circle, transparent 38%, rgba(6,10,18,0.65) 68%, rgba(6,10,18,0.96) 100%)" }} />
             </div>
           </div>
 
@@ -398,16 +413,20 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
           {checking && <div style={{ fontSize: "0.62rem", color: "#71717a", marginBottom: 12, letterSpacing: "0.06em" }}>Checking…</div>}
 
           {/* Numpad */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 76px)", gap: 14, width: "fit-content", opacity: checking ? 0.4 : 1, pointerEvents: checking ? "none" : "auto" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 76px)", gap: 12, width: "fit-content", opacity: checking ? 0.4 : 1, pointerEvents: checking ? "none" : "auto" }}>
             {["1","2","3","4","5","6","7","8","9","","0","⌫"].map((k, i) => (
               k === "" ? <div key={i} /> :
               <button key={i} className="num-key" onClick={() => k === "⌫" ? back() : digit(k)} style={{
-                background: k === "⌫" ? "rgba(248,113,113,0.07)" : "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)",
-                border: `1px solid ${k === "⌫" ? "rgba(248,113,113,0.25)" : "rgba(255,255,255,0.12)"}`,
-                borderRadius: 20, width: 76, height: 76, fontSize: k === "⌫" ? "1.2rem" : "1.6rem", fontWeight: 500,
+                background: k === "⌫" ? "rgba(248,113,113,0.08)" : "rgba(255,255,255,0.07)",
+                border: `1px solid ${k === "⌫" ? "rgba(248,113,113,0.3)" : "rgba(255,255,255,0.13)"}`,
+                borderRadius: 22, width: 76, height: 76,
+                fontSize: k === "⌫" ? "1.2rem" : "1.65rem", fontWeight: 500,
                 color: k === "⌫" ? "#f87171" : "#ffffff", cursor: "pointer", fontFamily: "inherit",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                backdropFilter: "blur(12px)",
+                backdropFilter: "blur(16px)",
+                boxShadow: k === "⌫"
+                  ? "inset 0 1px 0 rgba(248,113,113,0.1), 0 4px 12px rgba(0,0,0,0.3)"
+                  : "inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 12px rgba(0,0,0,0.25)",
               }}>{k}</button>
             ))}
           </div>
@@ -419,21 +438,36 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 1000,
-      background: "#080c14",
+      background: "#060a12",
       display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center",
       overflow: "hidden", padding: "0 24px",
     }}>
       <style>{`
         @keyframes login-fade-up { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
-        @keyframes team-card-in { from { opacity:0; transform:scale(0.9) translateY(15px); } to { opacity:1; transform:scale(1) translateY(0); } }
+        @keyframes team-card-in { from { opacity:0; transform:scale(0.88) translateY(18px); } to { opacity:1; transform:scale(1) translateY(0); } }
         @keyframes welcome-pop { from { opacity:0; transform:scale(0.88) translateY(6px); } to { opacity:1; transform:scale(1) translateY(0); } }
         @keyframes login-icon-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .team-card { transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) !important; position: relative; overflow: hidden; }
-        .team-card::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 100%); opacity: 0; transition: opacity 0.25s ease; }
-        .team-card:hover { transform: translateY(-3px) !important; box-shadow: 0 10px 28px rgba(0,0,0,0.5) !important; border-color: rgba(255,255,255,0.25) !important; }
-        .team-card:hover::before { opacity: 1; }
-        .team-card:active { transform: scale(0.96) translateY(0) !important; transition: all 0.1s ease !important; }
+        @keyframes loginOrbA { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(5%,4%) scale(1.1)} 66%{transform:translate(-3%,6%) scale(0.93)} }
+        @keyframes loginOrbB { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(-4%,-5%) scale(1.07)} 66%{transform:translate(4%,-2%) scale(0.94)} }
+        .team-card { transition: all 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) !important; position: relative; overflow: hidden; }
+        .team-card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, transparent 60%); opacity: 0; transition: opacity 0.28s ease; pointer-events: none; }
+        .team-card:hover { transform: translateY(-4px) scale(1.01) !important; box-shadow: 0 16px 40px rgba(0,0,0,0.6) !important; }
+        .team-card:hover::after { opacity: 1; }
+        .team-card:active { transform: scale(0.95) translateY(0) !important; transition: all 0.1s ease !important; }
       `}</style>
+
+      {/* Atmospheric background orbs */}
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
+        <div style={{ position: "absolute", top: "-5%", left: "-15%", width: "65%", height: "60%", borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(232,188,72,0.08) 0%, transparent 70%)",
+          animation: "loginOrbA 16s ease-in-out infinite" }} />
+        <div style={{ position: "absolute", bottom: "0%", right: "-18%", width: "70%", height: "65%", borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(96,165,250,0.06) 0%, transparent 70%)",
+          animation: "loginOrbB 20s ease-in-out 4s infinite" }} />
+        <div style={{ position: "absolute", top: "55%", left: "-10%", width: "45%", height: "40%", borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(139,92,246,0.04) 0%, transparent 70%)",
+          animation: "loginOrbA 24s ease-in-out 8s infinite reverse" }} />
+      </div>
 
       {/* Logo */}
       {(() => {
@@ -489,21 +523,21 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, width: "100%", maxWidth: 400 }}>
         {Object.values(FANTASY_TEAMS).map((ft, idx) => (
           <button key={ft.id} className="team-card" onClick={() => setSel(ft.id)} style={{
-            background: `linear-gradient(160deg, ${ft.color}12 0%, rgba(8,12,20,0.85) 100%)`,
-            border: `1px solid ${ft.color}35`,
+            background: `linear-gradient(160deg, ${ft.color}18 0%, rgba(10,15,26,0.9) 70%, rgba(6,10,18,0.95) 100%)`,
+            border: `1px solid ${ft.color}45`,
             borderRadius: 24, padding: "28px 16px 24px",
             cursor: "pointer", fontFamily: "inherit",
             display: "flex", flexDirection: "column" as const, alignItems: "center",
-            boxShadow: `0 8px 24px rgba(0,0,0,0.4)`,
-            animation: `team-card-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) ${idx * 0.08 + 0.1}s both`,
-            backdropFilter: "blur(12px)",
+            boxShadow: `0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px ${ft.color}20, inset 0 1px 0 rgba(255,255,255,0.06)`,
+            animation: `team-card-in 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) ${idx * 0.09 + 0.08}s both`,
+            backdropFilter: "blur(16px)",
           }}>
-            <div style={{ width: 64, height: 64, borderRadius: "50%", border: `2px solid ${ft.color}70`, overflow: "hidden", marginBottom: 14, boxShadow: `0 0 0 3px ${ft.color}20`, flexShrink: 0, position: "relative" as const }}>
+            <div style={{ width: 68, height: 68, borderRadius: "50%", border: `2.5px solid ${ft.color}80`, overflow: "hidden", marginBottom: 14, boxShadow: `0 0 0 4px ${ft.color}22, 0 0 20px ${ft.color}30`, flexShrink: 0, position: "relative" as const }}>
               <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center center", display: "block" }} />
-              <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "radial-gradient(circle, transparent 42%, rgba(8,12,20,0.75) 72%, rgba(8,12,20,0.97) 100%)" }} />
+              <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "radial-gradient(circle, transparent 40%, rgba(6,10,18,0.7) 70%, rgba(6,10,18,0.95) 100%)" }} />
             </div>
             <div style={{ fontSize: "1rem", fontWeight: 800, color: "#ffffff", marginBottom: 5, letterSpacing: "-0.02em" }}>{ft.owner}</div>
-            <div style={{ fontSize: "0.62rem", color: ft.color, fontWeight: 600, lineHeight: 1.4, letterSpacing: "0.04em", opacity: 0.9 }}>{ft.name}</div>
+            <div style={{ fontSize: "0.62rem", color: ft.color, fontWeight: 600, lineHeight: 1.4, letterSpacing: "0.04em", opacity: 0.95 }}>{ft.name}</div>
           </button>
         ))}
       </div>
