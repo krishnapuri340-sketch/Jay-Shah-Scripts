@@ -3491,8 +3491,8 @@ export default function App() {
                                               return (
                                                 <div key={bi} style={{ display: "grid", gridTemplateColumns: WGRID, padding: "8px 12px", borderBottom: isLastBowl ? "none" : "1px solid var(--border)", alignItems: "center" }}>
                                                   <div style={{ display: "flex", alignItems: "center", gap: 5, minWidth: 0 }}>
-                                                    {isF && <span style={{ fontSize: "0.44rem", background: "rgba(74,222,128,0.15)", color: "#4ade80", borderRadius: 4, padding: "1px 4px", flexShrink: 0, fontWeight: 800 }}>F</span>}
                                                     <span style={{ fontSize: SZ_NAME, color: "var(--text)", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{b.name}</span>
+                                                    {isF && <span style={{ fontSize: "0.44rem", background: "rgba(74,222,128,0.15)", color: "#4ade80", borderRadius: 4, padding: "1px 4px", flexShrink: 0, fontWeight: 800 }}>F</span>}
                                                   </div>
                                                   <div style={{ ...S_STAT, color: "var(--text-3)" }}>{b.overs}</div>
                                                   <div style={{ ...S_STAT, color: "var(--text-3)" }}>{b.maidens}</div>
