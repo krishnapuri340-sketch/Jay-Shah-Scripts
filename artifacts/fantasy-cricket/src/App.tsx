@@ -3854,12 +3854,12 @@ export default function App() {
                             position: "absolute", inset: -6, zIndex: 0,
                             backgroundImage: `url(${PRED_BG[id]})`,
                             backgroundSize: "cover", backgroundPosition: "center 30%",
-                            filter: "blur(11px) brightness(0.28) saturate(1.4)",
+                            filter: "blur(8px) brightness(0.45) saturate(1.5)",
                           }} />
                           {/* Gradient overlay */}
                           <div style={{
                             position: "absolute", inset: 0, zIndex: 1,
-                            background: `linear-gradient(135deg, ${ft.color}18 0%, rgba(6,4,2,0.55) 100%)`,
+                            background: `linear-gradient(135deg, ${ft.color}28 0%, rgba(6,4,2,0.38) 100%)`,
                           }} />
                           {/* Content */}
                           <div style={{ position: "relative", zIndex: 2 }}>
