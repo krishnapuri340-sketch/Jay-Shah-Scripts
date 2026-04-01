@@ -3419,7 +3419,7 @@ export default function App() {
                                     const BGRID = SGRID;
                                     const WGRID = SGRID;
                                     // Shared style constants
-                                    const SZ_NAME = "0.76rem";
+                                    const SZ_NAME = "0.73rem";
                                     const SZ_STAT = "0.70rem";
                                     const SZ_HDR  = "0.5rem";
                                     const SZ_SUB  = "0.54rem";
