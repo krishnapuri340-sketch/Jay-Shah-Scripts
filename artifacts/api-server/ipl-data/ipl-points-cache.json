@@ -2669,7 +2669,7 @@
         },
         {
           "name": "Delhi Capitals Inning 1",
-          "total": "6/1 (1.0 Overs)",
+          "total": "20/1 (3.1 Overs)",
           "batting": [
             {
               "name": "K L Rahul",
@@ -2684,22 +2684,22 @@
             },
             {
               "name": "Pathum Nissanka",
-              "runs": 0,
-              "balls": 0,
+              "runs": 1,
+              "balls": 2,
               "fours": 0,
               "sixes": 0,
-              "sr": "0.00",
+              "sr": "50.00",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
             },
             {
               "name": "Nitish Rana",
-              "runs": 4,
-              "balls": 5,
-              "fours": 1,
-              "sixes": 0,
-              "sr": "80.00",
+              "runs": 15,
+              "balls": 16,
+              "fours": 2,
+              "sixes": 1,
+              "sr": "93.75",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -2796,12 +2796,32 @@
           "bowling": [
             {
               "name": "Mohammad Shami",
+              "overs": "2",
+              "maidens": 0,
+              "runs": 13,
+              "wickets": 1,
+              "eco": "6.50",
+              "wides": 3,
+              "noBalls": 0
+            },
+            {
+              "name": "Prince Yadav",
               "overs": "1",
               "maidens": 0,
-              "runs": 6,
-              "wickets": 1,
-              "eco": "6.00",
-              "wides": 2,
+              "runs": 7,
+              "wickets": 0,
+              "eco": "7.00",
+              "wides": 1,
+              "noBalls": 0
+            },
+            {
+              "name": "Mohsin Khan",
+              "overs": "0.1",
+              "maidens": 0,
+              "runs": 0,
+              "wickets": 0,
+              "eco": "0.00",
+              "wides": 0,
               "noBalls": 0
             }
           ]
@@ -2810,10 +2830,10 @@
       "points": {
         "Axar Patel": 58,
         "Nicholas Pooran": 16,
-        "Mohammed Shami": 45,
+        "Mohammed Shami": 59,
         "Aiden Markram": 25,
         "Rishabh Pant": 15,
-        "Nitish Rana": 12,
+        "Nitish Rana": 31,
         "Lungi Ngidi": 122,
         "Tristan Stubbs": 20,
         "KL Rahul": 10,
@@ -2864,11 +2884,11 @@
           "sixes": 0,
           "duck": false,
           "wickets": 1,
-          "dots": 5,
+          "dots": 10,
           "lbwBowled": 0,
           "maidens": 0,
-          "ballsBowled": 6,
-          "runsConceded": 6,
+          "ballsBowled": 12,
+          "runsConceded": 13,
           "catches": 0,
           "runOuts": 0,
           "stumpings": 0
@@ -2909,10 +2929,10 @@
         },
         "Nitish Rana": {
           "played": true,
-          "runs": 4,
-          "balls": 5,
-          "fours": 1,
-          "sixes": 0,
+          "runs": 15,
+          "balls": 16,
+          "fours": 2,
+          "sixes": 1,
           "duck": false,
           "wickets": 0,
           "dots": 0,
