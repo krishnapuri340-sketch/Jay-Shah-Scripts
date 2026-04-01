@@ -3314,27 +3314,27 @@ export default function App() {
                   {/* ── Team header ── */}
                   {teams.length >= 2 ? (
                     <div style={{ display: "flex", alignItems: "center", marginBottom: 10 }}>
-                      {/* Team A */}
-                      <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8 }}>
-                        <img src={TEAM_LOGO_CDN[teams[0].shortname] || teams[0].img} alt={teams[0].shortname}
-                          style={{ width: 30, height: 30, objectFit: "contain", flexShrink: 0, filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.5))" }}
+                      {/* Team A: logo left, text right of logo */}
+                      <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+                        <img src={TEAM_LOGO_CDN[teams[0].shortname]} alt={teams[0].shortname}
+                          style={{ width: 28, height: 28, objectFit: "contain", flexShrink: 0, filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.5))" }}
                           onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                        <div>
-                          <div style={{ fontSize: "1rem", fontWeight: 800, color: IPL_COLORS[teams[0].shortname] || "var(--text)", letterSpacing: "-0.01em", lineHeight: 1.05 }}>{teams[0].shortname}</div>
-                          <div style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.2)", marginTop: 2, lineHeight: 1 }}>{IPL_FULL_NAMES[teams[0].shortname] || ""}</div>
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ fontSize: "1rem", fontWeight: 800, color: IPL_COLORS[teams[0].shortname] || "var(--text)", letterSpacing: "-0.01em", lineHeight: 1.1 }}>{teams[0].shortname}</div>
+                          <div style={{ fontSize: "0.46rem", color: "rgba(255,255,255,0.2)", marginTop: 1, lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{IPL_FULL_NAMES[teams[0].shortname] || ""}</div>
                         </div>
                       </div>
                       {/* VS divider */}
-                      <div style={{ flexShrink: 0, padding: "0 10px", fontSize: "0.5rem", color: "rgba(255,255,255,0.15)", fontWeight: 700, letterSpacing: "0.1em" }}>VS</div>
-                      {/* Team B */}
-                      <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8, justifyContent: "flex-end", flexDirection: "row-reverse" as const }}>
-                        <img src={TEAM_LOGO_CDN[teams[1].shortname] || teams[1].img} alt={teams[1].shortname}
-                          style={{ width: 30, height: 30, objectFit: "contain", flexShrink: 0, filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.5))" }}
-                          onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                        <div style={{ textAlign: "right" as const }}>
-                          <div style={{ fontSize: "1rem", fontWeight: 800, color: IPL_COLORS[teams[1].shortname] || "var(--text)", letterSpacing: "-0.01em", lineHeight: 1.05 }}>{teams[1].shortname}</div>
-                          <div style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.2)", marginTop: 2, lineHeight: 1 }}>{IPL_FULL_NAMES[teams[1].shortname] || ""}</div>
+                      <div style={{ flexShrink: 0, padding: "0 8px", fontSize: "0.46rem", color: "rgba(255,255,255,0.15)", fontWeight: 700, letterSpacing: "0.1em" }}>VS</div>
+                      {/* Team B: text left of logo, logo right — mirrors Team A */}
+                      <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8, justifyContent: "flex-end", minWidth: 0 }}>
+                        <div style={{ textAlign: "right" as const, minWidth: 0 }}>
+                          <div style={{ fontSize: "1rem", fontWeight: 800, color: IPL_COLORS[teams[1].shortname] || "var(--text)", letterSpacing: "-0.01em", lineHeight: 1.1 }}>{teams[1].shortname}</div>
+                          <div style={{ fontSize: "0.46rem", color: "rgba(255,255,255,0.2)", marginTop: 1, lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{IPL_FULL_NAMES[teams[1].shortname] || ""}</div>
                         </div>
+                        <img src={TEAM_LOGO_CDN[teams[1].shortname]} alt={teams[1].shortname}
+                          style={{ width: 28, height: 28, objectFit: "contain", flexShrink: 0, filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.5))" }}
+                          onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
                       </div>
                     </div>
                   ) : (
