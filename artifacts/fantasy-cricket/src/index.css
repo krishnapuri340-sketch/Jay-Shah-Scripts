@@ -863,6 +863,18 @@ body { background: var(--bg); }
   border-color: var(--border);
 }
 
+/* Strip dark-mode glow text-shadows from cards in light mode */
+.light-mode .lb-rank,
+.light-mode .lb-name,
+.light-mode .lb-meta,
+.light-mode .lb-pts,
+.light-mode .lb-pts-label,
+.light-mode .team-hname,
+.light-mode .team-hlabel,
+.light-mode .countdown-timer,
+.light-mode .countdown-label,
+.light-mode .countdown-match { text-shadow: none !important; }
+
 /* Live pill */
 .light-mode .live-pill { background: rgba(10,158,104,0.09); border-color: rgba(10,158,104,0.18); color: var(--live); }
 .light-mode .live-dot { background: var(--live); }

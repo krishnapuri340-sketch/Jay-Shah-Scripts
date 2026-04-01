@@ -2401,18 +2401,20 @@ export default function App() {
         {/* Countdown to next match */}
         {countdown && (
           <div className="countdown-card" style={{ flexDirection: "column", alignItems: "stretch", gap: 10 }}>
-            {/* Blurred colosseum background */}
-            <div style={{
-              position: "absolute", inset: -6, zIndex: 0,
-              backgroundImage: `url(${import.meta.env.BASE_URL}countdown-bg.jpeg)`,
-              backgroundSize: "cover", backgroundPosition: "center 40%",
-              filter: "blur(4px) brightness(0.22) saturate(1.2)",
-            }} />
-            {/* Warm amber vignette — bleeds into the amber timer colour */}
-            <div style={{
-              position: "absolute", inset: 0, zIndex: 1,
-              background: "linear-gradient(160deg, rgba(245,166,35,0.12) 0%, rgba(6,4,2,0.6) 60%, rgba(6,4,2,0.75) 100%)",
-            }} />
+            {isDark && <>
+              {/* Blurred colosseum background */}
+              <div style={{
+                position: "absolute", inset: -6, zIndex: 0,
+                backgroundImage: `url(${import.meta.env.BASE_URL}countdown-bg.jpeg)`,
+                backgroundSize: "cover", backgroundPosition: "center 40%",
+                filter: "blur(4px) brightness(0.22) saturate(1.2)",
+              }} />
+              {/* Warm amber vignette — bleeds into the amber timer colour */}
+              <div style={{
+                position: "absolute", inset: 0, zIndex: 1,
+                background: "linear-gradient(160deg, rgba(245,166,35,0.12) 0%, rgba(6,4,2,0.6) 60%, rgba(6,4,2,0.75) 100%)",
+              }} />
+            </>}
             <div style={{ position: "relative", zIndex: 2, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <div>
                 <div className="countdown-timer" style={{ textShadow: "0 0 20px rgba(245,166,35,0.5), 0 2px 8px rgba(0,0,0,1)" }}>{countdown.text}</div>
@@ -2536,18 +2538,20 @@ export default function App() {
             <div>
               {teamScores.map((s, i) => (
                 <div key={s.id} className={`lb-card ${i === 0 ? "rank-first" : ""}`} onClick={() => { setSelectedTeam(s.id); setTab("teams"); }}>
-                  {/* Blurred team artwork background */}
-                  <div style={{
-                    position: "absolute", inset: -6, zIndex: 0,
-                    backgroundImage: `url(${LB_BG[s.id]})`,
-                    backgroundSize: "cover", backgroundPosition: "center 30%",
-                    filter: "blur(11px) brightness(0.28) saturate(1.4)",
-                  }} />
-                  {/* Subtle vignette overlay for extra depth */}
-                  <div style={{
-                    position: "absolute", inset: 0, zIndex: 1,
-                    background: `linear-gradient(135deg, ${s.team.color}18 0%, rgba(6,4,2,0.55) 100%)`,
-                  }} />
+                  {isDark && <>
+                    {/* Blurred team artwork background */}
+                    <div style={{
+                      position: "absolute", inset: -6, zIndex: 0,
+                      backgroundImage: `url(${LB_BG[s.id]})`,
+                      backgroundSize: "cover", backgroundPosition: "center 30%",
+                      filter: "blur(11px) brightness(0.28) saturate(1.4)",
+                    }} />
+                    {/* Subtle vignette overlay for extra depth */}
+                    <div style={{
+                      position: "absolute", inset: 0, zIndex: 1,
+                      background: `linear-gradient(135deg, ${s.team.color}18 0%, rgba(6,4,2,0.55) 100%)`,
+                    }} />
+                  </>}
                   <div className="lb-accent" style={{ background: s.team.color, zIndex: 2, position: "relative" }} />
                   <div className="lb-inner" style={{ position: "relative", zIndex: 2 }}>
                     <div className={`lb-rank ${rankLabel(i)}`} style={{ textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>{i + 1}</div>
@@ -2721,17 +2725,19 @@ export default function App() {
         </div>
 
         <div className="team-header-card" style={{ "--team-color": t.color } as React.CSSProperties}>
-          {/* Blurred team artwork background */}
-          <div style={{
-            position: "absolute", inset: -6, zIndex: 0,
-            backgroundImage: `url(${TEAM_BG[selectedTeam]})`,
-            backgroundSize: "cover", backgroundPosition: "center 30%",
-            filter: "blur(9px) brightness(0.28) saturate(1.4)",
-          }} />
-          <div style={{
-            position: "absolute", inset: 0, zIndex: 1,
-            background: `linear-gradient(135deg, ${t.color}18 0%, rgba(6,4,2,0.55) 100%)`,
-          }} />
+          {isDark && <>
+            {/* Blurred team artwork background */}
+            <div style={{
+              position: "absolute", inset: -6, zIndex: 0,
+              backgroundImage: `url(${TEAM_BG[selectedTeam]})`,
+              backgroundSize: "cover", backgroundPosition: "center 30%",
+              filter: "blur(9px) brightness(0.28) saturate(1.4)",
+            }} />
+            <div style={{
+              position: "absolute", inset: 0, zIndex: 1,
+              background: `linear-gradient(135deg, ${t.color}18 0%, rgba(6,4,2,0.55) 100%)`,
+            }} />
+          </>}
           <div style={{ flex: 1, position: "relative", zIndex: 2 }}>
             <div className="team-hname" style={{ color: t.color, textShadow: "0 1px 6px rgba(0,0,0,1)" }}>{t.name}</div>
             <div style={{ fontSize: "0.7rem", color: "var(--text-3)", marginBottom: 4, textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>{t.owner}</div>
@@ -3293,17 +3299,19 @@ export default function App() {
               const isHome = teamFilter.size > 0 ? teamFilter.has(m.homeTeamCode) : null;
               return (
                 <div key={m.id} className="match-card">
-                  {/* Stadium backdrop */}
-                  <div style={{
-                    position: "absolute", inset: -4, zIndex: 0,
-                    backgroundImage: `url(${import.meta.env.BASE_URL}match-bg.jpeg)`,
-                    backgroundSize: "cover", backgroundPosition: "center 35%",
-                    filter: "blur(3px) brightness(0.32) saturate(1.1)",
-                  }} />
-                  <div style={{
-                    position: "absolute", inset: 0, zIndex: 1,
-                    background: "linear-gradient(160deg, rgba(10,7,5,0.52) 0%, rgba(6,4,3,0.62) 100%)",
-                  }} />
+                  {isDark && <>
+                    {/* Stadium backdrop */}
+                    <div style={{
+                      position: "absolute", inset: -4, zIndex: 0,
+                      backgroundImage: `url(${import.meta.env.BASE_URL}match-bg.jpeg)`,
+                      backgroundSize: "cover", backgroundPosition: "center 35%",
+                      filter: "blur(3px) brightness(0.32) saturate(1.1)",
+                    }} />
+                    <div style={{
+                      position: "absolute", inset: 0, zIndex: 1,
+                      background: "linear-gradient(160deg, rgba(10,7,5,0.52) 0%, rgba(6,4,3,0.62) 100%)",
+                    }} />
+                  </>}
                   <div style={{ position: "relative", zIndex: 2 }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                     <div className="match-status" style={{ color: statusColor }}>
@@ -3847,18 +3855,20 @@ export default function App() {
                       const ft = FANTASY_TEAMS[id];
                       return (
                         <div key={id} style={{ position: "relative", border: `1px solid ${ft.color}33`, borderRadius: 10, padding: "10px 4px", textAlign: "center" as const, overflow: "hidden" }}>
-                          {/* Blurred team artwork background */}
-                          <div style={{
-                            position: "absolute", inset: -6, zIndex: 0,
-                            backgroundImage: `url(${PRED_BG[id]})`,
-                            backgroundSize: "cover", backgroundPosition: "center 30%",
-                            filter: "blur(8px) brightness(0.45) saturate(1.5)",
-                          }} />
-                          {/* Gradient overlay */}
-                          <div style={{
-                            position: "absolute", inset: 0, zIndex: 1,
-                            background: `linear-gradient(135deg, ${ft.color}28 0%, rgba(6,4,2,0.38) 100%)`,
-                          }} />
+                          {isDark && <>
+                            {/* Blurred team artwork background */}
+                            <div style={{
+                              position: "absolute", inset: -6, zIndex: 0,
+                              backgroundImage: `url(${PRED_BG[id]})`,
+                              backgroundSize: "cover", backgroundPosition: "center 30%",
+                              filter: "blur(8px) brightness(0.45) saturate(1.5)",
+                            }} />
+                            {/* Gradient overlay */}
+                            <div style={{
+                              position: "absolute", inset: 0, zIndex: 1,
+                              background: `linear-gradient(135deg, ${ft.color}28 0%, rgba(6,4,2,0.38) 100%)`,
+                            }} />
+                          </>}
                           {/* Content */}
                           <div style={{ position: "relative", zIndex: 2 }}>
                             <div style={{ display: "flex", justifyContent: "center", marginBottom: 6 }}>
