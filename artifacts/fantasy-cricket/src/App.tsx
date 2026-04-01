@@ -1263,11 +1263,13 @@ export default function App() {
       ctx.save();
       ctx.beginPath(); ctx.rect(0, ry, W, ROW_H); ctx.clip();
 
-      // Blurred team artwork (drawn slightly oversized to avoid faded blur edge)
+      // Blurred team artwork — draw 120px oversized on every side so the blur
+      // has real pixels to pull from at the row edges (no faded-to-transparent fringe)
       if (bgImg.naturalWidth) {
-        ctx.filter = "blur(9px) brightness(0.28) saturate(1.3)";
-        const scale = Math.max((W + 40) / bgImg.naturalWidth, (ROW_H + 40) / bgImg.naturalHeight);
+        const OVF = 120;
+        const scale = Math.max((W + OVF * 2) / bgImg.naturalWidth, (ROW_H + OVF * 2) / bgImg.naturalHeight);
         const sw = bgImg.naturalWidth * scale, sh = bgImg.naturalHeight * scale;
+        ctx.filter = "blur(22px) brightness(0.22) saturate(1.4)";
         ctx.drawImage(bgImg, (W - sw) / 2, ry + (ROW_H - sh) / 2, sw, sh);
         ctx.filter = "none";
       } else {
