@@ -3304,11 +3304,11 @@ export default function App() {
                     position: "absolute", inset: -4, zIndex: 0,
                     backgroundImage: `url(${import.meta.env.BASE_URL}match-bg.jpeg)`,
                     backgroundSize: "cover", backgroundPosition: "center 35%",
-                    filter: "blur(3px) brightness(0.14) saturate(0.85)",
+                    filter: "blur(3px) brightness(0.32) saturate(1.1)",
                   }} />
                   <div style={{
                     position: "absolute", inset: 0, zIndex: 1,
-                    background: "linear-gradient(160deg, rgba(14,11,9,0.78) 0%, rgba(8,6,5,0.88) 100%)",
+                    background: "linear-gradient(160deg, rgba(10,7,5,0.52) 0%, rgba(6,4,3,0.62) 100%)",
                   }} />
                   <div style={{ position: "relative", zIndex: 2 }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
