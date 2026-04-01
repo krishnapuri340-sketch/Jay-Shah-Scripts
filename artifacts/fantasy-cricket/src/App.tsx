@@ -680,6 +680,7 @@ export default function App() {
   const settingsRef = useRef<HTMLDivElement>(null);
   const [expandedPredMatchId, setExpandedPredMatchId] = useState<string | null>(null);
   const [predictions, setPredictions] = useState<Record<string, Record<string, string | null>>>({});
+  const lastPredSaveRef = useRef<number>(0);
 
   const [sparkTip, setSparkTip] = useState<{ label: string; pts: number } | null>(null);
   const [pullY, setPullY] = useState(0);
@@ -910,10 +911,14 @@ export default function App() {
   };
 
   const fetchPredictions = async () => {
+    // Don't overwrite a just-saved prediction — wait 4 s for the POST to settle
+    if (Date.now() - lastPredSaveRef.current < 4000) return;
     try {
       const res = await fetch("/api/ipl/predictions");
       if (res.ok) {
         const server: Record<string, Record<string, string | null>> = await res.json();
+        // Guard again: the GET was in-flight; another save may have happened
+        if (Date.now() - lastPredSaveRef.current < 4000) return;
         // Server is the source of truth — always use it directly.
         // Local cache is only a fallback for offline use.
         saveLocalPreds(server);
@@ -3424,6 +3429,8 @@ export default function App() {
                                         <button key={code} onClick={e => {
                                           e.stopPropagation();
                                           const newPick = pick === code ? null : code;
+                                          // Stamp save time BEFORE the optimistic update so the poll guard kicks in immediately
+                                          lastPredSaveRef.current = Date.now();
                                           setPredictions(prev => {
                                             const updated = { ...prev, [matchIdStr]: { ...(prev[matchIdStr] || {}), [ownerId]: newPick } };
                                             saveLocalPreds(updated);
@@ -3433,7 +3440,30 @@ export default function App() {
                                             method: "POST",
                                             headers: { "Content-Type": "application/json" },
                                             body: JSON.stringify({ ownerId, pick: newPick }),
-                                          }).then(r => r.json()).then(d => { if (d.predictions) { saveLocalPreds(d.predictions); setPredictions(d.predictions); } }).catch(() => {});
+                                          }).then(r => r.json()).then(d => {
+                                            if (d.predictions) {
+                                              // Successful save — update with authoritative server state and extend the guard
+                                              lastPredSaveRef.current = Date.now();
+                                              saveLocalPreds(d.predictions);
+                                              setPredictions(d.predictions);
+                                            } else {
+                                              // Server rejected (match locked, invalid pick, etc.) — revert optimistic update
+                                              lastPredSaveRef.current = 0;
+                                              setPredictions(prev => {
+                                                const reverted = { ...prev, [matchIdStr]: { ...(prev[matchIdStr] || {}), [ownerId]: pick } };
+                                                saveLocalPreds(reverted);
+                                                return reverted;
+                                              });
+                                            }
+                                          }).catch(() => {
+                                            // Network failure — revert optimistic update
+                                            lastPredSaveRef.current = 0;
+                                            setPredictions(prev => {
+                                              const reverted = { ...prev, [matchIdStr]: { ...(prev[matchIdStr] || {}), [ownerId]: pick } };
+                                              saveLocalPreds(reverted);
+                                              return reverted;
+                                            });
+                                          });
                                         }} style={{
                                           flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 2,
                                           padding: "3px 2px", borderRadius: 6, cursor: "pointer", border: "1px solid",
