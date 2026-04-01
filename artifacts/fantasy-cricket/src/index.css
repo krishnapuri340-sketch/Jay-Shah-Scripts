@@ -4,10 +4,10 @@
 
 :root {
   /* Warm dark palette — like Life Reset's deep amber-black */
-  --bg:        #0d0b09;
-  --surface:   #171310;
-  --surface-2: #221c18;
-  --surface-3: #2d2520;
+  --bg:        #070504;
+  --surface:   #0e0b09;
+  --surface-2: #161110;
+  --surface-3: #1e1916;
   --border:    rgba(255,200,120,0.08);
   --border-2:  rgba(255,200,120,0.15);
   --text:      #f5f0ea;
@@ -50,10 +50,10 @@ body { background: var(--bg); }
 .bg-field {
   position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background:
-    radial-gradient(ellipse 90%  55% at 50%  0%,   rgba(245,166,35,0.13) 0%, rgba(245,130,20,0.04) 45%, transparent 70%),
-    radial-gradient(ellipse 40%  30% at 15%  12%,  rgba(245,166,35,0.06) 0%, transparent 60%),
-    radial-gradient(ellipse 35%  28% at 85%  8%,   rgba(245,130,20,0.05) 0%, transparent 55%),
-    radial-gradient(ellipse 100% 30% at 50% 100%,  rgba(13,11,9,0.95)    0%, transparent 100%);
+    radial-gradient(ellipse 90%  55% at 50%  0%,   rgba(245,166,35,0.07) 0%, rgba(245,130,20,0.02) 45%, transparent 70%),
+    radial-gradient(ellipse 40%  30% at 15%  12%,  rgba(245,166,35,0.03) 0%, transparent 60%),
+    radial-gradient(ellipse 35%  28% at 85%  8%,   rgba(245,130,20,0.02) 0%, transparent 55%),
+    radial-gradient(ellipse 100% 30% at 50% 100%,  rgba(7,5,4,0.97)      0%, transparent 100%);
 }
 .light-mode .bg-field {
   background:
