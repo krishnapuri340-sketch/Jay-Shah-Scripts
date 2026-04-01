@@ -511,7 +511,7 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
       })()}
 
       {/* Label */}
-      <div style={{ position: "relative", zIndex: 2, fontSize: "0.56rem", letterSpacing: "0.2em", color: "rgba(255,255,255,0.65)", textTransform: "uppercase" as const, marginBottom: 18, fontWeight: 800, animation: "login-fade-up 0.4s ease-out", textShadow: "0 1px 8px rgba(0,0,0,0.8)" }}>
+      <div style={{ position: "relative", zIndex: 2, fontSize: "0.56rem", letterSpacing: "0.2em", color: "rgba(255,255,255,0.65)", textTransform: "uppercase" as const, marginBottom: 18, marginTop: -28, fontWeight: 800, animation: "login-fade-up 0.4s ease-out", textShadow: "0 1px 8px rgba(0,0,0,0.8)" }}>
         Select your team
       </div>
 
