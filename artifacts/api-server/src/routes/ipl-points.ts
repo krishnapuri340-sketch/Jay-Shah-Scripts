@@ -225,7 +225,14 @@ function normalizeName(name: string): string {
     // "Sooryavanshi" == "Suryavanshi", "Prithvee" == "Prithvi"
     .replace(/oo/g, "u")
     .replace(/ee/g, "i")
-    .replace(/aa/g, "a");
+    .replace(/aa/g, "a")
+    // Player-specific alternate spellings seen across CricAPI / S3 feeds:
+    // Varun Chakravarthy — scorecard writes "Chakaravarthy" (drops the first 'r')
+    .replace(/chakravarthy/g, "chakaravarthy")
+    // Yuzvendra Chahal — some feeds omit the 'z': "Yuvendra"
+    .replace(/yuzvendra/g, "yuvendra")
+    // T Natarajan — some feeds use full first name "Thangarasu"
+    .replace(/thangarasu/g, "t");
 }
 
 function namesMatch(a: string, b: string): boolean {
