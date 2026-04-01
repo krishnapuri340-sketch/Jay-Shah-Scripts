@@ -3321,16 +3321,16 @@ export default function App() {
                           onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
                         <div style={{ minWidth: 0 }}>
                           <div style={{ fontSize: "1rem", fontWeight: 800, color: IPL_COLORS[teams[0].shortname] || "var(--text)", letterSpacing: "-0.01em", lineHeight: 1.1 }}>{teams[0].shortname}</div>
-                          <div style={{ fontSize: "0.46rem", color: "rgba(255,255,255,0.2)", marginTop: 1, lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{IPL_FULL_NAMES[teams[0].shortname] || ""}</div>
+                          <div style={{ fontSize: "0.46rem", color: "var(--text-3)", marginTop: 1, lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{IPL_FULL_NAMES[teams[0].shortname] || ""}</div>
                         </div>
                       </div>
                       {/* VS divider */}
-                      <div style={{ flexShrink: 0, padding: "0 8px", fontSize: "0.46rem", color: "rgba(255,255,255,0.15)", fontWeight: 700, letterSpacing: "0.1em" }}>VS</div>
+                      <div style={{ flexShrink: 0, padding: "0 8px", fontSize: "0.46rem", color: "var(--text-3)", fontWeight: 700, letterSpacing: "0.1em" }}>VS</div>
                       {/* Team B: text left of logo, logo right — mirrors Team A */}
                       <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8, justifyContent: "flex-end", minWidth: 0 }}>
                         <div style={{ textAlign: "right" as const, minWidth: 0 }}>
                           <div style={{ fontSize: "1rem", fontWeight: 800, color: IPL_COLORS[teams[1].shortname] || "var(--text)", letterSpacing: "-0.01em", lineHeight: 1.1 }}>{teams[1].shortname}</div>
-                          <div style={{ fontSize: "0.46rem", color: "rgba(255,255,255,0.2)", marginTop: 1, lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{IPL_FULL_NAMES[teams[1].shortname] || ""}</div>
+                          <div style={{ fontSize: "0.46rem", color: "var(--text-3)", marginTop: 1, lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{IPL_FULL_NAMES[teams[1].shortname] || ""}</div>
                         </div>
                         <img src={TEAM_LOGO_CDN[teams[1].shortname]} alt={teams[1].shortname}
                           style={{ width: 28, height: 28, objectFit: "contain", flexShrink: 0, filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.5))" }}
@@ -3414,23 +3414,35 @@ export default function App() {
                                   {hasData && (() => {
                                     const allFantasyNames = new Set(Object.values(FANTASY_TEAMS).flatMap((t: any) => t.players.map((p: any) => p.name || p)));
                                     const batters = inn.batting.filter((b: any) => !b.dnb);
-                                    const BGRID = "1fr 36px 32px 26px 26px 42px";
-                                    const WGRID = "1fr 34px 22px 32px 26px 42px";
+                                    // Unified grid — same column count, visually paired
+                                    const BGRID = "minmax(0,1fr) 40px 34px 28px 28px 46px";
+                                    const WGRID = "minmax(0,1fr) 40px 24px 34px 28px 46px";
+                                    // Shared style constants
+                                    const SZ_NAME = "0.78rem";
+                                    const SZ_STAT = "0.74rem";
+                                    const SZ_HDR  = "0.5rem";
+                                    const SZ_SUB  = "0.54rem";
+                                    const S_STAT: React.CSSProperties = { textAlign: "right", fontSize: SZ_STAT, fontVariantNumeric: "tabular-nums", lineHeight: 1 };
+                                    const S_HDR: React.CSSProperties  = { textAlign: "right", fontSize: SZ_HDR, fontWeight: 700, letterSpacing: "0.08em", color: "var(--text-3)" };
+                                    const fullName = IPL_FULL_NAMES[teamCode] || "";
                                     return (
                                       <>
-                                        {/* Innings header bar */}
-                                        <div style={{ display: "flex", alignItems: "center", padding: "8px 12px", background: `${teamColor}14`, borderBottom: "1px solid var(--border)", borderLeft: `3px solid ${teamColor}` }}>
-                                          <span style={{ fontSize: "0.68rem", fontWeight: 800, color: teamColor, letterSpacing: "0.01em" }}>{teamCode}</span>
-                                          <span style={{ fontSize: "0.46rem", color: "var(--text-3)", letterSpacing: "0.07em", fontWeight: 700, marginLeft: 8, textTransform: "uppercase" as const }}>Innings {dispIdx + 1}</span>
+                                        {/* ── Innings header ── */}
+                                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 12px", background: `${teamColor}18`, borderLeft: `3px solid ${teamColor}` }}>
+                                          <div>
+                                            <div style={{ fontSize: "0.76rem", fontWeight: 800, color: teamColor, lineHeight: 1, letterSpacing: "0.02em" }}>{teamCode}</div>
+                                            {fullName && <div style={{ fontSize: "0.52rem", color: "var(--text-3)", marginTop: 2, lineHeight: 1 }}>{fullName}</div>}
+                                          </div>
+                                          <div style={{ fontSize: "0.48rem", fontWeight: 700, color: "var(--text-3)", background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 20, padding: "3px 9px", letterSpacing: "0.07em" }}>INN {dispIdx + 1}</div>
                                         </div>
 
-                                        {/* Batting header */}
-                                        <div style={{ display: "grid", gridTemplateColumns: BGRID, padding: "5px 12px 4px", background: "var(--glass)", borderBottom: "1px solid var(--border)" }}>
-                                          {["BATTER","R","B","4s","6s","SR"].map((h, hi) => (
-                                            <div key={h} style={{ fontSize: "0.44rem", fontWeight: 700, color: hi===3?"var(--blue)":hi===4?"#a78bfa":"var(--text-3)", letterSpacing: "0.1em", textAlign: hi > 0 ? "right" as const : "left" as const, opacity: hi===3||hi===4?0.7:1 }}>{h}</div>
+                                        {/* ── Batting section ── */}
+                                        <div style={{ display: "grid", gridTemplateColumns: BGRID, padding: "6px 12px 5px", background: "var(--glass)", borderBottom: "1px solid var(--border)", borderTop: "1px solid var(--border)" }}>
+                                          <div style={{ fontSize: SZ_HDR, fontWeight: 700, letterSpacing: "0.08em", color: "var(--text-3)" }}>BATTING</div>
+                                          {(["R","B","4s","6s","SR"] as const).map((h, hi) => (
+                                            <div key={h} style={{ ...S_HDR, color: hi===2?"var(--blue)":hi===3?"#a855f7":"var(--text-3)" }}>{h}</div>
                                           ))}
                                         </div>
-                                        {/* Batting rows */}
                                         {batters.map((b: any, bi: number) => {
                                           const isF = allFantasyNames.has(b.name);
                                           const runs = parseInt(b.runs) || 0;
@@ -3440,33 +3452,34 @@ export default function App() {
                                           const runColor = runs >= 100 ? "var(--gold)" : runs >= 50 ? "var(--blue)" : "var(--text)";
                                           const isLastBat = bi === batters.length - 1;
                                           return (
-                                            <div key={bi} style={{ display: "grid", gridTemplateColumns: BGRID, padding: "7px 12px", borderBottom: isLastBat ? "none" : "1px solid var(--border)", alignItems: "center" }}>
-                                              <div style={{ minWidth: 0, paddingRight: 4 }}>
-                                                <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                                                  {isF && <span style={{ fontSize: "0.38rem", background: "rgba(74,222,128,0.18)", color: "#4ade80", borderRadius: 3, padding: "1px 3px", flexShrink: 0, fontWeight: 800 }}>F</span>}
-                                                  <span style={{ fontSize: "0.75rem", fontWeight: showNotOut ? 700 : 500, color: showNotOut ? "#4ade80" : "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+                                            <div key={bi} style={{ display: "grid", gridTemplateColumns: BGRID, padding: "8px 12px", borderBottom: isLastBat ? "none" : "1px solid var(--border)", alignItems: "start" }}>
+                                              <div style={{ minWidth: 0, paddingRight: 6 }}>
+                                                <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                                                  {isF && <span style={{ fontSize: "0.44rem", background: "rgba(74,222,128,0.15)", color: "#4ade80", borderRadius: 4, padding: "1px 4px", flexShrink: 0, fontWeight: 800, letterSpacing: "0.02em" }}>F</span>}
+                                                  <span style={{ fontSize: SZ_NAME, fontWeight: showNotOut ? 700 : 500, color: showNotOut ? "#4ade80" : "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
                                                     {b.name}{showNotOut ? "*" : ""}
                                                   </span>
                                                 </div>
                                                 {b.dismissal && b.dismissal !== "not out" && b.dismissal !== "DNB" && (
-                                                  <div style={{ fontSize: "0.48rem", color: "var(--text-3)", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{b.dismissal}</div>
+                                                  <div style={{ fontSize: SZ_SUB, color: "var(--text-3)", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{b.dismissal}</div>
                                                 )}
                                               </div>
-                                              <div style={{ textAlign: "right" as const, fontSize: "0.86rem", fontWeight: 800, color: runColor, lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{b.runs}</div>
-                                              <div style={{ textAlign: "right" as const, fontSize: "0.65rem", color: "var(--text-3)", fontVariantNumeric: "tabular-nums" }}>{b.balls}</div>
-                                              <div style={{ textAlign: "right" as const, fontSize: "0.65rem", color: "var(--blue)", fontVariantNumeric: "tabular-nums" }}>{b.fours}</div>
-                                              <div style={{ textAlign: "right" as const, fontSize: "0.65rem", color: "#a78bfa", fontVariantNumeric: "tabular-nums" }}>{b.sixes}</div>
-                                              <div style={{ textAlign: "right" as const, fontSize: "0.62rem", color: "var(--text-3)", fontVariantNumeric: "tabular-nums" }}>{parseFloat(b.sr || "0").toFixed(0)}</div>
+                                              <div style={{ ...S_STAT, fontWeight: 800, color: runColor }}>{b.runs}</div>
+                                              <div style={{ ...S_STAT, color: "var(--text-3)" }}>{b.balls}</div>
+                                              <div style={{ ...S_STAT, color: "var(--blue)" }}>{b.fours}</div>
+                                              <div style={{ ...S_STAT, color: "#a855f7" }}>{b.sixes}</div>
+                                              <div style={{ ...S_STAT, color: "var(--text-3)" }}>{parseFloat(b.sr || "0").toFixed(0)}</div>
                                             </div>
                                           );
                                         })}
 
-                                        {/* Bowling table */}
+                                        {/* ── Bowling section ── */}
                                         {inn.bowling?.length > 0 && (
-                                          <div style={{ borderTop: "2px solid var(--border)" }}>
-                                            <div style={{ display: "grid", gridTemplateColumns: WGRID, padding: "5px 12px 4px", background: "var(--glass)", borderBottom: "1px solid var(--border)" }}>
-                                              {["BOWLER","O","M","R","W","ECO"].map((h, hi) => (
-                                                <div key={h} style={{ fontSize: "0.44rem", fontWeight: 700, color: hi===4?"#4ade80":"var(--text-3)", letterSpacing: "0.1em", textAlign: hi > 0 ? "right" as const : "left" as const, opacity: hi===4?0.8:1 }}>{h}</div>
+                                          <>
+                                            <div style={{ display: "grid", gridTemplateColumns: WGRID, padding: "6px 12px 5px", background: "var(--glass)", borderTop: "2px solid var(--border-2)", borderBottom: "1px solid var(--border)" }}>
+                                              <div style={{ fontSize: SZ_HDR, fontWeight: 700, letterSpacing: "0.08em", color: "var(--text-3)" }}>BOWLING</div>
+                                              {(["O","M","R","W","ECO"] as const).map((h, hi) => (
+                                                <div key={h} style={{ ...S_HDR, color: hi===3?"#4ade80":"var(--text-3)" }}>{h}</div>
                                               ))}
                                             </div>
                                             {inn.bowling.map((b: any, bi: number) => {
@@ -3476,20 +3489,20 @@ export default function App() {
                                               const isF = allFantasyNames.has(b.name);
                                               const isLastBowl = bi === inn.bowling.length - 1;
                                               return (
-                                                <div key={bi} style={{ display: "grid", gridTemplateColumns: WGRID, padding: "7px 12px", borderBottom: isLastBowl ? "none" : "1px solid var(--border)", alignItems: "center" }}>
-                                                  <div style={{ display: "flex", alignItems: "center", gap: 4, minWidth: 0 }}>
-                                                    {isF && <span style={{ fontSize: "0.38rem", background: "rgba(74,222,128,0.18)", color: "#4ade80", borderRadius: 3, padding: "1px 3px", flexShrink: 0, fontWeight: 800 }}>F</span>}
-                                                    <span style={{ fontSize: "0.73rem", color: "var(--text-2)", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{b.name}</span>
+                                                <div key={bi} style={{ display: "grid", gridTemplateColumns: WGRID, padding: "8px 12px", borderBottom: isLastBowl ? "none" : "1px solid var(--border)", alignItems: "center" }}>
+                                                  <div style={{ display: "flex", alignItems: "center", gap: 5, minWidth: 0 }}>
+                                                    {isF && <span style={{ fontSize: "0.44rem", background: "rgba(74,222,128,0.15)", color: "#4ade80", borderRadius: 4, padding: "1px 4px", flexShrink: 0, fontWeight: 800 }}>F</span>}
+                                                    <span style={{ fontSize: SZ_NAME, color: "var(--text)", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{b.name}</span>
                                                   </div>
-                                                  <div style={{ textAlign: "right" as const, fontSize: "0.65rem", color: "var(--text-3)", fontVariantNumeric: "tabular-nums" }}>{b.overs}</div>
-                                                  <div style={{ textAlign: "right" as const, fontSize: "0.65rem", color: "var(--text-3)", fontVariantNumeric: "tabular-nums" }}>{b.maidens}</div>
-                                                  <div style={{ textAlign: "right" as const, fontSize: "0.65rem", color: "var(--text-2)", fontVariantNumeric: "tabular-nums" }}>{b.runs}</div>
-                                                  <div style={{ textAlign: "right" as const, fontSize: "0.84rem", fontWeight: wkts > 0 ? 800 : 400, color: wkts >= 3 ? "var(--gold)" : wkts > 0 ? "#4ade80" : "var(--text-3)", fontVariantNumeric: "tabular-nums" }}>{b.wickets}</div>
-                                                  <div style={{ textAlign: "right" as const, fontSize: "0.65rem", color: ecoColor, fontVariantNumeric: "tabular-nums" }}>{eco.toFixed(2)}</div>
+                                                  <div style={{ ...S_STAT, color: "var(--text-3)" }}>{b.overs}</div>
+                                                  <div style={{ ...S_STAT, color: "var(--text-3)" }}>{b.maidens}</div>
+                                                  <div style={{ ...S_STAT, color: "var(--text-2)" }}>{b.runs}</div>
+                                                  <div style={{ ...S_STAT, fontWeight: wkts > 0 ? 800 : 500, color: wkts >= 3 ? "var(--gold)" : wkts > 0 ? "#4ade80" : "var(--text-3)" }}>{b.wickets}</div>
+                                                  <div style={{ ...S_STAT, color: ecoColor }}>{eco.toFixed(2)}</div>
                                                 </div>
                                               );
                                             })}
-                                          </div>
+                                          </>
                                         )}
                                       </>
                                     );
@@ -3556,7 +3569,7 @@ export default function App() {
                       ? pickCount > 0 ? `${pickCount}/4 picked 🔒` : "🔒 Locked — no picks"
                       : pickCount > 0 ? `${pickCount}/4 picked` : "Tap to predict";
                     return (
-                      <div onClick={e => e.stopPropagation()} style={{ padding: "7px 16px 12px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                      <div onClick={e => e.stopPropagation()} style={{ padding: "7px 16px 12px", borderTop: "1px solid var(--border)" }}>
                         {/* Tappable header row */}
                         <div onClick={togglePred} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", userSelect: "none" as const }}>
                           <span style={{ fontSize: "0.57rem", color: "var(--text-3)", fontWeight: 600, letterSpacing: "0.06em" }}>
@@ -3580,7 +3593,7 @@ export default function App() {
                               const isCorrect = !!winner && winner !== "tie" && pick === winner;
                               const isWrong = !!winner && winner !== "tie" && pick !== null && pick !== winner;
                               return (
-                                <div key={ownerId} style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 7px", borderRadius: 8, background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)" }}>
+                                <div key={ownerId} style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 7px", borderRadius: 8, background: "var(--glass)", border: "1px solid var(--border)" }}>
                                   <span style={{ fontSize: "0.6rem", color: ft.color, fontWeight: 700, minWidth: 30, flexShrink: 0 }}>{ft.owner}</span>
                                   {(isLocked || (ownerId !== currentUser && currentUser !== "rajveer")) ? (
                                     <div style={{ display: "flex", alignItems: "center", gap: 3, flex: 1 }}>
