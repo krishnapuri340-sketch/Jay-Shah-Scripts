@@ -3408,18 +3408,12 @@ export default function App() {
                           if (eco < 12) return "#f59e0b";
                           return "#f87171";
                         };
-                        // Find which fantasy team owns this player (by name)
+                        // Find which fantasy team owns this player (exact name match only)
                         const findFt = (name: string) => {
                           const norm = (s: string) => s.trim().toLowerCase();
                           const sn = norm(name);
                           for (const ft of Object.values(FANTASY_TEAMS)) {
                             if (ft.players.some(p => norm(p.name) === sn)) return ft;
-                          }
-                          const sLast = sn.split(" ").pop()!;
-                          if (sLast.length > 2) {
-                            for (const ft of Object.values(FANTASY_TEAMS)) {
-                              if (ft.players.some(p => norm(p.name).split(" ").pop() === sLast)) return ft;
-                            }
                           }
                           return null;
                         };
