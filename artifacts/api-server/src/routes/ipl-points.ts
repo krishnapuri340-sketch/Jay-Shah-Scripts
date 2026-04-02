@@ -217,7 +217,9 @@ function calcPoints(p: PlayerStats): number {
 }
 
 function normalizeName(name: string): string {
-  return name.toLowerCase()
+  return name
+    .replace(/\s*\(.*?\)\s*/g, " ")  // strip (c), (wk), (rp) etc before lowercasing
+    .toLowerCase()
     .replace(/[^a-z ]/g, "")
     .replace(/\s+/g, " ")
     .trim()

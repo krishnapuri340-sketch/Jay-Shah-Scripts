@@ -5,7 +5,8 @@
     "2418": "e02475c1-8f9a-4915-a9e8-d4dbc3441c96",
     "2419": "d788e9f9-99bf-4650-a035-92a7e21b3d08",
     "2420": "11ff7db9-9c71-464e-afcb-5b03e4fa4b0a",
-    "2421": "ae676d7c-3082-489c-96c5-5620f393c900"
+    "2421": "ae676d7c-3082-489c-96c5-5620f393c900",
+    "2422": "fd010e39-2255-4460-b0e0-962a26b67b70"
   },
   "processedMatches": {
     "2417": {
@@ -2775,6 +2776,42 @@
           "stumpings": 0
         }
       }
+    },
+    "2422": {
+      "points": {},
+      "innings": [
+        {
+          "name": "0 Inning 1",
+          "total": "0",
+          "batting": [
+            {
+              "name": "0",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "0",
+              "dismissal": "0",
+              "notOut": false,
+              "dnb": false
+            }
+          ],
+          "bowling": [
+            {
+              "name": "0",
+              "overs": "0",
+              "maidens": 0,
+              "runs": 0,
+              "wickets": 0,
+              "eco": "0",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 0
+            }
+          ]
+        }
+      ],
+      "playerStats": {}
     }
   },
   "supabaseScores": {
@@ -3490,6 +3527,6 @@
   "lastUpdated": "2026-04-01T18:41:02.576Z",
   "dailyHits": {
     "date": "2026-04-02",
-    "count": 0
+    "count": 2
   }
 }
