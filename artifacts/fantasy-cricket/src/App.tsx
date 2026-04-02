@@ -468,15 +468,15 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
             {/* spinning ring icon */}
             <div style={{ position: "relative", width: 92, height: 92, marginBottom: 20 }}>
               {/* Outer ambient glow */}
-              <div style={{ position: "absolute", inset: -16, borderRadius: "50%", background: "radial-gradient(circle, rgba(245,166,35,0.22) 0%, transparent 65%)", filter: "blur(12px)" }} />
-              {/* Spinning comet ring — full circle */}
+              <div style={{ position: "absolute", inset: -16, borderRadius: 40, background: "radial-gradient(circle, rgba(245,166,35,0.22) 0%, transparent 65%)", filter: "blur(12px)" }} />
+              {/* Spinning comet ring — rounded square, comet travels all 4 sides */}
               <div style={{
-                position: "absolute", inset: -2, borderRadius: "50%",
-                background: "conic-gradient(from 0deg, rgba(245,166,35,0) 0deg, rgba(245,166,35,0) 65deg, rgba(255,230,130,1) 90deg, rgba(245,166,35,0) 115deg, rgba(245,166,35,0) 360deg)",
-                animation: "login-icon-spin 8s linear infinite",
+                position: "absolute", inset: -2, borderRadius: 28,
+                background: "conic-gradient(from 0deg, rgba(245,166,35,0) 0deg, rgba(245,166,35,0) 60deg, rgba(255,230,130,1) 90deg, rgba(245,166,35,0) 120deg, rgba(245,166,35,0) 360deg)",
+                animation: "login-icon-spin 6s linear infinite",
               }} />
-              {/* Inner clip — circle */}
-              <div style={{ position: "absolute", inset: 2, borderRadius: "50%", background: "#100d08", overflow: "hidden" }}>
+              {/* Inner clip — rounded square matching icon */}
+              <div style={{ position: "absolute", inset: 2, borderRadius: 26, background: "#100d08", overflow: "hidden" }}>
                 <img
                   src={`${import.meta.env.BASE_URL}app-icon.png`}
                   alt="Indian Premier League"
