@@ -1365,7 +1365,7 @@ router.get("/ipl/stats", (req, res) => {
     for (const inning of inningsToUse) {
       for (const bat of inning.batting || []) {
         if (bat.dnb || !bat.name) continue;
-        const k = bat.name;
+        const k = bat.name.replace(/\s*\(.*?\)\s*/g, " ").trim();
         if (!battingStats[k]) battingStats[k] = { runs: 0, fours: 0, sixes: 0, balls: 0, innings: 0, notOuts: 0, hs: 0 };
         battingStats[k].runs += bat.runs || 0;
         battingStats[k].fours += bat.fours || 0;
@@ -1377,7 +1377,7 @@ router.get("/ipl/stats", (req, res) => {
       }
       for (const bowl of inning.bowling || []) {
         if (!bowl.name) continue;
-        const k = bowl.name;
+        const k = bowl.name.replace(/\s*\(.*?\)\s*/g, " ").trim();
         if (!bowlingStats[k]) bowlingStats[k] = { wickets: 0, balls: 0, runs: 0, innings: 0, bestW: 0, bestR: 999 };
         bowlingStats[k].wickets += bowl.wickets || 0;
         bowlingStats[k].balls += parseOversTooBalls(bowl.overs || "0");
