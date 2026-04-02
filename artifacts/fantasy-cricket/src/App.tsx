@@ -469,8 +469,8 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
             <div style={{ position: "relative", width: 92, height: 92, marginBottom: 20 }}>
               {/* Outer ambient glow */}
               <div style={{ position: "absolute", inset: -14, borderRadius: 40, background: "radial-gradient(circle, rgba(245,166,35,0.25) 0%, transparent 65%)", filter: "blur(10px)" }} />
-              {/* Static full gold ring — always visible */}
-              <div style={{ position: "absolute", inset: -2, borderRadius: 28, background: "rgba(245,166,35,0.38)" }} />
+              {/* Static full gold ring — always visible, with outer squared glow */}
+              <div style={{ position: "absolute", inset: -2, borderRadius: 28, background: "rgba(245,166,35,0.38)", boxShadow: "0 0 0 1px rgba(245,166,35,0.5), 0 0 12px 3px rgba(245,166,35,0.35), 0 0 28px 6px rgba(245,166,35,0.18)" }} />
               {/* Inner clip — rounded square, covers center leaving only the ring visible */}
               <div style={{ position: "absolute", inset: 2.5, borderRadius: 25.5, background: "#100d08", overflow: "hidden" }}>
                 <img
