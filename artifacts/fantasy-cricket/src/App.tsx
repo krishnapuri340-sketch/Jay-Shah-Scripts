@@ -3216,10 +3216,9 @@ export default function App() {
       <div>
         {/* Points Table */}
         {standings.length > 0 && (
-          <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden", marginBottom: 16 }}>
-            <div style={{ padding: "10px 14px", borderBottom: "1px solid var(--border)" }}>
-              <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--text)" }}>Points Table</span>
-            </div>
+          <div style={{ marginBottom: 16 }}>
+            <div className="sec-title">Points Table</div>
+            <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
             <div style={{ overflowX: "auto" }}>
               <table style={{ width: "100%", borderCollapse: "collapse" as const, fontSize: "0.68rem", tableLayout: "fixed" as const }}>
                 <colgroup>
@@ -3282,6 +3281,7 @@ export default function App() {
             </div>
             <div style={{ padding: "5px 12px", fontSize: "0.58rem", color: "var(--text-3)", borderTop: "1px solid var(--border)", letterSpacing: "0.04em" }}>
               Top 4 qualify for playoffs
+            </div>
             </div>
           </div>
         )}
