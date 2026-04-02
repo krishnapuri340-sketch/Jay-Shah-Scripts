@@ -2405,7 +2405,7 @@ export default function App() {
               position: "absolute", inset: -6, zIndex: 0,
               backgroundImage: `url(${import.meta.env.BASE_URL}countdown-bg.jpeg)`,
               backgroundSize: "cover", backgroundPosition: "center 40%",
-              filter: "blur(4px) brightness(0.22) saturate(1.2)",
+              filter: "blur(4px) brightness(0.26) saturate(1.2)",
             }} />
             {/* Warm amber vignette — bleeds into the amber timer colour */}
             <div style={{
@@ -2540,7 +2540,7 @@ export default function App() {
                     position: "absolute", inset: -6, zIndex: 0,
                     backgroundImage: `url(${LB_BG[s.id]})`,
                     backgroundSize: "cover", backgroundPosition: "center 30%",
-                    filter: "blur(11px) brightness(0.28) saturate(1.4)",
+                    filter: "blur(8px) brightness(0.34) saturate(1.3)",
                   }} />
                   {/* Subtle vignette overlay for extra depth */}
                   <div style={{
@@ -2725,7 +2725,7 @@ export default function App() {
             position: "absolute", inset: -6, zIndex: 0,
             backgroundImage: `url(${TEAM_BG[selectedTeam]})`,
             backgroundSize: "cover", backgroundPosition: "center 30%",
-            filter: "blur(9px) brightness(0.28) saturate(1.4)",
+            filter: "blur(8px) brightness(0.33) saturate(1.3)",
           }} />
           <div style={{
             position: "absolute", inset: 0, zIndex: 1,
