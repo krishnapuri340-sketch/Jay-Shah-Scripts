@@ -367,6 +367,32 @@ body { background: var(--bg); }
   position: relative; overflow: hidden;
 }
 .match-card:active { transform: scale(0.98); box-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+
+/* === PREDICTION PICK CARDS === */
+.pred-pick-card {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 6px; padding: 10px 6px; border-radius: 12px; cursor: pointer;
+  border: 1.5px solid var(--border); background: transparent;
+  font-family: inherit; position: relative; overflow: hidden;
+  transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.pred-pick-card:active { transform: scale(0.95); }
+.pred-pick-card.selected {
+  border-color: var(--pick-color, var(--gold));
+  background: var(--pick-color-alpha, rgba(245,166,35,0.12));
+  box-shadow: 0 0 12px color-mix(in srgb, var(--pick-color, var(--gold)) 22%, transparent);
+}
+.pred-pick-card.confirmed {
+  animation: predConfirm 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes predConfirm {
+  0%   { transform: scale(1); box-shadow: 0 0 0px transparent; }
+  35%  { transform: scale(1.1); box-shadow: 0 0 20px var(--pick-color, var(--gold)); }
+  65%  { transform: scale(0.96); }
+  100% { transform: scale(1); box-shadow: 0 0 8px color-mix(in srgb, var(--pick-color, var(--gold)) 18%, transparent); }
+}
+
 .match-status {
   font-family: 'Oswald', sans-serif;
   font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase;

@@ -678,6 +678,7 @@ export default function App() {
   const [expandedPredMatchId, setExpandedPredMatchId] = useState<string | null>(null);
   const [predictions, setPredictions] = useState<Record<string, Record<string, string | null>>>({});
   const lastPredSaveRef = useRef<number>(0);
+  const [predFlash, setPredFlash] = useState<string | null>(null);
 
   const [sparkTip, setSparkTip] = useState<{ label: string; pts: number } | null>(null);
   const [pullY, setPullY] = useState(0);
@@ -3476,83 +3477,91 @@ export default function App() {
                         {/* Expandable grid + intel */}
                         {isOpen && (
                           <>
-                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4, marginTop: 8 }}>
+                          <div style={{ display: "flex", flexDirection: "column", gap: 5, marginTop: 8 }}>
                             {PRED_OWNERS.map(ownerId => {
                               const ft = FANTASY_TEAMS[ownerId];
                               const pick = preds[ownerId] || null;
                               const isCorrect = !!winner && winner !== "tie" && pick === winner;
                               const isWrong = !!winner && winner !== "tie" && pick !== null && pick !== winner;
-                              return (
-                                <div key={ownerId} style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 7px", borderRadius: 8, background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)" }}>
-                                  <span style={{ fontSize: "0.6rem", color: ft.color, fontWeight: 700, minWidth: 30, flexShrink: 0 }}>{ft.owner}</span>
-                                  {(isLocked || (ownerId !== currentUser && currentUser !== "rajveer")) ? (
-                                    <div style={{ display: "flex", alignItems: "center", gap: 3, flex: 1 }}>
-                                      {pick ? (
-                                        <>
-                                          <img src={TEAM_LOGO_CDN[pick]} alt={pick} style={{ width: 14, height: 14, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                                          <span style={{ fontSize: "0.62rem", fontWeight: 600, color: isCorrect ? "#22c55e" : isWrong ? "#f87171" : "var(--text-2)" }}>{pick}</span>
-                                          {isCorrect && <span style={{ fontSize: "0.65rem", color: "#22c55e" }}>✓</span>}
-                                          {isWrong && <span style={{ fontSize: "0.65rem", color: "#f87171" }}>✗</span>}
-                                        </>
-                                      ) : (
-                                        <span style={{ fontSize: "0.6rem", color: "var(--text-3)", fontStyle: "italic" }}>—</span>
-                                      )}
-                                    </div>
-                                  ) : (
-                                    <div style={{ display: "flex", gap: 3, flex: 1 }}>
-                                      {[m.homeTeamCode, m.awayTeamCode].map((code: string) => (
-                                        <button key={code} onClick={e => {
-                                          e.stopPropagation();
-                                          const newPick = pick === code ? null : code;
-                                          // Stamp save time BEFORE the optimistic update so the poll guard kicks in immediately
-                                          lastPredSaveRef.current = Date.now();
-                                          setPredictions(prev => {
-                                            const updated = { ...prev, [matchIdStr]: { ...(prev[matchIdStr] || {}), [ownerId]: newPick } };
-                                            saveLocalPreds(updated);
-                                            return updated;
-                                          });
-                                          fetch(`/api/ipl/predictions/${encodeURIComponent(matchIdStr)}`, {
-                                            method: "POST",
-                                            headers: { "Content-Type": "application/json" },
-                                            body: JSON.stringify({ ownerId, pick: newPick }),
-                                          }).then(r => r.json()).then(d => {
-                                            if (d.predictions) {
-                                              // Successful save — update with authoritative server state and extend the guard
-                                              lastPredSaveRef.current = Date.now();
-                                              saveLocalPreds(d.predictions);
-                                              setPredictions(d.predictions);
-                                            } else {
-                                              // Server rejected (match locked, invalid pick, etc.) — revert optimistic update
+                              const canEdit = !isLocked && (ownerId === currentUser || currentUser === "rajveer");
+                              return canEdit ? (
+                                /* Big team pick cards */
+                                <div key={ownerId} style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                                  <span style={{ fontSize: "0.58rem", color: ft.color, fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase" as const }}>{ft.owner}</span>
+                                  <div style={{ display: "flex", gap: 8 }}>
+                                    {[m.homeTeamCode, m.awayTeamCode].map((code: string) => {
+                                      const teamColor = IPL_COLORS[code] || "#f5a623";
+                                      const isSelected = pick === code;
+                                      const flashKey = `${matchIdStr}-${ownerId}-${code}`;
+                                      const isFlashing = predFlash === flashKey;
+                                      return (
+                                        <button key={code}
+                                          className={`pred-pick-card${isSelected ? " selected" : ""}${isFlashing ? " confirmed" : ""}`}
+                                          style={{ "--pick-color": teamColor, "--pick-color-alpha": teamColor + "1e" } as React.CSSProperties}
+                                          onClick={e => {
+                                            e.stopPropagation();
+                                            const newPick = pick === code ? null : code;
+                                            if (newPick) {
+                                              setPredFlash(flashKey);
+                                              setTimeout(() => setPredFlash(k => k === flashKey ? null : k), 700);
+                                            }
+                                            lastPredSaveRef.current = Date.now();
+                                            setPredictions(prev => {
+                                              const updated = { ...prev, [matchIdStr]: { ...(prev[matchIdStr] || {}), [ownerId]: newPick } };
+                                              saveLocalPreds(updated);
+                                              return updated;
+                                            });
+                                            fetch(`/api/ipl/predictions/${encodeURIComponent(matchIdStr)}`, {
+                                              method: "POST",
+                                              headers: { "Content-Type": "application/json" },
+                                              body: JSON.stringify({ ownerId, pick: newPick }),
+                                            }).then(r => r.json()).then(d => {
+                                              if (d.predictions) {
+                                                lastPredSaveRef.current = Date.now();
+                                                saveLocalPreds(d.predictions);
+                                                setPredictions(d.predictions);
+                                              } else {
+                                                lastPredSaveRef.current = 0;
+                                                setPredictions(prev => {
+                                                  const reverted = { ...prev, [matchIdStr]: { ...(prev[matchIdStr] || {}), [ownerId]: pick } };
+                                                  saveLocalPreds(reverted);
+                                                  return reverted;
+                                                });
+                                              }
+                                            }).catch(() => {
                                               lastPredSaveRef.current = 0;
                                               setPredictions(prev => {
                                                 const reverted = { ...prev, [matchIdStr]: { ...(prev[matchIdStr] || {}), [ownerId]: pick } };
                                                 saveLocalPreds(reverted);
                                                 return reverted;
                                               });
-                                            }
-                                          }).catch(() => {
-                                            // Network failure — revert optimistic update
-                                            lastPredSaveRef.current = 0;
-                                            setPredictions(prev => {
-                                              const reverted = { ...prev, [matchIdStr]: { ...(prev[matchIdStr] || {}), [ownerId]: pick } };
-                                              saveLocalPreds(reverted);
-                                              return reverted;
                                             });
-                                          });
-                                        }} style={{
-                                          flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 2,
-                                          padding: "3px 2px", borderRadius: 6, cursor: "pointer", border: "1px solid",
-                                          fontFamily: "inherit", fontSize: "0.58rem", fontWeight: 600,
-                                          background: pick === code ? `${ft.color}22` : "transparent",
-                                          borderColor: pick === code ? ft.color : "var(--border)",
-                                          color: pick === code ? "var(--text)" : "var(--text-3)",
-                                          transition: "all 0.15s",
-                                        }}>
-                                          <img src={TEAM_LOGO_CDN[code]} alt={code} style={{ width: 11, height: 11, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                                          <span>{code}</span>
+                                          }}>
+                                          <img src={TEAM_LOGO_CDN[code]} alt={code} style={{ width: 32, height: 32, objectFit: "contain", filter: isSelected ? "none" : "grayscale(0.3) opacity(0.7)", transition: "filter 0.2s" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                                          <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.75rem", fontWeight: 500, letterSpacing: "0.06em", color: isSelected ? "var(--text)" : "var(--text-3)", transition: "color 0.2s" }}>{code}</span>
+                                          {isSelected && (
+                                            <div style={{ position: "absolute", top: 5, right: 5, width: 14, height: 14, borderRadius: "50%", background: teamColor, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                              <svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.8 2.8L8.5 2.5" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                            </div>
+                                          )}
                                         </button>
-                                      ))}
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              ) : (
+                                /* Compact read-only row */
+                                <div key={ownerId} style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 8px", borderRadius: 8, background: "rgba(255,255,255,0.02)", border: "1px solid var(--border)" }}>
+                                  <span style={{ fontSize: "0.6rem", color: ft.color, fontWeight: 700, minWidth: 32, flexShrink: 0 }}>{ft.owner}</span>
+                                  {pick ? (
+                                    <div style={{ display: "flex", alignItems: "center", gap: 4, flex: 1 }}>
+                                      <img src={TEAM_LOGO_CDN[pick]} alt={pick} style={{ width: 15, height: 15, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                                      <span style={{ fontSize: "0.63rem", fontWeight: 600, color: isCorrect ? "#22c55e" : isWrong ? "#f87171" : "var(--text-2)" }}>{pick}</span>
+                                      {isCorrect && <span style={{ fontSize: "0.68rem", color: "#22c55e" }}>✓</span>}
+                                      {isWrong && <span style={{ fontSize: "0.68rem", color: "#f87171" }}>✗</span>}
                                     </div>
+                                  ) : (
+                                    <span style={{ fontSize: "0.6rem", color: "var(--text-3)", fontStyle: "italic" }}>—</span>
                                   )}
                                 </div>
                               );
