@@ -471,13 +471,6 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
               <div style={{ position: "absolute", inset: -14, borderRadius: 40, background: "radial-gradient(circle, rgba(245,166,35,0.25) 0%, transparent 65%)", filter: "blur(10px)" }} />
               {/* Static full gold ring — always visible */}
               <div style={{ position: "absolute", inset: -2, borderRadius: 28, background: "rgba(245,166,35,0.38)" }} />
-              {/* Spinning comet highlight — bright spot racing around the ring */}
-              <div style={{
-                position: "absolute", inset: -2, borderRadius: 28,
-                background: "conic-gradient(from 0deg, transparent 0deg, transparent 55deg, rgba(255,245,180,0.95) 90deg, transparent 125deg, transparent 360deg)",
-                animation: "login-icon-spin 5s linear infinite",
-                mixBlendMode: "screen",
-              }} />
               {/* Inner clip — rounded square, covers center leaving only the ring visible */}
               <div style={{ position: "absolute", inset: 2.5, borderRadius: 25.5, background: "#100d08", overflow: "hidden" }}>
                 <img
