@@ -3018,85 +3018,150 @@ export default function App() {
             return { isLiveNow, isUpcoming, isDimmed, glowColor };
           };
 
-          return (
-            <>
-              <div className="top11-label">Playing XI (Top 11)</div>
-              <div className="players-grid">
-                {td.players.filter(p => td.top11.has(p.name)).sort((a, b) => b.adj - a.adj).map(p => {
-                  const isExp = expandedPlayer === p.name;
-                  const { isLiveNow, isUpcoming, isDimmed, glowColor } = getPlayerState(p.name, p.ipl);
-                  const cardClass = [
-                    "player-card",
-                    p.name === t.captain ? "is-c" : p.name === t.vc ? "is-vc" : "",
-                    isExp ? "player-expanded" : "",
-                    isLiveNow ? "live-now" : isUpcoming ? "playing-next" : isDimmed ? "not-playing-next" : ""
-                  ].filter(Boolean).join(" ");
-                  return (
-                    <React.Fragment key={p.name}>
-                      <div className={cardClass}
-                        onClick={() => setExpandedPlayer(isExp ? null : p.name)}>
-                        {isLiveNow ? <div className="playing-badge live-badge" /> : <div className="playing-badge" style={{ background: isUpcoming ? "#4ade80" : hasAnyContext ? "transparent" : "#4ade80" }} />}
-                        <div className="player-ipl-badge" style={{ background: IPL_COLORS[p.ipl] + "33", color: IPL_COLORS[p.ipl] }}>
-                          {p.ipl}
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div className="player-name" style={isLiveNow ? { color: "#fca5a5" } : {}}>{p.name}{p.name === t.captain ? <span style={{ marginLeft: 5, fontSize: "0.56rem", color: "#d4a843", fontWeight: 700 }}>C</span> : p.name === t.vc ? <span style={{ marginLeft: 5, fontSize: "0.56rem", color: "#a1a1aa", fontWeight: 700 }}>VC</span> : null}</div>
-                          <Sparkline name={p.name} color={t.color} />
-                        </div>
-                        <div style={{ textAlign: "right", flexShrink: 0 }}>
-                          <div className="player-pts" style={{ color: isLiveNow ? "#fca5a5" : p.adj > 0 ? t.color : "var(--text-3)" }}>{p.adj}</div>
-                          {p.name === t.captain && <div className="player-pts-raw">×2</div>}
-                          {p.name === t.vc && <div className="player-pts-raw">×1.5</div>}
-                        </div>
-                      </div>
-                      {isExp && renderBreakdown(p)}
-                    </React.Fragment>
-                  );
-                })}
-              </div>
+          return (() => {
+            const xi = td.players.filter(p => td.top11.has(p.name)).sort((a, b) => b.adj - a.adj);
+            const bench = td.players.filter(p => !td.top11.has(p.name)).sort((a, b) => b.adj - a.adj);
+            const xiTotal = xi.reduce((s, p) => s + p.adj, 0);
+            const benchTotal = bench.reduce((s, p) => s + p.adj, 0);
 
-              <div className="top11-label" style={{ marginTop: 16, marginBottom: 8, cursor: "pointer", userSelect: "none", display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: benchOpen ? 0 : 32 }}
-                onClick={() => setBenchOpen(o => !o)}>
-                <span>Bench</span>
-                <span style={{ fontSize: "0.6rem", color: "var(--text-3)", display: "inline-block", transition: "transform 0.2s", transform: benchOpen ? "rotate(180deg)" : "none" }}>▼</span>
-              </div>
-              {benchOpen && (
-                <div className="players-grid">
-                  {td.players.filter(p => !td.top11.has(p.name)).sort((a, b) => b.adj - a.adj).map(p => {
-                    const isExp = expandedPlayer === p.name;
-                    const { isLiveNow, isUpcoming, isDimmed, glowColor } = getPlayerState(p.name, p.ipl);
-                    const cardClass = [
-                      "player-card benched",
-                      p.name === t.captain ? "is-c" : p.name === t.vc ? "is-vc" : "",
-                      isExp ? "player-expanded" : "",
-                      isLiveNow ? "live-now" : isUpcoming ? "playing-next" : isDimmed ? "not-playing-next" : ""
-                    ].filter(Boolean).join(" ");
-                    return (
-                      <React.Fragment key={p.name}>
-                        <div className={cardClass}
-                          onClick={() => setExpandedPlayer(isExp ? null : p.name)}>
-                          {isLiveNow ? <div className="playing-badge live-badge" /> : <div className="playing-badge" style={{ background: isUpcoming ? "#4ade80" : "transparent" }} />}
-                          <div className="player-ipl-badge" style={{ background: IPL_COLORS[p.ipl] + "22", color: IPL_COLORS[p.ipl] + "99" }}>
-                            {p.ipl}
-                          </div>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div className="player-name" style={isLiveNow ? { color: "#fca5a5" } : {}}>{p.name}{p.name === t.captain ? <span style={{ marginLeft: 5, fontSize: "0.56rem", color: "#d4a843", fontWeight: 700 }}>C</span> : p.name === t.vc ? <span style={{ marginLeft: 5, fontSize: "0.56rem", color: "#a1a1aa", fontWeight: 700 }}>VC</span> : null}</div>
-                            <Sparkline name={p.name} color={t.color + "88"} />
-                          </div>
-                          <div style={{ textAlign: "right", flexShrink: 0 }}>
-                            <div className="player-pts" style={{ color: isLiveNow ? "#fca5a5" : "var(--text-3)" }}>{p.adj}</div>
-                            {p.name === t.captain && <div className="player-pts-raw">×2</div>}
-                            {p.name === t.vc && <div className="player-pts-raw">×1.5</div>}
-                          </div>
-                        </div>
-                        {isExp && renderBreakdown(p)}
-                      </React.Fragment>
-                    );
-                  })}
+            const CaptainBadge = () => (
+              <span style={{
+                display: "inline-flex", alignItems: "center", justifyContent: "center",
+                width: 17, height: 17, borderRadius: "50%",
+                background: "rgba(212,168,67,0.22)", border: "1px solid rgba(212,168,67,0.55)",
+                color: "#d4a843", fontSize: "0.44rem", fontWeight: 900,
+                marginLeft: 5, verticalAlign: "middle", flexShrink: 0, letterSpacing: 0,
+              }}>C</span>
+            );
+            const VCBadge = () => (
+              <span style={{
+                display: "inline-flex", alignItems: "center", justifyContent: "center",
+                width: 17, height: 17, borderRadius: "50%",
+                background: "rgba(148,148,172,0.18)", border: "1px solid rgba(148,148,172,0.38)",
+                color: "#a1a1aa", fontSize: "0.44rem", fontWeight: 900,
+                marginLeft: 5, verticalAlign: "middle", flexShrink: 0, letterSpacing: 0,
+              }}>VC</span>
+            );
+
+            const renderPlayer = (p: typeof xi[0], isBench: boolean) => {
+              const isExp = expandedPlayer === p.name;
+              const { isLiveNow, isUpcoming, isDimmed } = getPlayerState(p.name, p.ipl);
+              const isCap = p.name === t.captain;
+              const isVC = p.name === t.vc;
+              const roleColor = ROLE_COLORS[p.role] || "var(--text-3)";
+              const cardClass = [
+                isBench ? "player-card benched" : "player-card",
+                isCap ? "is-c" : isVC ? "is-vc" : "",
+                isExp ? "player-expanded" : "",
+                isLiveNow ? "live-now" : isUpcoming ? "playing-next" : isDimmed ? "not-playing-next" : ""
+              ].filter(Boolean).join(" ");
+
+              return (
+                <React.Fragment key={p.name}>
+                  <div className={cardClass} onClick={() => setExpandedPlayer(isExp ? null : p.name)}
+                    style={isLiveNow ? { boxShadow: "inset 3px 0 0 #f87171, inset 0 0 0 1px rgba(248,113,113,0.12)" } : {}}>
+
+                    {/* Status dot */}
+                    {isLiveNow
+                      ? <div className="playing-badge live-badge" />
+                      : <div className="playing-badge" style={{ background: isUpcoming ? "#4ade80" : hasAnyContext ? "transparent" : isBench ? "transparent" : "#4ade80" }} />
+                    }
+
+                    {/* IPL team badge */}
+                    <div className="player-ipl-badge" style={{
+                      background: isBench ? IPL_COLORS[p.ipl] + "1a" : IPL_COLORS[p.ipl] + "30",
+                      color: isBench ? IPL_COLORS[p.ipl] + "88" : IPL_COLORS[p.ipl],
+                    }}>{p.ipl}</div>
+
+                    {/* Name + role + sparkline */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 0, flexWrap: "nowrap" as const }}>
+                        <div className="player-name" style={{
+                          color: isLiveNow ? "#fca5a5" : isBench ? "var(--text-2)" : "var(--text)",
+                          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, maxWidth: "100%",
+                        }}>{p.name}</div>
+                        {isCap && <CaptainBadge />}
+                        {isVC && <VCBadge />}
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 2 }}>
+                        <span style={{
+                          fontSize: "0.52rem", fontWeight: 800, letterSpacing: "0.04em",
+                          padding: "1px 5px", borderRadius: 5,
+                          color: isBench ? roleColor + "77" : roleColor,
+                          background: roleColor + (isBench ? "10" : "18"),
+                          border: `1px solid ${roleColor}${isBench ? "20" : "30"}`,
+                          flexShrink: 0,
+                        }}>{p.role}</span>
+                        <Sparkline name={p.name} color={isBench ? t.color + "66" : t.color} />
+                      </div>
+                    </div>
+
+                    {/* Points */}
+                    <div style={{ textAlign: "right", flexShrink: 0 }}>
+                      <div className="player-pts" style={{
+                        color: isLiveNow ? "#fca5a5"
+                          : isBench ? "var(--text-3)"
+                          : p.adj > 0 ? t.color : "var(--text-3)",
+                        fontSize: isBench ? "1.05rem" : "1.18rem",
+                      }}>{p.adj}</div>
+                      {isCap && <div className="player-pts-raw">×2</div>}
+                      {isVC && <div className="player-pts-raw">×1.5</div>}
+                      {isBench && !isCap && !isVC && (
+                        <div style={{ fontSize: "0.48rem", color: "var(--text-3)", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" as const, marginTop: 1, opacity: 0.7 }}>bench</div>
+                      )}
+                    </div>
+                  </div>
+                  {isExp && renderBreakdown(p)}
+                </React.Fragment>
+              );
+            };
+
+            return (
+              <>
+                {/* === PLAYING XI HEADER === */}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", boxShadow: "0 0 6px rgba(74,222,128,0.7)", flexShrink: 0 }} />
+                    <span style={{ fontSize: "0.58rem", fontWeight: 800, color: "var(--text-2)", letterSpacing: "0.14em", textTransform: "uppercase" as const }}>Playing XI</span>
+                    <span style={{ fontSize: "0.54rem", fontWeight: 700, color: "var(--text-3)", background: "rgba(74,222,128,0.08)", border: "1px solid rgba(74,222,128,0.15)", padding: "1px 6px", borderRadius: 6 }}>11</span>
+                  </div>
+                  {Object.keys(playerPoints).length > 0 && (
+                    <span style={{ fontSize: "0.62rem", fontWeight: 800, color: t.color, opacity: 0.85 }}>{xiTotal} pts</span>
+                  )}
                 </div>
-              )}
-            </>
-          );
+                <div className="players-grid" style={{ borderTop: `2px solid ${t.color}40`, borderRadius: "var(--radius-md)" }}>
+                  {xi.map(p => renderPlayer(p, false))}
+                </div>
+
+                {/* === BENCH TOGGLE === */}
+                <button
+                  onClick={() => setBenchOpen(o => !o)}
+                  style={{
+                    display: "flex", alignItems: "center", justifyContent: "space-between",
+                    width: "100%", marginTop: 18, marginBottom: benchOpen ? 10 : 0,
+                    background: "transparent", border: "none", cursor: "pointer",
+                    padding: "0 2px", WebkitTapHighlightColor: "transparent",
+                  }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--text-3)", flexShrink: 0 }} />
+                    <span style={{ fontSize: "0.58rem", fontWeight: 800, color: "var(--text-3)", letterSpacing: "0.14em", textTransform: "uppercase" as const }}>Bench</span>
+                    <span style={{ fontSize: "0.54rem", fontWeight: 700, color: "var(--text-3)", background: "rgba(255,255,255,0.05)", border: "1px solid var(--border)", padding: "1px 6px", borderRadius: 6 }}>{bench.length}</span>
+                    {Object.keys(playerPoints).length > 0 && benchTotal > 0 && (
+                      <span style={{ fontSize: "0.54rem", color: "var(--text-3)", opacity: 0.65 }}>{benchTotal} pts sitting</span>
+                    )}
+                  </div>
+                  <span style={{ fontSize: "0.58rem", color: "var(--text-3)", display: "inline-block", transition: "transform 0.22s cubic-bezier(0.4,0,0.2,1)", transform: benchOpen ? "rotate(180deg)" : "none", marginBottom: benchOpen ? 0 : 28 }}>▼</span>
+                </button>
+
+                {/* === BENCH GRID === */}
+                {benchOpen && (
+                  <div className="players-grid" style={{ opacity: 0.82, borderTop: "1.5px solid rgba(255,255,255,0.05)", borderRadius: "var(--radius-md)" }}>
+                    {bench.map(p => renderPlayer(p, true))}
+                  </div>
+                )}
+              </>
+            );
+          })()
         })()}
       </div>
     );

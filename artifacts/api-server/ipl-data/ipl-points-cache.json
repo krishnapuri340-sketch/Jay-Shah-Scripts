@@ -13,7 +13,7 @@
       "innings": [
         {
           "name": "Sunrisers Hyderabad Inning 1",
-          "total": "195/9 (20.0 ov)",
+          "total": "201/9 (20.0 ov)",
           "batting": [
             {
               "name": "Travis Head",
@@ -22,7 +22,7 @@
               "fours": 2,
               "sixes": 0,
               "sr": "122.22",
-              "dismissal": "catch",
+              "dismissal": "c Phil Salt b Jacob Duffy",
               "notOut": false,
               "dnb": false
             },
@@ -32,19 +32,19 @@
               "balls": 8,
               "fours": 0,
               "sixes": 1,
-              "sr": "87.5",
-              "dismissal": "catch",
+              "sr": "87.50",
+              "dismissal": "c Jitesh Sharma b Jacob Duffy",
               "notOut": false,
               "dnb": false
             },
             {
-              "name": "Ishan Kishan",
+              "name": "Ishan Kishan (c)",
               "runs": 80,
               "balls": 38,
               "fours": 8,
               "sixes": 5,
               "sr": "210.53",
-              "dismissal": "catch",
+              "dismissal": "c Phil Salt b Abhinandan Singh",
               "notOut": false,
               "dnb": false
             },
@@ -55,7 +55,7 @@
               "fours": 0,
               "sixes": 0,
               "sr": "16.67",
-              "dismissal": "catch",
+              "dismissal": "c Abhinandan Singh b Jacob Duffy",
               "notOut": false,
               "dnb": false
             },
@@ -66,7 +66,7 @@
               "fours": 2,
               "sixes": 1,
               "sr": "140.91",
-              "dismissal": "catch",
+              "dismissal": "c Phil Salt b Romario Shepherd",
               "notOut": false,
               "dnb": false
             },
@@ -76,8 +76,8 @@
               "balls": 6,
               "fours": 0,
               "sixes": 1,
-              "sr": "150",
-              "dismissal": "catch",
+              "sr": "150.00",
+              "dismissal": "c Devdutt Padikkal b Suyash Sharma",
               "notOut": false,
               "dnb": false
             },
@@ -88,7 +88,7 @@
               "fours": 3,
               "sixes": 4,
               "sr": "238.89",
-              "dismissal": "catch",
+              "dismissal": "c Virat Kohli b Romario Shepherd",
               "notOut": false,
               "dnb": false
             },
@@ -98,8 +98,8 @@
               "balls": 3,
               "fours": 0,
               "sixes": 0,
-              "sr": "100",
-              "dismissal": "catch",
+              "sr": "100.00",
+              "dismissal": "c Devdutt Padikkal b Romario Shepherd",
               "notOut": false,
               "dnb": false
             },
@@ -110,7 +110,7 @@
               "fours": 0,
               "sixes": 0,
               "sr": "0.00",
-              "dismissal": "catch",
+              "dismissal": "c Devdutt Padikkal b Bhuvneshwar Kumar",
               "notOut": false,
               "dnb": false
             },
@@ -120,7 +120,7 @@
               "balls": 5,
               "fours": 0,
               "sixes": 0,
-              "sr": "120",
+              "sr": "120.00",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -135,6 +135,17 @@
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
+            },
+            {
+              "name": "Eshan Malinga",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
             }
           ],
           "bowling": [
@@ -146,7 +157,8 @@
               "wickets": 3,
               "eco": "5.5",
               "wides": 1,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 13
             },
             {
               "name": "Bhuvneshwar Kumar",
@@ -154,9 +166,10 @@
               "maidens": 0,
               "runs": 31,
               "wickets": 1,
-              "eco": "7.8",
+              "eco": "7.75",
               "wides": 2,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 9
             },
             {
               "name": "Abhinandan Singh",
@@ -164,9 +177,10 @@
               "maidens": 0,
               "runs": 38,
               "wickets": 1,
-              "eco": "12.7",
+              "eco": "12.67",
               "wides": 0,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 7
             },
             {
               "name": "Romario Shepherd",
@@ -176,7 +190,8 @@
               "wickets": 3,
               "eco": "13.5",
               "wides": 1,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 5
             },
             {
               "name": "Suyash Sharma",
@@ -184,9 +199,10 @@
               "maidens": 0,
               "runs": 28,
               "wickets": 1,
-              "eco": "9.3",
+              "eco": "9.33",
               "wides": 0,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 6
             },
             {
               "name": "Krunal Pandya",
@@ -196,22 +212,23 @@
               "wickets": 0,
               "eco": "13",
               "wides": 0,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 1
             }
           ]
         },
         {
-          "name": "Royal Challengers Bengaluru Inning 1",
-          "total": "185/4 (15.4 ov)",
+          "name": "Royal Challengers Bengaluru Inning 2",
+          "total": "203/4 (15.4 ov)",
           "batting": [
             {
-              "name": "Philip Salt",
+              "name": "Phil Salt",
               "runs": 8,
               "balls": 7,
               "fours": 2,
               "sixes": 0,
               "sr": "114.29",
-              "dismissal": "catch",
+              "dismissal": "c Heinrich Klaasen b Jaydev Unadkat",
               "notOut": false,
               "dnb": false
             },
@@ -233,7 +250,7 @@
               "fours": 7,
               "sixes": 4,
               "sr": "234.62",
-              "dismissal": "catch",
+              "dismissal": "c Heinrich Klaasen b Harsh Dubey",
               "notOut": false,
               "dnb": false
             },
@@ -244,7 +261,7 @@
               "fours": 2,
               "sixes": 3,
               "sr": "258.33",
-              "dismissal": "catch",
+              "dismissal": "c Harsh Dubey b David Payne",
               "notOut": false,
               "dnb": false
             },
@@ -255,7 +272,7 @@
               "fours": 0,
               "sixes": 0,
               "sr": "0.00",
-              "dismissal": "catch",
+              "dismissal": "c Jaydev Unadkat b David Payne",
               "notOut": false,
               "dnb": false
             },
@@ -265,10 +282,76 @@
               "balls": 10,
               "fours": 1,
               "sixes": 1,
-              "sr": "160",
+              "sr": "160.00",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
+            },
+            {
+              "name": "Romario Shepherd",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Krunal Pandya",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Bhuvneshwar Kumar",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Abhinandan Singh",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Jacob Duffy",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Suyash Sharma",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
             }
           ],
           "bowling": [
@@ -280,7 +363,8 @@
               "wickets": 0,
               "eco": "9.5",
               "wides": 0,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 5
             },
             {
               "name": "Jaydev Unadkat",
@@ -288,9 +372,10 @@
               "maidens": 0,
               "runs": 29,
               "wickets": 1,
-              "eco": "9.7",
+              "eco": "9.67",
               "wides": 1,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 6
             },
             {
               "name": "David Payne",
@@ -298,9 +383,10 @@
               "maidens": 0,
               "runs": 35,
               "wickets": 2,
-              "eco": "11.7",
+              "eco": "11.67",
               "wides": 1,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 5
             },
             {
               "name": "Harsh Dubey",
@@ -308,9 +394,10 @@
               "maidens": 0,
               "runs": 35,
               "wickets": 1,
-              "eco": "11.7",
+              "eco": "11.67",
               "wides": 0,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 4
             },
             {
               "name": "Eshan Malinga",
@@ -320,7 +407,8 @@
               "wickets": 0,
               "eco": "17.5",
               "wides": 4,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 3
             },
             {
               "name": "Harshal Patel",
@@ -328,9 +416,10 @@
               "maidens": 0,
               "runs": 39,
               "wickets": 0,
-              "eco": "14.6",
+              "eco": "14.63",
               "wides": 1,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 3
             }
           ]
         }
