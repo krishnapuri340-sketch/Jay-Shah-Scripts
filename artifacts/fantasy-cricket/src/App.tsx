@@ -468,15 +468,18 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
             {/* spinning ring icon */}
             <div style={{ position: "relative", width: 92, height: 92, marginBottom: 20 }}>
               {/* Outer ambient glow */}
-              <div style={{ position: "absolute", inset: -16, borderRadius: 40, background: "radial-gradient(circle, rgba(245,166,35,0.22) 0%, transparent 65%)", filter: "blur(12px)" }} />
-              {/* Spinning comet ring — rounded square, comet travels all 4 sides */}
+              <div style={{ position: "absolute", inset: -14, borderRadius: 40, background: "radial-gradient(circle, rgba(245,166,35,0.25) 0%, transparent 65%)", filter: "blur(10px)" }} />
+              {/* Static full gold ring — always visible */}
+              <div style={{ position: "absolute", inset: -2, borderRadius: 28, background: "rgba(245,166,35,0.38)" }} />
+              {/* Spinning comet highlight — bright spot racing around the ring */}
               <div style={{
                 position: "absolute", inset: -2, borderRadius: 28,
-                background: "conic-gradient(from 0deg, rgba(245,166,35,0) 0deg, rgba(245,166,35,0) 60deg, rgba(255,230,130,1) 90deg, rgba(245,166,35,0) 120deg, rgba(245,166,35,0) 360deg)",
-                animation: "login-icon-spin 6s linear infinite",
+                background: "conic-gradient(from 0deg, transparent 0deg, transparent 55deg, rgba(255,245,180,0.95) 90deg, transparent 125deg, transparent 360deg)",
+                animation: "login-icon-spin 5s linear infinite",
+                mixBlendMode: "screen",
               }} />
-              {/* Inner clip — rounded square matching icon */}
-              <div style={{ position: "absolute", inset: 2, borderRadius: 26, background: "#100d08", overflow: "hidden" }}>
+              {/* Inner clip — rounded square, covers center leaving only the ring visible */}
+              <div style={{ position: "absolute", inset: 2.5, borderRadius: 25.5, background: "#100d08", overflow: "hidden" }}>
                 <img
                   src={`${import.meta.env.BASE_URL}app-icon.png`}
                   alt="Indian Premier League"
