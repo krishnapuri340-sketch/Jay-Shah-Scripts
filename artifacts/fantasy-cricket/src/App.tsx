@@ -3460,18 +3460,27 @@ export default function App() {
                       : isDone && winner === "tie"
                       ? "Tied"
                       : isLocked
-                      ? pickCount > 0 ? `${pickCount}/4 picked 🔒` : "🔒 Locked — no picks"
+                      ? pickCount > 0 ? `${pickCount}/4 picked` : "Locked"
                       : pickCount > 0 ? `${pickCount}/4 picked` : "Tap to predict";
                     return (
                       <div onClick={e => e.stopPropagation()} style={{ marginTop: 10, borderTop: "1px solid var(--border)", paddingTop: 7 }}>
                         {/* Tappable header row */}
-                        <div onClick={togglePred} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", userSelect: "none" as const }}>
-                          <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.62rem", color: "var(--text-3)", fontWeight: 400, letterSpacing: "0.14em" }}>
-                            {isDone ? "PREDICTIONS" : isLocked ? "🔒 PREDICTIONS" : "📊 PREDICT"}
-                          </span>
+                        <div onClick={togglePred} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", userSelect: "none" as const, WebkitTapHighlightColor: "transparent" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                            {isDone ? (
+                              <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M2 11l4-4 3 3 5-6" stroke={correctCount > 0 ? "#d4a843" : "var(--text-3)"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                            ) : isLocked ? (
+                              <svg width="10" height="11" viewBox="0 0 14 16" fill="none"><rect x="2" y="7" width="10" height="8" rx="1.5" stroke="var(--text-3)" strokeWidth="1.6"/><path d="M4.5 7V5.5a2.5 2.5 0 0 1 5 0V7" stroke="var(--text-3)" strokeWidth="1.6" strokeLinecap="round"/></svg>
+                            ) : (
+                              <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="9.5" width="3" height="5" rx="0.8" fill="var(--gold)"/><rect x="6.5" y="6.5" width="3" height="8" rx="0.8" fill="var(--gold)" opacity="0.65"/><rect x="11.5" y="3.5" width="3" height="11" rx="0.8" fill="var(--gold)" opacity="0.35"/></svg>
+                            )}
+                            <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.62rem", letterSpacing: "0.14em", fontWeight: isLocked || isDone ? 400 : 500, color: isDone || isLocked ? "var(--text-3)" : "var(--gold)" }}>
+                              {isDone || isLocked ? "PREDICTIONS" : "PREDICT"}
+                            </span>
+                          </div>
                           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                            <span style={{ fontSize: "0.57rem", color: "var(--text-3)" }}>{collapsedSummary}</span>
-                            <span style={{ fontSize: "0.55rem", color: "var(--text-3)", transition: "transform 0.2s", display: "inline-block", transform: isOpen ? "rotate(180deg)" : "none" }}>▼</span>
+                            <span style={{ fontSize: "0.56rem", color: isDone && correctCount > 0 ? "#22c55e" : "var(--text-3)", background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", borderRadius: 10, padding: "1px 7px", lineHeight: 1.6 }}>{collapsedSummary}</span>
+                            <svg width="8" height="5" viewBox="0 0 10 6" fill="none" style={{ transition: "transform 0.22s ease", transform: isOpen ? "rotate(180deg)" : "rotate(0deg)", flexShrink: 0 }}><path d="M1 1l4 4 4-4" stroke="var(--text-3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                           </div>
                         </div>
                         {/* Expandable grid + intel */}
