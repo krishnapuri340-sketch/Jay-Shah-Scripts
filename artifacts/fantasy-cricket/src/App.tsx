@@ -2549,6 +2549,8 @@ export default function App() {
                     backgroundImage: `url(${LB_BG[s.id]})`,
                     backgroundSize: "cover", backgroundPosition: "center 30%",
                     filter: "blur(8px) brightness(0.34) saturate(1.3)",
+                    transform: "translateZ(0)",
+                    willChange: "filter",
                   }} />
                   {/* Subtle vignette overlay for extra depth */}
                   <div style={{
