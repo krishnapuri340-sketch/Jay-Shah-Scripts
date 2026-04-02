@@ -351,37 +351,33 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
   const cinematicBg: React.CSSProperties = {
     position: "fixed", inset: 0, zIndex: 1000, overflow: "hidden",
   };
-  // Shared bg layers: flipped image (sky → bottom) + dark-top gradient
-  const BgLayers = () => (
-    <>
-      <img src={`${BASE}login-bg.jpeg`} alt="" style={{
-        position: "absolute", left: 0, right: 0,
-        top: "12%", height: "100%",
-        width: "100%",
-        objectFit: "cover", objectPosition: "center top",
-        transform: "scaleY(-1)", pointerEvents: "none", userSelect: "none",
-        filter: "blur(5px) brightness(0.95)",
-      }} />
-      <div style={{
-        position: "absolute", inset: 0, pointerEvents: "none",
-        background: `linear-gradient(to bottom,
-          rgba(4,2,1,0.98) 0%,
-          rgba(4,2,1,0.88) 12%,
-          rgba(4,2,1,0.60) 28%,
-          rgba(4,2,1,0.28) 44%,
-          rgba(4,2,1,0.08) 62%,
-          rgba(4,2,1,0.04) 78%,
-          rgba(4,2,1,0.18) 100%
-        )`,
-      }} />
-    </>
-  );
+  // Inlined bg JSX (not a component — avoids remount/flicker on state changes)
+  const bgImg: React.CSSProperties = {
+    position: "absolute", left: 0, right: 0,
+    top: "12%", height: "100%", width: "100%",
+    objectFit: "cover", objectPosition: "center top",
+    transform: "scaleY(-1)", pointerEvents: "none", userSelect: "none",
+    filter: "blur(14px) brightness(0.62) saturate(1.1)",
+  };
+  const bgOverlay: React.CSSProperties = {
+    position: "absolute", inset: 0, pointerEvents: "none",
+    background: `linear-gradient(to bottom,
+      rgba(4,2,1,0.98) 0%,
+      rgba(4,2,1,0.88) 12%,
+      rgba(4,2,1,0.62) 28%,
+      rgba(4,2,1,0.32) 44%,
+      rgba(4,2,1,0.12) 62%,
+      rgba(4,2,1,0.06) 78%,
+      rgba(4,2,1,0.22) 100%
+    )`,
+  };
 
   if (sel) {
     const ft = FANTASY_TEAMS[sel];
     return (
       <div style={{ ...cinematicBg, display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center" }}>
-        <BgLayers />
+        <img src={`${BASE}login-bg.jpeg`} alt="" style={bgImg} />
+        <div style={bgOverlay} />
         <style>{`
           @keyframes login-fade-up { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
           @keyframes pin-shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(6px)} }
@@ -449,7 +445,8 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
 
   return (
     <div style={{ ...cinematicBg, display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", padding: "0 24px" }}>
-      <BgLayers />
+      <img src={`${BASE}login-bg.jpeg`} alt="" style={bgImg} />
+      <div style={bgOverlay} />
       <style>{`
         @keyframes login-fade-up { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
         @keyframes team-card-in { from { opacity:0; transform:scale(0.88) translateY(18px); } to { opacity:1; transform:scale(1) translateY(0); } }
