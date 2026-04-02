@@ -699,7 +699,7 @@ export default function App() {
   const sparkTipTimer = useRef<ReturnType<typeof setTimeout>>();
   // Always-fresh ref to refresh fn (avoids stale closure in PTR listener)
   const refreshFnRef = useRef(() => {});
-  const [countdown, setCountdown] = useState<{ text: string; matchName: string; venue?: string; homeTeam?: string } | null>(null);
+  const [countdown, setCountdown] = useState<{ text: string; matchName: string; venue?: string; homeTeam?: string; awayTeam?: string } | null>(null);
   const [currentUser, setCurrentUser] = useState<string | null>(() => localStorage.getItem("ipl-current-user"));
   const [userPins, setUserPins] = useState<Record<string, string>>(loadPins);
   const [pinEditTarget, setPinEditTarget] = useState<string | null>(null);
@@ -1126,7 +1126,8 @@ export default function App() {
         ? `${days}D ${String(hrs).padStart(2,"0")}H ${String(mins).padStart(2,"0")}M`
         : `${String(hrs).padStart(2,"0")}:${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
       const homeTeam = upcoming.homeTeamCode || upcoming.teamInfo?.[0]?.shortname || "";
-      setCountdown({ text, matchName: upcoming.name, venue: upcoming.venue || "", homeTeam });
+      const awayTeam = upcoming.awayTeamCode || upcoming.teamInfo?.[1]?.shortname || "";
+      setCountdown({ text, matchName: upcoming.name, venue: upcoming.venue || "", homeTeam, awayTeam });
     };
     update();
     const id = setInterval(update, 1000);
@@ -2418,7 +2419,17 @@ export default function App() {
                 <div className="countdown-label" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>Next Match</div>
               </div>
               <div style={{ textAlign: "right" }}>
-                <div className="countdown-match" style={{ textShadow: "0 1px 6px rgba(0,0,0,1)" }}>{countdown.matchName}</div>
+                {(countdown.homeTeam && countdown.awayTeam) ? (
+                  <div className="countdown-match" style={{ display: "flex", alignItems: "center", gap: 6, justifyContent: "flex-end", textShadow: "0 1px 6px rgba(0,0,0,1)" }}>
+                    <img src={TEAM_LOGO_CDN[countdown.homeTeam]} alt={countdown.homeTeam} style={{ width: 22, height: 22, objectFit: "contain", filter: "drop-shadow(0 1px 4px rgba(0,0,0,0.8))" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                    <span>{countdown.homeTeam}</span>
+                    <span style={{ fontSize: "0.6rem", color: "rgba(245,166,35,0.55)", fontWeight: 400 }}>vs</span>
+                    <span>{countdown.awayTeam}</span>
+                    <img src={TEAM_LOGO_CDN[countdown.awayTeam]} alt={countdown.awayTeam} style={{ width: 22, height: 22, objectFit: "contain", filter: "drop-shadow(0 1px 4px rgba(0,0,0,0.8))" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                  </div>
+                ) : (
+                  <div className="countdown-match" style={{ textShadow: "0 1px 6px rgba(0,0,0,1)" }}>{shortMatchLabel(countdown.matchName)}</div>
+                )}
                 {countdown.venue && (
                   <div style={{ fontSize: "0.6rem", color: "var(--text-3)", marginTop: 3, textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>
                     🏟 {countdown.venue}{countdown.homeTeam ? ` (${countdown.homeTeam})` : ""}
