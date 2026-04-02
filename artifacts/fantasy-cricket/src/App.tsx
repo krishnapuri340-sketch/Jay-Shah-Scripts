@@ -3546,11 +3546,11 @@ export default function App() {
                                               });
                                             });
                                           }}>
-                                          <img src={TEAM_LOGO_CDN[code]} alt={code} style={{ width: 32, height: 32, objectFit: "contain", filter: isSelected ? "none" : "grayscale(0.3) opacity(0.7)", transition: "filter 0.2s" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                                          <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.75rem", fontWeight: 500, letterSpacing: "0.06em", color: isSelected ? "var(--text)" : "var(--text-3)", transition: "color 0.2s" }}>{code}</span>
+                                          <img src={TEAM_LOGO_CDN[code]} alt={code} style={{ width: 24, height: 24, objectFit: "contain", filter: isSelected ? "none" : "grayscale(0.3) opacity(0.7)", transition: "filter 0.2s" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                                          <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.68rem", fontWeight: 500, letterSpacing: "0.06em", color: isSelected ? "var(--text)" : "var(--text-3)", transition: "color 0.2s" }}>{code}</span>
                                           {isSelected && (
-                                            <div style={{ position: "absolute", top: 5, right: 5, width: 14, height: 14, borderRadius: "50%", background: teamColor, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                                              <svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.8 2.8L8.5 2.5" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                            <div style={{ position: "absolute", top: 4, right: 4, width: 12, height: 12, borderRadius: "50%", background: teamColor, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                              <svg width="7" height="7" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.8 2.8L8.5 2.5" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
                                             </div>
                                           )}
                                         </button>
