@@ -2751,8 +2751,8 @@ export default function App() {
 
                   const allTeamPlayers = [...xi, ...bench];
                   const getAdj = (name: string, mn: number) => {
-                    const isCap = name === td.captain;
-                    const isVC = name === td.vc;
+                    const isCap = name === t.captain;
+                    const isVC = name === t.vc;
                     const e = (playerMatchPoints[name] || []).find((x: any) => x.matchNum === mn);
                     return e ? applyMultiplier(e.pts, isCap, isVC) : 0;
                   };
@@ -2764,7 +2764,7 @@ export default function App() {
 
                   const matchData = sortedNums.map(mn => {
                     const players = allTeamPlayers.map(p => ({
-                      ...p, isCap: p.name === td.captain, isVC: p.name === td.vc,
+                      ...p, isCap: p.name === t.captain, isVC: p.name === t.vc,
                       pts: getAdj(p.name, mn),
                     })).sort((a, b) => b.pts - a.pts);
                     const top11 = new Set(players.slice(0, 11).map(p => p.name));
