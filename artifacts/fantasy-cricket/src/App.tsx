@@ -2767,7 +2767,11 @@ export default function App() {
                       ...p, isCap: p.name === t.captain, isVC: p.name === t.vc,
                       pts: getAdj(p.name, mn),
                     })).sort((a, b) => b.pts - a.pts);
-                    const top11 = td.top11;
+                    const top11 = new Set(
+                      allTeamPlayers
+                        .filter(p => td.top11.has(p.name) && hasEntry(p.name, mn))
+                        .map(p => p.name)
+                    );
                     const total = players.filter(p => top11.has(p.name)).reduce((s, p) => s + p.pts, 0);
                     return { mn, label: matchLabels[mn] || `Match ${mn}`, players, top11, total };
                   });
@@ -2814,7 +2818,7 @@ export default function App() {
                                       return (
                                         <div key={p.name} style={{ display: "flex", alignItems: "center", gap: 5, padding: "3px 0", borderTop: i > 0 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
                                           <span style={{ fontSize: "0.65rem", flex: 1, color: inTop11 ? (p.pts === 0 ? "var(--text-3)" : "var(--text-2)") : "rgba(255,255,255,0.28)", fontWeight: inTop11 && p.pts !== 0 ? 600 : 400, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
-                                            {p.name.split(" ").slice(-1)[0]}
+                                            {p.name}
                                           </span>
                                           {p.isCap && <span style={{ fontSize: "0.44rem", fontWeight: 900, color: "#d4a843", background: "rgba(212,168,67,0.18)", border: "1px solid rgba(212,168,67,0.4)", borderRadius: 3, padding: "0 3px", lineHeight: 1.4, flexShrink: 0 }}>C</span>}
                                           {p.isVC && <span style={{ fontSize: "0.44rem", fontWeight: 900, color: "#94a3b8", background: "rgba(148,163,184,0.12)", border: "1px solid rgba(148,163,184,0.3)", borderRadius: 3, padding: "0 3px", lineHeight: 1.4, flexShrink: 0 }}>VC</span>}
