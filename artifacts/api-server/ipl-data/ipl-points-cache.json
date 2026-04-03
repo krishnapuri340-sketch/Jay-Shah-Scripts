@@ -3391,7 +3391,7 @@
         "Sanju Samson": 15,
         "Prashant Veer": 14,
         "Marcus Stoinis": 6,
-        "Khaleel Ahmed": 8
+        "Khaleel Ahmed": 10
       },
       "innings": [
         {
@@ -3602,7 +3602,7 @@
         },
         {
           "name": "Punjab Kings Inning 2",
-          "total": "12/0 (0.5 ov)",
+          "total": "14/0 (1.0 ov)",
           "batting": [
             {
               "name": "Priyansh Arya",
@@ -3618,7 +3618,7 @@
             {
               "name": "Prabhsimran Singh",
               "runs": 0,
-              "balls": 2,
+              "balls": 3,
               "fours": 0,
               "sixes": 0,
               "sr": "0.00",
@@ -3740,14 +3740,14 @@
           "bowling": [
             {
               "name": "Khaleel Ahmed",
-              "overs": "0.5",
+              "overs": "1",
               "maidens": 0,
-              "runs": 12,
+              "runs": 14,
               "wickets": 0,
-              "eco": "14.4",
-              "wides": 1,
+              "eco": "14",
+              "wides": 3,
               "noBalls": 0,
-              "dots": 2
+              "dots": 3
             }
           ]
         }
@@ -3841,7 +3841,7 @@
         "Prabhsimran Singh": {
           "played": true,
           "runs": 0,
-          "balls": 2,
+          "balls": 3,
           "fours": 0,
           "sixes": 0,
           "duck": false,
@@ -3948,11 +3948,11 @@
           "sixes": 0,
           "duck": false,
           "wickets": 0,
-          "dots": 2,
+          "dots": 3,
           "lbwBowled": 0,
           "maidens": 0,
-          "ballsBowled": 5,
-          "runsConceded": 12,
+          "ballsBowled": 6,
+          "runsConceded": 14,
           "catches": 0,
           "runOuts": 0,
           "stumpings": 0
@@ -4691,6 +4691,6 @@
   "lastUpdated": "2026-04-03T09:43:06.187Z",
   "dailyHits": {
     "date": "2026-04-03",
-    "count": 4
+    "count": 8
   }
 }
