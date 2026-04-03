@@ -1028,6 +1028,12 @@ export default function App() {
     return () => ids.forEach(clearInterval);
   }, [isAnyMatchLive, currentUser]);
 
+  // Refetch stats every time the user opens the stats tab (catches server-side refreshes)
+  useEffect(() => {
+    if (!currentUser || tab !== "stats") return;
+    fetchStats();
+  }, [tab, currentUser]);
+
   // Fast-poll predictions when the Predictions view is open (picks can change up until match starts)
   useEffect(() => {
     if (!currentUser || !(tab === "stats" && statsFilter === "predictions")) return;

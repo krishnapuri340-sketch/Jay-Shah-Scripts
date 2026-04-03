@@ -1514,10 +1514,11 @@ function buildStatsResponse() {
     isFantasy: isFantasy(name),
   }));
 
+  const ballsToOversDisplay = (balls: number) => `${Math.floor(balls / 6)}.${balls % 6}`;
   const bowlers = Object.entries(bowlingStats).map(([name, s]) => ({
     name, wickets: s.wickets, balls: s.balls, runs: s.runs, innings: s.innings,
-    overs: +(s.balls / 6).toFixed(1),
-    eco: s.balls > 0 ? +((s.runs / (s.balls / 6))).toFixed(2) : 0,
+    overs: ballsToOversDisplay(s.balls),
+    eco: s.balls > 0 ? +((s.runs * 6 / s.balls)).toFixed(2) : 0,
     avg: s.wickets > 0 ? +(s.runs / s.wickets).toFixed(1) : 999,
     best: `${s.bestW}/${s.bestR === 999 ? 0 : s.bestR}`,
     isFantasy: isFantasy(name),
