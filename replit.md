@@ -67,10 +67,16 @@ Primary application: IPL Fantasy Cricket Tracker for 4 teams (Rajveer Puri, Momb
 - Admin: Manual refresh, debug info, PIN management, points breakdown
 
 ### Key Files
-- `artifacts/fantasy-cricket/src/App.tsx` — All frontend logic (tabs, state, team definitions)
-- `artifacts/api-server/src/routes/ipl.ts` — IPL schedule + match data + standings
-- `artifacts/api-server/src/routes/ipl-points.ts` — Auto-points pipeline + stats endpoint
-- `artifacts/api-server/ipl-points-cache.json` — Persistent scorecard cache (gitignored in prod)
+- `artifacts/fantasy-cricket/src/App.tsx` — Main frontend logic: state, effects, render functions, handlers (~4297 lines)
+- `artifacts/fantasy-cricket/src/constants.ts` — All static IPL data: IPL_COLORS, IPL_FULL_NAMES, ROLE_ICONS, ROLE_COLORS, IPL_TEAM_BADGE, SWIPEABLE_TABS, IPL_HISTORY (2008–2025)
+- `artifacts/fantasy-cricket/src/LineupPreviewCard.tsx` — Collapsible next-match lineup preview component
+- `artifacts/fantasy-cricket/src/teams.ts` — Fantasy team definitions (players, captains, colors)
+- `artifacts/fantasy-cricket/src/utils.ts` — Helper functions: applyMultiplier, getTeamData
+- `artifacts/api-server/src/routes/ipl.ts` — IPL schedule + match data + standings + predictions + PIN routes
+- `artifacts/api-server/src/routes/ipl-points.ts` — Auto-points pipeline + Supabase sync + stats endpoint
+- `artifacts/api-server/ipl-data/ipl-points-cache.json` — Persistent points cache (real data directory)
+- `artifacts/api-server/ipl-data/ipl-predictions.json` — Match prediction picks
+- `artifacts/api-server/ipl-data/ipl-pins.json` — User PINs (fallback; primary in Replit KV)
 
 ## Stack
 

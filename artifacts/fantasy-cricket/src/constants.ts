@@ -1,0 +1,365 @@
+export const IPL_COLORS: Record<string, string> = {
+  RCB: "#ef4444", MI: "#3b82f6", CSK: "#f59e0b", KKR: "#7c3aed",
+  PBKS: "#f87171", GT: "#60a5fa", RR: "#f472b6", SRH: "#fb923c",
+  LSG: "#34d399", DC: "#38bdf8"
+};
+
+export const IPL_FULL_NAMES: Record<string, string> = {
+  RCB: "Royal Challengers Bengaluru", MI: "Mumbai Indians", CSK: "Chennai Super Kings",
+  KKR: "Kolkata Knight Riders", PBKS: "Punjab Kings", GT: "Gujarat Titans",
+  RR: "Rajasthan Royals", SRH: "Sunrisers Hyderabad", LSG: "Lucknow Super Giants",
+  DC: "Delhi Capitals"
+};
+
+export const ROLE_ICONS: Record<string, string> = { BAT: "🏏", BWL: "🎯", AR: "⚡", WK: "🧤" };
+export const ROLE_COLORS: Record<string, string> = { BAT: "#60a5fa", BWL: "#f472b6", AR: "#34d399", WK: "#fbbf24" };
+
+export const IPL_TEAM_BADGE: Record<string, { abbr: string; bg: string; fg: string }> = {
+  "Rajasthan Royals":              { abbr: "RR",   bg: "#FF2FA9", fg: "#fff" },
+  "Chennai Super Kings":           { abbr: "CSK",  bg: "#F5C518", fg: "#000" },
+  "Deccan Chargers":               { abbr: "DCH",  bg: "#1B75BB", fg: "#fff" },
+  "Kolkata Knight Riders":         { abbr: "KKR",  bg: "#3A225D", fg: "#FFD700" },
+  "Mumbai Indians":                { abbr: "MI",   bg: "#004BA0", fg: "#fff" },
+  "Sunrisers Hyderabad":           { abbr: "SRH",  bg: "#E97D1B", fg: "#fff" },
+  "Royal Challengers Bangalore":   { abbr: "RCB",  bg: "#EC1C24", fg: "#fff" },
+  "Royal Challengers Bengaluru":   { abbr: "RCB",  bg: "#EC1C24", fg: "#fff" },
+  "Rising Pune Supergiant":        { abbr: "RPS",  bg: "#1BAAE1", fg: "#fff" },
+  "Gujarat Titans":                { abbr: "GT",   bg: "#1B2133", fg: "#A4955A" },
+  "Delhi Capitals":                { abbr: "DC",   bg: "#0078BC", fg: "#fff" },
+  "Delhi Daredevils":              { abbr: "DD",   bg: "#D71920", fg: "#fff" },
+  "Kings XI Punjab":               { abbr: "PBKS", bg: "#D71920", fg: "#fff" },
+  "Punjab Kings":                  { abbr: "PBKS", bg: "#D71920", fg: "#fff" },
+  "Lucknow Super Giants":          { abbr: "LSG",  bg: "#00A3E0", fg: "#fff" },
+  "Gujarat Lions":                 { abbr: "GL",   bg: "#F4821F", fg: "#fff" },
+  "Pune Warriors India":           { abbr: "PWI",  bg: "#1D3557", fg: "#fff" },
+  "Kochi Tuskers Kerala":          { abbr: "KTK",  bg: "#F28A00", fg: "#fff" },
+};
+
+export const SWIPEABLE_TABS = ["home", "teams", "fixtures", "stats", "history"];
+
+export const IPL_HISTORY = [
+  {
+    year: 2025, season: 18, champion: "Royal Challengers Bengaluru", runnerUp: "Punjab Kings",
+    color: "#EC1C24", orangeCap: "Sai Sudharsan", orangeRuns: 759, purpleCap: "Prasidh Krishna", purpleWkts: 25, mvp: "Sai Sudharsan",
+    topBat: [
+      { name: "Sai Sudharsan", team: "GT", val: 759 }, { name: "Suryakumar Yadav", team: "MI", val: 717 },
+      { name: "Virat Kohli", team: "RCB", val: 657 }, { name: "Shubman Gill", team: "GT", val: 650 },
+      { name: "Mitchell Marsh", team: "LSG", val: 627 }, { name: "Shreyas Iyer", team: "PBKS", val: 604 },
+      { name: "Yashasvi Jaiswal", team: "RR", val: 559 }, { name: "Prabhsimran Singh", team: "PBKS", val: 549 },
+      { name: "KL Rahul", team: "DC", val: 539 }, { name: "Jos Buttler", team: "GT", val: 538 },
+    ],
+    topBwl: [
+      { name: "Prasidh Krishna", team: "GT", val: 25 }, { name: "Noor Ahmad", team: "CSK", val: 24 },
+      { name: "Josh Hazlewood", team: "RCB", val: 22 }, { name: "Trent Boult", team: "MI", val: 22 },
+      { name: "Arshdeep Singh", team: "PBKS", val: 21 }, { name: "Sai Kishore", team: "GT", val: 19 },
+      { name: "Jasprit Bumrah", team: "MI", val: 18 }, { name: "Varun Chakravarthy", team: "KKR", val: 17 },
+      { name: "Krunal Pandya", team: "RCB", val: 17 }, { name: "Bhuvneshwar Kumar", team: "RCB", val: 17 },
+    ],
+  },
+  {
+    year: 2024, season: 17, champion: "Kolkata Knight Riders", runnerUp: "Sunrisers Hyderabad",
+    color: "#552A8A", orangeCap: "Virat Kohli", orangeRuns: 741, purpleCap: "Harshal Patel", purpleWkts: 24, mvp: "Sunil Narine",
+    topBat: [
+      { name: "Virat Kohli", team: "RCB", val: 741 }, { name: "Ruturaj Gaikwad", team: "CSK", val: 583 },
+      { name: "Travis Head", team: "SRH", val: 567 }, { name: "Heinrich Klaasen", team: "SRH", val: 479 },
+      { name: "Abhishek Sharma", team: "SRH", val: 484 }, { name: "Sunil Narine", team: "KKR", val: 488 },
+      { name: "Jos Buttler", team: "RR", val: 462 }, { name: "Rishabh Pant", team: "DC", val: 446 },
+      { name: "David Warner", team: "DC", val: 418 }, { name: "Phil Salt", team: "KKR", val: 435 },
+    ],
+    topBwl: [
+      { name: "Harshal Patel", team: "PBKS", val: 24 }, { name: "Varun Chakravarthy", team: "KKR", val: 21 },
+      { name: "Kagiso Rabada", team: "PBKS", val: 19 }, { name: "Kuldeep Yadav", team: "DC", val: 19 },
+      { name: "T Natarajan", team: "SRH", val: 18 }, { name: "Mitchell Starc", team: "KKR", val: 17 },
+      { name: "Rashid Khan", team: "GT", val: 17 }, { name: "Jasprit Bumrah", team: "MI", val: 15 },
+      { name: "Ravi Bishnoi", team: "LSG", val: 15 }, { name: "Yuzvendra Chahal", team: "RR", val: 13 },
+    ],
+  },
+  {
+    year: 2023, season: 16, champion: "Chennai Super Kings", runnerUp: "Gujarat Titans",
+    color: "#F5C518", orangeCap: "Shubman Gill", orangeRuns: 890, purpleCap: "Mohammed Shami", purpleWkts: 28, mvp: "Shubman Gill",
+    topBat: [
+      { name: "Shubman Gill", team: "GT", val: 890 }, { name: "Faf du Plessis", team: "RCB", val: 730 },
+      { name: "Virat Kohli", team: "RCB", val: 639 }, { name: "Devon Conway", team: "CSK", val: 672 },
+      { name: "Yashasvi Jaiswal", team: "RR", val: 625 }, { name: "Ruturaj Gaikwad", team: "CSK", val: 590 },
+      { name: "KL Rahul", team: "LSG", val: 520 }, { name: "David Warner", team: "DC", val: 516 },
+      { name: "Sai Sudarshan", team: "GT", val: 476 }, { name: "Rohit Sharma", team: "MI", val: 442 },
+    ],
+    topBwl: [
+      { name: "Mohammed Shami", team: "GT", val: 28 }, { name: "Rashid Khan", team: "GT", val: 27 },
+      { name: "Piyush Chawla", team: "MI", val: 22 }, { name: "Mohit Sharma", team: "GT", val: 18 },
+      { name: "Yuzvendra Chahal", team: "RR", val: 21 }, { name: "Mohammed Siraj", team: "RCB", val: 19 },
+      { name: "Arshdeep Singh", team: "PBKS", val: 19 }, { name: "Maheesh Theekshana", team: "CSK", val: 17 },
+      { name: "Akash Deep", team: "RCB", val: 17 }, { name: "Alzarri Joseph", team: "MI", val: 14 },
+    ],
+  },
+  {
+    year: 2022, season: 15, champion: "Gujarat Titans", runnerUp: "Rajasthan Royals",
+    color: "#A4955A", orangeCap: "Jos Buttler", orangeRuns: 863, purpleCap: "Yuzvendra Chahal", purpleWkts: 27, mvp: "Hardik Pandya",
+    topBat: [
+      { name: "Jos Buttler", team: "RR", val: 863 }, { name: "KL Rahul", team: "LSG", val: 616 },
+      { name: "Quinton de Kock", team: "LSG", val: 508 }, { name: "Hardik Pandya", team: "GT", val: 487 },
+      { name: "Shubman Gill", team: "GT", val: 483 }, { name: "Faf du Plessis", team: "RCB", val: 468 },
+      { name: "Sanju Samson", team: "RR", val: 458 }, { name: "Deepak Hooda", team: "LSG", val: 451 },
+      { name: "Liam Livingstone", team: "PBKS", val: 437 }, { name: "David Warner", team: "DC", val: 432 },
+    ],
+    topBwl: [
+      { name: "Yuzvendra Chahal", team: "RR", val: 27 }, { name: "Wanindu Hasaranga", team: "RCB", val: 26 },
+      { name: "Mohammed Shami", team: "GT", val: 20 }, { name: "T Natarajan", team: "SRH", val: 20 },
+      { name: "Kuldeep Yadav", team: "DC", val: 21 }, { name: "Rashid Khan", team: "GT", val: 19 },
+      { name: "Harshal Patel", team: "RCB", val: 19 }, { name: "Dushmantha Chameera", team: "LSG", val: 19 },
+      { name: "Umesh Yadav", team: "KKR", val: 16 }, { name: "Trent Boult", team: "RR", val: 13 },
+    ],
+  },
+  {
+    year: 2021, season: 14, champion: "Chennai Super Kings", runnerUp: "Kolkata Knight Riders",
+    color: "#F5C518", orangeCap: "Ruturaj Gaikwad", orangeRuns: 635, purpleCap: "Harshal Patel", purpleWkts: 32, mvp: "Harshal Patel",
+    topBat: [
+      { name: "Ruturaj Gaikwad", team: "CSK", val: 635 }, { name: "Faf du Plessis", team: "CSK", val: 633 },
+      { name: "KL Rahul", team: "PBKS", val: 626 }, { name: "Shikhar Dhawan", team: "DC", val: 587 },
+      { name: "Ishan Kishan", team: "MI", val: 516 }, { name: "Sanju Samson", team: "RR", val: 484 },
+      { name: "Prithvi Shaw", team: "DC", val: 480 }, { name: "Quinton de Kock", team: "MI", val: 465 },
+      { name: "Devdutt Padikkal", team: "RCB", val: 415 }, { name: "Rohit Sharma", team: "MI", val: 381 },
+    ],
+    topBwl: [
+      { name: "Harshal Patel", team: "RCB", val: 32 }, { name: "Avesh Khan", team: "DC", val: 24 },
+      { name: "Jasprit Bumrah", team: "MI", val: 21 }, { name: "Mohammed Shami", team: "PBKS", val: 19 },
+      { name: "Varun Chakravarthy", team: "KKR", val: 18 }, { name: "Rashid Khan", team: "SRH", val: 18 },
+      { name: "Ravi Bishnoi", team: "PBKS", val: 18 }, { name: "Rahul Chahar", team: "MI", val: 17 },
+      { name: "Deepak Chahar", team: "CSK", val: 14 }, { name: "Axar Patel", team: "DC", val: 15 },
+    ],
+  },
+  {
+    year: 2020, season: 13, champion: "Mumbai Indians", runnerUp: "Delhi Capitals",
+    color: "#004BA0", orangeCap: "KL Rahul", orangeRuns: 670, purpleCap: "Kagiso Rabada", purpleWkts: 30, mvp: "Jofra Archer",
+    topBat: [
+      { name: "KL Rahul", team: "PBKS", val: 670 }, { name: "Shikhar Dhawan", team: "DC", val: 618 },
+      { name: "Mayank Agarwal", team: "PBKS", val: 424 }, { name: "Shreyas Iyer", team: "DC", val: 519 },
+      { name: "David Warner", team: "SRH", val: 548 }, { name: "Devdutt Padikkal", team: "RCB", val: 473 },
+      { name: "Quinton de Kock", team: "MI", val: 503 }, { name: "AB de Villiers", team: "RCB", val: 454 },
+      { name: "Faf du Plessis", team: "CSK", val: 449 }, { name: "Rohit Sharma", team: "MI", val: 415 },
+    ],
+    topBwl: [
+      { name: "Kagiso Rabada", team: "DC", val: 30 }, { name: "Jasprit Bumrah", team: "MI", val: 27 },
+      { name: "Trent Boult", team: "MI", val: 25 }, { name: "Anrich Nortje", team: "DC", val: 22 },
+      { name: "Jofra Archer", team: "RR", val: 20 }, { name: "Mohammed Shami", team: "PBKS", val: 20 },
+      { name: "Rashid Khan", team: "SRH", val: 20 }, { name: "Yuzvendra Chahal", team: "RCB", val: 21 },
+      { name: "Chris Morris", team: "RCB", val: 11 }, { name: "Harshal Patel", team: "RCB", val: 17 },
+    ],
+  },
+  {
+    year: 2019, season: 12, champion: "Mumbai Indians", runnerUp: "Chennai Super Kings",
+    color: "#004BA0", orangeCap: "David Warner", orangeRuns: 692, purpleCap: "Imran Tahir", purpleWkts: 26, mvp: "Andre Russell",
+    topBat: [
+      { name: "David Warner", team: "SRH", val: 692 }, { name: "KL Rahul", team: "PBKS", val: 593 },
+      { name: "Andre Russell", team: "KKR", val: 510 }, { name: "Quinton de Kock", team: "MI", val: 529 },
+      { name: "Shikhar Dhawan", team: "DC", val: 521 }, { name: "Shreyas Iyer", team: "DC", val: 463 },
+      { name: "Jonny Bairstow", team: "SRH", val: 445 }, { name: "AB de Villiers", team: "RCB", val: 442 },
+      { name: "MS Dhoni", team: "CSK", val: 416 }, { name: "Rohit Sharma", team: "MI", val: 405 },
+    ],
+    topBwl: [
+      { name: "Imran Tahir", team: "CSK", val: 26 }, { name: "Kagiso Rabada", team: "DC", val: 25 },
+      { name: "Dwayne Bravo", team: "CSK", val: 22 }, { name: "Shreyas Gopal", team: "RR", val: 20 },
+      { name: "Jasprit Bumrah", team: "MI", val: 19 }, { name: "Yuzvendra Chahal", team: "RCB", val: 18 },
+      { name: "Jaydev Unadkat", team: "RR", val: 17 }, { name: "Harbhajan Singh", team: "MI", val: 16 },
+      { name: "Hardik Pandya", team: "MI", val: 14 }, { name: "Sam Curran", team: "PBKS", val: 13 },
+    ],
+  },
+  {
+    year: 2018, season: 11, champion: "Chennai Super Kings", runnerUp: "Sunrisers Hyderabad",
+    color: "#F5C518", orangeCap: "Kane Williamson", orangeRuns: 735, purpleCap: "Andrew Tye", purpleWkts: 24, mvp: "Shane Watson",
+    topBat: [
+      { name: "Kane Williamson", team: "SRH", val: 735 }, { name: "Rishabh Pant", team: "DC", val: 684 },
+      { name: "Ambati Rayudu", team: "CSK", val: 602 }, { name: "Suresh Raina", team: "CSK", val: 497 },
+      { name: "Shikhar Dhawan", team: "SRH", val: 497 }, { name: "MS Dhoni", team: "CSK", val: 455 },
+      { name: "Robin Uthappa", team: "KKR", val: 452 }, { name: "AB de Villiers", team: "RCB", val: 448 },
+      { name: "Manish Pandey", team: "SRH", val: 441 }, { name: "Jos Buttler", team: "RR", val: 549 },
+    ],
+    topBwl: [
+      { name: "Andrew Tye", team: "PBKS", val: 24 }, { name: "Rashid Khan", team: "SRH", val: 21 },
+      { name: "Siddharth Kaul", team: "SRH", val: 21 }, { name: "Dwayne Bravo", team: "CSK", val: 18 },
+      { name: "Umesh Yadav", team: "DD", val: 18 }, { name: "Bhuvneshwar Kumar", team: "SRH", val: 17 },
+      { name: "Jasprit Bumrah", team: "MI", val: 17 }, { name: "Yuzvendra Chahal", team: "RCB", val: 17 },
+      { name: "Imran Tahir", team: "CSK", val: 15 }, { name: "Mohit Sharma", team: "CSK", val: 15 },
+    ],
+  },
+  {
+    year: 2017, season: 10, champion: "Mumbai Indians", runnerUp: "Rising Pune Supergiant",
+    color: "#004BA0", orangeCap: "David Warner", orangeRuns: 641, purpleCap: "Bhuvneshwar Kumar", purpleWkts: 26, mvp: "Rohit Sharma",
+    topBat: [
+      { name: "David Warner", team: "SRH", val: 641 }, { name: "Shikhar Dhawan", team: "SRH", val: 479 },
+      { name: "Suresh Raina", team: "GL", val: 413 }, { name: "Ajinkya Rahane", team: "RPS", val: 374 },
+      { name: "Sanju Samson", team: "RR", val: 368 }, { name: "Rishabh Pant", team: "DD", val: 366 },
+      { name: "Rohit Sharma", team: "MI", val: 333 }, { name: "KL Rahul", team: "PBKS", val: 310 },
+      { name: "MS Dhoni", team: "RPS", val: 290 }, { name: "Chris Gayle", team: "PBKS", val: 298 },
+    ],
+    topBwl: [
+      { name: "Bhuvneshwar Kumar", team: "SRH", val: 26 }, { name: "Jaydev Unadkat", team: "RPS", val: 24 },
+      { name: "Jasprit Bumrah", team: "MI", val: 20 }, { name: "Kagiso Rabada", team: "DD", val: 20 },
+      { name: "Imran Tahir", team: "GL", val: 18 }, { name: "Dwayne Bravo", team: "GL", val: 17 },
+      { name: "Rashid Khan", team: "SRH", val: 17 }, { name: "Harbhajan Singh", team: "MI", val: 15 },
+      { name: "Praveen Kumar", team: "GL", val: 14 }, { name: "Mitchell Johnson", team: "MI", val: 13 },
+    ],
+  },
+  {
+    year: 2016, season: 9, champion: "Sunrisers Hyderabad", runnerUp: "Royal Challengers Bangalore",
+    color: "#E97D1B", orangeCap: "Virat Kohli", orangeRuns: 973, purpleCap: "Bhuvneshwar Kumar", purpleWkts: 23, mvp: "Virat Kohli",
+    topBat: [
+      { name: "Virat Kohli", team: "RCB", val: 973 }, { name: "David Warner", team: "SRH", val: 848 },
+      { name: "AB de Villiers", team: "RCB", val: 687 }, { name: "Shikhar Dhawan", team: "SRH", val: 501 },
+      { name: "Rohit Sharma", team: "MI", val: 489 }, { name: "Suresh Raina", team: "GL", val: 374 },
+      { name: "KL Rahul", team: "RCB", val: 397 }, { name: "Ajinkya Rahane", team: "RPS", val: 391 },
+      { name: "Sanju Samson", team: "DD", val: 345 }, { name: "Chris Gayle", team: "PBKS", val: 326 },
+    ],
+    topBwl: [
+      { name: "Bhuvneshwar Kumar", team: "SRH", val: 23 }, { name: "Yuzvendra Chahal", team: "RCB", val: 23 },
+      { name: "Amit Mishra", team: "SRH", val: 18 }, { name: "Mustafizur Rahman", team: "SRH", val: 17 },
+      { name: "Barinder Sran", team: "SRH", val: 17 }, { name: "Jasprit Bumrah", team: "MI", val: 15 },
+      { name: "Murugan Ashwin", team: "PBKS", val: 15 }, { name: "Harbhajan Singh", team: "MI", val: 14 },
+      { name: "Dwayne Bravo", team: "GL", val: 13 }, { name: "Praveen Kumar", team: "GL", val: 13 },
+    ],
+  },
+  {
+    year: 2015, season: 8, champion: "Mumbai Indians", runnerUp: "Chennai Super Kings",
+    color: "#004BA0", orangeCap: "David Warner", orangeRuns: 562, purpleCap: "Dwayne Bravo", purpleWkts: 26, mvp: "Rohit Sharma",
+    topBat: [
+      { name: "David Warner", team: "SRH", val: 562 }, { name: "Robin Uthappa", team: "KKR", val: 549 },
+      { name: "AB de Villiers", team: "RCB", val: 513 }, { name: "Virat Kohli", team: "RCB", val: 505 },
+      { name: "Rohit Sharma", team: "MI", val: 482 }, { name: "Suresh Raina", team: "CSK", val: 491 },
+      { name: "Ajinkya Rahane", team: "RR", val: 432 }, { name: "MS Dhoni", team: "CSK", val: 372 },
+      { name: "Brendon McCullum", team: "KKR", val: 328 }, { name: "Chris Gayle", team: "RCB", val: 333 },
+    ],
+    topBwl: [
+      { name: "Dwayne Bravo", team: "CSK", val: 26 }, { name: "Mohit Sharma", team: "CSK", val: 21 },
+      { name: "Harbhajan Singh", team: "MI", val: 18 }, { name: "Amit Mishra", team: "SRH", val: 18 },
+      { name: "Lasith Malinga", team: "MI", val: 18 }, { name: "Akshar Patel", team: "PBKS", val: 17 },
+      { name: "Mitchell Johnson", team: "PBKS", val: 15 }, { name: "Bhuvneshwar Kumar", team: "SRH", val: 15 },
+      { name: "Zaheer Khan", team: "DD", val: 13 }, { name: "Andre Russell", team: "KKR", val: 14 },
+    ],
+  },
+  {
+    year: 2014, season: 7, champion: "Kolkata Knight Riders", runnerUp: "Kings XI Punjab",
+    color: "#552A8A", orangeCap: "Robin Uthappa", orangeRuns: 660, purpleCap: "Mohit Sharma", purpleWkts: 23, mvp: "Manish Pandey",
+    topBat: [
+      { name: "Robin Uthappa", team: "KKR", val: 660 }, { name: "Glenn Maxwell", team: "PBKS", val: 552 },
+      { name: "Ajinkya Rahane", team: "RR", val: 487 }, { name: "Shikhar Dhawan", team: "SRH", val: 405 },
+      { name: "George Bailey", team: "PBKS", val: 420 }, { name: "Manish Pandey", team: "KKR", val: 394 },
+      { name: "Gautam Gambhir", team: "KKR", val: 393 }, { name: "Rohit Sharma", team: "MI", val: 392 },
+      { name: "MS Dhoni", team: "CSK", val: 371 }, { name: "Virat Kohli", team: "RCB", val: 359 },
+    ],
+    topBwl: [
+      { name: "Mohit Sharma", team: "CSK", val: 23 }, { name: "Piyush Chawla", team: "PBKS", val: 21 },
+      { name: "Sandeep Sharma", team: "PBKS", val: 19 }, { name: "Pragyan Ojha", team: "MI", val: 18 },
+      { name: "Bhuvneshwar Kumar", team: "SRH", val: 17 }, { name: "Umesh Yadav", team: "KKR", val: 17 },
+      { name: "Morne Morkel", team: "DD", val: 15 }, { name: "Dhawal Kulkarni", team: "RR", val: 16 },
+      { name: "Harbhajan Singh", team: "MI", val: 12 }, { name: "Imran Tahir", team: "CSK", val: 11 },
+    ],
+  },
+  {
+    year: 2013, season: 6, champion: "Mumbai Indians", runnerUp: "Chennai Super Kings",
+    color: "#004BA0", orangeCap: "Michael Hussey", orangeRuns: 733, purpleCap: "Dwayne Bravo", purpleWkts: 32, mvp: "Shane Watson",
+    topBat: [
+      { name: "Michael Hussey", team: "CSK", val: 733 }, { name: "Chris Gayle", team: "RCB", val: 708 },
+      { name: "Rohit Sharma", team: "MI", val: 538 }, { name: "AB de Villiers", team: "RCB", val: 479 },
+      { name: "Suresh Raina", team: "CSK", val: 514 }, { name: "MS Dhoni", team: "CSK", val: 461 },
+      { name: "Shane Watson", team: "RR", val: 328 }, { name: "Dinesh Karthik", team: "MI", val: 327 },
+      { name: "Virat Kohli", team: "RCB", val: 306 }, { name: "Gautam Gambhir", team: "KKR", val: 311 },
+    ],
+    topBwl: [
+      { name: "Dwayne Bravo", team: "CSK", val: 32 }, { name: "Sunil Narine", team: "KKR", val: 24 },
+      { name: "Amit Mishra", team: "SRH", val: 20 }, { name: "Morne Morkel", team: "DD", val: 21 },
+      { name: "Dale Steyn", team: "SRH", val: 18 }, { name: "R Vinay Kumar", team: "KKR", val: 18 },
+      { name: "RP Singh", team: "DD", val: 15 }, { name: "Harbhajan Singh", team: "MI", val: 14 },
+      { name: "Brad Hogg", team: "RR", val: 12 }, { name: "Piyush Chawla", team: "PBKS", val: 13 },
+    ],
+  },
+  {
+    year: 2012, season: 5, champion: "Kolkata Knight Riders", runnerUp: "Chennai Super Kings",
+    color: "#552A8A", orangeCap: "Chris Gayle", orangeRuns: 733, purpleCap: "Morne Morkel", purpleWkts: 25, mvp: "Sunil Narine",
+    topBat: [
+      { name: "Chris Gayle", team: "RCB", val: 733 }, { name: "Gautam Gambhir", team: "KKR", val: 590 },
+      { name: "Michael Hussey", team: "CSK", val: 517 }, { name: "Ajinkya Rahane", team: "RR", val: 560 },
+      { name: "Suresh Raina", team: "CSK", val: 474 }, { name: "Jacques Kallis", team: "KKR", val: 415 },
+      { name: "Kevin Pietersen", team: "DD", val: 388 }, { name: "Rohit Sharma", team: "MI", val: 434 },
+      { name: "MS Dhoni", team: "CSK", val: 358 }, { name: "Virat Kohli", team: "RCB", val: 364 },
+    ],
+    topBwl: [
+      { name: "Morne Morkel", team: "DD", val: 25 }, { name: "Sunil Narine", team: "KKR", val: 24 },
+      { name: "Lasith Malinga", team: "MI", val: 22 }, { name: "Harbhajan Singh", team: "MI", val: 21 },
+      { name: "Piyush Chawla", team: "CSK", val: 19 }, { name: "Pragyan Ojha", team: "MI", val: 19 },
+      { name: "Dwayne Bravo", team: "CSK", val: 18 }, { name: "Amit Mishra", team: "DCH", val: 18 },
+      { name: "Bhuvneshwar Kumar", team: "PWI", val: 15 }, { name: "RP Singh", team: "DCH", val: 17 },
+    ],
+  },
+  {
+    year: 2011, season: 4, champion: "Chennai Super Kings", runnerUp: "Royal Challengers Bangalore",
+    color: "#F5C518", orangeCap: "Chris Gayle", orangeRuns: 608, purpleCap: "Lasith Malinga", purpleWkts: 28, mvp: "Chris Gayle",
+    topBat: [
+      { name: "Chris Gayle", team: "RCB", val: 608 }, { name: "Sachin Tendulkar", team: "MI", val: 553 },
+      { name: "Virender Sehwag", team: "DD", val: 453 }, { name: "Suresh Raina", team: "CSK", val: 432 },
+      { name: "S Badrinath", team: "CSK", val: 379 }, { name: "AB de Villiers", team: "DD", val: 371 },
+      { name: "Rohit Sharma", team: "MI", val: 372 }, { name: "MS Dhoni", team: "CSK", val: 365 },
+      { name: "Brendon McCullum", team: "KKR", val: 393 }, { name: "Adam Gilchrist", team: "PBKS", val: 312 },
+    ],
+    topBwl: [
+      { name: "Lasith Malinga", team: "MI", val: 28 }, { name: "Piyush Chawla", team: "KKR", val: 21 },
+      { name: "Albie Morkel", team: "CSK", val: 19 }, { name: "Doug Bollinger", team: "CSK", val: 18 },
+      { name: "Harbhajan Singh", team: "MI", val: 17 }, { name: "Amit Mishra", team: "DCH", val: 16 },
+      { name: "RP Singh", team: "DCH", val: 15 }, { name: "Dwayne Bravo", team: "CSK", val: 14 },
+      { name: "Sreesanth", team: "PBKS", val: 13 }, { name: "Shane Bond", team: "MI", val: 13 },
+    ],
+  },
+  {
+    year: 2010, season: 3, champion: "Chennai Super Kings", runnerUp: "Mumbai Indians",
+    color: "#F5C518", orangeCap: "Sachin Tendulkar", orangeRuns: 618, purpleCap: "Pragyan Ojha", purpleWkts: 21, mvp: "Sachin Tendulkar",
+    topBat: [
+      { name: "Sachin Tendulkar", team: "MI", val: 618 }, { name: "Gautam Gambhir", team: "KKR", val: 553 },
+      { name: "Suresh Raina", team: "CSK", val: 520 }, { name: "Kumar Sangakkara", team: "DCH", val: 512 },
+      { name: "Rohit Sharma", team: "DCH", val: 404 }, { name: "Michael Hussey", team: "CSK", val: 388 },
+      { name: "Murali Vijay", team: "CSK", val: 366 }, { name: "Jacques Kallis", team: "KKR", val: 307 },
+      { name: "MS Dhoni", team: "CSK", val: 287 }, { name: "Abhishek Nayar", team: "MI", val: 292 },
+    ],
+    topBwl: [
+      { name: "Pragyan Ojha", team: "DCH", val: 21 }, { name: "Dale Steyn", team: "DCH", val: 17 },
+      { name: "RP Singh", team: "DCH", val: 17 }, { name: "Munaf Patel", team: "MI", val: 18 },
+      { name: "Zaheer Khan", team: "MI", val: 16 }, { name: "Ashish Nehra", team: "CSK", val: 15 },
+      { name: "Piyush Chawla", team: "KKR", val: 15 }, { name: "Vinay Kumar", team: "RCB", val: 13 },
+      { name: "Shaun Pollock", team: "MI", val: 14 }, { name: "Albie Morkel", team: "CSK", val: 13 },
+    ],
+  },
+  {
+    year: 2009, season: 2, champion: "Deccan Chargers", runnerUp: "Royal Challengers Bangalore",
+    color: "#1B75BB", orangeCap: "Matthew Hayden", orangeRuns: 572, purpleCap: "RP Singh", purpleWkts: 23, mvp: "Adam Gilchrist",
+    topBat: [
+      { name: "Matthew Hayden", team: "CSK", val: 572 }, { name: "Adam Gilchrist", team: "DCH", val: 495 },
+      { name: "Sachin Tendulkar", team: "MI", val: 418 }, { name: "Herschelle Gibbs", team: "DCH", val: 441 },
+      { name: "AB de Villiers", team: "DD", val: 424 }, { name: "Michael Hussey", team: "CSK", val: 388 },
+      { name: "Jacques Kallis", team: "KKR", val: 372 }, { name: "Ross Taylor", team: "RR", val: 366 },
+      { name: "Rohit Sharma", team: "DCH", val: 362 }, { name: "Justin Kemp", team: "RR", val: 323 },
+    ],
+    topBwl: [
+      { name: "RP Singh", team: "DCH", val: 23 }, { name: "Muttiah Muralitharan", team: "CSK", val: 21 },
+      { name: "Pragyan Ojha", team: "DCH", val: 18 }, { name: "Vinay Kumar", team: "RCB", val: 18 },
+      { name: "Dale Steyn", team: "DCH", val: 17 }, { name: "Amit Mishra", team: "DCH", val: 16 },
+      { name: "Harbhajan Singh", team: "MI", val: 16 }, { name: "Pradeep Sangwan", team: "DD", val: 15 },
+      { name: "Chaminda Vaas", team: "CSK", val: 14 }, { name: "Ishant Sharma", team: "KKR", val: 12 },
+    ],
+  },
+  {
+    year: 2008, season: 1, champion: "Rajasthan Royals", runnerUp: "Chennai Super Kings",
+    color: "#FF2FA9", orangeCap: "Shaun Marsh", orangeRuns: 616, purpleCap: "Sohail Tanvir", purpleWkts: 22, mvp: "Shane Watson",
+    topBat: [
+      { name: "Shaun Marsh", team: "RR", val: 616 }, { name: "Matthew Hayden", team: "CSK", val: 572 },
+      { name: "Brendon McCullum", team: "KKR", val: 519 }, { name: "Sachin Tendulkar", team: "MI", val: 510 },
+      { name: "Yusuf Pathan", team: "RR", val: 435 }, { name: "Virender Sehwag", team: "DD", val: 390 },
+      { name: "Adam Gilchrist", team: "PBKS", val: 383 }, { name: "Sourav Ganguly", team: "KKR", val: 368 },
+      { name: "Gautam Gambhir", team: "DD", val: 362 }, { name: "Michael Hussey", team: "CSK", val: 349 },
+    ],
+    topBwl: [
+      { name: "Sohail Tanvir", team: "RR", val: 22 }, { name: "RP Singh", team: "DCH", val: 19 },
+      { name: "Ishant Sharma", team: "KKR", val: 17 }, { name: "Munaf Patel", team: "RR", val: 16 },
+      { name: "Zaheer Khan", team: "DD", val: 16 }, { name: "Pragyan Ojha", team: "DCH", val: 15 },
+      { name: "Amit Mishra", team: "DD", val: 15 }, { name: "Shane Bond", team: "KKR", val: 14 },
+      { name: "Irfan Pathan", team: "PBKS", val: 14 }, { name: "Chaminda Vaas", team: "CSK", val: 13 },
+    ],
+  },
+];
