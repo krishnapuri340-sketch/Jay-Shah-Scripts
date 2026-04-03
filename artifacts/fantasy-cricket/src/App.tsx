@@ -2756,6 +2756,8 @@ export default function App() {
                     const e = (playerMatchPoints[name] || []).find((x: any) => x.matchNum === mn);
                     return e ? applyMultiplier(e.pts, isCap, isVC) : 0;
                   };
+                  const hasEntry = (name: string, mn: number) =>
+                    (playerMatchPoints[name] || []).some((x: any) => x.matchNum === mn);
 
                   const shortLabel = (label: string) =>
                     label.split(" vs ").map(t => IPL_TEAM_BADGE[t]?.abbr || t.split(" ").map((w: string) => w[0]).join("")).join(" vs ");
@@ -2808,7 +2810,7 @@ export default function App() {
                                   <div style={{ borderTop: "1px solid var(--border)", padding: "6px 10px 8px" }}>
                                     {players.map((p, i) => {
                                       const inTop11 = top11.has(p.name);
-                                      if (!inTop11 && p.pts === 0) return null;
+                                      if (!hasEntry(p.name, mn)) return null;
                                       return (
                                         <div key={p.name} style={{ display: "flex", alignItems: "center", gap: 5, padding: "3px 0", borderTop: i > 0 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
                                           <span style={{ fontSize: "0.65rem", flex: 1, color: inTop11 ? (p.pts === 0 ? "var(--text-3)" : "var(--text-2)") : "rgba(255,255,255,0.28)", fontWeight: inTop11 && p.pts !== 0 ? 600 : 400, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
