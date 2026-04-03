@@ -543,6 +543,7 @@ export default function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const settingsRef = useRef<HTMLDivElement>(null);
   const [expandedPredMatchId, setExpandedPredMatchId] = useState<string | null>(null);
+  const [expandedFantasyMatchId, setExpandedFantasyMatchId] = useState<string | null>(null);
   const [predictions, setPredictions] = useState<Record<string, Record<string, string | null>>>({});
   const lastPredSaveRef = useRef<number>(0);
   const [predFlash, setPredFlash] = useState<string | null>(null);
@@ -3187,6 +3188,87 @@ export default function App() {
                             );
                           })()}
                           </>
+                        )}
+                      </div>
+                    );
+                  })()}
+                  {/* Fantasy Points by Team — completed matches */}
+                  {isDone && (() => {
+                    const mNumMatch = (m.name || "").match(/(\d+)(?:st|nd|rd|th) Match/i);
+                    const matchNum = mNumMatch ? parseInt(mNumMatch[1]) : null;
+                    if (!matchNum || Object.keys(playerMatchPoints).length === 0) return null;
+                    // Per-team match points: apply top-11 + captain/VC multiplier per match
+                    const teamPts = Object.keys(FANTASY_TEAMS).map(teamId => {
+                      const ft = FANTASY_TEAMS[teamId];
+                      const allPlayers = ft.players.map(p => {
+                        const entry = (playerMatchPoints[p.name] || []).find((e: any) => e.matchNum === matchNum);
+                        const raw = entry ? entry.pts : 0;
+                        const adj = applyMultiplier(raw, p.name === ft.captain, p.name === ft.vc);
+                        return { name: p.name, role: p.role, raw, adj, isCap: p.name === ft.captain, isVC: p.name === ft.vc };
+                      }).sort((a, b) => b.adj - a.adj);
+                      const top11 = new Set(allPlayers.slice(0, 11).map(p => p.name));
+                      const total = allPlayers.filter(p => top11.has(p.name)).reduce((s, p) => s + p.adj, 0);
+                      const contributors = allPlayers.filter(p => top11.has(p.name) && p.raw !== 0);
+                      return { teamId, ft, total, contributors };
+                    }).sort((a, b) => b.total - a.total);
+                    if (teamPts.every(t => t.total === 0)) return null;
+                    const isOpen = expandedFantasyMatchId === matchIdStr;
+                    return (
+                      <div onClick={e => e.stopPropagation()} style={{ marginTop: 10, borderTop: "1px solid var(--border)", paddingTop: 7 }}>
+                        <div onClick={() => setExpandedFantasyMatchId(isOpen ? null : matchIdStr)}
+                          style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", userSelect: "none" as const, WebkitTapHighlightColor: "transparent" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                            <span style={{ fontSize: "0.85rem", lineHeight: 1 }}>⚡</span>
+                            <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.62rem", color: "var(--gold)", fontWeight: 500, letterSpacing: "0.14em" }}>FANTASY PTS</span>
+                          </div>
+                          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                              {teamPts.map((t, i) => (
+                                <span key={t.teamId} style={{ fontSize: "0.6rem", color: i === 0 ? "#d4a843" : "var(--text-3)" }}>
+                                  {t.ft.emoji}&thinsp;<span style={{ fontWeight: i === 0 ? 700 : 400 }}>{t.total}</span>
+                                </span>
+                              ))}
+                            </div>
+                            <svg width="8" height="5" viewBox="0 0 10 6" fill="none" style={{ transition: "transform 0.22s ease", transform: isOpen ? "rotate(180deg)" : "rotate(0deg)", flexShrink: 0 }}>
+                              <path d="M1 1l4 4 4-4" stroke="var(--text-3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          </div>
+                        </div>
+                        {isOpen && (
+                          <div style={{ marginTop: 8, display: "flex", flexDirection: "column" as const, gap: 5 }}>
+                            {teamPts.map((t, rank) => (
+                              <div key={t.teamId} style={{
+                                borderRadius: 8,
+                                background: rank === 0 ? t.ft.color + "10" : "rgba(255,255,255,0.02)",
+                                border: `1px solid ${rank === 0 ? t.ft.color + "35" : "var(--border)"}`,
+                                overflow: "hidden" as const,
+                              }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 7, padding: "7px 10px" }}>
+                                  <span style={{ fontSize: "1rem" }}>{t.ft.emoji}</span>
+                                  <span style={{ fontSize: "0.73rem", fontWeight: 700, color: t.ft.color, flex: 1 }}>{t.ft.owner}</span>
+                                  {rank === 0 && <span style={{ fontSize: "0.48rem", fontWeight: 700, color: "#d4a843", background: "rgba(212,160,23,0.13)", border: "1px solid rgba(212,160,23,0.28)", borderRadius: 9, padding: "1px 5px", letterSpacing: "0.04em" }}>TOP</span>}
+                                  <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.95rem", fontWeight: 700, color: rank === 0 ? "#d4a843" : "var(--text)", minWidth: 28, textAlign: "right" as const }}>{t.total}</span>
+                                  <span style={{ fontSize: "0.58rem", color: "var(--text-3)" }}>pts</span>
+                                </div>
+                                {t.contributors.length > 0 && (
+                                  <div style={{ padding: "0 10px 8px", display: "flex", flexWrap: "wrap" as const, gap: 4 }}>
+                                    {t.contributors.map(c => (
+                                      <div key={c.name} style={{ display: "flex", alignItems: "center", gap: 3, padding: "3px 7px", borderRadius: 6, background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)" }}>
+                                        <span style={{ fontSize: "0.62rem", color: "var(--text-2)", fontWeight: 500 }}>
+                                          {c.name.split(" ").slice(-1)[0]}
+                                        </span>
+                                        {c.isCap && <span style={{ fontSize: "0.48rem", fontWeight: 800, color: "#d4a017", background: "rgba(212,160,23,0.18)", borderRadius: 3, padding: "0 3px", lineHeight: 1.3 }}>C</span>}
+                                        {c.isVC && <span style={{ fontSize: "0.48rem", fontWeight: 800, color: "#94a3b8", background: "rgba(148,163,184,0.12)", borderRadius: 3, padding: "0 3px", lineHeight: 1.3 }}>VC</span>}
+                                        <span style={{ fontSize: "0.62rem", fontWeight: 700, color: c.adj > 0 ? "#4ade80" : "#f87171" }}>
+                                          {c.adj > 0 ? "+" : ""}{c.adj}
+                                        </span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
                         )}
                       </div>
                     );

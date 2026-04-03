@@ -3381,15 +3381,19 @@
     "2423": {
       "points": {
         "Yuzvendra Chahal": 54,
+        "Shreyas Iyer": 102,
+        "Priyansh Arya": 91,
         "Marco Jansen": 54,
         "Arshdeep Singh": 20,
         "Shivam Dube": 83,
-        "Prabhsimran Singh": 12,
-        "Nehal Wadhera": 20,
+        "Prabhsimran Singh": 89,
+        "Nehal Wadhera": 36,
         "Ruturaj Gaikwad": 44,
         "Sanju Samson": 15,
         "Prashant Veer": 14,
-        "Marcus Stoinis": 6
+        "Marcus Stoinis": 15,
+        "Shashank Singh": 26,
+        "Khaleel Ahmed": 22
       },
       "innings": [
         {
@@ -3472,6 +3476,17 @@
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
+            },
+            {
+              "name": "Rahul Chahar",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
             },
             {
               "name": "Noor Ahmad",
@@ -3586,6 +3601,201 @@
               "dots": 1
             }
           ]
+        },
+        {
+          "name": "Punjab Kings Inning 2",
+          "total": "206/5 (18.3 ov)",
+          "batting": [
+            {
+              "name": "Priyansh Arya",
+              "runs": 39,
+              "balls": 11,
+              "fours": 3,
+              "sixes": 4,
+              "sr": "354.55",
+              "dismissal": "b Matt Henry",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Prabhsimran Singh",
+              "runs": 43,
+              "balls": 34,
+              "fours": 6,
+              "sixes": 1,
+              "sr": "126.47",
+              "dismissal": "run out (Sarfaraz Khan)",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Cooper Connolly",
+              "runs": 36,
+              "balls": 22,
+              "fours": 6,
+              "sixes": 0,
+              "sr": "163.64",
+              "dismissal": "c Matt Henry b Anshul Kamboj",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Shreyas Iyer",
+              "runs": 50,
+              "balls": 29,
+              "fours": 4,
+              "sixes": 3,
+              "sr": "172.41",
+              "dismissal": "c Rahul Chahar b Anshul Kamboj",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Nehal Wadhera",
+              "runs": 10,
+              "balls": 9,
+              "fours": 0,
+              "sixes": 1,
+              "sr": "111.11",
+              "dismissal": "c Noor Ahmad b Matt Henry",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Shashank Singh",
+              "runs": 14,
+              "balls": 6,
+              "fours": 2,
+              "sixes": 0,
+              "sr": "233.33",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Marcus Stoinis",
+              "runs": 5,
+              "balls": 2,
+              "fours": 1,
+              "sixes": 0,
+              "sr": "250.00",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Marco Jansen",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Xavier Bartlett",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Vyshak Vijaykumar",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Arshdeep Singh",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Yuzvendra Chahal",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            }
+          ],
+          "bowling": [
+            {
+              "name": "Khaleel Ahmed",
+              "overs": "3",
+              "maidens": 0,
+              "runs": 28,
+              "wickets": 0,
+              "eco": "9.33",
+              "wides": 3,
+              "noBalls": 0,
+              "dots": 9
+            },
+            {
+              "name": "Matt Henry",
+              "overs": "4",
+              "maidens": 0,
+              "runs": 54,
+              "wickets": 2,
+              "eco": "13.5",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 6
+            },
+            {
+              "name": "Anshul Kamboj",
+              "overs": "3.3",
+              "maidens": 0,
+              "runs": 39,
+              "wickets": 2,
+              "eco": "11.14",
+              "wides": 1,
+              "noBalls": 1,
+              "dots": 9
+            },
+            {
+              "name": "Noor Ahmad",
+              "overs": "4",
+              "maidens": 0,
+              "runs": 38,
+              "wickets": 0,
+              "eco": "9.5",
+              "wides": 1,
+              "noBalls": 1,
+              "dots": 6
+            },
+            {
+              "name": "Rahul Chahar",
+              "overs": "4",
+              "maidens": 0,
+              "runs": 46,
+              "wickets": 0,
+              "eco": "11.5",
+              "wides": 1,
+              "noBalls": 0,
+              "dots": 4
+            }
+          ]
         }
       ],
       "playerStats": {
@@ -3603,6 +3813,40 @@
           "ballsBowled": 18,
           "runsConceded": 21,
           "catches": 1,
+          "runOuts": 0,
+          "stumpings": 0
+        },
+        "Shreyas Iyer": {
+          "played": true,
+          "runs": 50,
+          "balls": 29,
+          "fours": 4,
+          "sixes": 3,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "stumpings": 0
+        },
+        "Priyansh Arya": {
+          "played": true,
+          "runs": 39,
+          "balls": 11,
+          "fours": 3,
+          "sixes": 4,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
           "runOuts": 0,
           "stumpings": 0
         },
@@ -3659,10 +3903,10 @@
         },
         "Prabhsimran Singh": {
           "played": true,
-          "runs": 0,
-          "balls": 0,
-          "fours": 0,
-          "sixes": 0,
+          "runs": 43,
+          "balls": 34,
+          "fours": 6,
+          "sixes": 1,
           "duck": false,
           "wickets": 0,
           "dots": 0,
@@ -3676,10 +3920,10 @@
         },
         "Nehal Wadhera": {
           "played": true,
-          "runs": 0,
-          "balls": 0,
+          "runs": 10,
+          "balls": 9,
           "fours": 0,
-          "sixes": 0,
+          "sixes": 1,
           "duck": false,
           "wickets": 0,
           "dots": 0,
@@ -3744,9 +3988,9 @@
         },
         "Marcus Stoinis": {
           "played": true,
-          "runs": 0,
-          "balls": 0,
-          "fours": 0,
+          "runs": 5,
+          "balls": 2,
+          "fours": 1,
           "sixes": 0,
           "duck": false,
           "wickets": 0,
@@ -3755,6 +3999,40 @@
           "maidens": 0,
           "ballsBowled": 6,
           "runsConceded": 17,
+          "catches": 0,
+          "runOuts": 0,
+          "stumpings": 0
+        },
+        "Shashank Singh": {
+          "played": true,
+          "runs": 14,
+          "balls": 6,
+          "fours": 2,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "stumpings": 0
+        },
+        "Khaleel Ahmed": {
+          "played": true,
+          "runs": 0,
+          "balls": 0,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 9,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 18,
+          "runsConceded": 28,
           "catches": 0,
           "runOuts": 0,
           "stumpings": 0
@@ -4493,6 +4771,6 @@
   "lastUpdated": "2026-04-03T09:43:06.187Z",
   "dailyHits": {
     "date": "2026-04-03",
-    "count": 4
+    "count": 14
   }
 }
