@@ -824,10 +824,19 @@ router.get("/ipl/points", async (req, res) => {
 
     const dailyHitsInfo = { count: pointsCache.dailyHits.count, limit: DAILY_CALL_LIMIT, date: pointsCache.dailyHits.date };
 
+    // Build iplId (CricAPI match ID string) → matchNumber map so the frontend can look up
+    // match numbers directly from fixture m.id without relying on match name parsing.
+    const iplIdToMatchNum: Record<string, number> = {};
+    for (const fixture of Object.values(pointsCache.supabaseScores || {})) {
+      if (fixture.linkedIplId && fixture.matchNumber) {
+        iplIdToMatchNum[fixture.linkedIplId] = fixture.matchNumber;
+      }
+    }
+
     if (pointsUpdateInProgress) {
       return res.json({
         playerPoints: aggregated, playerMatchPoints, processedMatches: supabaseMatchLabels,
-        updating: true, timestamp: new Date().toISOString(), dailyHits: dailyHitsInfo,
+        iplIdToMatchNum, updating: true, timestamp: new Date().toISOString(), dailyHits: dailyHitsInfo,
       });
     }
 
@@ -1002,7 +1011,7 @@ router.get("/ipl/points", async (req, res) => {
 
     return res.json({
       playerPoints: aggregated, playerMatchPoints, processedMatches: supabaseMatchLabels,
-      updating: pointsUpdateInProgress, timestamp: new Date().toISOString(), dailyHits: dailyHitsInfo,
+      iplIdToMatchNum, updating: pointsUpdateInProgress, timestamp: new Date().toISOString(), dailyHits: dailyHitsInfo,
     });
   } catch (err: any) {
     req.log.error({ err }, "Failed to calculate IPL points");

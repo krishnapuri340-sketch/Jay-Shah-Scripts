@@ -496,6 +496,7 @@ export default function App() {
   const [fixtureHomeAwayFilter, setFixtureHomeAwayFilter] = useState<"all" | "home" | "away">("all");
   const [playerPoints, setPlayerPoints] = useState<Record<string, number>>({});
   const [playerMatchPoints, setPlayerMatchPoints] = useState<Record<string, Array<{ matchNum: number; label: string; pts: number; source: string; stats?: PlayerStats }>>>({});
+  const [iplIdToMatchNum, setIplIdToMatchNum] = useState<Record<string, number>>({});
   const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
   const [benchOpen, setBenchOpen] = useState(false);
   const [expandedAdminPlayer, setExpandedAdminPlayer] = useState<string | null>(null);
@@ -638,6 +639,7 @@ export default function App() {
         const pp = data.playerPoints || {};
         setPlayerPoints(pp);
         setPlayerMatchPoints(data.playerMatchPoints || {});
+        setIplIdToMatchNum(data.iplIdToMatchNum || {});
         setProcessedMatches(data.processedMatches || []);
         setPointsUpdating(data.updating || false);
         setPendingMatches(data.pendingMatches || 0);
@@ -3194,8 +3196,7 @@ export default function App() {
                   })()}
                   {/* Fantasy Points by Team — completed matches */}
                   {isDone && (() => {
-                    const mNumMatch = (m.name || "").match(/(\d+)(?:st|nd|rd|th) Match/i);
-                    const matchNum = mNumMatch ? parseInt(mNumMatch[1]) : null;
+                    const matchNum = iplIdToMatchNum[String(m.id)] ?? null;
                     if (!matchNum || Object.keys(playerMatchPoints).length === 0) return null;
                     // Per-team match points: apply top-11 + captain/VC multiplier per match
                     const teamPts = Object.keys(FANTASY_TEAMS).map(teamId => {

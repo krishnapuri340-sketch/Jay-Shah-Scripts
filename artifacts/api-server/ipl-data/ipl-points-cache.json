@@ -638,7 +638,7 @@
       "innings": [
         {
           "name": "Kolkata Knight Riders Inning 1",
-          "total": "210/4 (20.0 ov)",
+          "total": "220/4 (20.0 ov)",
           "batting": [
             {
               "name": "Ajinkya Rahane",
@@ -646,8 +646,8 @@
               "balls": 40,
               "fours": 3,
               "sixes": 5,
-              "sr": "167.5",
-              "dismissal": "catch",
+              "sr": "167.50",
+              "dismissal": "c Hardik Pandya b Shardul Thakur",
               "notOut": false,
               "dnb": false
             },
@@ -658,7 +658,7 @@
               "fours": 6,
               "sixes": 2,
               "sr": "217.65",
-              "dismissal": "catch",
+              "dismissal": "c Tilak Varma b Shardul Thakur",
               "notOut": false,
               "dnb": false
             },
@@ -668,8 +668,8 @@
               "balls": 10,
               "fours": 1,
               "sixes": 1,
-              "sr": "180",
-              "dismissal": "catch",
+              "sr": "180.00",
+              "dismissal": "c Sherfane Rutherford b Shardul Thakur",
               "notOut": false,
               "dnb": false
             },
@@ -680,7 +680,7 @@
               "fours": 6,
               "sixes": 2,
               "sr": "175.86",
-              "dismissal": "catch",
+              "dismissal": "c Tilak Varma b Hardik Pandya",
               "notOut": false,
               "dnb": false
             },
@@ -701,10 +701,76 @@
               "balls": 4,
               "fours": 0,
               "sixes": 0,
-              "sr": "100",
+              "sr": "100.00",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
+            },
+            {
+              "name": "Kartik Tyagi",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Anukul Roy",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Sunil Narine",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Varun Chakaravarthy",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Vaibhav Arora",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Blessing Muzarabani",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
             }
           ],
           "bowling": [
@@ -716,7 +782,8 @@
               "wickets": 0,
               "eco": "9.5",
               "wides": 3,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 7
             },
             {
               "name": "Hardik Pandya",
@@ -726,7 +793,8 @@
               "wickets": 1,
               "eco": "13",
               "wides": 2,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 7
             },
             {
               "name": "AM Ghazanfar",
@@ -734,9 +802,10 @@
               "maidens": 0,
               "runs": 51,
               "wickets": 0,
-              "eco": "12.8",
+              "eco": "12.75",
               "wides": 1,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 6
             },
             {
               "name": "Jasprit Bumrah",
@@ -744,9 +813,10 @@
               "maidens": 0,
               "runs": 35,
               "wickets": 0,
-              "eco": "8.8",
+              "eco": "8.75",
               "wides": 1,
-              "noBalls": 1
+              "noBalls": 1,
+              "dots": 4
             },
             {
               "name": "Shardul Thakur",
@@ -754,9 +824,10 @@
               "maidens": 0,
               "runs": 39,
               "wickets": 3,
-              "eco": "9.8",
+              "eco": "9.75",
               "wides": 0,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 7
             },
             {
               "name": "Mayank Markande",
@@ -766,13 +837,14 @@
               "wickets": 0,
               "eco": "16",
               "wides": 0,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 1
             }
           ]
         },
         {
-          "name": "Mumbai Indians Inning 1",
-          "total": "209/3 (18.3 ov)",
+          "name": "Mumbai Indians Inning 2",
+          "total": "224/4 (19.1 ov)",
           "batting": [
             {
               "name": "Ryan Rickelton",
@@ -781,7 +853,7 @@
               "fours": 4,
               "sixes": 8,
               "sr": "188.37",
-              "dismissal": "runout",
+              "dismissal": "run out (Anukul Roy)",
               "notOut": false,
               "dnb": false
             },
@@ -792,42 +864,119 @@
               "fours": 6,
               "sixes": 6,
               "sr": "205.26",
-              "dismissal": "catch",
+              "dismissal": "c Anukul Roy b Vaibhav Arora",
               "notOut": false,
               "dnb": false
             },
             {
-              "name": "Suryakumar Yadav",
+              "name": "Surya Kumar Yadav",
               "runs": 16,
               "balls": 8,
               "fours": 3,
               "sixes": 0,
-              "sr": "200",
-              "dismissal": "catch",
+              "sr": "200.00",
+              "dismissal": "c Rinku Singh b Kartik Tyagi",
               "notOut": false,
               "dnb": false
             },
             {
               "name": "Tilak Varma",
               "runs": 20,
-              "balls": 13,
+              "balls": 14,
               "fours": 4,
               "sixes": 0,
-              "sr": "153.85",
+              "sr": "142.86",
+              "dismissal": "c (Sub) Manish Pandey b Sunil Narine",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Hardik Pandya",
+              "runs": 18,
+              "balls": 11,
+              "fours": 3,
+              "sixes": 0,
+              "sr": "163.64",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
             },
             {
-              "name": "Hardik Pandya",
-              "runs": 14,
-              "balls": 10,
-              "fours": 2,
+              "name": "Naman Dhir",
+              "runs": 5,
+              "balls": 2,
+              "fours": 1,
               "sixes": 0,
-              "sr": "140",
+              "sr": "250.00",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
+            },
+            {
+              "name": "Sherfane Rutherford",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Mayank Markande",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Shardul Thakur",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "AM Ghazanfar",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Trent Boult",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Jasprit Bumrah",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
             }
           ],
           "bowling": [
@@ -839,7 +988,8 @@
               "wickets": 1,
               "eco": "13",
               "wides": 1,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 8
             },
             {
               "name": "Blessing Muzarabani",
@@ -847,9 +997,10 @@
               "maidens": 0,
               "runs": 34,
               "wickets": 0,
-              "eco": "11.3",
+              "eco": "11.33",
               "wides": 0,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 6
             },
             {
               "name": "Varun Chakaravarthy",
@@ -859,7 +1010,8 @@
               "wickets": 0,
               "eco": "12",
               "wides": 1,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 5
             },
             {
               "name": "Kartik Tyagi",
@@ -867,29 +1019,32 @@
               "maidens": 0,
               "runs": 43,
               "wickets": 1,
-              "eco": "10.8",
+              "eco": "10.75",
               "wides": 0,
-              "noBalls": 1
+              "noBalls": 1,
+              "dots": 9
             },
             {
               "name": "Sunil Narine",
-              "overs": "2.3",
+              "overs": "3",
               "maidens": 0,
-              "runs": 25,
-              "wickets": 0,
+              "runs": 30,
+              "wickets": 1,
               "eco": "10",
               "wides": 0,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 6
             },
             {
               "name": "Anukul Roy",
-              "overs": "1",
+              "overs": "1.1",
               "maidens": 0,
-              "runs": 11,
+              "runs": 15,
               "wickets": 0,
-              "eco": "11",
+              "eco": "12.86",
               "wides": 1,
-              "noBalls": 0
+              "noBalls": 0,
+              "dots": 1
             }
           ]
         }
