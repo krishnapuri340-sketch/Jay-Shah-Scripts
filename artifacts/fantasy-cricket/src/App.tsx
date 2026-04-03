@@ -636,6 +636,7 @@ export default function App() {
   const [liveLoading, setLiveLoading] = useState(false);
   const [pointsLoading, setPointsLoading] = useState(false);
   const [supabaseSyncing, setSupabaseSyncing] = useState(false);
+  const [statsRefreshing, setStatsRefreshing] = useState(false);
   const [supabaseSyncMsg, setSupabaseSyncMsg] = useState<string | null>(null);
   const [s3Prefetching, setS3Prefetching] = useState(false);
   const [s3PrefetchResult, setS3PrefetchResult] = useState<{ found: number; missing: number; foundIds: string[]; missingIds: string[] } | null>(null);
@@ -835,6 +836,16 @@ export default function App() {
       setS3PrefetchResult({ found: 0, missing: 0, foundIds: [], missingIds: ["Error: " + (e.message || "unknown")] });
     }
     setS3Prefetching(false);
+  };
+
+  const refreshStatsCache = async () => {
+    if (statsRefreshing) return;
+    setStatsRefreshing(true);
+    try {
+      await fetch("/api/ipl/stats/refresh", { method: "POST", headers: { "X-Owner-Id": "rajveer" } });
+      await fetchStats();
+    } catch (_) {}
+    setStatsRefreshing(false);
   };
 
   const fetchLive = async () => {
@@ -4534,6 +4545,10 @@ export default function App() {
             <button className="btn-primary" style={{ background: "rgba(168,85,247,0.1)", borderColor: "rgba(168,85,247,0.3)", color: "#a855f7" }}
               onClick={prefetchS3Scorecards} disabled={s3Prefetching}>
               {s3Prefetching ? <span className="spinner" /> : "📡"} Pre-fetch S3 Scorecards
+            </button>
+            <button className="btn-primary" style={{ background: "rgba(245,166,35,0.1)", borderColor: "rgba(245,166,35,0.3)", color: "var(--gold)" }}
+              onClick={refreshStatsCache} disabled={statsRefreshing}>
+              {statsRefreshing ? <span className="spinner" /> : "📊"} Refresh Stats (S3)
             </button>
             <button className="btn-danger" onClick={async () => {
               if (confirm("Reset all cached points? Points will re-sync from AuctionRoom.")) {
