@@ -499,6 +499,8 @@ export default function App() {
   const [iplIdToMatchNum, setIplIdToMatchNum] = useState<Record<string, number>>({});
   const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
   const [benchOpen, setBenchOpen] = useState(false);
+  const [matchPtsOpen, setMatchPtsOpen] = useState(false);
+  const [expandedMatchNums, setExpandedMatchNums] = useState<Set<number>>(new Set());
   const [expandedAdminPlayer, setExpandedAdminPlayer] = useState<string | null>(null);
   const [adminBreakdownOpen, setAdminBreakdownOpen] = useState(false);
   const [liveMatches, setLiveMatches] = useState<any[]>([]);
@@ -2735,8 +2737,14 @@ export default function App() {
                 {/* === POINTS FROM EACH MATCH === */}
                 {(() => {
                   const allNums = new Set<number>();
+                  const matchLabels: Record<number, string> = {};
                   for (const entries of Object.values(playerMatchPoints)) {
-                    for (const e of entries) { if (e.matchNum < 900) allNums.add(e.matchNum); }
+                    for (const e of entries) {
+                      if (e.matchNum < 900) {
+                        allNums.add(e.matchNum);
+                        if (!matchLabels[e.matchNum]) matchLabels[e.matchNum] = e.label;
+                      }
+                    }
                   }
                   const sortedNums = [...allNums].sort((a, b) => a - b);
                   if (sortedNums.length === 0) return null;
@@ -2749,117 +2757,79 @@ export default function App() {
                     return e ? applyMultiplier(e.pts, isCap, isVC) : 0;
                   };
 
-                  const top11PerMatch: Record<number, Set<string>> = {};
-                  for (const mn of sortedNums) {
-                    const ranked = allTeamPlayers
-                      .map(p => ({ name: p.name, pts: getAdj(p.name, mn) }))
-                      .sort((a, b) => b.pts - a.pts);
-                    top11PerMatch[mn] = new Set(ranked.slice(0, 11).map(p => p.name));
-                  }
+                  const shortLabel = (label: string) =>
+                    label.split(" vs ").map(t => IPL_TEAM_BADGE[t]?.abbr || t.split(" ").map((w: string) => w[0]).join("")).join(" vs ");
 
-                  const playersRows = allTeamPlayers.map(p => {
-                    const isCap = p.name === td.captain;
-                    const isVC = p.name === td.vc;
-                    const rawTotal = sortedNums.reduce((s, mn) => s + getAdj(p.name, mn), 0);
-                    const countedTotal = sortedNums.reduce((s, mn) => top11PerMatch[mn].has(p.name) ? s + getAdj(p.name, mn) : s, 0);
-                    return { ...p, isCap, isVC, rawTotal, countedTotal };
-                  }).sort((a, b) => b.rawTotal - a.rawTotal);
+                  const matchData = sortedNums.map(mn => {
+                    const players = allTeamPlayers.map(p => ({
+                      ...p, isCap: p.name === td.captain, isVC: p.name === td.vc,
+                      pts: getAdj(p.name, mn),
+                    })).sort((a, b) => b.pts - a.pts);
+                    const top11 = new Set(players.slice(0, 11).map(p => p.name));
+                    const total = players.filter(p => top11.has(p.name)).reduce((s, p) => s + p.pts, 0);
+                    return { mn, label: matchLabels[mn] || `Match ${mn}`, players, top11, total };
+                  });
 
-                  const matchTotals = sortedNums.map(mn =>
-                    allTeamPlayers.filter(p => top11PerMatch[mn].has(p.name)).reduce((s, p) => s + getAdj(p.name, mn), 0)
-                  );
+                  const grandTotal = matchData.reduce((s, m) => s + m.total, 0);
 
                   return (
-                    <div style={{ marginTop: 22 }}>
-                      {/* Header */}
-                      <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 12, padding: "0 2px" }}>
-                        <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--gold)", flexShrink: 0 }} />
-                        <span style={{ fontSize: "0.58rem", fontWeight: 800, color: "var(--text-3)", letterSpacing: "0.14em", textTransform: "uppercase" as const }}>Points · Each Match</span>
-                        <span style={{ fontSize: "0.54rem", color: "var(--text-3)", opacity: 0.65 }}>all 18 players</span>
-                      </div>
+                    <div style={{ marginTop: 20 }}>
+                      <button
+                        onClick={() => setMatchPtsOpen(o => !o)}
+                        style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", marginBottom: matchPtsOpen ? 10 : 0, background: "transparent", border: "none", cursor: "pointer", padding: "0 2px", WebkitTapHighlightColor: "transparent" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                          <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--gold)", flexShrink: 0 }} />
+                          <span style={{ fontSize: "0.58rem", fontWeight: 800, color: "var(--text-3)", letterSpacing: "0.14em", textTransform: "uppercase" as const }}>Match Points</span>
+                          {grandTotal > 0 && <span style={{ fontSize: "0.6rem", color: "var(--gold)", fontWeight: 700, fontFamily: "'Oswald', sans-serif" }}>{grandTotal}</span>}
+                        </div>
+                        <span style={{ fontSize: "0.58rem", color: "var(--text-3)", display: "inline-block", transition: "transform 0.22s cubic-bezier(0.4,0,0.2,1)", transform: matchPtsOpen ? "rotate(180deg)" : "none" }}>▼</span>
+                      </button>
 
-                      {/* Match number header row */}
-                      <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: 4 }}>
-                        {/* Name col */}
-                        <div style={{ flex: "0 0 110px", fontSize: "0.5rem", color: "var(--text-3)", letterSpacing: "0.08em", paddingLeft: 4 }}>PLAYER</div>
-                        {/* Match cols */}
-                        {sortedNums.map((mn, i) => (
-                          <div key={mn} style={{ flex: "1 1 0", textAlign: "center" as const, fontSize: "0.5rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.04em" }}>M{mn}</div>
-                        ))}
-                        {/* Total col */}
-                        <div style={{ flex: "0 0 34px", textAlign: "right" as const, fontSize: "0.5rem", fontWeight: 700, color: "var(--gold)", letterSpacing: "0.04em" }}>TOT</div>
-                      </div>
-
-                      {/* Player rows */}
-                      {playersRows.map((p, rowIdx) => {
-                        const isOnBench = !td.top11.has(p.name);
-                        return (
-                          <div key={p.name} style={{
-                            display: "flex", alignItems: "center", gap: 0,
-                            padding: "4px 0",
-                            borderTop: rowIdx === 0 ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(255,255,255,0.04)",
-                            background: rowIdx % 2 === 0 ? "transparent" : "rgba(255,255,255,0.015)",
-                          }}>
-                            {/* Name + badges */}
-                            <div style={{ flex: "0 0 110px", display: "flex", alignItems: "center", gap: 3, minWidth: 0, paddingLeft: 4 }}>
-                              <span style={{
-                                fontSize: "0.62rem", fontWeight: isOnBench ? 400 : 600,
-                                color: isOnBench ? "var(--text-3)" : "var(--text-2)",
-                                overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const,
-                                maxWidth: 70,
-                              }}>{p.name.split(" ").slice(-1)[0]}</span>
-                              {p.isCap && (
-                                <span style={{ fontSize: "0.44rem", fontWeight: 900, color: "#d4a843", background: "rgba(212,168,67,0.18)", border: "1px solid rgba(212,168,67,0.4)", borderRadius: 3, padding: "0 3px", lineHeight: 1.4, flexShrink: 0 }}>C</span>
-                              )}
-                              {p.isVC && (
-                                <span style={{ fontSize: "0.44rem", fontWeight: 900, color: "#94a3b8", background: "rgba(148,163,184,0.12)", border: "1px solid rgba(148,163,184,0.3)", borderRadius: 3, padding: "0 3px", lineHeight: 1.4, flexShrink: 0 }}>VC</span>
-                              )}
-                              {isOnBench && (
-                                <span style={{ fontSize: "0.4rem", color: "var(--text-3)", opacity: 0.5, fontWeight: 700, letterSpacing: "0.04em" }}>bench</span>
-                              )}
-                            </div>
-
-                            {/* Per-match points */}
-                            {sortedNums.map(mn => {
-                              const pts = getAdj(p.name, mn);
-                              const counted = top11PerMatch[mn].has(p.name);
-                              const isZero = pts === 0;
-                              return (
-                                <div key={mn} style={{ flex: "1 1 0", textAlign: "center" as const }}>
-                                  <span style={{
-                                    fontSize: "0.65rem",
-                                    fontWeight: counted && !isZero ? 700 : 400,
-                                    color: isZero
-                                      ? "rgba(255,255,255,0.12)"
-                                      : counted
-                                        ? (pts >= 50 ? "#d4a843" : pts >= 30 ? "#fb923c" : "#4ade80")
-                                        : "rgba(255,255,255,0.25)",
-                                  }}>{pts === 0 ? "–" : pts}</span>
-                                </div>
-                              );
-                            })}
-
-                            {/* Row total */}
-                            <div style={{ flex: "0 0 34px", textAlign: "right" as const, paddingRight: 2 }}>
-                              <span style={{
-                                fontSize: "0.66rem", fontWeight: 700,
-                                color: p.rawTotal > 0 ? "var(--text)" : "var(--text-3)",
-                              }}>{p.rawTotal || "–"}</span>
-                            </div>
-                          </div>
-                        );
-                      })}
-
-                      {/* Match totals footer */}
-                      <div style={{ display: "flex", alignItems: "center", gap: 0, marginTop: 6, paddingTop: 6, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-                        <div style={{ flex: "0 0 110px", fontSize: "0.5rem", fontWeight: 700, color: "var(--gold)", letterSpacing: "0.08em", paddingLeft: 4 }}>TOP 11 TOTAL</div>
-                        {matchTotals.map((tot, i) => (
-                          <div key={sortedNums[i]} style={{ flex: "1 1 0", textAlign: "center" as const }}>
-                            <span style={{ fontSize: "0.65rem", fontWeight: 700, color: "var(--gold)", fontFamily: "'Oswald', sans-serif" }}>{tot || "–"}</span>
-                          </div>
-                        ))}
-                        <div style={{ flex: "0 0 34px" }} />
-                      </div>
+                      {matchPtsOpen && (
+                        <div style={{ display: "flex", flexDirection: "column" as const, gap: 4 }}>
+                          {matchData.map(({ mn, label, players, top11, total }) => {
+                            const short = shortLabel(label);
+                            const isExpanded = expandedMatchNums.has(mn);
+                            const toggleMn = () => setExpandedMatchNums(prev => {
+                              const n = new Set(prev); n.has(mn) ? n.delete(mn) : n.add(mn); return n;
+                            });
+                            return (
+                              <div key={mn} style={{ borderRadius: 10, border: "1px solid var(--border)", overflow: "hidden" as const, background: "rgba(255,255,255,0.02)" }}>
+                                <button onClick={toggleMn} style={{ display: "flex", alignItems: "center", width: "100%", background: "transparent", border: "none", cursor: "pointer", padding: "8px 10px", gap: 8, WebkitTapHighlightColor: "transparent" }}>
+                                  <span style={{ fontSize: "0.53rem", fontWeight: 700, color: "var(--text-3)", background: "rgba(255,255,255,0.06)", borderRadius: 5, padding: "1px 5px", flexShrink: 0 }}>M{mn}</span>
+                                  <span style={{ fontSize: "0.68rem", fontWeight: 600, color: "var(--text-2)", flex: 1, textAlign: "left" as const }}>{short}</span>
+                                  <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.9rem", fontWeight: 700, color: total >= 120 ? "#d4a843" : "var(--text)", flexShrink: 0 }}>{total}</span>
+                                  <span style={{ fontSize: "0.53rem", color: "var(--text-3)", flexShrink: 0 }}>pts</span>
+                                  <svg width="7" height="5" viewBox="0 0 10 6" fill="none" style={{ transition: "transform 0.2s", transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", flexShrink: 0 }}>
+                                    <path d="M1 1l4 4 4-4" stroke="var(--text-3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                </button>
+                                {isExpanded && (
+                                  <div style={{ borderTop: "1px solid var(--border)", padding: "6px 10px 8px" }}>
+                                    {players.map((p, i) => {
+                                      const inTop11 = top11.has(p.name);
+                                      if (!inTop11 && p.pts === 0) return null;
+                                      return (
+                                        <div key={p.name} style={{ display: "flex", alignItems: "center", gap: 5, padding: "3px 0", borderTop: i > 0 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
+                                          <span style={{ fontSize: "0.65rem", flex: 1, color: inTop11 ? (p.pts === 0 ? "var(--text-3)" : "var(--text-2)") : "rgba(255,255,255,0.28)", fontWeight: inTop11 && p.pts !== 0 ? 600 : 400, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+                                            {p.name.split(" ").slice(-1)[0]}
+                                          </span>
+                                          {p.isCap && <span style={{ fontSize: "0.44rem", fontWeight: 900, color: "#d4a843", background: "rgba(212,168,67,0.18)", border: "1px solid rgba(212,168,67,0.4)", borderRadius: 3, padding: "0 3px", lineHeight: 1.4, flexShrink: 0 }}>C</span>}
+                                          {p.isVC && <span style={{ fontSize: "0.44rem", fontWeight: 900, color: "#94a3b8", background: "rgba(148,163,184,0.12)", border: "1px solid rgba(148,163,184,0.3)", borderRadius: 3, padding: "0 3px", lineHeight: 1.4, flexShrink: 0 }}>VC</span>}
+                                          {!inTop11 && <span style={{ fontSize: "0.4rem", color: "var(--text-3)", opacity: 0.5, fontWeight: 700 }}>bench</span>}
+                                          <span style={{ fontSize: "0.68rem", fontWeight: 700, minWidth: 26, textAlign: "right" as const, color: p.pts === 0 ? "var(--text-3)" : inTop11 ? (p.pts >= 60 ? "#d4a843" : p.pts >= 40 ? "#fb923c" : "#4ade80") : "rgba(255,255,255,0.3)" }}>
+                                            {p.pts === 0 ? "—" : (inTop11 ? "+" : "") + p.pts}
+                                          </span>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                   );
                 })()}
