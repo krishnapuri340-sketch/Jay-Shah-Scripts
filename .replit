@@ -1,4 +1,4 @@
-modules = ["nodejs-24"]
+modules = ["nodejs-24", "postgresql-16"]
 
 [[artifacts]]
 id = "artifacts/api-server"
@@ -32,3 +32,6 @@ SUPABASE_URL = "https://ldwqrdlipzqsnpljqyhk.supabase.co/rest/v1"
 VAPID_PUBLIC_KEY = "BNVDd3QIHazDoEsBjs53IgsdInLyemhrLw-YqFCoWDbr4ZF-FsfJ93L5z3H7LqHCwK48FCIvXeXPYSH7SmAkWzA"
 VAPID_PRIVATE_KEY = "YmlE_fJzu0yi6MTRGw7Yt11FmyMWMxcjz4oaY7Top28"
 VAPID_CONTACT = "mailto:admin@iplfantasy.app"
+
+[nix]
+channel = "stable-25_05"
