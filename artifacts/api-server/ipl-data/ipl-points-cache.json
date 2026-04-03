@@ -3759,7 +3759,7 @@
         },
         {
           "name": "Punjab Kings Inning 2",
-          "total": "206/5 (18.3 ov)",
+          "total": "210/5 (18.4 ov)",
           "batting": [
             {
               "name": "Priyansh Arya",
@@ -3829,11 +3829,11 @@
             },
             {
               "name": "Marcus Stoinis",
-              "runs": 5,
-              "balls": 2,
-              "fours": 1,
+              "runs": 9,
+              "balls": 3,
+              "fours": 2,
               "sixes": 0,
-              "sr": "250.00",
+              "sr": "300.00",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -3919,11 +3919,11 @@
             },
             {
               "name": "Anshul Kamboj",
-              "overs": "3.3",
+              "overs": "3.4",
               "maidens": 0,
-              "runs": 39,
+              "runs": 43,
               "wickets": 2,
-              "eco": "11.14",
+              "eco": "11.73",
               "wides": 1,
               "noBalls": 1,
               "dots": 9

@@ -2731,6 +2731,138 @@ export default function App() {
                     {bench.map(p => renderPlayer(p, true))}
                   </div>
                 )}
+
+                {/* === POINTS FROM EACH MATCH === */}
+                {(() => {
+                  const allNums = new Set<number>();
+                  for (const entries of Object.values(playerMatchPoints)) {
+                    for (const e of entries) { if (e.matchNum < 900) allNums.add(e.matchNum); }
+                  }
+                  const sortedNums = [...allNums].sort((a, b) => a - b);
+                  if (sortedNums.length === 0) return null;
+
+                  const allTeamPlayers = [...xi, ...bench];
+                  const getAdj = (name: string, mn: number) => {
+                    const isCap = name === td.captain;
+                    const isVC = name === td.vc;
+                    const e = (playerMatchPoints[name] || []).find((x: any) => x.matchNum === mn);
+                    return e ? applyMultiplier(e.pts, isCap, isVC) : 0;
+                  };
+
+                  const top11PerMatch: Record<number, Set<string>> = {};
+                  for (const mn of sortedNums) {
+                    const ranked = allTeamPlayers
+                      .map(p => ({ name: p.name, pts: getAdj(p.name, mn) }))
+                      .sort((a, b) => b.pts - a.pts);
+                    top11PerMatch[mn] = new Set(ranked.slice(0, 11).map(p => p.name));
+                  }
+
+                  const playersRows = allTeamPlayers.map(p => {
+                    const isCap = p.name === td.captain;
+                    const isVC = p.name === td.vc;
+                    const rawTotal = sortedNums.reduce((s, mn) => s + getAdj(p.name, mn), 0);
+                    const countedTotal = sortedNums.reduce((s, mn) => top11PerMatch[mn].has(p.name) ? s + getAdj(p.name, mn) : s, 0);
+                    return { ...p, isCap, isVC, rawTotal, countedTotal };
+                  }).sort((a, b) => b.rawTotal - a.rawTotal);
+
+                  const matchTotals = sortedNums.map(mn =>
+                    allTeamPlayers.filter(p => top11PerMatch[mn].has(p.name)).reduce((s, p) => s + getAdj(p.name, mn), 0)
+                  );
+
+                  return (
+                    <div style={{ marginTop: 22 }}>
+                      {/* Header */}
+                      <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 12, padding: "0 2px" }}>
+                        <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--gold)", flexShrink: 0 }} />
+                        <span style={{ fontSize: "0.58rem", fontWeight: 800, color: "var(--text-3)", letterSpacing: "0.14em", textTransform: "uppercase" as const }}>Points · Each Match</span>
+                        <span style={{ fontSize: "0.54rem", color: "var(--text-3)", opacity: 0.65 }}>all 18 players</span>
+                      </div>
+
+                      {/* Match number header row */}
+                      <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: 4 }}>
+                        {/* Name col */}
+                        <div style={{ flex: "0 0 110px", fontSize: "0.5rem", color: "var(--text-3)", letterSpacing: "0.08em", paddingLeft: 4 }}>PLAYER</div>
+                        {/* Match cols */}
+                        {sortedNums.map((mn, i) => (
+                          <div key={mn} style={{ flex: "1 1 0", textAlign: "center" as const, fontSize: "0.5rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.04em" }}>M{mn}</div>
+                        ))}
+                        {/* Total col */}
+                        <div style={{ flex: "0 0 34px", textAlign: "right" as const, fontSize: "0.5rem", fontWeight: 700, color: "var(--gold)", letterSpacing: "0.04em" }}>TOT</div>
+                      </div>
+
+                      {/* Player rows */}
+                      {playersRows.map((p, rowIdx) => {
+                        const isOnBench = !td.top11.has(p.name);
+                        return (
+                          <div key={p.name} style={{
+                            display: "flex", alignItems: "center", gap: 0,
+                            padding: "4px 0",
+                            borderTop: rowIdx === 0 ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(255,255,255,0.04)",
+                            background: rowIdx % 2 === 0 ? "transparent" : "rgba(255,255,255,0.015)",
+                          }}>
+                            {/* Name + badges */}
+                            <div style={{ flex: "0 0 110px", display: "flex", alignItems: "center", gap: 3, minWidth: 0, paddingLeft: 4 }}>
+                              <span style={{
+                                fontSize: "0.62rem", fontWeight: isOnBench ? 400 : 600,
+                                color: isOnBench ? "var(--text-3)" : "var(--text-2)",
+                                overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const,
+                                maxWidth: 70,
+                              }}>{p.name.split(" ").slice(-1)[0]}</span>
+                              {p.isCap && (
+                                <span style={{ fontSize: "0.44rem", fontWeight: 900, color: "#d4a843", background: "rgba(212,168,67,0.18)", border: "1px solid rgba(212,168,67,0.4)", borderRadius: 3, padding: "0 3px", lineHeight: 1.4, flexShrink: 0 }}>C</span>
+                              )}
+                              {p.isVC && (
+                                <span style={{ fontSize: "0.44rem", fontWeight: 900, color: "#94a3b8", background: "rgba(148,163,184,0.12)", border: "1px solid rgba(148,163,184,0.3)", borderRadius: 3, padding: "0 3px", lineHeight: 1.4, flexShrink: 0 }}>VC</span>
+                              )}
+                              {isOnBench && (
+                                <span style={{ fontSize: "0.4rem", color: "var(--text-3)", opacity: 0.5, fontWeight: 700, letterSpacing: "0.04em" }}>bench</span>
+                              )}
+                            </div>
+
+                            {/* Per-match points */}
+                            {sortedNums.map(mn => {
+                              const pts = getAdj(p.name, mn);
+                              const counted = top11PerMatch[mn].has(p.name);
+                              const isZero = pts === 0;
+                              return (
+                                <div key={mn} style={{ flex: "1 1 0", textAlign: "center" as const }}>
+                                  <span style={{
+                                    fontSize: "0.65rem",
+                                    fontWeight: counted && !isZero ? 700 : 400,
+                                    color: isZero
+                                      ? "rgba(255,255,255,0.12)"
+                                      : counted
+                                        ? (pts >= 50 ? "#d4a843" : pts >= 30 ? "#fb923c" : "#4ade80")
+                                        : "rgba(255,255,255,0.25)",
+                                  }}>{pts === 0 ? "–" : pts}</span>
+                                </div>
+                              );
+                            })}
+
+                            {/* Row total */}
+                            <div style={{ flex: "0 0 34px", textAlign: "right" as const, paddingRight: 2 }}>
+                              <span style={{
+                                fontSize: "0.66rem", fontWeight: 700,
+                                color: p.rawTotal > 0 ? "var(--text)" : "var(--text-3)",
+                              }}>{p.rawTotal || "–"}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+
+                      {/* Match totals footer */}
+                      <div style={{ display: "flex", alignItems: "center", gap: 0, marginTop: 6, paddingTop: 6, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+                        <div style={{ flex: "0 0 110px", fontSize: "0.5rem", fontWeight: 700, color: "var(--gold)", letterSpacing: "0.08em", paddingLeft: 4 }}>TOP 11 TOTAL</div>
+                        {matchTotals.map((tot, i) => (
+                          <div key={sortedNums[i]} style={{ flex: "1 1 0", textAlign: "center" as const }}>
+                            <span style={{ fontSize: "0.65rem", fontWeight: 700, color: "var(--gold)", fontFamily: "'Oswald', sans-serif" }}>{tot || "–"}</span>
+                          </div>
+                        ))}
+                        <div style={{ flex: "0 0 34px" }} />
+                      </div>
+                    </div>
+                  );
+                })()}
               </>
             );
           })()
@@ -3190,86 +3322,6 @@ export default function App() {
                             );
                           })()}
                           </>
-                        )}
-                      </div>
-                    );
-                  })()}
-                  {/* Fantasy Points by Team — completed matches */}
-                  {isDone && (() => {
-                    const matchNum = iplIdToMatchNum[String(m.id)] ?? null;
-                    if (!matchNum || Object.keys(playerMatchPoints).length === 0) return null;
-                    // Per-team match points: apply top-11 + captain/VC multiplier per match
-                    const teamPts = Object.keys(FANTASY_TEAMS).map(teamId => {
-                      const ft = FANTASY_TEAMS[teamId];
-                      const allPlayers = ft.players.map(p => {
-                        const entry = (playerMatchPoints[p.name] || []).find((e: any) => e.matchNum === matchNum);
-                        const raw = entry ? entry.pts : 0;
-                        const adj = applyMultiplier(raw, p.name === ft.captain, p.name === ft.vc);
-                        return { name: p.name, role: p.role, raw, adj, isCap: p.name === ft.captain, isVC: p.name === ft.vc };
-                      }).sort((a, b) => b.adj - a.adj);
-                      const top11 = new Set(allPlayers.slice(0, 11).map(p => p.name));
-                      const total = allPlayers.filter(p => top11.has(p.name)).reduce((s, p) => s + p.adj, 0);
-                      const contributors = allPlayers.filter(p => top11.has(p.name) && p.raw !== 0);
-                      return { teamId, ft, total, contributors };
-                    }).sort((a, b) => b.total - a.total);
-                    if (teamPts.every(t => t.total === 0)) return null;
-                    const isOpen = expandedFantasyMatchId === matchIdStr;
-                    return (
-                      <div onClick={e => e.stopPropagation()} style={{ marginTop: 10, borderTop: "1px solid var(--border)", paddingTop: 7 }}>
-                        <div onClick={() => setExpandedFantasyMatchId(isOpen ? null : matchIdStr)}
-                          style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", userSelect: "none" as const, WebkitTapHighlightColor: "transparent" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                            <span style={{ fontSize: "0.85rem", lineHeight: 1 }}>⚡</span>
-                            <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.62rem", color: "var(--gold)", fontWeight: 500, letterSpacing: "0.14em" }}>FANTASY PTS</span>
-                          </div>
-                          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                              {teamPts.map((t, i) => (
-                                <span key={t.teamId} style={{ fontSize: "0.6rem", color: i === 0 ? "#d4a843" : "var(--text-3)" }}>
-                                  {t.ft.emoji}&thinsp;<span style={{ fontWeight: i === 0 ? 700 : 400 }}>{t.total}</span>
-                                </span>
-                              ))}
-                            </div>
-                            <svg width="8" height="5" viewBox="0 0 10 6" fill="none" style={{ transition: "transform 0.22s ease", transform: isOpen ? "rotate(180deg)" : "rotate(0deg)", flexShrink: 0 }}>
-                              <path d="M1 1l4 4 4-4" stroke="var(--text-3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                            </svg>
-                          </div>
-                        </div>
-                        {isOpen && (
-                          <div style={{ marginTop: 8, display: "flex", flexDirection: "column" as const, gap: 5 }}>
-                            {teamPts.map((t, rank) => (
-                              <div key={t.teamId} style={{
-                                borderRadius: 8,
-                                background: rank === 0 ? t.ft.color + "10" : "rgba(255,255,255,0.02)",
-                                border: `1px solid ${rank === 0 ? t.ft.color + "35" : "var(--border)"}`,
-                                overflow: "hidden" as const,
-                              }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: 7, padding: "7px 10px" }}>
-                                  <span style={{ fontSize: "1rem" }}>{t.ft.emoji}</span>
-                                  <span style={{ fontSize: "0.73rem", fontWeight: 700, color: t.ft.color, flex: 1 }}>{t.ft.owner}</span>
-                                  {rank === 0 && <span style={{ fontSize: "0.48rem", fontWeight: 700, color: "#d4a843", background: "rgba(212,160,23,0.13)", border: "1px solid rgba(212,160,23,0.28)", borderRadius: 9, padding: "1px 5px", letterSpacing: "0.04em" }}>TOP</span>}
-                                  <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.95rem", fontWeight: 700, color: rank === 0 ? "#d4a843" : "var(--text)", minWidth: 28, textAlign: "right" as const }}>{t.total}</span>
-                                  <span style={{ fontSize: "0.58rem", color: "var(--text-3)" }}>pts</span>
-                                </div>
-                                {t.contributors.length > 0 && (
-                                  <div style={{ padding: "0 10px 8px", display: "flex", flexWrap: "wrap" as const, gap: 4 }}>
-                                    {t.contributors.map(c => (
-                                      <div key={c.name} style={{ display: "flex", alignItems: "center", gap: 3, padding: "3px 7px", borderRadius: 6, background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)" }}>
-                                        <span style={{ fontSize: "0.62rem", color: "var(--text-2)", fontWeight: 500 }}>
-                                          {c.name.split(" ").slice(-1)[0]}
-                                        </span>
-                                        {c.isCap && <span style={{ fontSize: "0.48rem", fontWeight: 800, color: "#d4a017", background: "rgba(212,160,23,0.18)", borderRadius: 3, padding: "0 3px", lineHeight: 1.3 }}>C</span>}
-                                        {c.isVC && <span style={{ fontSize: "0.48rem", fontWeight: 800, color: "#94a3b8", background: "rgba(148,163,184,0.12)", borderRadius: 3, padding: "0 3px", lineHeight: 1.3 }}>VC</span>}
-                                        <span style={{ fontSize: "0.62rem", fontWeight: 700, color: c.adj > 0 ? "#4ade80" : "#f87171" }}>
-                                          {c.adj > 0 ? "+" : ""}{c.adj}
-                                        </span>
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            ))}
-                          </div>
                         )}
                       </div>
                     );
