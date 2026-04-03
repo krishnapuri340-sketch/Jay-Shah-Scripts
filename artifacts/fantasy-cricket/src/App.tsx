@@ -2763,17 +2763,14 @@ export default function App() {
                     label.split(" vs ").map(t => IPL_TEAM_BADGE[t]?.abbr || t.split(" ").map((w: string) => w[0]).join("")).join(" vs ");
 
                   const matchData = sortedNums.map(mn => {
-                    const players = allTeamPlayers.map(p => ({
-                      ...p, isCap: p.name === t.captain, isVC: p.name === t.vc,
-                      pts: getAdj(p.name, mn),
-                    })).sort((a, b) => b.pts - a.pts);
-                    const top11 = new Set(
-                      allTeamPlayers
-                        .filter(p => td.top11.has(p.name) && hasEntry(p.name, mn))
-                        .map(p => p.name)
-                    );
-                    const total = players.filter(p => top11.has(p.name)).reduce((s, p) => s + p.pts, 0);
-                    return { mn, label: matchLabels[mn] || `Match ${mn}`, players, top11, total };
+                    const players = allTeamPlayers
+                      .filter(p => hasEntry(p.name, mn))
+                      .map(p => ({
+                        ...p, isCap: p.name === t.captain, isVC: p.name === t.vc,
+                        pts: getAdj(p.name, mn),
+                      })).sort((a, b) => b.pts - a.pts);
+                    const total = players.reduce((s, p) => s + p.pts, 0);
+                    return { mn, label: matchLabels[mn] || `Match ${mn}`, players, total };
                   });
 
                   const grandTotal = matchData.reduce((s, m) => s + m.total, 0);
@@ -2793,7 +2790,7 @@ export default function App() {
 
                       {matchPtsOpen && (
                         <div style={{ display: "flex", flexDirection: "column" as const, gap: 4 }}>
-                          {matchData.map(({ mn, label, players, top11, total }) => {
+                          {matchData.map(({ mn, label, players, total }) => {
                             const short = shortLabel(label);
                             const isExpanded = expandedMatchNums.has(mn);
                             const toggleMn = () => setExpandedMatchNums(prev => {
@@ -2812,25 +2809,20 @@ export default function App() {
                                 </button>
                                 {isExpanded && (
                                   <div style={{ borderTop: "1px solid var(--border)", padding: "6px 10px 8px" }}>
-                                    {players.map((p, i) => {
-                                      const inTop11 = top11.has(p.name);
-                                      if (!hasEntry(p.name, mn)) return null;
-                                      return (
-                                        <div key={p.name} style={{ display: "flex", alignItems: "center", gap: 5, padding: "3px 0", borderTop: i > 0 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
-                                          <span style={{ fontSize: "0.65rem", flex: 1, color: inTop11 ? (p.pts === 0 ? "var(--text-3)" : "var(--text-2)") : "rgba(255,255,255,0.28)", fontWeight: inTop11 && p.pts !== 0 ? 600 : 400, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
-                                            {p.name}
-                                          </span>
-                                          {p.isCap && <span style={{ fontSize: "0.44rem", fontWeight: 900, color: "#d4a843", background: "rgba(212,168,67,0.18)", border: "1px solid rgba(212,168,67,0.4)", borderRadius: 3, padding: "0 3px", lineHeight: 1.4, flexShrink: 0 }}>C</span>}
-                                          {p.isVC && <span style={{ fontSize: "0.44rem", fontWeight: 900, color: "#94a3b8", background: "rgba(148,163,184,0.12)", border: "1px solid rgba(148,163,184,0.3)", borderRadius: 3, padding: "0 3px", lineHeight: 1.4, flexShrink: 0 }}>VC</span>}
-                                          {p.isCap && inTop11 && <span style={{ fontSize: "0.44rem", fontWeight: 700, color: "#d4a843", opacity: 0.8, flexShrink: 0 }}>2×</span>}
-                                          {p.isVC && inTop11 && <span style={{ fontSize: "0.44rem", fontWeight: 700, color: "#94a3b8", opacity: 0.8, flexShrink: 0 }}>1.5×</span>}
-                                          {!inTop11 && <span style={{ fontSize: "0.4rem", color: "var(--text-3)", opacity: 0.5, fontWeight: 700 }}>bench</span>}
-                                          <span style={{ fontSize: "0.68rem", fontWeight: 700, minWidth: 26, textAlign: "right" as const, color: p.pts === 0 ? "var(--text-3)" : inTop11 ? (p.pts >= 60 ? "#d4a843" : p.pts >= 40 ? "#fb923c" : "#4ade80") : "rgba(255,255,255,0.3)" }}>
-                                            {p.pts === 0 ? "—" : (inTop11 ? "+" : "") + p.pts}
-                                          </span>
-                                        </div>
-                                      );
-                                    })}
+                                    {players.map((p, i) => (
+                                      <div key={p.name} style={{ display: "flex", alignItems: "center", gap: 5, padding: "3px 0", borderTop: i > 0 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
+                                        <span style={{ fontSize: "0.65rem", flex: 1, color: p.pts === 0 ? "var(--text-3)" : "var(--text-2)", fontWeight: p.pts !== 0 ? 600 : 400, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+                                          {p.name}
+                                        </span>
+                                        {p.isCap && <span style={{ fontSize: "0.44rem", fontWeight: 900, color: "#d4a843", background: "rgba(212,168,67,0.18)", border: "1px solid rgba(212,168,67,0.4)", borderRadius: 3, padding: "0 3px", lineHeight: 1.4, flexShrink: 0 }}>C</span>}
+                                        {p.isVC && <span style={{ fontSize: "0.44rem", fontWeight: 900, color: "#94a3b8", background: "rgba(148,163,184,0.12)", border: "1px solid rgba(148,163,184,0.3)", borderRadius: 3, padding: "0 3px", lineHeight: 1.4, flexShrink: 0 }}>VC</span>}
+                                        {p.isCap && <span style={{ fontSize: "0.44rem", fontWeight: 700, color: "#d4a843", opacity: 0.8, flexShrink: 0 }}>2×</span>}
+                                        {p.isVC && <span style={{ fontSize: "0.44rem", fontWeight: 700, color: "#94a3b8", opacity: 0.8, flexShrink: 0 }}>1.5×</span>}
+                                        <span style={{ fontSize: "0.68rem", fontWeight: 700, minWidth: 26, textAlign: "right" as const, color: p.pts === 0 ? "var(--text-3)" : p.pts >= 60 ? "#d4a843" : p.pts >= 40 ? "#fb923c" : "#4ade80" }}>
+                                          {p.pts === 0 ? "—" : "+" + p.pts}
+                                        </span>
+                                      </div>
+                                    ))}
                                   </div>
                                 )}
                               </div>
