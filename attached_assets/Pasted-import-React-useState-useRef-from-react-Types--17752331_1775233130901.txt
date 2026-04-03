@@ -1,0 +1,389 @@
+import React, { useState, useRef } from “react”;
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface FantasyTeam {
+owner: string;
+name: string;
+color: string;
+}
+
+interface BanterProps {
+// Match info
+matchId: string;
+homeTeamCode: string;
+awayTeamCode: string;
+venue?: string;
+isDone: boolean;
+isLive: boolean;
+matchStatus?: string; // e.g. “MI won by 6 wickets”
+
+// Predictions — map of ownerId → picked team code (or null)
+preds: Record<string, string | null>;
+
+// Fantasy leaderboard scores — map of ownerId → total points
+teamScores: Array<{ id: string; total: number; team: FantasyTeam }>;
+
+// H2H record for the two teams (optional)
+h2h?: { aWins: number; bWins: number } | null;
+
+// Algo pick (from your predictNextMatch fn)
+algoPick?: string | null;
+algoReason?: string;
+
+// Current logged-in user
+currentUser: string | null;
+}
+
+// ─── Persona nicknames (feel free to customise) ───────────────────────────────
+
+const PERSONA: Record<string, { emoji: string; nickname: string }> = {
+rajveer:  { emoji: “👑”, nickname: “Rajveer” },
+mombasa:  { emoji: “🦁”, nickname: “Mombasa” },
+mumbai:   { emoji: “🌊”, nickname: “Mumbai” },
+ponygoat: { emoji: “🐐”, nickname: “PonyGoat” },
+};
+
+// ─── Helper ───────────────────────────────────────────────────────────────────
+
+function getRank(teamScores: BanterProps[“teamScores”], id: string): number {
+return teamScores.findIndex(s => s.id === id) + 1;
+}
+
+function ordinal(n: number) {
+if (n === 1) return “1st”;
+if (n === 2) return “2nd”;
+if (n === 3) return “3rd”;
+return `${n}th`;
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
+export default function MatchBanter({
+matchId,
+homeTeamCode,
+awayTeamCode,
+venue,
+isDone,
+isLive,
+matchStatus,
+preds,
+teamScores,
+h2h,
+algoPick,
+algoReason,
+currentUser,
+}: BanterProps) {
+const [banter, setBanter] = useState<string | null>(null);
+const [loading, setLoading] = useState(false);
+const [error, setError] = useState<string | null>(null);
+const [revealed, setRevealed] = useState(false);
+const abortRef = useRef<AbortController | null>(null);
+
+const ownerIds = Object.keys(PERSONA);
+const winner = isDone && matchStatus
+? (() => {
+const s = matchStatus.toLowerCase();
+for (const code of [homeTeamCode, awayTeamCode]) {
+const names: Record<string, string[]> = {
+MI: [“mumbai indians”], KKR: [“kolkata knight riders”],
+RCB: [“royal challengers bengaluru”, “royal challengers bangalore”],
+CSK: [“chennai super kings”], SRH: [“sunrisers hyderabad”],
+RR: [“rajasthan royals”], PBKS: [“punjab kings”, “kings xi punjab”],
+GT: [“gujarat titans”], LSG: [“lucknow super giants”], DC: [“delhi capitals”],
+};
+if ((names[code] || [code.toLowerCase()]).some(n => s.includes(n))) return code;
+}
+return null;
+})()
+: null;
+
+const buildPrompt = () => {
+// Leaderboard snapshot
+const lb = teamScores.map((s, i) => {
+const p = PERSONA[s.id] || { emoji: “🏏”, nickname: s.team.owner };
+return `  ${ordinal(i + 1)}: ${p.emoji} ${p.nickname} — ${s.total} pts`;
+}).join(”\n”);
+
+```
+// Who picked what
+const picks = ownerIds.map(id => {
+  const p = PERSONA[id] || { emoji: "🏏", nickname: id };
+  const pick = preds[id];
+  if (!pick) return `  ${p.nickname}: hasn't picked yet`;
+  const correct = winner ? (pick === winner ? "✓ CORRECT" : "✗ WRONG") : "";
+  return `  ${p.nickname}: picked ${pick} ${correct}`;
+}).join("\n");
+
+// Split picks
+const homePickers = ownerIds.filter(id => preds[id] === homeTeamCode).map(id => PERSONA[id]?.nickname || id);
+const awayPickers = ownerIds.filter(id => preds[id] === awayTeamCode).map(id => PERSONA[id]?.nickname || id);
+const unpicked = ownerIds.filter(id => !preds[id]).map(id => PERSONA[id]?.nickname || id);
+
+const h2hLine = h2h
+  ? `All-time H2H: ${homeTeamCode} ${h2h.aWins} – ${h2h.bWins} ${awayTeamCode}`
+  : "";
+
+const venueLine = venue ? `Venue: ${venue}` : "";
+const algoLine = algoPick
+  ? `Algorithm favours: ${algoPick} (${algoReason || "slight edge"})`
+  : "Algorithm says: too close to call";
+
+const matchContext = isDone
+  ? `The match is DONE. Result: ${matchStatus || "match ended"}.`
+  : isLive
+  ? `The match is LIVE RIGHT NOW.`
+  : `The match hasn't started yet — predictions are in.`;
+
+return `You are a savage but affectionate cricket banter bot for a private IPL fantasy league between 4 friends: Rajveer 👑, Mombasa 🦁, Mumbai 🌊, and PonyGoat 🐐.
+```
+
+MATCH: ${homeTeamCode} vs ${awayTeamCode}
+${venueLine}
+${matchContext}
+${winner ? `Winner: ${winner}` : “”}
+
+FANTASY LEADERBOARD (higher is better):
+${lb}
+
+PREDICTIONS for this match:
+${picks}
+${homePickers.length ? `Picked ${homeTeamCode}: ${homePickers.join(", ")}` : “”}
+${awayPickers.length ? `Picked ${awayTeamCode}: ${awayPickers.join(", ")}` : “”}
+${unpicked.length ? `Hasn't picked: ${unpicked.join(", ")}` : “”}
+
+INTEL:
+${h2hLine}
+${algoLine}
+
+INSTRUCTIONS:
+
+- Write exactly 3 short punchy banter lines (no more, no less)
+- Each line = one sentence max, like a WhatsApp message
+- Roast specific people by name — use their real nicknames (Rajveer, Mombasa, Mumbai, PonyGoat)
+- Reference their actual picks and leaderboard position — make it PERSONAL
+- If match is done: roast the wrong-pickers, lightly crown the right ones
+- If match is upcoming/live: trash talk the bold picks and cowards who haven’t picked
+- Be funny, cricket-smart, brutally honest — like a group chat
+- NO hashtags, NO emojis in every sentence (1–2 max total), NO lists, NO headers
+- Output ONLY the 3 lines, separated by newlines, nothing else`;
+  };
+  
+  const fetchBanter = async () => {
+  if (loading) return;
+  setLoading(true);
+  setError(null);
+  setBanter(null);
+  setRevealed(false);
+  
+  if (abortRef.current) abortRef.current.abort();
+  abortRef.current = new AbortController();
+  
+  try {
+  const response = await fetch(“https://api.anthropic.com/v1/messages”, {
+  method: “POST”,
+  signal: abortRef.current.signal,
+  headers: {
+  “Content-Type”: “application/json”,
+  “anthropic-dangerous-direct-browser-calls”: “true”,
+  },
+  body: JSON.stringify({
+  model: “claude-sonnet-4-20250514”,
+  max_tokens: 300,
+  messages: [{ role: “user”, content: buildPrompt() }],
+  }),
+  });
+  
+  ```
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error((err as any)?.error?.message || `API error ${response.status}`);
+  }
+  
+  const data = await response.json();
+  const text = (data.content as any[])
+    .filter((b: any) => b.type === "text")
+    .map((b: any) => b.text)
+    .join("")
+    .trim();
+  
+  setBanter(text);
+  // Slight delay before reveal animation
+  setTimeout(() => setRevealed(true), 80);
+  ```
+  
+  } catch (e: any) {
+  if (e.name === “AbortError”) return;
+  setError(e.message || “Banter fetch failed”);
+  } finally {
+  setLoading(false);
+  }
+  };
+  
+  const lines = banter ? banter.split(”\n”).filter(l => l.trim()) : [];
+  
+  // ── Styles (inline, matching the app’s dark theme) ─────────────────────────
+  
+  const wrapStyle: React.CSSProperties = {
+  marginTop: 10,
+  borderTop: “1px solid var(–border, rgba(255,255,255,0.08))”,
+  paddingTop: 8,
+  };
+  
+  const headerStyle: React.CSSProperties = {
+  display: “flex”,
+  alignItems: “center”,
+  justifyContent: “space-between”,
+  marginBottom: banter || loading || error ? 8 : 0,
+  };
+  
+  const labelStyle: React.CSSProperties = {
+  fontFamily: “‘Oswald’, sans-serif”,
+  fontSize: “0.62rem”,
+  letterSpacing: “0.14em”,
+  color: “var(–text-3, rgba(255,255,255,0.35))”,
+  fontWeight: 400,
+  display: “flex”,
+  alignItems: “center”,
+  gap: 4,
+  };
+  
+  const btnStyle: React.CSSProperties = {
+  background: loading
+  ? “rgba(255,255,255,0.04)”
+  : “linear-gradient(135deg, rgba(251,146,60,0.18) 0%, rgba(239,68,68,0.14) 100%)”,
+  border: “1px solid rgba(251,146,60,0.28)”,
+  borderRadius: 20,
+  padding: “4px 11px”,
+  cursor: loading ? “default” : “pointer”,
+  color: loading ? “var(–text-3, rgba(255,255,255,0.35))” : “#fb923c”,
+  fontSize: “0.62rem”,
+  fontFamily: “inherit”,
+  fontWeight: 600,
+  letterSpacing: “0.04em”,
+  display: “flex”,
+  alignItems: “center”,
+  gap: 4,
+  transition: “opacity 0.15s”,
+  opacity: loading ? 0.6 : 1,
+  WebkitTapHighlightColor: “transparent”,
+  };
+  
+  const bubbleContainerStyle: React.CSSProperties = {
+  display: “flex”,
+  flexDirection: “column”,
+  gap: 5,
+  opacity: revealed ? 1 : 0,
+  transform: revealed ? “translateY(0)” : “translateY(6px)”,
+  transition: “opacity 0.35s ease, transform 0.35s ease”,
+  };
+  
+  const getBubbleStyle = (i: number): React.CSSProperties => ({
+  background: “rgba(255,255,255,0.04)”,
+  border: “1px solid rgba(255,255,255,0.07)”,
+  borderRadius: i === 0 ? “10px 10px 10px 3px” : i === lines.length - 1 ? “10px 10px 3px 10px” : 10,
+  padding: “7px 10px”,
+  fontSize: “0.72rem”,
+  color: “var(–text, #fff)”,
+  lineHeight: 1.45,
+  fontStyle: “italic”,
+  letterSpacing: “0.01em”,
+  });
+  
+  const loadingDotsStyle: React.CSSProperties = {
+  display: “flex”,
+  gap: 4,
+  padding: “8px 2px”,
+  alignItems: “center”,
+  };
+  
+  const errorStyle: React.CSSProperties = {
+  fontSize: “0.62rem”,
+  color: “#f87171”,
+  padding: “4px 2px”,
+  fontStyle: “italic”,
+  };
+  
+  return (
+  
+    <div style={wrapStyle} onClick={e => e.stopPropagation()}>
+      <div style={headerStyle}>
+        <span style={labelStyle}>
+          {/* flame icon */}
+          <svg width="9" height="11" viewBox="0 0 10 13" fill="none">
+            <path d="M5 0C5 0 8.5 3.5 8.5 7A3.5 3.5 0 0 1 2 7.5C2 5.5 3.5 3.5 3.5 3.5S3 6 5 6C5 6 5.5 4.5 5 0Z" fill="#fb923c" opacity="0.9"/>
+            <path d="M5 7C5 7 6.5 8 6.5 9.5A1.5 1.5 0 0 1 3.5 9.5C3.5 8.5 4.5 7.5 4.5 7.5L5 9C5 9 5.5 8.2 5 7Z" fill="#fbbf24" opacity="0.8"/>
+          </svg>
+          BANTER
+        </span>
+        <button style={btnStyle} onClick={fetchBanter} disabled={loading}>
+          {loading ? (
+            <>
+              <span style={{ animation: "banter-spin 0.8s linear infinite", display: "inline-block", fontSize: "0.7rem" }}>⟳</span>
+              Generating…
+            </>
+          ) : banter ? (
+            "🔄 Regenerate"
+          ) : (
+            "🔥 Get Roast"
+          )}
+        </button>
+      </div>
+  
+  ```
+  {/* Loading dots */}
+  {loading && !banter && (
+    <div style={loadingDotsStyle}>
+      {[0, 1, 2].map(i => (
+        <div
+          key={i}
+          style={{
+            width: 5,
+            height: 5,
+            borderRadius: "50%",
+            background: "#fb923c",
+            opacity: 0.6,
+            animation: `banter-bounce 1s ease-in-out ${i * 0.18}s infinite`,
+          }}
+        />
+      ))}
+      <span style={{ fontSize: "0.58rem", color: "var(--text-3, rgba(255,255,255,0.3))", marginLeft: 4, fontStyle: "italic" }}>
+        cooking up the roast…
+      </span>
+    </div>
+  )}
+  
+  {/* Error */}
+  {error && <div style={errorStyle}>⚠ {error}</div>}
+  
+  {/* Banter bubbles */}
+  {lines.length > 0 && (
+    <div style={bubbleContainerStyle}>
+      {lines.map((line, i) => (
+        <div key={i} style={getBubbleStyle(i)}>
+          {line}
+        </div>
+      ))}
+      <div style={{ fontSize: "0.5rem", color: "var(--text-3, rgba(255,255,255,0.2))", textAlign: "right", marginTop: 1, fontStyle: "italic" }}>
+        AI-generated · tap regenerate for a fresh take
+      </div>
+    </div>
+  )}
+  
+  {/* Keyframe animations injected once */}
+  <style>{`
+    @keyframes banter-spin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+    @keyframes banter-bounce {
+      0%, 100% { transform: translateY(0);   opacity: 0.4; }
+      50%       { transform: translateY(-4px); opacity: 1;   }
+    }
+  `}</style>
+  ```
+  
+    </div>
+  );
+
+}
