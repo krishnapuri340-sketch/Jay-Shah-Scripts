@@ -2781,37 +2781,601 @@
       "points": {},
       "innings": [
         {
-          "name": "0 Inning 1",
-          "total": "0",
+          "name": "Sunrisers Hyderabad Inning 1",
+          "total": "226/8 (20.0 ov)",
           "batting": [
             {
-              "name": "0",
+              "name": "Travis Head",
+              "runs": 46,
+              "balls": 21,
+              "fours": 6,
+              "sixes": 3,
+              "sr": "219.05",
+              "dismissal": "c Cameron Green b Kartik Tyagi",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Abhishek Sharma",
+              "runs": 48,
+              "balls": 21,
+              "fours": 4,
+              "sixes": 4,
+              "sr": "228.57",
+              "dismissal": "c Varun Chakaravarthy b Blessing Muzarabani",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Ishan Kishan (c)",
+              "runs": 14,
+              "balls": 9,
+              "fours": 3,
+              "sixes": 0,
+              "sr": "155.56",
+              "dismissal": "c Rinku Singh b Blessing Muzarabani",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Heinrich Klaasen",
+              "runs": 52,
+              "balls": 35,
+              "fours": 4,
+              "sixes": 1,
+              "sr": "148.57",
+              "dismissal": "c Ramandeep Singh b Blessing Muzarabani",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Aniket Verma",
+              "runs": 1,
+              "balls": 4,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "25.00",
+              "dismissal": "c Rinku Singh b Anukul Roy",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Nitish Kumar Reddy",
+              "runs": 39,
+              "balls": 24,
+              "fours": 4,
+              "sixes": 1,
+              "sr": "162.50",
+              "dismissal": "c Varun Chakaravarthy b Vaibhav Arora",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Salil Arora",
+              "runs": 0,
+              "balls": 1,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "0.00",
+              "dismissal": "b Vaibhav Arora",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Harsh Dubey",
+              "runs": 9,
+              "balls": 3,
+              "fours": 2,
+              "sixes": 0,
+              "sr": "300.00",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Shivang Kumar",
+              "runs": 4,
+              "balls": 2,
+              "fours": 1,
+              "sixes": 0,
+              "sr": "200.00",
+              "dismissal": "c Ajinkya Rahane b Blessing Muzarabani",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Eshan Malinga",
               "runs": 0,
               "balls": 0,
               "fours": 0,
               "sixes": 0,
-              "sr": "0",
-              "dismissal": "0",
+              "sr": "-",
+              "dismissal": "",
               "notOut": false,
-              "dnb": false
+              "dnb": true
+            },
+            {
+              "name": "Jaydev Unadkat",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "David Payne",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
             }
           ],
           "bowling": [
             {
-              "name": "0",
-              "overs": "0",
+              "name": "Vaibhav Arora",
+              "overs": "4",
               "maidens": 0,
-              "runs": 0,
+              "runs": 47,
+              "wickets": 2,
+              "eco": "11.75",
+              "wides": 2,
+              "noBalls": 0,
+              "dots": 9
+            },
+            {
+              "name": "Blessing Muzarabani",
+              "overs": "4",
+              "maidens": 0,
+              "runs": 41,
+              "wickets": 4,
+              "eco": "10.25",
+              "wides": 2,
+              "noBalls": 0,
+              "dots": 7
+            },
+            {
+              "name": "Sunil Narine",
+              "overs": "4",
+              "maidens": 0,
+              "runs": 39,
               "wickets": 0,
-              "eco": "0",
+              "eco": "9.75",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 6
+            },
+            {
+              "name": "Varun Chakaravarthy",
+              "overs": "2",
+              "maidens": 0,
+              "runs": 31,
+              "wickets": 0,
+              "eco": "15.5",
+              "wides": 1,
+              "noBalls": 0,
+              "dots": 1
+            },
+            {
+              "name": "Kartik Tyagi",
+              "overs": "4",
+              "maidens": 0,
+              "runs": 48,
+              "wickets": 1,
+              "eco": "12",
+              "wides": 2,
+              "noBalls": 0,
+              "dots": 6
+            },
+            {
+              "name": "Anukul Roy",
+              "overs": "2",
+              "maidens": 0,
+              "runs": 16,
+              "wickets": 1,
+              "eco": "8",
+              "wides": 2,
+              "noBalls": 0,
+              "dots": 4
+            }
+          ]
+        },
+        {
+          "name": "Kolkata Knight Riders Inning 2",
+          "total": "161/10 (16.0 ov)",
+          "batting": [
+            {
+              "name": "Ajinkya Rahane",
+              "runs": 8,
+              "balls": 10,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "80.00",
+              "dismissal": "c Eshan Malinga b Jaydev Unadkat",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Finn Allen",
+              "runs": 28,
+              "balls": 7,
+              "fours": 4,
+              "sixes": 2,
+              "sr": "400.00",
+              "dismissal": "c & b Harsh Dubey",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Angkrish Raghuvanshi",
+              "runs": 52,
+              "balls": 29,
+              "fours": 6,
+              "sixes": 2,
+              "sr": "179.31",
+              "dismissal": "run out (Eshan Malinga)",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Cameron Green",
+              "runs": 2,
+              "balls": 2,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "100.00",
+              "dismissal": "run out (Eshan Malinga)",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Rinku Singh",
+              "runs": 35,
+              "balls": 25,
+              "fours": 4,
+              "sixes": 1,
+              "sr": "140.00",
+              "dismissal": "c Jaydev Unadkat b Nitish Kumar Reddy",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Anukul Roy",
+              "runs": 0,
+              "balls": 2,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "0.00",
+              "dismissal": "c Ishan Kishan b Nitish Kumar Reddy",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Ramandeep Singh",
+              "runs": 10,
+              "balls": 9,
+              "fours": 1,
+              "sixes": 0,
+              "sr": "111.11",
+              "dismissal": "c Jaydev Unadkat b Eshan Malinga",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Sunil Narine",
+              "runs": 12,
+              "balls": 4,
+              "fours": 0,
+              "sixes": 2,
+              "sr": "300.00",
+              "dismissal": "c Aniket Verma b Eshan Malinga",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Kartik Tyagi",
+              "runs": 5,
+              "balls": 5,
+              "fours": 1,
+              "sixes": 0,
+              "sr": "100.00",
+              "dismissal": "c Ishan Kishan b Jaydev Unadkat",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Vaibhav Arora",
+              "runs": 1,
+              "balls": 2,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "50.00",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Varun Chakaravarthy",
+              "runs": 0,
+              "balls": 1,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "0.00",
+              "dismissal": "b Jaydev Unadkat",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Blessing Muzarabani",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            }
+          ],
+          "bowling": [
+            {
+              "name": "David Payne",
+              "overs": "2",
+              "maidens": 0,
+              "runs": 35,
+              "wickets": 0,
+              "eco": "17.5",
               "wides": 0,
               "noBalls": 0,
               "dots": 0
+            },
+            {
+              "name": "Harsh Dubey",
+              "overs": "2",
+              "maidens": 0,
+              "runs": 17,
+              "wickets": 1,
+              "eco": "8.5",
+              "wides": 1,
+              "noBalls": 0,
+              "dots": 3
+            },
+            {
+              "name": "Abhishek Sharma",
+              "overs": "1",
+              "maidens": 0,
+              "runs": 15,
+              "wickets": 0,
+              "eco": "15",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 1
+            },
+            {
+              "name": "Jaydev Unadkat",
+              "overs": "3",
+              "maidens": 0,
+              "runs": 21,
+              "wickets": 3,
+              "eco": "7",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 7
+            },
+            {
+              "name": "Eshan Malinga",
+              "overs": "2",
+              "maidens": 0,
+              "runs": 14,
+              "wickets": 2,
+              "eco": "7",
+              "wides": 5,
+              "noBalls": 0,
+              "dots": 6
+            },
+            {
+              "name": "Shivang Kumar",
+              "overs": "4",
+              "maidens": 0,
+              "runs": 41,
+              "wickets": 0,
+              "eco": "10.25",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 8
+            },
+            {
+              "name": "Nitish Kumar Reddy",
+              "overs": "2",
+              "maidens": 0,
+              "runs": 17,
+              "wickets": 2,
+              "eco": "8.5",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 5
             }
           ]
         }
       ],
-      "playerStats": {}
+      "playerStats": {
+        "Cameron Green": {
+          "played": true,
+          "runs": 2,
+          "balls": 2,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 1,
+          "runOuts": 0,
+          "stumpings": 0
+        },
+        "Varun Chakravarthy": {
+          "played": true,
+          "runs": 0,
+          "balls": 1,
+          "fours": 0,
+          "sixes": 0,
+          "duck": true,
+          "wickets": 0,
+          "dots": 1,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 12,
+          "runsConceded": 31,
+          "catches": 2,
+          "runOuts": 0,
+          "stumpings": 0
+        },
+        "Abhishek Sharma": {
+          "played": true,
+          "runs": 48,
+          "balls": 21,
+          "fours": 4,
+          "sixes": 4,
+          "duck": false,
+          "wickets": 0,
+          "dots": 1,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 6,
+          "runsConceded": 15,
+          "catches": 0,
+          "runOuts": 0,
+          "stumpings": 0
+        },
+        "Ajinkya Rahane": {
+          "played": true,
+          "runs": 8,
+          "balls": 10,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 1,
+          "runOuts": 0,
+          "stumpings": 0
+        },
+        "Rinku Singh": {
+          "played": true,
+          "runs": 35,
+          "balls": 25,
+          "fours": 4,
+          "sixes": 1,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 2,
+          "runOuts": 0,
+          "stumpings": 0
+        },
+        "Heinrich Klaasen": {
+          "played": true,
+          "runs": 52,
+          "balls": 35,
+          "fours": 4,
+          "sixes": 1,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "stumpings": 0
+        },
+        "Ishan Kishan": {
+          "played": true,
+          "runs": 14,
+          "balls": 9,
+          "fours": 3,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 2,
+          "runOuts": 0,
+          "stumpings": 0
+        },
+        "Finn Allen": {
+          "played": true,
+          "runs": 28,
+          "balls": 7,
+          "fours": 4,
+          "sixes": 2,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "stumpings": 0
+        },
+        "Sunil Narine": {
+          "played": true,
+          "runs": 12,
+          "balls": 4,
+          "fours": 0,
+          "sixes": 2,
+          "duck": false,
+          "wickets": 0,
+          "dots": 6,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 24,
+          "runsConceded": 39,
+          "catches": 0,
+          "runOuts": 0,
+          "stumpings": 0
+        },
+        "Travis Head": {
+          "played": true,
+          "runs": 46,
+          "balls": 21,
+          "fours": 6,
+          "sixes": 3,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "stumpings": 0
+        }
+      }
     }
   },
   "supabaseScores": {
@@ -2918,6 +3482,24 @@
       "matchDate": "2026-04-01",
       "matchNumber": 5,
       "linkedIplId": "2421"
+    },
+    "97edda29-4deb-4d50-b515-d1bb855d4862": {
+      "points": {
+        "Cameron Green": 14,
+        "Varun Chakravarthy": 14,
+        "Heinrich Klaasen": 88,
+        "Sunil Narine": 40,
+        "Finn Allen": 72,
+        "Ajinkya Rahane": 18,
+        "Rinku Singh": 83,
+        "Ishan Kishan": 46,
+        "Abhishek Sharma": 106,
+        "Travis Head": 104
+      },
+      "matchLabel": "Kolkata Knight Riders vs Sunrisers Hyderabad",
+      "matchDate": "2026-04-02",
+      "matchNumber": 6,
+      "linkedIplId": "2422"
     }
   },
   "playerIdMap": {
@@ -3524,9 +4106,9 @@
       "teamB": "Delhi Capitals"
     }
   },
-  "lastUpdated": "2026-04-01T18:41:02.576Z",
+  "lastUpdated": "2026-04-03T09:43:06.187Z",
   "dailyHits": {
-    "date": "2026-04-02",
-    "count": 7
+    "date": "2026-04-03",
+    "count": 0
   }
 }

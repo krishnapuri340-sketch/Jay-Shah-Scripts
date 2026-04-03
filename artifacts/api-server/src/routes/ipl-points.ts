@@ -1348,42 +1348,155 @@ router.get("/ipl/scorecard/:matchId", async (req, res) => {
   res.json({ matchId, overview, innings, hasScorecard: innings.length > 0 });
 });
 
-router.get("/ipl/stats", (req, res) => {
-  if (Date.now() - lastPointsCacheReload > 30000) {
-    pointsCache = loadCache();
-    lastPointsCacheReload = Date.now();
-  }
+// ── All-IPL stats engine — covers EVERY completed match from S3, not just fantasy-processed ones ──
+const IPL_STATS_S3 = "https://ipl-stats-sports-mechanic.s3.ap-south-1.amazonaws.com/ipl/feeds";
+const IPL_STATS_COMP = 284;
 
+interface AllStatsEntry { innings: InningData[]; fetched: number }
+const allStatsInningsCache = new Map<string, AllStatsEntry>();
+let allStatsRefreshing = false;
+let allStatsLastRefresh = 0;
+let allStatsMatchCount = 0;
+
+async function fetchS3InningsForStats(matchId: string): Promise<InningData[]> {
+  const parseInning = (raw: any, n: number): InningData | null => {
+    const inn = raw[`Innings${n}`];
+    if (!inn) return null;
+    const extras = (inn.Extras || [])[0] || {};
+    const totalStr = (extras.Total as string || "").replace(/\s*Overs\s*/i, " ov");
+    const teamName = extras.BattingTeamName || `Innings ${n}`;
+    const batting: BattingRow[] = (inn.BattingCard || []).map((b: any) => {
+      const name = (b.PlayerName || "").replace(/\s*\([^)]*\)\s*$/, "").trim();
+      const notOut = typeof b.OutDesc === "string" && b.OutDesc.toLowerCase().includes("not out");
+      const dnb = !notOut && (!b.OutDesc || b.OutDesc === "") && (b.Balls ?? 0) === 0 && (b.Runs ?? 0) === 0;
+      return { name, runs: b.Runs ?? 0, balls: b.Balls ?? 0, fours: b.Fours ?? 0, sixes: b.Sixes ?? 0,
+        sr: String(b.StrikeRate ?? "0"), dismissal: b.OutDesc || (notOut ? "not out" : ""), notOut, dnb };
+    }).filter((b: BattingRow) => b.name);
+    const bowling: BowlingRow[] = (inn.BowlingCard || []).map((b: any) => ({
+      name: (b.PlayerName || "").replace(/\s*\([^)]*\)\s*$/, "").trim(),
+      overs: String(b.Overs ?? ""), maidens: b.Maidens ?? 0,
+      runs: b.Runs ?? 0, wickets: b.Wickets ?? 0,
+      eco: String(b.Economy ?? ""), wides: b.Wides ?? 0, noBalls: b.NoBalls ?? 0,
+      dots: b.Dots ?? b.DotBalls ?? 0,
+    })).filter((b: BowlingRow) => b.name);
+    return { name: `${teamName} Inning ${n}`, total: totalStr, batting, bowling };
+  };
+  const results: InningData[] = [];
+  for (const n of [1, 2]) {
+    try {
+      const r = await fetch(`${IPL_STATS_S3}/${matchId}-Innings${n}.js`, {
+        headers: { "User-Agent": "Mozilla/5.0 (compatible; IPLFetcher/1.0)" },
+        signal: AbortSignal.timeout(6000),
+      });
+      if (!r.ok) break;
+      const text = await r.text();
+      const cleaned = text.replace(/^[A-Za-z_$][A-Za-z0-9_$]*\(/, "").replace(/\)\s*;?\s*$/, "");
+      const parsed = JSON.parse(cleaned);
+      const inning = parseInning(parsed, n);
+      if (inning && (inning.batting.length > 0 || inning.bowling.length > 0)) results.push(inning);
+    } catch { break; }
+  }
+  return results;
+}
+
+async function doRefreshAllStats(force = false): Promise<{ matchesFetched: number; errors: number }> {
+  if (allStatsRefreshing) return { matchesFetched: 0, errors: 0 };
+  if (!force && Date.now() - allStatsLastRefresh < 5 * 60 * 1000) return { matchesFetched: allStatsMatchCount, errors: 0 };
+  allStatsRefreshing = true;
+  let fetched = 0;
+  let errors = 0;
+  try {
+    const schedRes = await fetch(`${IPL_STATS_S3}/${IPL_STATS_COMP}-matchschedule.js`, {
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; IPLFetcher/1.0)" },
+      signal: AbortSignal.timeout(12000),
+    });
+    if (!schedRes.ok) return { matchesFetched: 0, errors: 1 };
+    const schedText = await schedRes.text();
+    const cleaned = schedText.replace(/^[A-Za-z_$][A-Za-z0-9_$]*\(/, "").replace(/\)\s*;?\s*$/, "");
+    const schedData = JSON.parse(cleaned);
+    const allMatches: any[] = schedData?.Matchsummary || schedData?.AppMatchSchedule?.Match || schedData?.MatchSchedule?.Match || [];
+    const completedIds: string[] = allMatches
+      .filter((m: any) => {
+        const s = String(m?.MatchStatus || "").toLowerCase();
+        return s === "post" || s === "result" || s === "completed" || s === "match over";
+      })
+      .map((m: any) => String(m?.MatchID || m?.MatchId || ""))
+      .filter(Boolean);
+    console.log(`[stats-refresh] Found ${completedIds.length} completed matches to fetch from S3`);
+    if (force) allStatsInningsCache.clear();
+    const batchSize = 4;
+    for (let i = 0; i < completedIds.length; i += batchSize) {
+      const batch = completedIds.slice(i, i + batchSize);
+      await Promise.all(batch.map(async (matchId) => {
+        if (!force && allStatsInningsCache.has(matchId)) return;
+        try {
+          const innings = await fetchS3InningsForStats(matchId);
+          if (innings.length > 0) {
+            allStatsInningsCache.set(matchId, { innings, fetched: Date.now() });
+            fetched++;
+          }
+        } catch { errors++; }
+      }));
+    }
+    allStatsLastRefresh = Date.now();
+    allStatsMatchCount = allStatsInningsCache.size;
+    console.log(`[stats-refresh] Done: ${allStatsInningsCache.size} matches in stats cache, ${errors} errors`);
+  } catch (e) {
+    console.error("[stats-refresh] Schedule fetch failed:", e);
+    errors++;
+  } finally {
+    allStatsRefreshing = false;
+  }
+  return { matchesFetched: fetched, errors };
+}
+
+// Warm the stats cache on startup
+doRefreshAllStats().catch(() => {});
+
+function buildStatsResponse() {
   const ALL_FANTASY_NAMES = Object.values(FANTASY_TEAMS_EXPORT).flatMap(t => t);
-  const battingStats: Record<string, { runs: number; fours: number; sixes: number; balls: number; innings: number; notOuts: number; hs: number }> = {};
+  const battingStats: Record<string, { runs: number; fours: number; sixes: number; balls: number; innings: number; notOuts: number; hs: number; team: string }> = {};
   const bowlingStats: Record<string, { wickets: number; balls: number; runs: number; innings: number; bestW: number; bestR: number }> = {};
 
-  for (const [matchId, matchData] of Object.entries(pointsCache.processedMatches)) {
-    // Prefer in-memory S3 cache (fresh final data) over the JSON file snapshot
-    const s3Entry = s3InningsCache.get(matchId);
-    const inningsToUse = s3Entry?.data ?? matchData.innings ?? [];
+  // Use allStatsInningsCache (all S3 matches) as primary source
+  // Fall back to processedMatches for any IDs not in allStatsInningsCache
+  const allMatchIds = new Set([
+    ...allStatsInningsCache.keys(),
+    ...Object.keys(pointsCache.processedMatches),
+  ]);
+
+  for (const matchId of allMatchIds) {
+    const s3Entry = allStatsInningsCache.get(matchId);
+    const processed = pointsCache.processedMatches[matchId];
+    const s3Legacy = s3InningsCache.get(matchId);
+    const inningsToUse: InningData[] = s3Entry?.innings ?? s3Legacy?.data ?? processed?.innings ?? [];
+
     for (const inning of inningsToUse) {
+      const inningTeam = (inning.name || "").replace(/ Inning \d+$/, "").trim();
       for (const bat of inning.batting || []) {
         if (bat.dnb || !bat.name) continue;
         const k = bat.name.replace(/\s*\(.*?\)\s*/g, " ").trim();
-        if (!battingStats[k]) battingStats[k] = { runs: 0, fours: 0, sixes: 0, balls: 0, innings: 0, notOuts: 0, hs: 0 };
+        if (!k) continue;
+        if (!battingStats[k]) battingStats[k] = { runs: 0, fours: 0, sixes: 0, balls: 0, innings: 0, notOuts: 0, hs: 0, team: inningTeam };
         battingStats[k].runs += bat.runs || 0;
         battingStats[k].fours += bat.fours || 0;
         battingStats[k].sixes += bat.sixes || 0;
         battingStats[k].balls += bat.balls || 0;
         battingStats[k].innings += 1;
         if (bat.notOut) battingStats[k].notOuts += 1;
-        if ((bat.runs || 0) > battingStats[k].hs) battingStats[k].hs = bat.runs;
+        if ((bat.runs || 0) > battingStats[k].hs) battingStats[k].hs = bat.runs || 0;
       }
       for (const bowl of inning.bowling || []) {
         if (!bowl.name) continue;
         const k = bowl.name.replace(/\s*\(.*?\)\s*/g, " ").trim();
+        if (!k) continue;
         if (!bowlingStats[k]) bowlingStats[k] = { wickets: 0, balls: 0, runs: 0, innings: 0, bestW: 0, bestR: 999 };
         bowlingStats[k].wickets += bowl.wickets || 0;
         bowlingStats[k].balls += parseOversTooBalls(bowl.overs || "0");
         bowlingStats[k].runs += bowl.runs || 0;
         bowlingStats[k].innings += 1;
-        if ((bowl.wickets || 0) > bowlingStats[k].bestW || ((bowl.wickets || 0) === bowlingStats[k].bestW && (bowl.runs || 0) < bowlingStats[k].bestR)) {
+        if ((bowl.wickets || 0) > bowlingStats[k].bestW ||
+            ((bowl.wickets || 0) === bowlingStats[k].bestW && (bowl.runs || 0) < bowlingStats[k].bestR)) {
           bowlingStats[k].bestW = bowl.wickets || 0;
           bowlingStats[k].bestR = bowl.runs || 0;
         }
@@ -1394,7 +1507,8 @@ router.get("/ipl/stats", (req, res) => {
   const isFantasy = (name: string) => ALL_FANTASY_NAMES.some(n => namesMatch(n, name));
 
   const batters = Object.entries(battingStats).map(([name, s]) => ({
-    name, runs: s.runs, fours: s.fours, sixes: s.sixes, balls: s.balls, innings: s.innings, notOuts: s.notOuts, hs: s.hs,
+    name, runs: s.runs, fours: s.fours, sixes: s.sixes, balls: s.balls,
+    innings: s.innings, notOuts: s.notOuts, hs: s.hs, team: s.team,
     avg: s.innings > s.notOuts ? +(s.runs / (s.innings - s.notOuts)).toFixed(1) : s.runs,
     sr: s.balls > 0 ? +((s.runs / s.balls) * 100).toFixed(1) : 0,
     isFantasy: isFantasy(name),
@@ -1409,16 +1523,32 @@ router.get("/ipl/stats", (req, res) => {
     isFantasy: isFantasy(name),
   }));
 
-  res.json({
+  return {
     orangeCap: [...batters].sort((a, b) => b.runs - a.runs || b.sr - a.sr),
     purpleCap: [...bowlers].sort((a, b) => b.wickets - a.wickets || a.eco - b.eco),
     sixesLeader: [...batters].sort((a, b) => b.sixes - a.sixes),
     foursLeader: [...batters].sort((a, b) => b.fours - a.fours),
     srLeader: [...batters].filter(b => b.balls >= 10).sort((a, b) => b.sr - a.sr),
     ecoLeader: [...bowlers].filter(b => b.balls >= 12).sort((a, b) => a.eco - b.eco),
-    matchesProcessed: Object.keys(pointsCache.processedMatches).length,
+    matchesProcessed: allStatsInningsCache.size,
     timestamp: new Date().toISOString(),
-  });
+  };
+}
+
+router.get("/ipl/stats", (_req, res) => {
+  // Always check if we should refresh (respects 5-min TTL, fires in background)
+  if (!allStatsRefreshing) doRefreshAllStats().catch(() => {});
+  res.json(buildStatsResponse());
+});
+
+// Admin: force re-fetch all innings from S3 and rebuild stats cache
+router.post("/ipl/stats/refresh", async (req, res) => {
+  try {
+    const result = await doRefreshAllStats(true);
+    res.json({ ok: true, ...result, matchesInCache: allStatsInningsCache.size });
+  } catch (e: any) {
+    res.status(500).json({ ok: false, error: e?.message || "Unknown error" });
+  }
 });
 
 const FANTASY_TEAMS_EXPORT: Record<string, string[]> = {
