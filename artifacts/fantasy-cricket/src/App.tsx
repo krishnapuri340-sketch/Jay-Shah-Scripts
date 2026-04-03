@@ -2767,7 +2767,7 @@ export default function App() {
                       ...p, isCap: p.name === t.captain, isVC: p.name === t.vc,
                       pts: getAdj(p.name, mn),
                     })).sort((a, b) => b.pts - a.pts);
-                    const top11 = new Set(players.slice(0, 11).map(p => p.name));
+                    const top11 = td.top11;
                     const total = players.filter(p => top11.has(p.name)).reduce((s, p) => s + p.pts, 0);
                     return { mn, label: matchLabels[mn] || `Match ${mn}`, players, top11, total };
                   });
