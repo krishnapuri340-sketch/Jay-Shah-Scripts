@@ -1,4 +1,4 @@
-const SHELL_CACHE = "ipl-shell-v4";
+const SHELL_CACHE = "ipl-shell-v5";
 const SHELL_ASSETS = ["/", "/index.html", "/manifest.json", "/app-icon.png"];
 
 self.addEventListener("install", e => {
@@ -11,7 +11,11 @@ self.addEventListener("activate", e => {
   e.waitUntil(
     caches.keys().then(keys =>
       Promise.all(keys.filter(k => k !== SHELL_CACHE).map(k => caches.delete(k)))
-    ).then(() => clients.claim())
+    ).then(() => clients.claim()).then(() =>
+      clients.matchAll({ type: "window", includeUncontrolled: true }).then(all =>
+        all.forEach(c => c.postMessage({ type: "SW_UPDATED" }))
+      )
+    )
   );
 });
 

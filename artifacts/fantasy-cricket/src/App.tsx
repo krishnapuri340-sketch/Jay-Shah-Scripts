@@ -986,11 +986,13 @@ export default function App() {
     if (currentUser === "rajveer") fetchPins();
   }, [currentUser]);
 
-  // Register service worker for PWA offline support
+  // Register service worker for PWA offline support — auto-reload on SW update
   useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(() => {});
-    }
+    if (!('serviceWorker' in navigator)) return;
+    navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(() => {});
+    const onMsg = (e: MessageEvent) => { if (e.data?.type === "SW_UPDATED") window.location.reload(); };
+    navigator.serviceWorker.addEventListener("message", onMsg);
+    return () => navigator.serviceWorker.removeEventListener("message", onMsg);
   }, []);
 
   // Adaptive polling — split by data freshness needs:
