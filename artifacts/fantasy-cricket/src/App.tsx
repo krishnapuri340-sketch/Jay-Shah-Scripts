@@ -4517,12 +4517,14 @@ export default function App() {
             </div>
           </div>
 
-          {tab === "home" && renderHome()}
-          {tab === "teams" && renderTeams()}
-          {tab === "fixtures" && renderFixtures()}
-          {tab === "stats" && renderStats()}
-          {tab === "history" && renderHistory()}
-          {tab === "admin" && renderAdmin()}
+          <div key={tab} className="tab-enter" style={{minHeight:0}}>
+            {tab === "home" && renderHome()}
+            {tab === "teams" && renderTeams()}
+            {tab === "fixtures" && renderFixtures()}
+            {tab === "stats" && renderStats()}
+            {tab === "history" && renderHistory()}
+            {tab === "admin" && renderAdmin()}
+          </div>
         </div>
 
         <nav className="nav">
