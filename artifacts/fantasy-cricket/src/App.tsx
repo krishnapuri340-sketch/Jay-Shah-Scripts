@@ -887,7 +887,9 @@ export default function App() {
   //   Live status (fetchLive, standings): 20 s  — free IPL API, needs to be fast
   //   Points / stats:                     60 s  — server only recalculates every 60 s (CricAPI cooldown)
   //   Idle (no live match):               60 min — nothing is changing
-  const isAnyMatchLive = liveMatches.some((m: any) => m.matchStarted && !m.matchEnded);
+  const isAnyMatchLive = useMemo(() =>
+    liveMatches.some((m: any) => m.matchStarted && !m.matchEnded),
+  [liveMatches]);
 
   // Reset home/away sub-filter whenever the team filter is changed
   useEffect(() => { setFixtureHomeAwayFilter("all"); }, [teamFilter]);
@@ -996,20 +998,30 @@ export default function App() {
     };
   }, []);
 
-  const teamScores = Object.keys(FANTASY_TEAMS)
-    .map(id => ({ id, ...getTeamData(id, playerPoints), team: FANTASY_TEAMS[id] }))
-    .sort((a, b) => b.total - a.total);
+  const teamScores = useMemo(() =>
+    Object.keys(FANTASY_TEAMS)
+      .map(id => ({ id, ...getTeamData(id, playerPoints), team: FANTASY_TEAMS[id] }))
+      .sort((a, b) => b.total - a.total),
+  [playerPoints]);
 
-
-  // Countdown to next match
+  // Countdown to next match — only triggers a re-render when the displayed text
+  // actually changes, preventing the 1-second ticker from re-running all memoized
+  // computations on every tick.
+  const countdownPrevRef = useRef<string | null>(null);
   useEffect(() => {
     const update = () => {
       const upcoming = liveMatches
         .filter((m: any) => !m.matchStarted && m.dateTimeGMT)
         .sort((a: any, b: any) => new Date(a.dateTimeGMT).getTime() - new Date(b.dateTimeGMT).getTime())[0];
-      if (!upcoming) { setCountdown(null); return; }
+      if (!upcoming) {
+        if (countdownPrevRef.current !== null) { countdownPrevRef.current = null; setCountdown(null); }
+        return;
+      }
       const diff = new Date(upcoming.dateTimeGMT).getTime() - Date.now();
-      if (diff <= 0) { setCountdown(null); return; }
+      if (diff <= 0) {
+        if (countdownPrevRef.current !== null) { countdownPrevRef.current = null; setCountdown(null); }
+        return;
+      }
       const days = Math.floor(diff / 86400000);
       const hrs = Math.floor((diff % 86400000) / 3600000);
       const mins = Math.floor((diff % 3600000) / 60000);
@@ -1017,6 +1029,8 @@ export default function App() {
       const text = days > 0
         ? `${days}D ${String(hrs).padStart(2,"0")}H ${String(mins).padStart(2,"0")}M`
         : `${String(hrs).padStart(2,"0")}:${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
+      if (countdownPrevRef.current === text) return; // no state update if text unchanged
+      countdownPrevRef.current = text;
       const homeTeam = upcoming.homeTeamCode || upcoming.teamInfo?.[0]?.shortname || "";
       const awayTeam = upcoming.awayTeamCode || upcoming.teamInfo?.[1]?.shortname || "";
       setCountdown({ text, matchName: upcoming.name, venue: upcoming.venue || "", homeTeam, awayTeam });
@@ -1026,23 +1040,21 @@ export default function App() {
     return () => clearInterval(id);
   }, [liveMatches]);
 
-
   // Hot players: scored >= 25 pts in most recent match
-  const hotPlayers = new Set<string>(
+  const hotPlayers = useMemo(() => new Set<string>(
     Object.entries(playerMatchPoints)
       .filter(([, matches]) => {
         const sorted = [...matches].sort((a, b) => b.matchNum - a.matchNum);
         return sorted.length > 0 && sorted[0].pts >= 25;
       })
       .map(([name]) => name)
-  );
+  ), [playerMatchPoints]);
 
   // Per-team match-by-match cumulative points (for chart)
-  const matchHistory = (() => {
+  const matchHistory = useMemo(() => {
     const allNums = new Set<number>();
-    const labels: Record<number, string> = {};
     for (const matches of Object.values(playerMatchPoints)) {
-      for (const e of matches) { allNums.add(e.matchNum); labels[e.matchNum] = e.label; }
+      for (const e of matches) { allNums.add(e.matchNum); }
     }
     const sorted = [...allNums].sort((a, b) => a - b);
     return Object.entries(FANTASY_TEAMS).map(([teamId, team]) => {
@@ -1061,7 +1073,7 @@ export default function App() {
       });
       return { teamId, color: team.color, name: team.name, emoji: team.emoji, points };
     });
-  })();
+  }, [playerMatchPoints]);
 
   const shareLeaderboard = async () => {
     const W = 1080, H = 1000, PAD = 64;
@@ -1779,19 +1791,21 @@ export default function App() {
 
 
   // Currently LIVE matches (started, not ended)
-  const liveMatchPreviews = buildMatchPreviews(
-    liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded)
-  );
+  const liveMatchPreviews = useMemo(() =>
+    buildMatchPreviews(liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded)),
+  [liveMatches]);
 
   // All upcoming matches within the next 24 hours — handles double-headers
-  const upcomingLineupPreviews = buildMatchPreviews(
-    liveMatches
-      .filter((m: any) => !m.matchStarted && m.dateTimeGMT)
-      .map((m: any) => ({ m, diff: new Date(m.dateTimeGMT).getTime() - Date.now() }))
-      .filter(({ diff }) => diff > 0 && diff <= 24 * 60 * 60 * 1000)
-      .sort((a, b) => a.diff - b.diff)
-      .map(({ m }) => m)
-  );
+  const upcomingLineupPreviews = useMemo(() =>
+    buildMatchPreviews(
+      liveMatches
+        .filter((m: any) => !m.matchStarted && m.dateTimeGMT)
+        .map((m: any) => ({ m, diff: new Date(m.dateTimeGMT).getTime() - Date.now() }))
+        .filter(({ diff }) => diff > 0 && diff <= 24 * 60 * 60 * 1000)
+        .sort((a, b) => a.diff - b.diff)
+        .map(({ m }) => m)
+    ),
+  [liveMatches]);
 
   const renderHistory = () => {
     const s = historyYear ? IPL_HISTORY.find(h => h.year === historyYear) : null;
