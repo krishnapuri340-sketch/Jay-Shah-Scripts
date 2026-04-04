@@ -3803,13 +3803,7 @@ export default function App() {
                       if (seen.has(entry.name)) continue;
                       seen.add(entry.name);
                       const fi = fantasyPlayerMap.get(entry.name);
-                      all.push({ name: entry.name, pts: playerPoints[entry.name] ?? 0, isFantasy: !!fi, color: fi?.color ?? "var(--text-3)", owner: fi?.owner ?? "" });
-                    }
-                    for (const [name, pts] of Object.entries(playerPoints)) {
-                      if (seen.has(name)) continue;
-                      seen.add(name);
-                      const fi = fantasyPlayerMap.get(name);
-                      all.push({ name, pts, isFantasy: !!fi, color: fi?.color ?? "var(--text-3)", owner: fi?.owner ?? "" });
+                      all.push({ name: entry.name, pts: entry.fantasyPts ?? playerPoints[entry.name] ?? 0, isFantasy: !!fi, color: fi?.color ?? "var(--text-3)", owner: fi?.owner ?? "" });
                     }
                     return all.sort((a, b) => b.pts - a.pts);
                   })();

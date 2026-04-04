@@ -1466,9 +1466,9 @@ function buildStatsResponse() {
   const ALL_FANTASY_NAMES = Object.values(FANTASY_TEAMS_EXPORT).flatMap(t => t);
   const battingStats: Record<string, { runs: number; fours: number; sixes: number; balls: number; innings: number; notOuts: number; hs: number; team: string }> = {};
   const bowlingStats: Record<string, { wickets: number; balls: number; runs: number; innings: number; bestW: number; bestR: number }> = {};
+  // Per-player accumulated fantasy points computed from per-match batting+bowling
+  const playerFantasyPts: Record<string, number> = {};
 
-  // Use allStatsInningsCache (all S3 matches) as primary source
-  // Fall back to processedMatches for any IDs not in allStatsInningsCache
   const allMatchIds = new Set([
     ...allStatsInningsCache.keys(),
     ...Object.keys(pointsCache.processedMatches),
@@ -1479,6 +1479,13 @@ function buildStatsResponse() {
     const processed = pointsCache.processedMatches[matchId];
     const s3Legacy = s3InningsCache.get(matchId);
     const inningsToUse: InningData[] = s3Entry?.innings ?? s3Legacy?.data ?? processed?.innings ?? [];
+
+    // Build per-player stats for this match to compute fantasy pts accurately
+    const matchStats: Record<string, PlayerStats> = {};
+    const getMs = (k: string) => {
+      if (!matchStats[k]) matchStats[k] = { played: true, runs: 0, balls: 0, fours: 0, sixes: 0, duck: false, wickets: 0, dots: 0, lbwBowled: 0, maidens: 0, ballsBowled: 0, runsConceded: 0, catches: 0, runOuts: 0, stumpings: 0 };
+      return matchStats[k];
+    };
 
     for (const inning of inningsToUse) {
       const inningTeam = (inning.name || "").replace(/ Inning \d+$/, "").trim();
@@ -1494,14 +1501,22 @@ function buildStatsResponse() {
         battingStats[k].innings += 1;
         if (bat.notOut) battingStats[k].notOuts += 1;
         if ((bat.runs || 0) > battingStats[k].hs) battingStats[k].hs = bat.runs || 0;
+        // Per-match fantasy pts accumulation
+        const ms = getMs(k);
+        ms.runs += bat.runs || 0;
+        ms.balls += bat.balls || 0;
+        ms.fours += bat.fours || 0;
+        ms.sixes += bat.sixes || 0;
+        if (!bat.notOut && (bat.runs || 0) === 0 && (bat.balls || 0) > 0) ms.duck = true;
       }
       for (const bowl of inning.bowling || []) {
         if (!bowl.name) continue;
         const k = bowl.name.replace(/\s*\(.*?\)\s*/g, " ").trim();
         if (!k) continue;
         if (!bowlingStats[k]) bowlingStats[k] = { wickets: 0, balls: 0, runs: 0, innings: 0, bestW: 0, bestR: 999 };
+        const bowlBalls = parseOversTooBalls(bowl.overs || "0");
         bowlingStats[k].wickets += bowl.wickets || 0;
-        bowlingStats[k].balls += parseOversTooBalls(bowl.overs || "0");
+        bowlingStats[k].balls += bowlBalls;
         bowlingStats[k].runs += bowl.runs || 0;
         bowlingStats[k].innings += 1;
         if ((bowl.wickets || 0) > bowlingStats[k].bestW ||
@@ -1509,7 +1524,19 @@ function buildStatsResponse() {
           bowlingStats[k].bestW = bowl.wickets || 0;
           bowlingStats[k].bestR = bowl.runs || 0;
         }
+        // Per-match fantasy pts accumulation
+        const ms = getMs(k);
+        ms.wickets += bowl.wickets || 0;
+        ms.dots += bowl.dots || 0;
+        ms.maidens += bowl.maidens || 0;
+        ms.ballsBowled += bowlBalls;
+        ms.runsConceded += bowl.runs || 0;
       }
+    }
+
+    // Compute and accumulate fantasy pts for each player in this match
+    for (const [name, stats] of Object.entries(matchStats)) {
+      playerFantasyPts[name] = (playerFantasyPts[name] || 0) + calcPoints(stats);
     }
   }
 
@@ -1521,6 +1548,7 @@ function buildStatsResponse() {
     avg: s.innings > s.notOuts ? +(s.runs / (s.innings - s.notOuts)).toFixed(1) : s.runs,
     sr: s.balls > 0 ? +((s.runs / s.balls) * 100).toFixed(1) : 0,
     isFantasy: isFantasy(name),
+    fantasyPts: playerFantasyPts[name] ?? 0,
   }));
 
   const ballsToOversDisplay = (balls: number) => `${Math.floor(balls / 6)}.${balls % 6}`;
@@ -1531,6 +1559,7 @@ function buildStatsResponse() {
     avg: s.wickets > 0 ? +(s.runs / s.wickets).toFixed(1) : 999,
     best: `${s.bestW}/${s.bestR === 999 ? 0 : s.bestR}`,
     isFantasy: isFantasy(name),
+    fantasyPts: playerFantasyPts[name] ?? 0,
   }));
 
   return {
