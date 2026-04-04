@@ -2795,7 +2795,7 @@ export default function App() {
                       <span style={{ fontSize: "0.61rem", fontWeight: 600, color: "var(--text-3)", letterSpacing: "0.055em", textTransform: "uppercase" as const }}>Reserves</span>
                       <span style={{ fontSize: "0.76rem", fontWeight: 800, color: "var(--text-2)", fontFamily: "'Oswald', sans-serif", letterSpacing: "0.01em" }}>{bench.length}</span>
                       {Object.keys(playerPoints).length > 0 && benchTotal > 0 && (
-                        <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "var(--text-2)", fontFamily: "'Oswald', sans-serif", letterSpacing: "-0.005em" }}>{benchTotal}</span>
+                        <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "var(--text-2)", fontFamily: "'Oswald', sans-serif", letterSpacing: "-0.005em", marginLeft: "auto" }}>{benchTotal}</span>
                       )}
                     </div>
                     <svg width="10" height="6" viewBox="0 0 10 6" fill="none" style={{ transition: "transform 0.35s cubic-bezier(0.34,1.56,0.64,1)", transform: benchOpen ? "rotate(180deg)" : "none", flexShrink: 0, opacity: 0.7 }}>
