@@ -230,18 +230,15 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
   };
   const bgOverlay: React.CSSProperties = {
     position: "absolute", inset: 0, pointerEvents: "none",
-    background: `
-      radial-gradient(ellipse 80% 40% at 50% 0%, rgba(245,155,25,0.08) 0%, transparent 55%),
-      linear-gradient(to bottom,
-        rgba(4,2,1,0.97) 0%,
-        rgba(4,2,1,0.82) 15%,
-        rgba(4,2,1,0.55) 30%,
-        rgba(4,2,1,0.28) 48%,
-        rgba(4,2,1,0.10) 65%,
-        rgba(4,2,1,0.08) 80%,
-        rgba(4,2,1,0.32) 100%
-      )
-    `,
+    background: `linear-gradient(to bottom,
+      rgba(4,2,1,0.98) 0%,
+      rgba(4,2,1,0.88) 12%,
+      rgba(4,2,1,0.62) 28%,
+      rgba(4,2,1,0.32) 44%,
+      rgba(4,2,1,0.12) 62%,
+      rgba(4,2,1,0.06) 78%,
+      rgba(4,2,1,0.22) 100%
+    )`,
   };
 
   if (sel) {
@@ -293,23 +290,20 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
           {checking && <div style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.4)", marginBottom: 12, letterSpacing: "0.06em" }}>Checking…</div>}
 
           {/* Numpad — frosted glass keys */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 76px)", gap: 11, width: "fit-content", opacity: checking ? 0.4 : 1, pointerEvents: checking ? "none" : "auto" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 76px)", gap: 12, width: "fit-content", opacity: checking ? 0.4 : 1, pointerEvents: checking ? "none" : "auto" }}>
             {["1","2","3","4","5","6","7","8","9","","0","⌫"].map((k, i) => (
               k === "" ? <div key={i} /> :
               <button key={i} className="num-key" onClick={() => k === "⌫" ? back() : digit(k)} style={{
-                background: k === "⌫"
-                  ? "rgba(255,80,80,0.13)"
-                  : `linear-gradient(170deg, ${ft.color}09 0%, rgba(255,255,255,0.08) 100%)`,
-                border: `1px solid ${k === "⌫" ? "rgba(255,100,100,0.28)" : `${ft.color}28`}`,
+                background: k === "⌫" ? "rgba(255,80,80,0.15)" : "rgba(255,255,255,0.11)",
+                border: `1px solid ${k === "⌫" ? "rgba(255,100,100,0.3)" : "rgba(255,255,255,0.22)"}`,
                 borderRadius: 22, width: 76, height: 76,
-                fontSize: k === "⌫" ? "1.25rem" : "1.7rem", fontWeight: 300,
+                fontSize: k === "⌫" ? "1.2rem" : "1.65rem", fontWeight: 300,
                 color: k === "⌫" ? "#ff8888" : "#fff",
-                cursor: "pointer", fontFamily: "'Oswald', sans-serif",
+                cursor: "pointer", fontFamily: "inherit",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                backdropFilter: "blur(32px) saturate(1.9)",
-                WebkitBackdropFilter: "blur(32px) saturate(1.9)",
-                boxShadow: `inset 0 1.5px 0 rgba(255,255,255,0.16), 0 5px 22px rgba(0,0,0,0.32)`,
-                letterSpacing: "-0.02em",
+                backdropFilter: "blur(32px) saturate(1.8)",
+                WebkitBackdropFilter: "blur(32px) saturate(1.8)",
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.2), 0 4px 20px rgba(0,0,0,0.25)",
               }}>{k}</button>
             ))}
           </div>
@@ -327,13 +321,11 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
         @keyframes team-card-in { from { opacity:0; transform:scale(0.88) translateY(18px); } to { opacity:1; transform:scale(1) translateY(0); } }
         @keyframes welcome-pop { from { opacity:0; transform:scale(0.88) translateY(8px); } to { opacity:1; transform:scale(1) translateY(0); } }
         @keyframes login-icon-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes card-shimmer { 0%{transform:translateX(-110%) skewX(-18deg)} 100%{transform:translateX(240%) skewX(-18deg)} }
-        .team-card { transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) !important; position: relative; overflow: hidden; -webkit-backdrop-filter: blur(40px) saturate(2); backdrop-filter: blur(40px) saturate(2); }
-        .team-card::before { content: ""; position: absolute; inset: 0; background: linear-gradient(160deg, rgba(255,255,255,0.09) 0%, transparent 55%); opacity: 0; transition: opacity 0.25s ease; border-radius: inherit; pointer-events: none; }
-        .team-card::after { content: ""; position: absolute; top: 0; left: 0; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent); opacity: 0; border-radius: inherit; pointer-events: none; transition: opacity 0.2s; }
-        .team-card:hover { transform: translateY(-5px) scale(1.025) !important; }
+        .team-card { transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) !important; position: relative; overflow: hidden; -webkit-backdrop-filter: blur(36px) saturate(1.8); backdrop-filter: blur(36px) saturate(1.8); }
+        .team-card::before { content: ""; position: absolute; inset: 0; background: linear-gradient(160deg, rgba(255,255,255,0.07) 0%, transparent 55%); opacity: 0; transition: opacity 0.25s ease; border-radius: inherit; }
+        .team-card:hover { transform: translateY(-4px) scale(1.01) !important; }
         .team-card:hover::before { opacity: 1; }
-        .team-card:active { transform: scale(0.94) !important; transition: all 0.1s ease !important; }
+        .team-card:active { transform: scale(0.95) !important; transition: all 0.1s ease !important; }
       `}</style>
 
       {/* Logo area */}
@@ -395,21 +387,21 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
       <div style={{ position: "relative", zIndex: 2, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, width: "100%", maxWidth: 400 }}>
         {Object.values(FANTASY_TEAMS).map((ft, idx) => (
           <button key={ft.id} className="team-card" onClick={() => setSel(ft.id)} style={{
-            background: `linear-gradient(170deg, ${ft.color}0d 0%, rgba(10,7,4,0.38) 38%, rgba(6,4,2,0.25) 100%)`,
-            border: `1px solid ${ft.color}38`,
+            background: "rgba(8,5,3,0.25)",
+            border: "1px solid rgba(255,255,255,0.18)",
             borderRadius: 24, padding: "26px 16px 22px",
             cursor: "pointer", fontFamily: "inherit",
             display: "flex", flexDirection: "column" as const, alignItems: "center",
-            boxShadow: `inset 0 2px 0 ${ft.color}22, 0 14px 48px rgba(0,0,0,0.6), 0 0 0 1px ${ft.color}12, 0 0 40px ${ft.color}14`,
+            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.22), inset 0 -1px 0 rgba(0,0,0,0.2), 0 8px 32px rgba(0,0,0,0.4)",
             animation: `team-card-in 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) ${idx * 0.09 + 0.1}s both`,
+            backdropFilter: "blur(36px) saturate(1.8)",
+            WebkitBackdropFilter: "blur(36px) saturate(1.8)",
           }}>
-            {/* Team color top accent */}
-            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2.5px", borderRadius: "24px 24px 0 0", background: `linear-gradient(90deg, transparent, ${ft.color}, transparent)`, opacity: 0.85 }} />
-            <div style={{ width: 68, height: 68, borderRadius: "50%", border: `2.5px solid ${ft.color}70`, overflow: "hidden", marginBottom: 14, boxShadow: `0 0 0 3px ${ft.color}1c, 0 0 20px ${ft.color}38, 0 6px 24px rgba(0,0,0,0.55)`, flexShrink: 0, position: "relative" as const }}>
+            <div style={{ width: 66, height: 66, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.22)", overflow: "hidden", marginBottom: 14, boxShadow: "0 0 0 4px rgba(255,255,255,0.06), 0 6px 24px rgba(0,0,0,0.45)", flexShrink: 0, position: "relative" as const }}>
               <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center center", display: "block" }} />
             </div>
-            <div style={{ fontSize: "1rem", fontWeight: 800, color: "#fff", marginBottom: 5, letterSpacing: "-0.02em", textShadow: `0 1px 12px rgba(0,0,0,0.9), 0 0 28px ${ft.color}18` }}>{ft.owner}</div>
-            <div style={{ fontSize: "0.62rem", color: ft.color, fontWeight: 700, lineHeight: 1.4, letterSpacing: "0.04em", textShadow: `0 0 12px ${ft.color}66` }}>{ft.name}</div>
+            <div style={{ fontSize: "1rem", fontWeight: 800, color: "#fff", marginBottom: 5, letterSpacing: "-0.02em", textShadow: "0 1px 12px rgba(0,0,0,0.7)" }}>{ft.owner}</div>
+            <div style={{ fontSize: "0.62rem", color: ft.color, fontWeight: 700, lineHeight: 1.4, letterSpacing: "0.04em" }}>{ft.name}</div>
           </button>
         ))}
       </div>
@@ -434,7 +426,7 @@ const TABS = [
   { id: "history",  label: "History"      },
 ];
 
-const NAV_ICON: Record<string, React.ReactNode> = {
+const NAV_ICON: Record<string, JSX.Element> = {
   home: (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
       <path d="M8 21h8M12 17v4M17 3h3v5c0 2.5-1.5 4-4 4M7 3H4v5c0 2.5 1.5 4 4 4"/><path d="M7 3h10v8a5 5 0 0 1-10 0V3z"/>
@@ -506,7 +498,6 @@ export default function App() {
   const [playerMatchPoints, setPlayerMatchPoints] = useState<Record<string, Array<{ matchNum: number; label: string; pts: number; source: string; stats?: PlayerStats }>>>({});
   const [iplIdToMatchNum, setIplIdToMatchNum] = useState<Record<string, number>>({});
   const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
-  const [xiOpen, setXIOpen] = useState(true);
   const [benchOpen, setBenchOpen] = useState(false);
   const [matchPtsOpen, setMatchPtsOpen] = useState(false);
   const [expandedMatchNums, setExpandedMatchNums] = useState<Set<number>>(new Set());
@@ -575,12 +566,12 @@ export default function App() {
   // PTR refs
   const pullState = useRef({ active: false, startY: 0, startX: 0 });
   const pullYRef = useRef(0);
-  const sparkTipTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const sparkTipTimer = useRef<ReturnType<typeof setTimeout>>();
   // Always-fresh ref to refresh fn (avoids stale closure in PTR listener)
   const refreshFnRef = useRef(() => {});
   const [countdown, setCountdown] = useState<{ text: string; matchName: string; venue?: string; homeTeam?: string; awayTeam?: string } | null>(null);
   const [currentUser, setCurrentUser] = useState<string | null>(() => localStorage.getItem("ipl-current-user"));
-  const [userPins, setUserPins] = useState<Record<string, string>>(loadPins());
+  const [userPins, setUserPins] = useState<Record<string, string>>(loadPins);
   const [pinEditTarget, setPinEditTarget] = useState<string | null>(null);
   const [pinEditVal, setPinEditVal] = useState("");
   const [pinConfirmVal, setPinConfirmVal] = useState("");
@@ -893,9 +884,7 @@ export default function App() {
   //   Live status (fetchLive, standings): 20 s  — free IPL API, needs to be fast
   //   Points / stats:                     60 s  — server only recalculates every 60 s (CricAPI cooldown)
   //   Idle (no live match):               60 min — nothing is changing
-  const isAnyMatchLive = useMemo(() =>
-    liveMatches.some((m: any) => m.matchStarted && !m.matchEnded),
-  [liveMatches]);
+  const isAnyMatchLive = liveMatches.some((m: any) => m.matchStarted && !m.matchEnded);
 
   // Reset home/away sub-filter whenever the team filter is changed
   useEffect(() => { setFixtureHomeAwayFilter("all"); }, [teamFilter]);
@@ -1004,30 +993,20 @@ export default function App() {
     };
   }, []);
 
-  const teamScores = useMemo(() =>
-    Object.keys(FANTASY_TEAMS)
-      .map(id => ({ id, ...getTeamData(id, playerPoints), team: FANTASY_TEAMS[id] }))
-      .sort((a, b) => b.total - a.total),
-  [playerPoints]);
+  const teamScores = Object.keys(FANTASY_TEAMS)
+    .map(id => ({ id, ...getTeamData(id, playerPoints), team: FANTASY_TEAMS[id] }))
+    .sort((a, b) => b.total - a.total);
 
-  // Countdown to next match — only triggers a re-render when the displayed text
-  // actually changes, preventing the 1-second ticker from re-running all memoized
-  // computations on every tick.
-  const countdownPrevRef = useRef<string | null>(null);
+
+  // Countdown to next match
   useEffect(() => {
     const update = () => {
       const upcoming = liveMatches
         .filter((m: any) => !m.matchStarted && m.dateTimeGMT)
         .sort((a: any, b: any) => new Date(a.dateTimeGMT).getTime() - new Date(b.dateTimeGMT).getTime())[0];
-      if (!upcoming) {
-        if (countdownPrevRef.current !== null) { countdownPrevRef.current = null; setCountdown(null); }
-        return;
-      }
+      if (!upcoming) { setCountdown(null); return; }
       const diff = new Date(upcoming.dateTimeGMT).getTime() - Date.now();
-      if (diff <= 0) {
-        if (countdownPrevRef.current !== null) { countdownPrevRef.current = null; setCountdown(null); }
-        return;
-      }
+      if (diff <= 0) { setCountdown(null); return; }
       const days = Math.floor(diff / 86400000);
       const hrs = Math.floor((diff % 86400000) / 3600000);
       const mins = Math.floor((diff % 3600000) / 60000);
@@ -1035,8 +1014,6 @@ export default function App() {
       const text = days > 0
         ? `${days}D ${String(hrs).padStart(2,"0")}H ${String(mins).padStart(2,"0")}M`
         : `${String(hrs).padStart(2,"0")}:${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
-      if (countdownPrevRef.current === text) return; // no state update if text unchanged
-      countdownPrevRef.current = text;
       const homeTeam = upcoming.homeTeamCode || upcoming.teamInfo?.[0]?.shortname || "";
       const awayTeam = upcoming.awayTeamCode || upcoming.teamInfo?.[1]?.shortname || "";
       setCountdown({ text, matchName: upcoming.name, venue: upcoming.venue || "", homeTeam, awayTeam });
@@ -1046,21 +1023,23 @@ export default function App() {
     return () => clearInterval(id);
   }, [liveMatches]);
 
+
   // Hot players: scored >= 25 pts in most recent match
-  const hotPlayers = useMemo(() => new Set<string>(
+  const hotPlayers = new Set<string>(
     Object.entries(playerMatchPoints)
       .filter(([, matches]) => {
         const sorted = [...matches].sort((a, b) => b.matchNum - a.matchNum);
         return sorted.length > 0 && sorted[0].pts >= 25;
       })
       .map(([name]) => name)
-  ), [playerMatchPoints]);
+  );
 
   // Per-team match-by-match cumulative points (for chart)
-  const matchHistory = useMemo(() => {
+  const matchHistory = (() => {
     const allNums = new Set<number>();
+    const labels: Record<number, string> = {};
     for (const matches of Object.values(playerMatchPoints)) {
-      for (const e of matches) { allNums.add(e.matchNum); }
+      for (const e of matches) { allNums.add(e.matchNum); labels[e.matchNum] = e.label; }
     }
     const sorted = [...allNums].sort((a, b) => a - b);
     return Object.entries(FANTASY_TEAMS).map(([teamId, team]) => {
@@ -1079,7 +1058,7 @@ export default function App() {
       });
       return { teamId, color: team.color, name: team.name, emoji: team.emoji, points };
     });
-  }, [playerMatchPoints]);
+  })();
 
   const shareLeaderboard = async () => {
     const W = 1080, H = 1000, PAD = 64;
@@ -1797,21 +1776,19 @@ export default function App() {
 
 
   // Currently LIVE matches (started, not ended)
-  const liveMatchPreviews = useMemo(() =>
-    buildMatchPreviews(liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded)),
-  [liveMatches]);
+  const liveMatchPreviews = buildMatchPreviews(
+    liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded)
+  );
 
   // All upcoming matches within the next 24 hours — handles double-headers
-  const upcomingLineupPreviews = useMemo(() =>
-    buildMatchPreviews(
-      liveMatches
-        .filter((m: any) => !m.matchStarted && m.dateTimeGMT)
-        .map((m: any) => ({ m, diff: new Date(m.dateTimeGMT).getTime() - Date.now() }))
-        .filter(({ diff }) => diff > 0 && diff <= 24 * 60 * 60 * 1000)
-        .sort((a, b) => a.diff - b.diff)
-        .map(({ m }) => m)
-    ),
-  [liveMatches]);
+  const upcomingLineupPreviews = buildMatchPreviews(
+    liveMatches
+      .filter((m: any) => !m.matchStarted && m.dateTimeGMT)
+      .map((m: any) => ({ m, diff: new Date(m.dateTimeGMT).getTime() - Date.now() }))
+      .filter(({ diff }) => diff > 0 && diff <= 24 * 60 * 60 * 1000)
+      .sort((a, b) => a.diff - b.diff)
+      .map(({ m }) => m)
+  );
 
   const renderHistory = () => {
     const s = historyYear ? IPL_HISTORY.find(h => h.year === historyYear) : null;
@@ -1918,7 +1895,7 @@ export default function App() {
                 <div className="hist-top10-hdr" style={{ color: "#f97316" }}><span style={{filter:"hue-rotate(175deg) saturate(3) brightness(1.1)"}}>🧢</span> Top Run-scorers</div>
                 {s.topBat.map((p, i) => (
                   <div key={i} className="hist-top10-row">
-                    <span className={`hist-rk${i < 3 ? " top3" : ""}`}>{i + 1}</span>
+                    <span className="hist-rk">{i + 1}</span>
                     <TeamBadge name={p.team} size={20} />
                     <span className="hist-pname">{p.name}</span>
                     <span className="hist-pval">{p.val}</span>
@@ -1929,7 +1906,7 @@ export default function App() {
                 <div className="hist-top10-hdr" style={{ color: "#7c3aed" }}><span style={{filter:"hue-rotate(25deg) saturate(4) brightness(0.5)"}}>🧢</span> Top Wicket-takers</div>
                 {s.topBwl.map((p, i) => (
                   <div key={i} className="hist-top10-row">
-                    <span className={`hist-rk${i < 3 ? " top3" : ""}`}>{i + 1}</span>
+                    <span className="hist-rk">{i + 1}</span>
                     <TeamBadge name={p.team} size={20} />
                     <span className="hist-pname">{p.name}</span>
                     <span className="hist-pval">{p.val}</span>
@@ -2129,59 +2106,46 @@ export default function App() {
           };
           return (
             <div>
-              {teamScores.map((s, i) => {
-                const leader = teamScores[0];
-                const gap = i > 0 && Object.keys(playerPoints).length > 0 ? leader.total - s.total : 0;
-                return (
+              {teamScores.map((s, i) => (
                 <div key={s.id} className={`lb-card ${i === 0 ? "rank-first" : ""}`} onClick={() => { setSelectedTeam(s.id); setTab("teams"); }}>
                   {/* Blurred team artwork background */}
                   <div style={{
                     position: "absolute", inset: -6, zIndex: 0,
                     backgroundImage: `url(${LB_BG[s.id]})`,
                     backgroundSize: "cover", backgroundPosition: "center 30%",
-                    filter: `blur(9px) brightness(${i === 0 ? 0.38 : 0.28}) saturate(1.4)`,
+                    filter: "blur(8px) brightness(0.34) saturate(1.3)",
                     transform: "translateZ(0)",
+                    willChange: "filter",
                   }} />
-                  {/* Team color atmospheric overlay */}
+                  {/* Subtle vignette overlay for extra depth */}
                   <div style={{
                     position: "absolute", inset: 0, zIndex: 1,
-                    background: `linear-gradient(130deg, ${s.team.color}1e 0%, rgba(6,4,2,0.6) 70%)`,
+                    background: `linear-gradient(135deg, ${s.team.color}18 0%, rgba(6,4,2,0.55) 100%)`,
                   }} />
-                  <div className="lb-accent" style={{ background: `linear-gradient(180deg, ${s.team.color}cc, ${s.team.color})`, zIndex: 2, position: "relative" }} />
+                  <div className="lb-accent" style={{ background: s.team.color, zIndex: 2, position: "relative" }} />
                   <div className="lb-inner" style={{ position: "relative", zIndex: 2 }}>
-                    <div className={`lb-rank ${rankLabel(i)}`} style={{ textShadow: "0 1px 10px rgba(0,0,0,0.95)" }}>{i + 1}</div>
+                    <div className={`lb-rank ${rankLabel(i)}`} style={{ textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>{i + 1}</div>
                     <div className="lb-info">
                       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                         <div className={`lb-name ${i === 0 ? "first" : ""}`}
-                          style={{ textShadow: "0 1px 8px rgba(0,0,0,1), 0 0 22px rgba(0,0,0,0.9)" }}>
+                          style={{ textShadow: "0 1px 6px rgba(0,0,0,1), 0 0 20px rgba(0,0,0,0.8)" }}>
                           {s.team.name}
                         </div>
-                        {i === 0 && <span style={{ fontSize: "0.82rem", lineHeight: 1 }}>👑</span>}
                       </div>
-                      <div className="lb-meta" style={{ textShadow: "0 1px 5px rgba(0,0,0,0.95)" }}>
+                      <div className="lb-meta" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>
                         {s.team.owner} · <span style={{ color: "#d4a843" }}>C:</span> {s.team.captain} · <span style={{ color: "var(--text-2)" }}>VC:</span> {s.team.vc}
                       </div>
-                      {gap > 0 && (
-                        <div style={{ marginTop: 5 }}>
-                          <span className="lb-gap-badge">–{gap} pts</span>
-                        </div>
-                      )}
                     </div>
                     <div style={{ textAlign: "right", flexShrink: 0 }}>
-                      <div className={`lb-pts ${i === 0 ? "first" : ""}`}
-                        style={{ color: Object.keys(playerPoints).length === 0 ? "var(--text-3)" : s.team.color, textShadow: `0 0 14px ${s.team.color}66, 0 1px 6px rgba(0,0,0,1)` }}>
+                      <div className="lb-pts first opacity-[1] bg-[transparent]"
+                        style={{ color: Object.keys(playerPoints).length === 0 ? "var(--text-3)" : s.team.color, textShadow: `0 0 10px ${s.team.color}55, 0 1px 4px rgba(0,0,0,1)` }}>
                         {Object.keys(playerPoints).length === 0 ? "—" : s.total}
                       </div>
                       <div className="lb-pts-label" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>pts</div>
                     </div>
                   </div>
-                  {/* Progress bar */}
-                  <div className="lb-bar">
-                    <div className="lb-bar-fill" style={{ width: `${maxPts ? (s.total / maxPts) * 100 : 0}%`, background: `linear-gradient(90deg, ${s.team.color}aa, ${s.team.color})` }} />
-                  </div>
                 </div>
-                );
-              })}
+              ))}
             </div>
           );
         })()}
@@ -2239,7 +2203,7 @@ export default function App() {
     const W = ms.length * (BAR_W + GAP) - GAP;
     const handleBarTap = (e: React.MouseEvent | React.TouchEvent, m: typeof ms[0]) => {
       e.stopPropagation();
-      if (sparkTipTimer.current) clearTimeout(sparkTipTimer.current);
+      clearTimeout(sparkTipTimer.current);
       setSparkTip({ label: m.label, pts: m.pts });
       sparkTipTimer.current = setTimeout(() => setSparkTip(null), 2500);
     };
@@ -2330,7 +2294,7 @@ export default function App() {
           })}
         </div>
 
-        <div className="team-header-card" style={{ "--team-color": t.color, "--team-color-alpha": `${t.color}28` } as React.CSSProperties}>
+        <div className="team-header-card" style={{ "--team-color": t.color } as React.CSSProperties}>
           {/* Blurred team artwork background */}
           <div style={{
             position: "absolute", inset: -6, zIndex: 0,
@@ -2729,68 +2693,47 @@ export default function App() {
 
             return (
               <>
-                {/* === PREMIUM SECTION WRAPPER === */}
-                <div style={{
-                  background: `linear-gradient(180deg, ${t.color}04 0%, rgba(255,255,255,0.003) 100%)`,
-                  border: `1px solid ${t.color}12`,
-                  borderRadius: 20,
-                  padding: "0", marginBottom: 14,
-                  boxShadow: `0 16px 64px rgba(0,0,0,0.35), inset 0 1px 0 ${t.color}08`,
-                  backdropFilter: "blur(24px)",
-                  WebkitBackdropFilter: "blur(24px)",
-                  overflow: "hidden",
-                }}>
-                  {/* === PLAYING XI HEADER (COLLAPSIBLE) === */}
-                  <div className="sub-header" onClick={() => setXIOpen(o => !o)}
-                    style={xiOpen ? { background: `linear-gradient(135deg, ${t.color}10 0%, ${t.color}06 100%)`, borderBottomColor: `${t.color}15` } : { borderBottom: "1px solid transparent" }}>
-                    <div className="sub-header-title">
-                      Squad
-                      <span className="sub-header-count" style={{ color: t.color, background: `${t.color}14` }}>{xi.length}</span>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      {Object.keys(playerPoints).length > 0 && (
-                        <span style={{ fontSize: "0.72rem", fontWeight: 800, color: t.color, fontFamily: "'Oswald', sans-serif" }}>{xiTotal}</span>
-                      )}
-                      <span className={`sub-header-chevron${xiOpen ? " open" : ""}`}>
-                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
-                          <path d="M1 1l4 4 4-4" stroke={t.color} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      </span>
-                    </div>
+                {/* === PLAYING XI HEADER === */}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", boxShadow: "0 0 6px rgba(74,222,128,0.7)", flexShrink: 0 }} />
+                    <span style={{ fontSize: "0.58rem", fontWeight: 800, color: "var(--text-2)", letterSpacing: "0.14em", textTransform: "uppercase" as const }}>Playing XI</span>
+                    <span style={{ fontSize: "0.54rem", fontWeight: 700, color: "var(--text-3)", background: "rgba(74,222,128,0.08)", border: "1px solid rgba(74,222,128,0.15)", padding: "1px 6px", borderRadius: 6 }}>11</span>
                   </div>
-
-                  {/* === PLAYING XI GRID (SMOOTH BLEND) === */}
-                  {xiOpen && (
-                    <div className="players-grid" style={{ borderTop: `1px solid ${t.color}12`, borderRadius: 0, marginBottom: 0, paddingTop: 2 }}>
-                      {xi.map(p => renderPlayer(p, false))}
-                    </div>
+                  {Object.keys(playerPoints).length > 0 && (
+                    <span style={{ fontSize: "0.62rem", fontWeight: 800, color: t.color, opacity: 0.85 }}>{xiTotal} pts</span>
                   )}
+                </div>
+                <div className="players-grid" style={{ borderTop: `2px solid ${t.color}40`, borderRadius: "var(--radius-md)" }}>
+                  {xi.map(p => renderPlayer(p, false))}
+                </div>
 
-                  {/* === BENCH TOGGLE === */}
-                  <div className="sub-header" onClick={() => setBenchOpen(o => !o)}
-                    style={benchOpen ? { background: "linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))" } : { borderBottom: "1px solid transparent" }}>
-                    <div className="sub-header-title">
-                      Reserves
-                      <span className="sub-header-count">{bench.length}</span>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      {Object.keys(playerPoints).length > 0 && benchTotal > 0 && (
-                        <span style={{ fontSize: "0.72rem", fontWeight: 800, color: "var(--text-2)", fontFamily: "'Oswald', sans-serif" }}>{benchTotal}</span>
-                      )}
-                      <span className={`sub-header-chevron${benchOpen ? " open" : ""}`}>
-                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
-                          <path d="M1 1l4 4 4-4" stroke="rgba(255,255,255,0.35)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      </span>
-                    </div>
+                {/* === BENCH TOGGLE === */}
+                <button
+                  onClick={() => setBenchOpen(o => !o)}
+                  style={{
+                    display: "flex", alignItems: "center", justifyContent: "space-between",
+                    width: "100%", marginTop: 18, marginBottom: benchOpen ? 10 : 0,
+                    background: "transparent", border: "none", cursor: "pointer",
+                    padding: "0 2px", WebkitTapHighlightColor: "transparent",
+                  }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--text-3)", flexShrink: 0 }} />
+                    <span style={{ fontSize: "0.58rem", fontWeight: 800, color: "var(--text-3)", letterSpacing: "0.14em", textTransform: "uppercase" as const }}>Bench</span>
+                    <span style={{ fontSize: "0.54rem", fontWeight: 700, color: "var(--text-3)", background: "rgba(255,255,255,0.05)", border: "1px solid var(--border)", padding: "1px 6px", borderRadius: 6 }}>{bench.length}</span>
+                    {Object.keys(playerPoints).length > 0 && benchTotal > 0 && (
+                      <span style={{ fontSize: "0.54rem", color: "var(--text-3)", opacity: 0.65 }}>{benchTotal} pts sitting</span>
+                    )}
                   </div>
+                  <span style={{ fontSize: "0.58rem", color: "var(--text-3)", display: "inline-block", transition: "transform 0.22s cubic-bezier(0.4,0,0.2,1)", transform: benchOpen ? "rotate(180deg)" : "none", marginBottom: benchOpen ? 0 : 28 }}>▼</span>
+                </button>
 
-                  {/* === BENCH GRID === */}
-                  {benchOpen && (
-                    <div className="players-grid" style={{ opacity: 0.77, borderTop: "1px solid rgba(255,255,255,0.08)", borderRadius: 0, marginBottom: 0, paddingTop: 2 }}>
-                      {bench.map(p => renderPlayer(p, true))}
-                    </div>
-                  )}
+                {/* === BENCH GRID === */}
+                {benchOpen && (
+                  <div className="players-grid" style={{ opacity: 0.82, borderTop: "1.5px solid rgba(255,255,255,0.05)", borderRadius: "var(--radius-md)" }}>
+                    {bench.map(p => renderPlayer(p, true))}
+                  </div>
+                )}
 
                 {/* === POINTS FROM EACH MATCH === */}
                 {(() => {
@@ -2834,52 +2777,49 @@ export default function App() {
                   const grandTotal = matchData.reduce((s, m) => s + m.total, 0);
 
                   return (
-                    <div style={{ marginTop: 8 }}>
-                      <div className="sub-header" onClick={() => setMatchPtsOpen(o => !o)}
-                        style={matchPtsOpen ? { background: "linear-gradient(135deg, rgba(245,166,35,0.08), rgba(245,166,35,0.02))", borderBottomColor: "rgba(245,166,35,0.15)" } : { borderBottom: "1px solid transparent" }}>
-                        <div className="sub-header-title">
-                          Performance
+                    <div style={{ marginTop: 20 }}>
+                      <button
+                        onClick={() => setMatchPtsOpen(o => !o)}
+                        style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", marginBottom: matchPtsOpen ? 10 : 0, background: "transparent", border: "none", cursor: "pointer", padding: "0 2px", WebkitTapHighlightColor: "transparent" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                          <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--gold)", flexShrink: 0 }} />
+                          <span style={{ fontSize: "0.58rem", fontWeight: 800, color: "var(--text-3)", letterSpacing: "0.14em", textTransform: "uppercase" as const }}>Match Points</span>
+                          {grandTotal > 0 && <span style={{ fontSize: "0.6rem", color: "var(--gold)", fontWeight: 700, fontFamily: "'Oswald', sans-serif" }}>{grandTotal}</span>}
                         </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                          {grandTotal > 0 && <span style={{ fontSize: "0.72rem", fontWeight: 800, color: "var(--gold)", fontFamily: "'Oswald', sans-serif" }}>{grandTotal}</span>}
-                          <span className={`sub-header-chevron${matchPtsOpen ? " open" : ""}`}>
-                            <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
-                              <path d="M1 1l4 4 4-4" stroke="rgba(245,166,35,0.6)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-                            </svg>
-                          </span>
-                        </div>
-                      </div>
+                        <span style={{ fontSize: "0.58rem", color: "var(--text-3)", display: "inline-block", transition: "transform 0.22s cubic-bezier(0.4,0,0.2,1)", transform: matchPtsOpen ? "rotate(180deg)" : "none" }}>▼</span>
+                      </button>
 
                       {matchPtsOpen && (
-                        <div style={{ display: "flex", flexDirection: "column" as const, gap: 3, borderTop: "1px solid rgba(245,166,35,0.12)", paddingTop: 10 }}>
+                        <div style={{ display: "flex", flexDirection: "column" as const, gap: 4 }}>
                           {matchData.map(({ mn, label, players, total }) => {
                             const short = shortLabel(label);
                             const isExpanded = expandedMatchNums.has(mn);
                             const toggleMn = () => setExpandedMatchNums(prev => {
                               const n = new Set(prev); n.has(mn) ? n.delete(mn) : n.add(mn); return n;
                             });
-                            const scoreColor = total >= 150 ? "#d4a843" : total >= 100 ? "#fb923c" : "var(--text)";
                             return (
-                              <div key={mn} style={{ borderRadius: 12, border: `1px solid ${isExpanded ? "rgba(245,166,35,0.2)" : "var(--border)"}`, overflow: "hidden" as const, background: isExpanded ? "rgba(245,166,35,0.04)" : "rgba(255,255,255,0.02)", transition: "all 0.18s ease" }}>
-                                <button onClick={toggleMn} style={{ display: "flex", alignItems: "center", width: "100%", background: "transparent", border: "none", cursor: "pointer", padding: "10px 12px", gap: 9, WebkitTapHighlightColor: "transparent" }}>
-                                  <span style={{ fontSize: "0.5rem", fontWeight: 900, color: "var(--text-3)", background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, padding: "2px 6px", flexShrink: 0, letterSpacing: "0.06em" }}>M{mn}</span>
-                                  <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--text-2)", flex: 1, textAlign: "left" as const, letterSpacing: "-0.01em" }}>{short}</span>
-                                  <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "1rem", fontWeight: 700, color: scoreColor, flexShrink: 0 }}>{total}</span>
-                                  <span style={{ fontSize: "0.48rem", color: "var(--text-3)", flexShrink: 0, letterSpacing: "0.08em", fontWeight: 700 }}>PTS</span>
-                                  <svg width="8" height="6" viewBox="0 0 10 6" fill="none" style={{ transition: "transform 0.22s cubic-bezier(0.4,0,0.2,1)", transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", flexShrink: 0 }}>
-                                    <path d="M1 1l4 4 4-4" stroke="rgba(255,255,255,0.25)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                              <div key={mn} style={{ borderRadius: 10, border: "1px solid var(--border)", overflow: "hidden" as const, background: "rgba(255,255,255,0.02)" }}>
+                                <button onClick={toggleMn} style={{ display: "flex", alignItems: "center", width: "100%", background: "transparent", border: "none", cursor: "pointer", padding: "8px 10px", gap: 8, WebkitTapHighlightColor: "transparent" }}>
+                                  <span style={{ fontSize: "0.53rem", fontWeight: 700, color: "var(--text-3)", background: "rgba(255,255,255,0.06)", borderRadius: 5, padding: "1px 5px", flexShrink: 0 }}>M{mn}</span>
+                                  <span style={{ fontSize: "0.68rem", fontWeight: 600, color: "var(--text-2)", flex: 1, textAlign: "left" as const }}>{short}</span>
+                                  <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.9rem", fontWeight: 700, color: total >= 120 ? "#d4a843" : "var(--text)", flexShrink: 0 }}>{total}</span>
+                                  <span style={{ fontSize: "0.53rem", color: "var(--text-3)", flexShrink: 0 }}>pts</span>
+                                  <svg width="7" height="5" viewBox="0 0 10 6" fill="none" style={{ transition: "transform 0.2s", transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", flexShrink: 0 }}>
+                                    <path d="M1 1l4 4 4-4" stroke="var(--text-3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                                   </svg>
                                 </button>
                                 {isExpanded && (
-                                  <div style={{ borderTop: "1px solid rgba(245,166,35,0.12)", padding: "6px 12px 10px" }}>
+                                  <div style={{ borderTop: "1px solid var(--border)", padding: "6px 10px 8px" }}>
                                     {players.map((p, i) => (
-                                      <div key={p.name} style={{ display: "flex", alignItems: "center", gap: 6, padding: "4px 0", borderTop: i > 0 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
-                                        <span style={{ fontSize: "0.67rem", flex: 1, color: p.pts === 0 ? "var(--text-3)" : "var(--text-2)", fontWeight: p.pts !== 0 ? 600 : 400, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+                                      <div key={p.name} style={{ display: "flex", alignItems: "center", gap: 5, padding: "3px 0", borderTop: i > 0 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
+                                        <span style={{ fontSize: "0.65rem", flex: 1, color: p.pts === 0 ? "var(--text-3)" : "var(--text-2)", fontWeight: p.pts !== 0 ? 600 : 400, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
                                           {p.name}
                                         </span>
-                                        {p.isCap && <span style={{ fontSize: "0.44rem", fontWeight: 900, color: "#d4a843", background: "rgba(212,168,67,0.2)", border: "1px solid rgba(212,168,67,0.45)", borderRadius: 4, padding: "1px 4px", lineHeight: 1.4, flexShrink: 0 }}>C × 2</span>}
-                                        {p.isVC && <span style={{ fontSize: "0.44rem", fontWeight: 900, color: "#94a3b8", background: "rgba(148,163,184,0.14)", border: "1px solid rgba(148,163,184,0.3)", borderRadius: 4, padding: "1px 4px", lineHeight: 1.4, flexShrink: 0 }}>VC × 1.5</span>}
-                                        <span style={{ fontSize: "0.72rem", fontWeight: 700, minWidth: 28, textAlign: "right" as const, fontFamily: "'Oswald', sans-serif", color: p.pts === 0 ? "var(--text-3)" : p.pts >= 60 ? "#d4a843" : p.pts >= 40 ? "#fb923c" : "#4ade80" }}>
+                                        {p.isCap && <span style={{ fontSize: "0.44rem", fontWeight: 900, color: "#d4a843", background: "rgba(212,168,67,0.18)", border: "1px solid rgba(212,168,67,0.4)", borderRadius: 3, padding: "0 3px", lineHeight: 1.4, flexShrink: 0 }}>C</span>}
+                                        {p.isVC && <span style={{ fontSize: "0.44rem", fontWeight: 900, color: "#94a3b8", background: "rgba(148,163,184,0.12)", border: "1px solid rgba(148,163,184,0.3)", borderRadius: 3, padding: "0 3px", lineHeight: 1.4, flexShrink: 0 }}>VC</span>}
+                                        {p.isCap && <span style={{ fontSize: "0.44rem", fontWeight: 700, color: "#d4a843", opacity: 0.8, flexShrink: 0 }}>2×</span>}
+                                        {p.isVC && <span style={{ fontSize: "0.44rem", fontWeight: 700, color: "#94a3b8", opacity: 0.8, flexShrink: 0 }}>1.5×</span>}
+                                        <span style={{ fontSize: "0.68rem", fontWeight: 700, minWidth: 26, textAlign: "right" as const, color: p.pts === 0 ? "var(--text-3)" : p.pts >= 60 ? "#d4a843" : p.pts >= 40 ? "#fb923c" : "#4ade80" }}>
                                           {p.pts === 0 ? "—" : "+" + p.pts}
                                         </span>
                                       </div>
@@ -2894,7 +2834,6 @@ export default function App() {
                     </div>
                   );
                 })()}
-                </div>
               </>
             );
           })()
@@ -2944,7 +2883,7 @@ export default function App() {
         {standings.length > 0 && (
           <div style={{ marginBottom: 16 }}>
             <div className="sec-title">Points Table</div>
-            <div className="pts-wrap">
+            <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
             <div style={{ overflowX: "auto" }}>
               <table style={{ width: "100%", borderCollapse: "collapse" as const, fontSize: "0.68rem", tableLayout: "fixed" as const }}>
                 <colgroup>
@@ -3005,7 +2944,7 @@ export default function App() {
                 </tbody>
               </table>
             </div>
-            <div className="pts-footer">
+            <div style={{ padding: "5px 12px", fontSize: "0.58rem", color: "var(--text-3)", borderTop: "1px solid var(--border)", letterSpacing: "0.04em" }}>
               Top 4 qualify for playoffs
             </div>
             </div>
@@ -3018,9 +2957,9 @@ export default function App() {
               {Array.from(teamFilter).map(code => {
                 const tc = IPL_COLORS[code] || "#888";
                 return (
-                  <div key={code} className="team-chip" style={{ background: tc + "18", border: `1px solid ${tc}44`, color: tc }}>
+                  <div key={code} style={{ display: "flex", alignItems: "center", gap: 5, padding: "4px 10px", borderRadius: 20, background: tc + "18", border: `1px solid ${tc}44`, fontSize: "0.68rem", fontWeight: 600, color: tc }}>
                     {code}
-                    <button className="team-chip-x" onClick={() => toggleTeamFilter(code)}>✕</button>
+                    <button onClick={() => toggleTeamFilter(code)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0, lineHeight: 1, color: "inherit", opacity: 0.6, fontSize: "0.72rem" }}>✕</button>
                   </div>
                 );
               })}
@@ -3051,30 +2990,31 @@ export default function App() {
           </div>
         )}
         {/* Filter bar */}
-        <div className="seg-row">
+        <div style={{ display: "flex", gap: 6, marginBottom: 16 }}>
           {(["live", "upcoming", "completed", "all"] as const).map(f => {
             const count = f === "live" ? live.length : f === "upcoming" ? upcoming.length : f === "completed" ? completed.length : liveMatches.length;
             const isActive = activeFilter === f;
             return (
-              <button key={f} className={`seg-btn${isActive ? " active" : ""}`}
-                onClick={() => setMatchFilter(f)}
-                style={isActive ? { color: f === "live" ? "#22c55e" : f === "upcoming" ? "var(--blue)" : undefined } : undefined}>
-                {f}
-                <span className="seg-count">{count}</span>
+              <button key={f} onClick={() => setMatchFilter(f)}
+                style={{ flex: 1, padding: "8px 0", borderRadius: 10, border: "1px solid", fontSize: "0.65rem", fontWeight: 500, cursor: "pointer", fontFamily: "inherit", textTransform: "capitalize" as const,
+                  background: isActive ? "var(--surface-2)" : "transparent",
+                  borderColor: isActive ? "var(--border-2)" : "var(--border)",
+                  color: isActive ? (f === "live" ? "#22c55e" : f === "upcoming" ? "var(--blue)" : "var(--text)") : "var(--text-3)" }}>
+                {f}<br />
+                <span style={{ fontSize: "0.6rem", opacity: 0.7 }}>{count}</span>
               </button>
             );
           })}
         </div>
         {apiError && <div className="notice" style={{ background: "rgba(239,68,68,0.08)", borderColor: "rgba(239,68,68,0.2)", color: "#f87171", marginBottom: 12 }}>{apiError}</div>}
         {filteredMatches.length === 0 && (
-          <div className="empty-msg">
-            <span className="empty-icon">{activeFilter === "live" ? "📡" : activeFilter === "upcoming" ? "📅" : "🏏"}</span>
+          <div style={{ textAlign: "center" as const, color: "var(--text-3)", fontSize: "0.78rem", padding: "32px 0" }}>
             {teamFilter.size > 0 ? `No ${activeFilter === "all" ? "" : activeFilter + " "}${fixtureHomeAwayFilter !== "all" ? fixtureHomeAwayFilter + " " : ""}matches for ${Array.from(teamFilter).join(" / ")}` : activeFilter === "live" ? "No live matches right now" : activeFilter === "upcoming" ? "No upcoming matches" : "No matches"}
           </div>
         )}
         {Object.entries(filteredGrouped).map(([date, matches]: [string, any[]]) => (
           <div key={date}>
-            <div className="date-label">
+            <div style={{ fontSize: "0.6rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-3)", margin: "16px 0 8px", fontWeight: 600 }}>
               {fmtDate(date)}
             </div>
             {matches.map((m: any) => {
@@ -3219,7 +3159,7 @@ export default function App() {
                               const canEdit = !isLocked && (ownerId === currentUser || currentUser === "rajveer");
                               return canEdit ? (
                                 /* Big team pick cards */
-                                (<div key={ownerId} style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                                <div key={ownerId} style={{ display: "flex", flexDirection: "column", gap: 5 }}>
                                   <span style={{ fontSize: "0.58rem", color: ft.color, fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase" as const }}>{ft.owner}</span>
                                   <div style={{ display: "flex", gap: 8 }}>
                                     {[m.homeTeamCode, m.awayTeamCode].map((code: string) => {
@@ -3281,10 +3221,10 @@ export default function App() {
                                       );
                                     })}
                                   </div>
-                                </div>)
+                                </div>
                               ) : (
                                 /* Compact read-only row */
-                                (<div key={ownerId} style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 8px", borderRadius: 8, background: "rgba(255,255,255,0.02)", border: "1px solid var(--border)" }}>
+                                <div key={ownerId} style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 8px", borderRadius: 8, background: "rgba(255,255,255,0.02)", border: "1px solid var(--border)" }}>
                                   <span style={{ fontSize: "0.6rem", color: ft.color, fontWeight: 700, minWidth: 32, flexShrink: 0 }}>{ft.owner}</span>
                                   {pick ? (
                                     <div style={{ display: "flex", alignItems: "center", gap: 4, flex: 1 }}>
@@ -3296,7 +3236,7 @@ export default function App() {
                                   ) : (
                                     <span style={{ fontSize: "0.6rem", color: "var(--text-3)", fontStyle: "italic" }}>—</span>
                                   )}
-                                </div>)
+                                </div>
                               );
                             })}
                           </div>
@@ -3630,11 +3570,13 @@ export default function App() {
       <div>
         <div className="sec-title">IPL 2026 Stats</div>
 
-        <div className="seg-row">
+        <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
           {([["all", "All IPL"], ["fantasy", "Fantasy Only"], ["predictions", "Predictions"]] as [string, string][]).map(([f, label]) => (
-            <button key={f} className={`seg-btn${statsFilter === f ? " active" : ""}`}
-              onClick={() => { setStatsFilter(f as any); setStatsExpanded(false); }}
-              style={statsFilter === f ? { color: f === "fantasy" ? "#22c55e" : f === "predictions" ? "#a78bfa" : undefined } : undefined}>
+            <button key={f} onClick={() => { setStatsFilter(f as any); setStatsExpanded(false); }}
+              style={{ flex: 1, padding: "8px 0", borderRadius: 10, border: "1px solid", fontSize: "0.68rem", fontWeight: 500, cursor: "pointer", fontFamily: "inherit",
+                background: statsFilter === f ? "var(--surface-2)" : "transparent",
+                borderColor: statsFilter === f ? "var(--border-2)" : "var(--border)",
+                color: statsFilter === f ? (f === "fantasy" ? "#22c55e" : f === "predictions" ? "#a78bfa" : "var(--text)") : "var(--text-3)" }}>
               {label}
             </button>
           ))}
@@ -3789,13 +3731,14 @@ export default function App() {
                     {/* Archive section — all completed matches */}
                     {archiveMatches.length > 0 && (
                       <div style={{ marginBottom: 10 }}>
-                        <button className={`archive-toggle ${predArchiveOpen ? "open" : "closed"}`}
-                          onClick={() => setPredArchiveOpen(o => !o)}>
-                          <span style={{ fontSize: "0.7rem", transition: "transform 0.22s", transform: predArchiveOpen ? "rotate(180deg)" : "none" }}>▼</span>
+                        <button
+                          onClick={() => setPredArchiveOpen(o => !o)}
+                          style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: "transparent", border: "1px solid var(--border)", borderRadius: predArchiveOpen ? "10px 10px 0 0" : 10, padding: "7px 12px", cursor: "pointer", color: "var(--text-3)", fontSize: "0.65rem", fontFamily: "inherit", marginBottom: 0 }}>
+                          <span style={{ fontSize: "0.7rem" }}>{predArchiveOpen ? "▲" : "▼"}</span>
                           {predArchiveOpen ? "Hide" : "Show"} {archiveMatches.length} completed match{archiveMatches.length !== 1 ? "es" : ""}
                         </button>
                         {predArchiveOpen && (
-                          <div className="data-panel" style={{ borderTop: "none", borderRadius: "0 0 var(--radius-lg) var(--radius-lg)", opacity: 0.55, marginBottom: 10 }}>
+                          <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderTop: "none", borderRadius: "0 0 10px 10px", overflow: "hidden", opacity: 0.55, marginBottom: 10 }}>
                             {tableHeader}
                             {archiveMatches.map((m: any, idx: number) => renderRow(m, idx === archiveMatches.length - 1))}
                           </div>
@@ -3804,7 +3747,7 @@ export default function App() {
                     )}
 
                     {/* Current / upcoming matches */}
-                    <div className="data-panel" style={{ marginBottom: 4 }}>
+                    <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden", marginBottom: 4 }}>
                       {tableHeader}
                       {currentMatches.length === 0 && sortedMatches.length === 0 && (
                         <div style={{ padding: "20px 12px", fontSize: "0.75rem", color: "var(--text-3)", textAlign: "center" as const }}>Matches loading...</div>
@@ -3815,20 +3758,20 @@ export default function App() {
                       {visibleCurrent.map((m: any, idx: number) => renderRow(m, idx === visibleCurrent.length - 1))}
                     </div>
                     {(hasMoreCurrent || predVisibleCount > 10) && (
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 4px 2px" }}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 2px 2px" }}>
                         {predVisibleCount > 10 ? (
-                          <button className="team-chip" onClick={() => setPredVisibleCount(c => Math.max(10, c - 10))}
-                            style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--text-3)", cursor: "pointer", fontSize: "0.62rem", fontFamily: "inherit", padding: "5px 12px" }}>
-                            ↑ Less
+                          <button onClick={() => setPredVisibleCount(c => Math.max(10, c - 10))}
+                            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", borderRadius: 20, padding: "5px 12px", cursor: "pointer", fontSize: "0.63rem", color: "var(--text-3)", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 4 }}>
+                            <span>↑</span><span>Less</span>
                           </button>
                         ) : <div />}
-                        <span style={{ fontSize: "0.56rem", color: "var(--text-3)", letterSpacing: "0.04em" }}>
+                        <span style={{ fontSize: "0.58rem", color: "var(--text-3)" }}>
                           {Math.min(predVisibleCount, currentMatches.length) + archiveMatches.length} of {sortedMatches.length}
                         </span>
                         {hasMoreCurrent ? (
-                          <button className="team-chip" onClick={() => setPredVisibleCount(c => c + 10)}
-                            style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--text-3)", cursor: "pointer", fontSize: "0.62rem", fontFamily: "inherit", padding: "5px 12px" }}>
-                            More ↓
+                          <button onClick={() => setPredVisibleCount(c => c + 10)}
+                            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", borderRadius: 20, padding: "5px 12px", cursor: "pointer", fontSize: "0.63rem", color: "var(--text-3)", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 4 }}>
+                            <span>More</span><span>↓</span>
                           </button>
                         ) : <div />}
                       </div>
@@ -3860,21 +3803,20 @@ export default function App() {
                       if (seen.has(entry.name)) continue;
                       seen.add(entry.name);
                       const fi = fantasyPlayerMap.get(entry.name);
-                      const officialPts = fi ? (playerPoints[entry.name] ?? playerPoints[entry.name.toLowerCase()]) : undefined;
-                      all.push({ name: entry.name, pts: officialPts != null ? officialPts : (entry.fantasyPts ?? 0), isFantasy: !!fi, color: fi?.color ?? "var(--text-3)", owner: fi?.owner ?? "" });
+                      all.push({ name: entry.name, pts: entry.fantasyPts ?? playerPoints[entry.name] ?? 0, isFantasy: !!fi, color: fi?.color ?? "var(--text-3)", owner: fi?.owner ?? "" });
                     }
                     return all.sort((a, b) => b.pts - a.pts);
                   })();
               const visible = fantasyPtsOpen ? ranked : ranked.slice(0, 10);
               const rankColors = ["#d4a843", "#94a3b8", "#cd7c3a"];
               return (
-                <div className="data-panel">
-                  <div className="data-panel-hdr">
-                    <div className="data-panel-title">Most Fantasy Points</div>
-                    <div className="data-panel-sub">{ranked.length} players</div>
+                <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden", marginBottom: 12 }}>
+                  <div style={{ padding: "12px 14px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text)" }}>Most Fantasy Points</div>
+                    <div style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{ranked.length} players</div>
                   </div>
                   {visible.map((p, i) => (
-                    <div key={p.name} className="stat-data-row">
+                    <div key={p.name} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderBottom: i < visible.length - 1 ? "1px solid var(--border)" : "none" }}>
                       <div style={{ width: 18, textAlign: "center" as const, fontSize: "0.68rem", fontWeight: 700, color: i < 3 ? rankColors[i] : "var(--text-3)", flexShrink: 0 }}>{i + 1}</div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: "0.82rem", fontWeight: 500, color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
@@ -3882,12 +3824,13 @@ export default function App() {
                         </div>
                         {statsFilter === "fantasy" && p.isFantasy && <div style={{ fontSize: "0.58rem", color: p.color, marginTop: 1 }}>{p.owner}</div>}
                       </div>
-                      <div style={{ fontFamily: "'Oswald', sans-serif", fontSize: "1.05rem", fontWeight: 700, color: i === 0 ? "#d4a843" : i < 3 ? "var(--text)" : "var(--text-2)", flexShrink: 0 }}>{p.pts}</div>
-                      <div style={{ fontSize: "0.5rem", color: "var(--text-3)", flexShrink: 0, marginLeft: -4, letterSpacing: "0.06em", textTransform: "uppercase" as const }}>pts</div>
+                      <div style={{ fontSize: "1rem", fontWeight: 700, color: i === 0 ? "#d4a843" : i < 3 ? "var(--text)" : "var(--text-2)", flexShrink: 0 }}>{p.pts}</div>
+                      <div style={{ fontSize: "0.55rem", color: "var(--text-3)", flexShrink: 0, marginLeft: -4 }}>pts</div>
                     </div>
                   ))}
                   {ranked.length > 10 && (
-                    <button className="data-panel-expand" onClick={() => setFantasyPtsOpen(x => !x)}>
+                    <button onClick={() => setFantasyPtsOpen(x => !x)}
+                      style={{ width: "100%", padding: "11px 0", background: "transparent", border: "none", borderTop: "1px solid var(--border)", cursor: "pointer", fontSize: "0.68rem", color: "var(--text-3)", fontFamily: "inherit" }}>
                       {fantasyPtsOpen ? "Show less" : `Show all ${ranked.length}`}
                     </button>
                   )}
@@ -3906,16 +3849,17 @@ export default function App() {
               const visible = statsExpanded ? entries : entries.slice(0, 10);
               const hasMore = entries.length > 10;
               return (
-                <div className="data-panel">
-                  <div className="data-panel-hdr">
-                    <div className="data-panel-title">
+                <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden", marginBottom: 12 }}>
+                  <div style={{ padding: "12px 14px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text)" }}>
                       {STAT_CATS.find(c => c.id === cat)?.sub}
                     </div>
-                    <div className="data-panel-sub">{iplStats.matchesProcessed} matches</div>
+                    <div style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{iplStats.matchesProcessed} matches</div>
                   </div>
                   {visible.map((e: any, i: number) => renderStatRow(e, i, cat))}
                   {hasMore && (
-                    <button className="data-panel-expand" onClick={() => setStatsExpanded(x => !x)}>
+                    <button onClick={() => setStatsExpanded(x => !x)}
+                      style={{ width: "100%", padding: "11px 0", background: "transparent", border: "none", borderTop: "1px solid var(--border)", cursor: "pointer", fontSize: "0.68rem", color: "var(--text-3)", fontFamily: "inherit" }}>
                       {statsExpanded ? `Show less` : `Show all ${entries.length}`}
                     </button>
                   )}
@@ -4484,14 +4428,12 @@ export default function App() {
             </div>
           </div>
 
-          <div key={tab} className="tab-enter" style={{minHeight:0}}>
-            {tab === "home" && renderHome()}
-            {tab === "teams" && renderTeams()}
-            {tab === "fixtures" && renderFixtures()}
-            {tab === "stats" && renderStats()}
-            {tab === "history" && renderHistory()}
-            {tab === "admin" && renderAdmin()}
-          </div>
+          {tab === "home" && renderHome()}
+          {tab === "teams" && renderTeams()}
+          {tab === "fixtures" && renderFixtures()}
+          {tab === "stats" && renderStats()}
+          {tab === "history" && renderHistory()}
+          {tab === "admin" && renderAdmin()}
         </div>
 
         <nav className="nav">

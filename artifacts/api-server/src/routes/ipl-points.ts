@@ -1361,111 +1361,8 @@ router.get("/ipl/scorecard/:matchId", async (req, res) => {
 const IPL_STATS_S3 = "https://ipl-stats-sports-mechanic.s3.ap-south-1.amazonaws.com/ipl/feeds";
 const IPL_STATS_COMP = 284;
 
-interface AllStatsEntry { innings: InningData[]; fetched: number; playerFantasyPts: Record<string, number> }
+interface AllStatsEntry { innings: InningData[]; fetched: number }
 const allStatsInningsCache = new Map<string, AllStatsEntry>();
-
-/** Parse a batting dismissal string and return the names of credited fielder / keeper / lbw-bowled bowler */
-function parseDismissalFielding(dismissal: string): {
-  catchBy?: string; stumpedBy?: string; runOutBy?: string; lbwBowledBy?: string;
-} {
-  if (!dismissal) return {};
-  const d = dismissal.trim();
-  // Caught & bowled: "c & b BowlerName"
-  const cAndB = d.match(/^c\s*&\s*b\s+(.+)/i);
-  if (cAndB) return { catchBy: cAndB[1].trim() };
-  // Caught: "c FielderName b BowlerName"
-  const caught = d.match(/^c\s+(.+?)\s+b\s+/i);
-  if (caught) return { catchBy: caught[1].trim() };
-  // Stumped: "st KeeperName b BowlerName"
-  const stumped = d.match(/^st\s+(.+?)\s+b\s+/i);
-  if (stumped) return { stumpedBy: stumped[1].trim() };
-  // Run out: "run out (PlayerName)" or "run out (A / B)" — credit first name only
-  const runOut = d.match(/run\s+out\s*\(?([^/)]+)/i);
-  if (runOut) return { runOutBy: runOut[1].trim().replace(/\s*\/$/, "").trim() };
-  // LBW: "lbw b BowlerName"
-  if (/^lbw\s+b\s+/i.test(d)) return { lbwBowledBy: d.replace(/^lbw\s+b\s+/i, "").trim() };
-  // Bowled: "b BowlerName"
-  if (/^b\s+\S/i.test(d)) return { lbwBowledBy: d.replace(/^b\s+/i, "").trim() };
-  return {};
-}
-
-/** Compute per-player fantasy points for a single match from its innings data (batting + bowling + fielding) */
-function computeMatchFantasyPts(innings: InningData[]): Record<string, number> {
-  const matchStats: Record<string, PlayerStats> = {};
-  const getMs = (k: string) => {
-    if (!matchStats[k]) matchStats[k] = { played: true, runs: 0, balls: 0, fours: 0, sixes: 0, duck: false, wickets: 0, dots: 0, lbwBowled: 0, maidens: 0, ballsBowled: 0, runsConceded: 0, catches: 0, runOuts: 0, stumpings: 0 };
-    return matchStats[k];
-  };
-  const normKey = (s: string) => s.replace(/\s*\(.*?\)\s*/g, " ").trim();
-
-  // Build a case-insensitive name → canonical key map so dismissal names can match bowling-card names
-  const caseMap = new Map<string, string>(); // lowercase → matchStats key
-
-  for (const inning of innings) {
-    // Batting pass
-    for (const bat of inning.batting || []) {
-      if (bat.dnb || !bat.name) continue;
-      const k = normKey(bat.name);
-      if (!k) continue;
-      caseMap.set(k.toLowerCase(), k);
-      const ms = getMs(k);
-      ms.runs += bat.runs || 0;
-      ms.balls += bat.balls || 0;
-      ms.fours += bat.fours || 0;
-      ms.sixes += bat.sixes || 0;
-      if (!bat.notOut && (bat.runs || 0) === 0 && (bat.balls || 0) > 0) ms.duck = true;
-    }
-    // Bowling pass
-    for (const bowl of inning.bowling || []) {
-      if (!bowl.name) continue;
-      const k = normKey(bowl.name);
-      if (!k) continue;
-      caseMap.set(k.toLowerCase(), k);
-      const ms = getMs(k);
-      ms.wickets += bowl.wickets || 0;
-      ms.dots += bowl.dots || 0;
-      ms.maidens += bowl.maidens || 0;
-      ms.ballsBowled += parseOversTooBalls(bowl.overs || "0");
-      ms.runsConceded += bowl.runs || 0;
-    }
-  }
-
-  // Fielding + LBW/bowled bonus pass — parse every dismissal string
-  const resolveKey = (rawName: string): string | undefined => {
-    const n = normKey(rawName);
-    if (matchStats[n]) return n;
-    return caseMap.get(n.toLowerCase());
-  };
-
-  for (const inning of innings) {
-    for (const bat of inning.batting || []) {
-      if (bat.notOut || bat.dnb || !bat.dismissal) continue;
-      const { catchBy, stumpedBy, runOutBy, lbwBowledBy } = parseDismissalFielding(bat.dismissal);
-      if (catchBy) {
-        const k = resolveKey(catchBy);
-        if (k) getMs(k).catches += 1;
-      }
-      if (stumpedBy) {
-        const k = resolveKey(stumpedBy);
-        if (k) getMs(k).stumpings += 1;
-      }
-      if (runOutBy) {
-        const k = resolveKey(runOutBy);
-        if (k) getMs(k).runOuts += 1;
-      }
-      if (lbwBowledBy) {
-        const k = resolveKey(lbwBowledBy);
-        if (k) getMs(k).lbwBowled += 1;
-      }
-    }
-  }
-
-  const result: Record<string, number> = {};
-  for (const [name, stats] of Object.entries(matchStats)) {
-    result[name] = calcPoints(stats);
-  }
-  return result;
-}
 let allStatsRefreshing = false;
 let allStatsLastRefresh = 0;
 let allStatsMatchCount = 0;
@@ -1544,7 +1441,7 @@ async function doRefreshAllStats(force = false): Promise<{ matchesFetched: numbe
         try {
           const innings = await fetchS3InningsForStats(matchId);
           if (innings.length > 0) {
-            allStatsInningsCache.set(matchId, { innings, fetched: Date.now(), playerFantasyPts: computeMatchFantasyPts(innings) });
+            allStatsInningsCache.set(matchId, { innings, fetched: Date.now() });
             fetched++;
           }
         } catch { errors++; }
@@ -1569,7 +1466,7 @@ function buildStatsResponse() {
   const ALL_FANTASY_NAMES = Object.values(FANTASY_TEAMS_EXPORT).flatMap(t => t);
   const battingStats: Record<string, { runs: number; fours: number; sixes: number; balls: number; innings: number; notOuts: number; hs: number; team: string }> = {};
   const bowlingStats: Record<string, { wickets: number; balls: number; runs: number; innings: number; bestW: number; bestR: number }> = {};
-  // Per-player accumulated fantasy points — summed from pre-computed per-match values stored in S3 cache
+  // Per-player accumulated fantasy points computed from per-match batting+bowling
   const playerFantasyPts: Record<string, number> = {};
 
   const allMatchIds = new Set([
@@ -1583,11 +1480,12 @@ function buildStatsResponse() {
     const s3Legacy = s3InningsCache.get(matchId);
     const inningsToUse: InningData[] = s3Entry?.innings ?? s3Legacy?.data ?? processed?.innings ?? [];
 
-    // Read pre-computed fantasy pts from the S3 cache entry; fall back to computing on the fly
-    const matchFantasyPts = s3Entry?.playerFantasyPts ?? computeMatchFantasyPts(inningsToUse);
-    for (const [name, pts] of Object.entries(matchFantasyPts)) {
-      playerFantasyPts[name] = (playerFantasyPts[name] || 0) + pts;
-    }
+    // Build per-player stats for this match to compute fantasy pts accurately
+    const matchStats: Record<string, PlayerStats> = {};
+    const getMs = (k: string) => {
+      if (!matchStats[k]) matchStats[k] = { played: true, runs: 0, balls: 0, fours: 0, sixes: 0, duck: false, wickets: 0, dots: 0, lbwBowled: 0, maidens: 0, ballsBowled: 0, runsConceded: 0, catches: 0, runOuts: 0, stumpings: 0 };
+      return matchStats[k];
+    };
 
     for (const inning of inningsToUse) {
       const inningTeam = (inning.name || "").replace(/ Inning \d+$/, "").trim();
@@ -1603,6 +1501,13 @@ function buildStatsResponse() {
         battingStats[k].innings += 1;
         if (bat.notOut) battingStats[k].notOuts += 1;
         if ((bat.runs || 0) > battingStats[k].hs) battingStats[k].hs = bat.runs || 0;
+        // Per-match fantasy pts accumulation
+        const ms = getMs(k);
+        ms.runs += bat.runs || 0;
+        ms.balls += bat.balls || 0;
+        ms.fours += bat.fours || 0;
+        ms.sixes += bat.sixes || 0;
+        if (!bat.notOut && (bat.runs || 0) === 0 && (bat.balls || 0) > 0) ms.duck = true;
       }
       for (const bowl of inning.bowling || []) {
         if (!bowl.name) continue;
@@ -1619,7 +1524,19 @@ function buildStatsResponse() {
           bowlingStats[k].bestW = bowl.wickets || 0;
           bowlingStats[k].bestR = bowl.runs || 0;
         }
+        // Per-match fantasy pts accumulation
+        const ms = getMs(k);
+        ms.wickets += bowl.wickets || 0;
+        ms.dots += bowl.dots || 0;
+        ms.maidens += bowl.maidens || 0;
+        ms.ballsBowled += bowlBalls;
+        ms.runsConceded += bowl.runs || 0;
       }
+    }
+
+    // Compute and accumulate fantasy pts for each player in this match
+    for (const [name, stats] of Object.entries(matchStats)) {
+      playerFantasyPts[name] = (playerFantasyPts[name] || 0) + calcPoints(stats);
     }
   }
 
