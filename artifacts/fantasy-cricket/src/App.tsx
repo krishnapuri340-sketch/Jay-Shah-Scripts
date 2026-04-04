@@ -2729,17 +2729,24 @@ export default function App() {
             return (
               <>
                 {/* === PLAYING XI HEADER === */}
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", boxShadow: "0 0 6px rgba(74,222,128,0.7)", flexShrink: 0 }} />
-                    <span style={{ fontSize: "0.58rem", fontWeight: 800, color: "var(--text-2)", letterSpacing: "0.14em", textTransform: "uppercase" as const }}>Playing XI</span>
-                    <span style={{ fontSize: "0.54rem", fontWeight: 700, color: "var(--text-3)", background: "rgba(74,222,128,0.08)", border: "1px solid rgba(74,222,128,0.15)", padding: "1px 6px", borderRadius: 6 }}>11</span>
+                <div style={{
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                  marginBottom: 10, padding: "9px 14px",
+                  background: `linear-gradient(135deg, ${t.color}10 0%, rgba(255,255,255,0.03) 100%)`,
+                  border: `1px solid ${t.color}28`,
+                  borderRadius: 12,
+                  boxShadow: `inset 0 1px 0 ${t.color}18, 0 2px 12px rgba(0,0,0,0.35)`,
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <div style={{ width: 3, height: 18, borderRadius: 2, background: `linear-gradient(180deg, ${t.color}, ${t.color}55)`, boxShadow: `0 0 8px ${t.color}60`, flexShrink: 0 }} />
+                    <span style={{ fontSize: "0.62rem", fontWeight: 900, color: "var(--text)", letterSpacing: "0.12em", textTransform: "uppercase" as const }}>Playing XI</span>
+                    <span style={{ fontSize: "0.55rem", fontWeight: 800, color: t.color, background: `${t.color}18`, border: `1px solid ${t.color}30`, padding: "1px 7px", borderRadius: 20, letterSpacing: "0.04em" }}>11</span>
                   </div>
                   {Object.keys(playerPoints).length > 0 && (
-                    <span style={{ fontSize: "0.62rem", fontWeight: 800, color: t.color, opacity: 0.85 }}>{xiTotal} pts</span>
+                    <span style={{ fontSize: "0.7rem", fontWeight: 900, color: t.color, fontFamily: "'Oswald', sans-serif", letterSpacing: "0.02em" }}>{xiTotal} <span style={{ fontSize: "0.5rem", fontWeight: 700, opacity: 0.7, letterSpacing: "0.1em" }}>PTS</span></span>
                   )}
                 </div>
-                <div className="players-grid" style={{ borderTop: `2px solid ${t.color}40`, borderRadius: "var(--radius-md)" }}>
+                <div className="players-grid" style={{ borderTop: `2px solid ${t.color}38`, borderRadius: "var(--radius-md)", marginBottom: 4 }}>
                   {xi.map(p => renderPlayer(p, false))}
                 </div>
 
@@ -2748,24 +2755,28 @@ export default function App() {
                   onClick={() => setBenchOpen(o => !o)}
                   style={{
                     display: "flex", alignItems: "center", justifyContent: "space-between",
-                    width: "100%", marginTop: 18, marginBottom: benchOpen ? 10 : 0,
-                    background: "transparent", border: "none", cursor: "pointer",
-                    padding: "0 2px", WebkitTapHighlightColor: "transparent",
+                    width: "100%", marginTop: 10, marginBottom: benchOpen ? 10 : 0,
+                    background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)",
+                    borderRadius: 12, cursor: "pointer", padding: "9px 14px",
+                    WebkitTapHighlightColor: "transparent",
+                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06)",
                   }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--text-3)", flexShrink: 0 }} />
-                    <span style={{ fontSize: "0.58rem", fontWeight: 800, color: "var(--text-3)", letterSpacing: "0.14em", textTransform: "uppercase" as const }}>Bench</span>
-                    <span style={{ fontSize: "0.54rem", fontWeight: 700, color: "var(--text-3)", background: "rgba(255,255,255,0.05)", border: "1px solid var(--border)", padding: "1px 6px", borderRadius: 6 }}>{bench.length}</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <div style={{ width: 3, height: 18, borderRadius: 2, background: "rgba(255,255,255,0.15)", flexShrink: 0 }} />
+                    <span style={{ fontSize: "0.62rem", fontWeight: 900, color: "var(--text-2)", letterSpacing: "0.12em", textTransform: "uppercase" as const }}>Bench</span>
+                    <span style={{ fontSize: "0.55rem", fontWeight: 800, color: "var(--text-3)", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", padding: "1px 7px", borderRadius: 20, letterSpacing: "0.04em" }}>{bench.length}</span>
                     {Object.keys(playerPoints).length > 0 && benchTotal > 0 && (
-                      <span style={{ fontSize: "0.54rem", color: "var(--text-3)", opacity: 0.65 }}>{benchTotal} pts sitting</span>
+                      <span style={{ fontSize: "0.55rem", color: "var(--text-3)", opacity: 0.6, fontStyle: "italic" as const }}>{benchTotal} pts idle</span>
                     )}
                   </div>
-                  <span style={{ fontSize: "0.58rem", color: "var(--text-3)", display: "inline-block", transition: "transform 0.22s cubic-bezier(0.4,0,0.2,1)", transform: benchOpen ? "rotate(180deg)" : "none", marginBottom: benchOpen ? 0 : 28 }}>▼</span>
+                  <svg width="12" height="8" viewBox="0 0 12 8" fill="none" style={{ transition: "transform 0.25s cubic-bezier(0.4,0,0.2,1)", transform: benchOpen ? "rotate(180deg)" : "none", flexShrink: 0 }}>
+                    <path d="M1 1l5 5 5-5" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
                 </button>
 
                 {/* === BENCH GRID === */}
                 {benchOpen && (
-                  <div className="players-grid" style={{ opacity: 0.82, borderTop: "1.5px solid rgba(255,255,255,0.05)", borderRadius: "var(--radius-md)" }}>
+                  <div className="players-grid" style={{ opacity: 0.78, borderTop: "1.5px solid rgba(255,255,255,0.05)", borderRadius: "var(--radius-md)" }}>
                     {bench.map(p => renderPlayer(p, true))}
                   </div>
                 )}
@@ -2812,16 +2823,25 @@ export default function App() {
                   const grandTotal = matchData.reduce((s, m) => s + m.total, 0);
 
                   return (
-                    <div style={{ marginTop: 20 }}>
+                    <div style={{ marginTop: 10 }}>
                       <button
                         onClick={() => setMatchPtsOpen(o => !o)}
-                        style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", marginBottom: matchPtsOpen ? 10 : 0, background: "transparent", border: "none", cursor: "pointer", padding: "0 2px", WebkitTapHighlightColor: "transparent" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                          <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--gold)", flexShrink: 0 }} />
-                          <span style={{ fontSize: "0.58rem", fontWeight: 800, color: "var(--text-3)", letterSpacing: "0.14em", textTransform: "uppercase" as const }}>Match Points</span>
-                          {grandTotal > 0 && <span style={{ fontSize: "0.6rem", color: "var(--gold)", fontWeight: 700, fontFamily: "'Oswald', sans-serif" }}>{grandTotal}</span>}
+                        style={{
+                          display: "flex", alignItems: "center", justifyContent: "space-between",
+                          width: "100%", marginBottom: matchPtsOpen ? 12 : 0,
+                          background: "linear-gradient(135deg, rgba(245,166,35,0.07) 0%, rgba(255,255,255,0.02) 100%)",
+                          border: "1px solid rgba(245,166,35,0.2)", borderRadius: 12, cursor: "pointer",
+                          padding: "9px 14px", WebkitTapHighlightColor: "transparent",
+                          boxShadow: "inset 0 1px 0 rgba(245,166,35,0.12)",
+                        }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <div style={{ width: 3, height: 18, borderRadius: 2, background: "linear-gradient(180deg, var(--gold), rgba(245,166,35,0.4))", boxShadow: "0 0 8px rgba(245,166,35,0.5)", flexShrink: 0 }} />
+                          <span style={{ fontSize: "0.62rem", fontWeight: 900, color: "var(--text)", letterSpacing: "0.12em", textTransform: "uppercase" as const }}>Match Points</span>
+                          {grandTotal > 0 && <span style={{ fontSize: "0.7rem", color: "var(--gold)", fontWeight: 900, fontFamily: "'Oswald', sans-serif", letterSpacing: "0.02em" }}>{grandTotal} <span style={{ fontSize: "0.5rem", opacity: 0.7, letterSpacing: "0.1em", fontWeight: 700 }}>PTS</span></span>}
                         </div>
-                        <span style={{ fontSize: "0.58rem", color: "var(--text-3)", display: "inline-block", transition: "transform 0.22s cubic-bezier(0.4,0,0.2,1)", transform: matchPtsOpen ? "rotate(180deg)" : "none" }}>▼</span>
+                        <svg width="12" height="8" viewBox="0 0 12 8" fill="none" style={{ transition: "transform 0.25s cubic-bezier(0.4,0,0.2,1)", transform: matchPtsOpen ? "rotate(180deg)" : "none", flexShrink: 0 }}>
+                          <path d="M1 1l5 5 5-5" stroke="rgba(245,166,35,0.4)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
                       </button>
 
                       {matchPtsOpen && (
@@ -2832,29 +2852,28 @@ export default function App() {
                             const toggleMn = () => setExpandedMatchNums(prev => {
                               const n = new Set(prev); n.has(mn) ? n.delete(mn) : n.add(mn); return n;
                             });
+                            const scoreColor = total >= 150 ? "#d4a843" : total >= 100 ? "#fb923c" : "var(--text)";
                             return (
-                              <div key={mn} style={{ borderRadius: 10, border: "1px solid var(--border)", overflow: "hidden" as const, background: "rgba(255,255,255,0.02)" }}>
-                                <button onClick={toggleMn} style={{ display: "flex", alignItems: "center", width: "100%", background: "transparent", border: "none", cursor: "pointer", padding: "8px 10px", gap: 8, WebkitTapHighlightColor: "transparent" }}>
-                                  <span style={{ fontSize: "0.53rem", fontWeight: 700, color: "var(--text-3)", background: "rgba(255,255,255,0.06)", borderRadius: 5, padding: "1px 5px", flexShrink: 0 }}>M{mn}</span>
-                                  <span style={{ fontSize: "0.68rem", fontWeight: 600, color: "var(--text-2)", flex: 1, textAlign: "left" as const }}>{short}</span>
-                                  <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.9rem", fontWeight: 700, color: total >= 120 ? "#d4a843" : "var(--text)", flexShrink: 0 }}>{total}</span>
-                                  <span style={{ fontSize: "0.53rem", color: "var(--text-3)", flexShrink: 0 }}>pts</span>
-                                  <svg width="7" height="5" viewBox="0 0 10 6" fill="none" style={{ transition: "transform 0.2s", transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", flexShrink: 0 }}>
-                                    <path d="M1 1l4 4 4-4" stroke="var(--text-3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                              <div key={mn} style={{ borderRadius: 12, border: `1px solid ${isExpanded ? "rgba(245,166,35,0.2)" : "var(--border)"}`, overflow: "hidden" as const, background: isExpanded ? "rgba(245,166,35,0.04)" : "rgba(255,255,255,0.02)", transition: "all 0.18s ease" }}>
+                                <button onClick={toggleMn} style={{ display: "flex", alignItems: "center", width: "100%", background: "transparent", border: "none", cursor: "pointer", padding: "10px 12px", gap: 9, WebkitTapHighlightColor: "transparent" }}>
+                                  <span style={{ fontSize: "0.5rem", fontWeight: 900, color: "var(--text-3)", background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, padding: "2px 6px", flexShrink: 0, letterSpacing: "0.06em" }}>M{mn}</span>
+                                  <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--text-2)", flex: 1, textAlign: "left" as const, letterSpacing: "-0.01em" }}>{short}</span>
+                                  <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "1rem", fontWeight: 700, color: scoreColor, flexShrink: 0 }}>{total}</span>
+                                  <span style={{ fontSize: "0.48rem", color: "var(--text-3)", flexShrink: 0, letterSpacing: "0.08em", fontWeight: 700 }}>PTS</span>
+                                  <svg width="8" height="6" viewBox="0 0 10 6" fill="none" style={{ transition: "transform 0.22s cubic-bezier(0.4,0,0.2,1)", transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", flexShrink: 0 }}>
+                                    <path d="M1 1l4 4 4-4" stroke="rgba(255,255,255,0.25)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
                                   </svg>
                                 </button>
                                 {isExpanded && (
-                                  <div style={{ borderTop: "1px solid var(--border)", padding: "6px 10px 8px" }}>
+                                  <div style={{ borderTop: "1px solid rgba(245,166,35,0.12)", padding: "6px 12px 10px" }}>
                                     {players.map((p, i) => (
-                                      <div key={p.name} style={{ display: "flex", alignItems: "center", gap: 5, padding: "3px 0", borderTop: i > 0 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
-                                        <span style={{ fontSize: "0.65rem", flex: 1, color: p.pts === 0 ? "var(--text-3)" : "var(--text-2)", fontWeight: p.pts !== 0 ? 600 : 400, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+                                      <div key={p.name} style={{ display: "flex", alignItems: "center", gap: 6, padding: "4px 0", borderTop: i > 0 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
+                                        <span style={{ fontSize: "0.67rem", flex: 1, color: p.pts === 0 ? "var(--text-3)" : "var(--text-2)", fontWeight: p.pts !== 0 ? 600 : 400, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
                                           {p.name}
                                         </span>
-                                        {p.isCap && <span style={{ fontSize: "0.44rem", fontWeight: 900, color: "#d4a843", background: "rgba(212,168,67,0.18)", border: "1px solid rgba(212,168,67,0.4)", borderRadius: 3, padding: "0 3px", lineHeight: 1.4, flexShrink: 0 }}>C</span>}
-                                        {p.isVC && <span style={{ fontSize: "0.44rem", fontWeight: 900, color: "#94a3b8", background: "rgba(148,163,184,0.12)", border: "1px solid rgba(148,163,184,0.3)", borderRadius: 3, padding: "0 3px", lineHeight: 1.4, flexShrink: 0 }}>VC</span>}
-                                        {p.isCap && <span style={{ fontSize: "0.44rem", fontWeight: 700, color: "#d4a843", opacity: 0.8, flexShrink: 0 }}>2×</span>}
-                                        {p.isVC && <span style={{ fontSize: "0.44rem", fontWeight: 700, color: "#94a3b8", opacity: 0.8, flexShrink: 0 }}>1.5×</span>}
-                                        <span style={{ fontSize: "0.68rem", fontWeight: 700, minWidth: 26, textAlign: "right" as const, color: p.pts === 0 ? "var(--text-3)" : p.pts >= 60 ? "#d4a843" : p.pts >= 40 ? "#fb923c" : "#4ade80" }}>
+                                        {p.isCap && <span style={{ fontSize: "0.44rem", fontWeight: 900, color: "#d4a843", background: "rgba(212,168,67,0.2)", border: "1px solid rgba(212,168,67,0.45)", borderRadius: 4, padding: "1px 4px", lineHeight: 1.4, flexShrink: 0 }}>C × 2</span>}
+                                        {p.isVC && <span style={{ fontSize: "0.44rem", fontWeight: 900, color: "#94a3b8", background: "rgba(148,163,184,0.14)", border: "1px solid rgba(148,163,184,0.3)", borderRadius: 4, padding: "1px 4px", lineHeight: 1.4, flexShrink: 0 }}>VC × 1.5</span>}
+                                        <span style={{ fontSize: "0.72rem", fontWeight: 700, minWidth: 28, textAlign: "right" as const, fontFamily: "'Oswald', sans-serif", color: p.pts === 0 ? "var(--text-3)" : p.pts >= 60 ? "#d4a843" : p.pts >= 40 ? "#fb923c" : "#4ade80" }}>
                                           {p.pts === 0 ? "—" : "+" + p.pts}
                                         </span>
                                       </div>
