@@ -2731,37 +2731,38 @@ export default function App() {
               <>
                 {/* === PREMIUM SECTION WRAPPER === */}
                 <div style={{
-                  background: `linear-gradient(180deg, ${t.color}04 0%, rgba(255,255,255,0.005) 100%)`,
-                  border: `1px solid ${t.color}14`,
-                  borderRadius: 18,
-                  padding: "14px", marginBottom: 10,
-                  boxShadow: `0 12px 48px rgba(0,0,0,0.3), inset 0 1px 0 ${t.color}0a`,
-                  backdropFilter: "blur(20px)",
-                  WebkitBackdropFilter: "blur(20px)",
+                  background: `linear-gradient(180deg, ${t.color}06 0%, rgba(255,255,255,0.008) 100%)`,
+                  border: `1px solid ${t.color}18`,
+                  borderRadius: 20,
+                  padding: "16px", marginBottom: 14,
+                  boxShadow: `0 16px 64px rgba(0,0,0,0.35), inset 0 1px 0 ${t.color}10`,
+                  backdropFilter: "blur(24px)",
+                  WebkitBackdropFilter: "blur(24px)",
+                  overflow: "hidden",
                 }}>
                   {/* === PLAYING XI HEADER (COLLAPSIBLE) === */}
                   <button
                     onClick={() => setXIOpen(o => !o)}
                     style={{
                       display: "flex", alignItems: "center", justifyContent: "space-between",
-                      width: "100%", marginBottom: xiOpen ? 0 : 9,
-                      background: xiOpen ? `linear-gradient(135deg, ${t.color}0f 0%, ${t.color}05 100%)` : "transparent",
-                      border: xiOpen ? `1px solid ${t.color}22` : "none",
-                      borderRadius: xiOpen ? "12px 12px 0 0" : 0,
-                      cursor: "pointer", padding: "12px 0",
+                      width: "100%", marginBottom: xiOpen ? 0 : 10,
+                      background: xiOpen ? `linear-gradient(135deg, ${t.color}12 0%, ${t.color}08 100%)` : "transparent",
+                      border: xiOpen ? `1px solid ${t.color}26` : "none",
+                      borderRadius: xiOpen ? "14px 14px 0 0" : 0,
+                      cursor: "pointer", padding: "14px 2px",
                       WebkitTapHighlightColor: "transparent",
-                      boxShadow: xiOpen ? `inset 0 1px 0 ${t.color}10` : "none",
-                      transition: "all 0.2s ease",
+                      boxShadow: xiOpen ? `inset 0 1px 0 ${t.color}14` : "none",
+                      transition: "all 0.22s ease",
                     }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                      <span style={{ fontSize: "0.62rem", fontWeight: 600, color: "var(--text-3)", letterSpacing: "0.05em", textTransform: "uppercase" as const }}>Squad</span>
-                      <span style={{ fontSize: "0.72rem", fontWeight: 800, color: t.color, fontFamily: "'Oswald', sans-serif", letterSpacing: "0.02em" }}>{xi.length}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ fontSize: "0.61rem", fontWeight: 600, color: "var(--text-3)", letterSpacing: "0.055em", textTransform: "uppercase" as const }}>Squad</span>
+                      <span style={{ fontSize: "0.76rem", fontWeight: 800, color: t.color, fontFamily: "'Oswald', sans-serif", letterSpacing: "0.01em" }}>{xi.length}</span>
                     </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                       {Object.keys(playerPoints).length > 0 && (
-                        <span style={{ fontSize: "0.68rem", fontWeight: 800, color: t.color, fontFamily: "'Oswald', sans-serif", letterSpacing: "0.01em" }}>{xiTotal}</span>
+                        <span style={{ fontSize: "0.7rem", fontWeight: 800, color: t.color, fontFamily: "'Oswald', sans-serif", letterSpacing: "-0.005em" }}>{xiTotal}</span>
                       )}
-                      <svg width="10" height="6" viewBox="0 0 10 6" fill="none" style={{ transition: "transform 0.35s cubic-bezier(0.34,1.56,0.64,1)", transform: xiOpen ? "rotate(180deg)" : "none", flexShrink: 0, opacity: 0.6 }}>
+                      <svg width="10" height="6" viewBox="0 0 10 6" fill="none" style={{ transition: "transform 0.35s cubic-bezier(0.34,1.56,0.64,1)", transform: xiOpen ? "rotate(180deg)" : "none", flexShrink: 0, opacity: 0.7 }}>
                         <path d="M1 1l4 4 4-4" stroke={t.color} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
                     </div>
@@ -2779,24 +2780,24 @@ export default function App() {
                     onClick={() => setBenchOpen(o => !o)}
                     style={{
                       display: "flex", alignItems: "center", justifyContent: "space-between",
-                      width: "100%", marginBottom: benchOpen ? 0 : 9,
-                      background: benchOpen ? "linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01))" : "transparent",
-                      border: benchOpen ? "1px solid rgba(255,255,255,0.1)" : "none",
-                      borderRadius: benchOpen ? "12px 12px 0 0" : 0,
-                      cursor: "pointer", padding: "12px 0",
+                      width: "100%", marginBottom: benchOpen ? 0 : 10,
+                      background: benchOpen ? "linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))" : "transparent",
+                      border: benchOpen ? "1px solid rgba(255,255,255,0.14)" : "none",
+                      borderRadius: benchOpen ? "14px 14px 0 0" : 0,
+                      cursor: "pointer", padding: "14px 2px",
                       WebkitTapHighlightColor: "transparent",
-                      boxShadow: benchOpen ? "inset 0 1px 0 rgba(255,255,255,0.05)" : "none",
-                      transition: "all 0.2s ease",
+                      boxShadow: benchOpen ? "inset 0 1px 0 rgba(255,255,255,0.08)" : "none",
+                      transition: "all 0.22s ease",
                     }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                      <span style={{ fontSize: "0.62rem", fontWeight: 600, color: "var(--text-3)", letterSpacing: "0.05em", textTransform: "uppercase" as const }}>Reserves</span>
-                      <span style={{ fontSize: "0.72rem", fontWeight: 800, color: "var(--text-2)", fontFamily: "'Oswald', sans-serif", letterSpacing: "0.02em" }}>{bench.length}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ fontSize: "0.61rem", fontWeight: 600, color: "var(--text-3)", letterSpacing: "0.055em", textTransform: "uppercase" as const }}>Reserves</span>
+                      <span style={{ fontSize: "0.76rem", fontWeight: 800, color: "var(--text-2)", fontFamily: "'Oswald', sans-serif", letterSpacing: "0.01em" }}>{bench.length}</span>
                       {Object.keys(playerPoints).length > 0 && benchTotal > 0 && (
-                        <span style={{ fontSize: "0.56rem", color: "var(--text-3)", opacity: 0.6, fontWeight: 600 }}>{benchTotal}pt</span>
+                        <span style={{ fontSize: "0.58rem", color: "var(--text-3)", opacity: 0.65, fontWeight: 600 }}>{benchTotal}pt</span>
                       )}
                     </div>
-                    <svg width="10" height="6" viewBox="0 0 10 6" fill="none" style={{ transition: "transform 0.35s cubic-bezier(0.34,1.56,0.64,1)", transform: benchOpen ? "rotate(180deg)" : "none", flexShrink: 0, opacity: 0.6 }}>
-                      <path d="M1 1l4 4 4-4" stroke="rgba(255,255,255,0.3)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                    <svg width="10" height="6" viewBox="0 0 10 6" fill="none" style={{ transition: "transform 0.35s cubic-bezier(0.34,1.56,0.64,1)", transform: benchOpen ? "rotate(180deg)" : "none", flexShrink: 0, opacity: 0.7 }}>
+                      <path d="M1 1l4 4 4-4" stroke="rgba(255,255,255,0.35)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </button>
 
@@ -2855,20 +2856,20 @@ export default function App() {
                         style={{
                           display: "flex", alignItems: "center", justifyContent: "space-between",
                           width: "100%", marginBottom: matchPtsOpen ? 0 : 0,
-                          background: matchPtsOpen ? "linear-gradient(135deg, rgba(245,166,35,0.08), rgba(245,166,35,0.02))" : "transparent",
-                          border: matchPtsOpen ? "1px solid rgba(245,166,35,0.18)" : "none",
-                          borderRadius: matchPtsOpen ? "12px 12px 0 0" : 0,
-                          cursor: "pointer", padding: "12px 0",
+                          background: matchPtsOpen ? "linear-gradient(135deg, rgba(245,166,35,0.12), rgba(245,166,35,0.04))" : "transparent",
+                          border: matchPtsOpen ? "1px solid rgba(245,166,35,0.22)" : "none",
+                          borderRadius: matchPtsOpen ? "14px 14px 0 0" : 0,
+                          cursor: "pointer", padding: "14px 2px",
                           WebkitTapHighlightColor: "transparent",
-                          boxShadow: matchPtsOpen ? "inset 0 1px 0 rgba(245,166,35,0.1)" : "none",
-                          transition: "all 0.2s ease",
+                          boxShadow: matchPtsOpen ? "inset 0 1px 0 rgba(245,166,35,0.12)" : "none",
+                          transition: "all 0.22s ease",
                         }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                          <span style={{ fontSize: "0.62rem", fontWeight: 600, color: "var(--text-3)", letterSpacing: "0.05em", textTransform: "uppercase" as const }}>Performance</span>
-                          {grandTotal > 0 && <span style={{ fontSize: "0.72rem", color: "var(--gold)", fontWeight: 800, fontFamily: "'Oswald', sans-serif", letterSpacing: "0.02em" }}>{grandTotal}</span>}
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <span style={{ fontSize: "0.61rem", fontWeight: 600, color: "var(--text-3)", letterSpacing: "0.055em", textTransform: "uppercase" as const }}>Performance</span>
+                          {grandTotal > 0 && <span style={{ fontSize: "0.76rem", color: "var(--gold)", fontWeight: 800, fontFamily: "'Oswald', sans-serif", letterSpacing: "0.01em" }}>{grandTotal}</span>}
                         </div>
-                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" style={{ transition: "transform 0.35s cubic-bezier(0.34,1.56,0.64,1)", transform: matchPtsOpen ? "rotate(180deg)" : "none", flexShrink: 0, opacity: 0.6 }}>
-                          <path d="M1 1l4 4 4-4" stroke="rgba(245,166,35,0.5)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" style={{ transition: "transform 0.35s cubic-bezier(0.34,1.56,0.64,1)", transform: matchPtsOpen ? "rotate(180deg)" : "none", flexShrink: 0, opacity: 0.7 }}>
+                          <path d="M1 1l4 4 4-4" stroke="rgba(245,166,35,0.6)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                       </button>
 
