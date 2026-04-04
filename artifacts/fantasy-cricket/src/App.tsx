@@ -2748,16 +2748,16 @@ export default function App() {
                       background: xiOpen ? `linear-gradient(135deg, ${t.color}0f 0%, ${t.color}05 100%)` : "transparent",
                       border: xiOpen ? `1px solid ${t.color}22` : "none",
                       borderRadius: xiOpen ? "12px 12px 0 0" : 0,
-                      cursor: "pointer", padding: "11px 0",
+                      cursor: "pointer", padding: "12px 0",
                       WebkitTapHighlightColor: "transparent",
                       boxShadow: xiOpen ? `inset 0 1px 0 ${t.color}10` : "none",
                       transition: "all 0.2s ease",
                     }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <span style={{ fontSize: "0.64rem", fontWeight: 600, color: "var(--text-3)", letterSpacing: "0.06em", textTransform: "uppercase" as const }}>Squad</span>
-                      <span style={{ fontSize: "0.7rem", fontWeight: 800, color: t.color, fontFamily: "'Oswald', sans-serif", letterSpacing: "0.02em" }}>{xi.length}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                      <span style={{ fontSize: "0.62rem", fontWeight: 600, color: "var(--text-3)", letterSpacing: "0.05em", textTransform: "uppercase" as const }}>Squad</span>
+                      <span style={{ fontSize: "0.72rem", fontWeight: 800, color: t.color, fontFamily: "'Oswald', sans-serif", letterSpacing: "0.02em" }}>{xi.length}</span>
                     </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
                       {Object.keys(playerPoints).length > 0 && (
                         <span style={{ fontSize: "0.68rem", fontWeight: 800, color: t.color, fontFamily: "'Oswald', sans-serif", letterSpacing: "0.01em" }}>{xiTotal}</span>
                       )}
@@ -2783,14 +2783,14 @@ export default function App() {
                       background: benchOpen ? "linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01))" : "transparent",
                       border: benchOpen ? "1px solid rgba(255,255,255,0.1)" : "none",
                       borderRadius: benchOpen ? "12px 12px 0 0" : 0,
-                      cursor: "pointer", padding: "11px 0",
+                      cursor: "pointer", padding: "12px 0",
                       WebkitTapHighlightColor: "transparent",
                       boxShadow: benchOpen ? "inset 0 1px 0 rgba(255,255,255,0.05)" : "none",
                       transition: "all 0.2s ease",
                     }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <span style={{ fontSize: "0.64rem", fontWeight: 600, color: "var(--text-3)", letterSpacing: "0.06em", textTransform: "uppercase" as const }}>Reserves</span>
-                      <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "var(--text-2)", fontFamily: "'Oswald', sans-serif", letterSpacing: "0.02em" }}>{bench.length}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                      <span style={{ fontSize: "0.62rem", fontWeight: 600, color: "var(--text-3)", letterSpacing: "0.05em", textTransform: "uppercase" as const }}>Reserves</span>
+                      <span style={{ fontSize: "0.72rem", fontWeight: 800, color: "var(--text-2)", fontFamily: "'Oswald', sans-serif", letterSpacing: "0.02em" }}>{bench.length}</span>
                       {Object.keys(playerPoints).length > 0 && benchTotal > 0 && (
                         <span style={{ fontSize: "0.56rem", color: "var(--text-3)", opacity: 0.6, fontWeight: 600 }}>{benchTotal}pt</span>
                       )}
@@ -2858,14 +2858,14 @@ export default function App() {
                           background: matchPtsOpen ? "linear-gradient(135deg, rgba(245,166,35,0.08), rgba(245,166,35,0.02))" : "transparent",
                           border: matchPtsOpen ? "1px solid rgba(245,166,35,0.18)" : "none",
                           borderRadius: matchPtsOpen ? "12px 12px 0 0" : 0,
-                          cursor: "pointer", padding: "11px 0",
+                          cursor: "pointer", padding: "12px 0",
                           WebkitTapHighlightColor: "transparent",
                           boxShadow: matchPtsOpen ? "inset 0 1px 0 rgba(245,166,35,0.1)" : "none",
                           transition: "all 0.2s ease",
                         }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          <span style={{ fontSize: "0.64rem", fontWeight: 600, color: "var(--text-3)", letterSpacing: "0.06em", textTransform: "uppercase" as const }}>Performance</span>
-                          {grandTotal > 0 && <span style={{ fontSize: "0.7rem", color: "var(--gold)", fontWeight: 800, fontFamily: "'Oswald', sans-serif", letterSpacing: "0.02em" }}>{grandTotal}</span>}
+                        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                          <span style={{ fontSize: "0.62rem", fontWeight: 600, color: "var(--text-3)", letterSpacing: "0.05em", textTransform: "uppercase" as const }}>Performance</span>
+                          {grandTotal > 0 && <span style={{ fontSize: "0.72rem", color: "var(--gold)", fontWeight: 800, fontFamily: "'Oswald', sans-serif", letterSpacing: "0.02em" }}>{grandTotal}</span>}
                         </div>
                         <svg width="10" height="6" viewBox="0 0 10 6" fill="none" style={{ transition: "transform 0.35s cubic-bezier(0.34,1.56,0.64,1)", transform: matchPtsOpen ? "rotate(180deg)" : "none", flexShrink: 0, opacity: 0.6 }}>
                           <path d="M1 1l4 4 4-4" stroke="rgba(245,166,35,0.5)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
