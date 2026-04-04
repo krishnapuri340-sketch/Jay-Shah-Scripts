@@ -330,29 +330,24 @@ body { background: var(--bg); }
   background: transparent; color: var(--text-3);
   font-family: 'Oswald', sans-serif; font-size: 0.48rem; font-weight: 700;
   letter-spacing: 0.12em; text-transform: uppercase;
-  transition: all 0.24s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: color 0.24s var(--ease-smooth);
   -webkit-tap-highlight-color: transparent;
-  position: relative; border-radius: 12px;
+  position: relative; border-radius: 0;
 }
 .nav-btn::before {
   content: '';
-  position: absolute; inset: 0;
-  height: 100%; width: 100%;
-  background: linear-gradient(135deg, rgba(245,166,35,0.12) 0%, rgba(245,166,35,0.04) 100%);
-  border-radius: 12px;
-  border: 1px solid rgba(245,166,35,0.18);
-  transform: scale(0.85); opacity: 0;
-  transition: all 0.26s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: absolute; top: -1px; left: 20%; right: 20%;
+  height: 2.5px; border-radius: 0 0 3px 3px;
+  background: var(--gold);
+  box-shadow: 0 2px 12px rgba(245,166,35,0.55), 0 0 6px rgba(245,166,35,0.3);
+  transform: scaleX(0); opacity: 0;
+  transition: transform 0.28s var(--ease-spring), opacity 0.2s var(--ease-smooth);
 }
 .nav-btn.active {
   color: var(--gold);
-  background: linear-gradient(135deg, rgba(245,166,35,0.16) 0%, rgba(245,166,35,0.08) 100%);
-  border-radius: 12px;
 }
 .nav-btn.active::before {
-  transform: scale(1); opacity: 1;
-  border: 1px solid rgba(245,166,35,0.28);
-  box-shadow: 0 0 16px rgba(245,166,35,0.35), inset 0 1px 8px rgba(255,255,255,0.08);
+  transform: scaleX(1); opacity: 1;
 }
 .nav-btn:hover:not(.active) {
   color: var(--text-2);
@@ -361,11 +356,11 @@ body { background: var(--bg); }
 .nav-icon {
   line-height: 1; display: flex; align-items: center; justify-content: center;
   font-size: 1.22rem; margin-bottom: 0px;
-  transition: all 0.26s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all 0.26s var(--ease-spring);
 }
 .nav-btn.active .nav-icon {
-  transform: scale(1.24);
-  filter: drop-shadow(0 2px 6px rgba(245,166,35,0.45));
+  transform: scale(1.18);
+  filter: drop-shadow(0 2px 8px rgba(245,166,35,0.5));
 }
 
 /* === SECTION TITLE === */
