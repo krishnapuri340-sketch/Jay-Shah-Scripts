@@ -293,20 +293,23 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
           {checking && <div style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.4)", marginBottom: 12, letterSpacing: "0.06em" }}>Checking…</div>}
 
           {/* Numpad — frosted glass keys */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 76px)", gap: 12, width: "fit-content", opacity: checking ? 0.4 : 1, pointerEvents: checking ? "none" : "auto" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 76px)", gap: 11, width: "fit-content", opacity: checking ? 0.4 : 1, pointerEvents: checking ? "none" : "auto" }}>
             {["1","2","3","4","5","6","7","8","9","","0","⌫"].map((k, i) => (
               k === "" ? <div key={i} /> :
               <button key={i} className="num-key" onClick={() => k === "⌫" ? back() : digit(k)} style={{
-                background: k === "⌫" ? "rgba(255,80,80,0.15)" : "rgba(255,255,255,0.11)",
-                border: `1px solid ${k === "⌫" ? "rgba(255,100,100,0.3)" : "rgba(255,255,255,0.22)"}`,
+                background: k === "⌫"
+                  ? "rgba(255,80,80,0.13)"
+                  : `linear-gradient(170deg, ${ft.color}09 0%, rgba(255,255,255,0.08) 100%)`,
+                border: `1px solid ${k === "⌫" ? "rgba(255,100,100,0.28)" : `${ft.color}28`}`,
                 borderRadius: 22, width: 76, height: 76,
-                fontSize: k === "⌫" ? "1.2rem" : "1.65rem", fontWeight: 300,
+                fontSize: k === "⌫" ? "1.25rem" : "1.7rem", fontWeight: 300,
                 color: k === "⌫" ? "#ff8888" : "#fff",
-                cursor: "pointer", fontFamily: "inherit",
+                cursor: "pointer", fontFamily: "'Oswald', sans-serif",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                backdropFilter: "blur(32px) saturate(1.8)",
-                WebkitBackdropFilter: "blur(32px) saturate(1.8)",
-                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.2), 0 4px 20px rgba(0,0,0,0.25)",
+                backdropFilter: "blur(32px) saturate(1.9)",
+                WebkitBackdropFilter: "blur(32px) saturate(1.9)",
+                boxShadow: `inset 0 1.5px 0 rgba(255,255,255,0.16), 0 5px 22px rgba(0,0,0,0.32)`,
+                letterSpacing: "-0.02em",
               }}>{k}</button>
             ))}
           </div>
@@ -324,11 +327,13 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
         @keyframes team-card-in { from { opacity:0; transform:scale(0.88) translateY(18px); } to { opacity:1; transform:scale(1) translateY(0); } }
         @keyframes welcome-pop { from { opacity:0; transform:scale(0.88) translateY(8px); } to { opacity:1; transform:scale(1) translateY(0); } }
         @keyframes login-icon-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .team-card { transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) !important; position: relative; overflow: hidden; -webkit-backdrop-filter: blur(36px) saturate(1.8); backdrop-filter: blur(36px) saturate(1.8); }
-        .team-card::before { content: ""; position: absolute; inset: 0; background: linear-gradient(160deg, rgba(255,255,255,0.07) 0%, transparent 55%); opacity: 0; transition: opacity 0.25s ease; border-radius: inherit; }
-        .team-card:hover { transform: translateY(-4px) scale(1.01) !important; }
+        @keyframes card-shimmer { 0%{transform:translateX(-110%) skewX(-18deg)} 100%{transform:translateX(240%) skewX(-18deg)} }
+        .team-card { transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) !important; position: relative; overflow: hidden; -webkit-backdrop-filter: blur(40px) saturate(2); backdrop-filter: blur(40px) saturate(2); }
+        .team-card::before { content: ""; position: absolute; inset: 0; background: linear-gradient(160deg, rgba(255,255,255,0.09) 0%, transparent 55%); opacity: 0; transition: opacity 0.25s ease; border-radius: inherit; pointer-events: none; }
+        .team-card::after { content: ""; position: absolute; top: 0; left: 0; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent); opacity: 0; border-radius: inherit; pointer-events: none; transition: opacity 0.2s; }
+        .team-card:hover { transform: translateY(-5px) scale(1.025) !important; }
         .team-card:hover::before { opacity: 1; }
-        .team-card:active { transform: scale(0.95) !important; transition: all 0.1s ease !important; }
+        .team-card:active { transform: scale(0.94) !important; transition: all 0.1s ease !important; }
       `}</style>
 
       {/* Logo area */}
@@ -390,21 +395,21 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
       <div style={{ position: "relative", zIndex: 2, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, width: "100%", maxWidth: 400 }}>
         {Object.values(FANTASY_TEAMS).map((ft, idx) => (
           <button key={ft.id} className="team-card" onClick={() => setSel(ft.id)} style={{
-            background: `linear-gradient(160deg, rgba(12,8,5,0.42) 0%, rgba(6,4,2,0.28) 100%)`,
-            border: `1px solid rgba(255,255,255,0.14)`,
+            background: `linear-gradient(170deg, ${ft.color}0d 0%, rgba(10,7,4,0.38) 38%, rgba(6,4,2,0.25) 100%)`,
+            border: `1px solid ${ft.color}38`,
             borderRadius: 24, padding: "26px 16px 22px",
             cursor: "pointer", fontFamily: "inherit",
             display: "flex", flexDirection: "column" as const, alignItems: "center",
-            boxShadow: `inset 0 1.5px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.25), 0 12px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.06), 0 0 32px ${ft.color}18`,
+            boxShadow: `inset 0 2px 0 ${ft.color}22, 0 14px 48px rgba(0,0,0,0.6), 0 0 0 1px ${ft.color}12, 0 0 40px ${ft.color}14`,
             animation: `team-card-in 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) ${idx * 0.09 + 0.1}s both`,
-            backdropFilter: "blur(40px) saturate(2.0)",
-            WebkitBackdropFilter: "blur(40px) saturate(2.0)",
           }}>
-            <div style={{ width: 68, height: 68, borderRadius: "50%", border: `2px solid ${ft.color}60`, overflow: "hidden", marginBottom: 14, boxShadow: `0 0 0 3px ${ft.color}18, 0 0 16px ${ft.color}30, 0 6px 24px rgba(0,0,0,0.5)`, flexShrink: 0, position: "relative" as const }}>
+            {/* Team color top accent */}
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2.5px", borderRadius: "24px 24px 0 0", background: `linear-gradient(90deg, transparent, ${ft.color}, transparent)`, opacity: 0.85 }} />
+            <div style={{ width: 68, height: 68, borderRadius: "50%", border: `2.5px solid ${ft.color}70`, overflow: "hidden", marginBottom: 14, boxShadow: `0 0 0 3px ${ft.color}1c, 0 0 20px ${ft.color}38, 0 6px 24px rgba(0,0,0,0.55)`, flexShrink: 0, position: "relative" as const }}>
               <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center center", display: "block" }} />
             </div>
-            <div style={{ fontSize: "1rem", fontWeight: 800, color: "#fff", marginBottom: 5, letterSpacing: "-0.02em", textShadow: "0 1px 12px rgba(0,0,0,0.8)" }}>{ft.owner}</div>
-            <div style={{ fontSize: "0.62rem", color: ft.color, fontWeight: 700, lineHeight: 1.4, letterSpacing: "0.04em", textShadow: `0 0 10px ${ft.color}55` }}>{ft.name}</div>
+            <div style={{ fontSize: "1rem", fontWeight: 800, color: "#fff", marginBottom: 5, letterSpacing: "-0.02em", textShadow: `0 1px 12px rgba(0,0,0,0.9), 0 0 28px ${ft.color}18` }}>{ft.owner}</div>
+            <div style={{ fontSize: "0.62rem", color: ft.color, fontWeight: 700, lineHeight: 1.4, letterSpacing: "0.04em", textShadow: `0 0 12px ${ft.color}66` }}>{ft.name}</div>
           </button>
         ))}
       </div>
@@ -1912,7 +1917,7 @@ export default function App() {
                 <div className="hist-top10-hdr" style={{ color: "#f97316" }}><span style={{filter:"hue-rotate(175deg) saturate(3) brightness(1.1)"}}>🧢</span> Top Run-scorers</div>
                 {s.topBat.map((p, i) => (
                   <div key={i} className="hist-top10-row">
-                    <span className="hist-rk">{i + 1}</span>
+                    <span className={`hist-rk${i < 3 ? " top3" : ""}`}>{i + 1}</span>
                     <TeamBadge name={p.team} size={20} />
                     <span className="hist-pname">{p.name}</span>
                     <span className="hist-pval">{p.val}</span>
@@ -1923,7 +1928,7 @@ export default function App() {
                 <div className="hist-top10-hdr" style={{ color: "#7c3aed" }}><span style={{filter:"hue-rotate(25deg) saturate(4) brightness(0.5)"}}>🧢</span> Top Wicket-takers</div>
                 {s.topBwl.map((p, i) => (
                   <div key={i} className="hist-top10-row">
-                    <span className="hist-rk">{i + 1}</span>
+                    <span className={`hist-rk${i < 3 ? " top3" : ""}`}>{i + 1}</span>
                     <TeamBadge name={p.team} size={20} />
                     <span className="hist-pname">{p.name}</span>
                     <span className="hist-pval">{p.val}</span>
@@ -2123,45 +2128,59 @@ export default function App() {
           };
           return (
             <div>
-              {teamScores.map((s, i) => (
+              {teamScores.map((s, i) => {
+                const leader = teamScores[0];
+                const gap = i > 0 && Object.keys(playerPoints).length > 0 ? leader.total - s.total : 0;
+                return (
                 <div key={s.id} className={`lb-card ${i === 0 ? "rank-first" : ""}`} onClick={() => { setSelectedTeam(s.id); setTab("teams"); }}>
                   {/* Blurred team artwork background */}
                   <div style={{
                     position: "absolute", inset: -6, zIndex: 0,
                     backgroundImage: `url(${LB_BG[s.id]})`,
                     backgroundSize: "cover", backgroundPosition: "center 30%",
-                    filter: "blur(8px) brightness(0.34) saturate(1.3)",
+                    filter: `blur(9px) brightness(${i === 0 ? 0.38 : 0.28}) saturate(1.4)`,
                     transform: "translateZ(0)",
                   }} />
-                  {/* Subtle vignette overlay for extra depth */}
+                  {/* Team color atmospheric overlay */}
                   <div style={{
                     position: "absolute", inset: 0, zIndex: 1,
-                    background: `linear-gradient(135deg, ${s.team.color}18 0%, rgba(6,4,2,0.55) 100%)`,
+                    background: `linear-gradient(130deg, ${s.team.color}1e 0%, rgba(6,4,2,0.6) 70%)`,
                   }} />
-                  <div className="lb-accent" style={{ background: s.team.color, zIndex: 2, position: "relative" }} />
+                  <div className="lb-accent" style={{ background: `linear-gradient(180deg, ${s.team.color}cc, ${s.team.color})`, zIndex: 2, position: "relative" }} />
                   <div className="lb-inner" style={{ position: "relative", zIndex: 2 }}>
-                    <div className={`lb-rank ${rankLabel(i)}`} style={{ textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>{i + 1}</div>
+                    <div className={`lb-rank ${rankLabel(i)}`} style={{ textShadow: "0 1px 10px rgba(0,0,0,0.95)" }}>{i + 1}</div>
                     <div className="lb-info">
                       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                         <div className={`lb-name ${i === 0 ? "first" : ""}`}
-                          style={{ textShadow: "0 1px 6px rgba(0,0,0,1), 0 0 20px rgba(0,0,0,0.8)" }}>
+                          style={{ textShadow: "0 1px 8px rgba(0,0,0,1), 0 0 22px rgba(0,0,0,0.9)" }}>
                           {s.team.name}
                         </div>
+                        {i === 0 && <span style={{ fontSize: "0.82rem", lineHeight: 1 }}>👑</span>}
                       </div>
-                      <div className="lb-meta" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>
+                      <div className="lb-meta" style={{ textShadow: "0 1px 5px rgba(0,0,0,0.95)" }}>
                         {s.team.owner} · <span style={{ color: "#d4a843" }}>C:</span> {s.team.captain} · <span style={{ color: "var(--text-2)" }}>VC:</span> {s.team.vc}
                       </div>
+                      {gap > 0 && (
+                        <div style={{ marginTop: 5 }}>
+                          <span className="lb-gap-badge">–{gap} pts</span>
+                        </div>
+                      )}
                     </div>
                     <div style={{ textAlign: "right", flexShrink: 0 }}>
-                      <div className="lb-pts first opacity-[1] bg-[transparent]"
-                        style={{ color: Object.keys(playerPoints).length === 0 ? "var(--text-3)" : s.team.color, textShadow: `0 0 10px ${s.team.color}55, 0 1px 4px rgba(0,0,0,1)` }}>
+                      <div className={`lb-pts ${i === 0 ? "first" : ""}`}
+                        style={{ color: Object.keys(playerPoints).length === 0 ? "var(--text-3)" : s.team.color, textShadow: `0 0 14px ${s.team.color}66, 0 1px 6px rgba(0,0,0,1)` }}>
                         {Object.keys(playerPoints).length === 0 ? "—" : s.total}
                       </div>
                       <div className="lb-pts-label" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>pts</div>
                     </div>
                   </div>
+                  {/* Progress bar */}
+                  <div className="lb-bar">
+                    <div className="lb-bar-fill" style={{ width: `${maxPts ? (s.total / maxPts) * 100 : 0}%`, background: `linear-gradient(90deg, ${s.team.color}aa, ${s.team.color})` }} />
+                  </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           );
         })()}
@@ -2310,7 +2329,7 @@ export default function App() {
           })}
         </div>
 
-        <div className="team-header-card" style={{ "--team-color": t.color } as React.CSSProperties}>
+        <div className="team-header-card" style={{ "--team-color": t.color, "--team-color-alpha": `${t.color}28` } as React.CSSProperties}>
           {/* Blurred team artwork background */}
           <div style={{
             position: "absolute", inset: -6, zIndex: 0,
