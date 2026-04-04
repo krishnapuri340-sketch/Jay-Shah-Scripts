@@ -2104,9 +2104,12 @@ export default function App() {
             mumbai:   `${import.meta.env.BASE_URL}lb-bg-mumbai.jpeg`,
             ponygoat: `${import.meta.env.BASE_URL}lb-bg-ponygoat.jpeg`,
           };
+          const leaderTotal = teamScores[0]?.total ?? 0;
           return (
             <div>
-              {teamScores.map((s, i) => (
+              {teamScores.map((s, i) => {
+                const gap = i > 0 && Object.keys(playerPoints).length > 0 ? leaderTotal - s.total : 0;
+                return (
                 <div key={s.id} className={`lb-card ${i === 0 ? "rank-first" : ""}`} onClick={() => { setSelectedTeam(s.id); setTab("teams"); }}>
                   {/* Blurred team artwork background */}
                   <div style={{
@@ -2141,11 +2144,17 @@ export default function App() {
                         style={{ color: Object.keys(playerPoints).length === 0 ? "var(--text-3)" : s.team.color, textShadow: `0 0 10px ${s.team.color}55, 0 1px 4px rgba(0,0,0,1)` }}>
                         {Object.keys(playerPoints).length === 0 ? "—" : s.total}
                       </div>
-                      <div className="lb-pts-label" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>pts</div>
+                      {i === 0
+                        ? <div className="lb-pts-label" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>pts</div>
+                        : <div style={{ fontSize: "0.6rem", color: gap === 0 ? "var(--text-3)" : "#f87171", textShadow: "0 1px 4px rgba(0,0,0,0.9)", fontWeight: 600, marginTop: 1 }}>
+                            {Object.keys(playerPoints).length === 0 ? "pts" : `−${gap} pts`}
+                          </div>
+                      }
                     </div>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           );
         })()}
