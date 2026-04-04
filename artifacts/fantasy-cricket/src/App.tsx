@@ -2741,33 +2741,23 @@ export default function App() {
                   overflow: "hidden",
                 }}>
                   {/* === PLAYING XI HEADER (COLLAPSIBLE) === */}
-                  <button
-                    onClick={() => setXIOpen(o => !o)}
-                    style={{
-                      display: "flex", alignItems: "center", justifyContent: "space-between",
-                      width: "100%", marginBottom: xiOpen ? 0 : 0,
-                      background: xiOpen ? `linear-gradient(135deg, ${t.color}10 0%, ${t.color}06 100%)` : "transparent",
-                      border: "none",
-                      borderRadius: 0,
-                      cursor: "pointer", padding: "14px 16px",
-                      WebkitTapHighlightColor: "transparent",
-                      boxShadow: xiOpen ? `inset 0 1px 0 ${t.color}12` : "none",
-                      transition: "all 0.22s ease",
-                      borderBottom: xiOpen ? `1px solid ${t.color}15` : "none",
-                    }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ fontSize: "0.61rem", fontWeight: 600, color: "var(--text-3)", letterSpacing: "0.055em", textTransform: "uppercase" as const }}>Squad</span>
-                      <span style={{ fontSize: "0.76rem", fontWeight: 800, color: t.color, fontFamily: "'Oswald', sans-serif", letterSpacing: "0.01em" }}>{xi.length}</span>
+                  <div className="sub-header" onClick={() => setXIOpen(o => !o)}
+                    style={xiOpen ? { background: `linear-gradient(135deg, ${t.color}10 0%, ${t.color}06 100%)`, borderBottomColor: `${t.color}15` } : { borderBottom: "1px solid transparent" }}>
+                    <div className="sub-header-title">
+                      Squad
+                      <span className="sub-header-count" style={{ color: t.color, background: `${t.color}14` }}>{xi.length}</span>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                       {Object.keys(playerPoints).length > 0 && (
-                        <span style={{ fontSize: "0.7rem", fontWeight: 800, color: t.color, fontFamily: "'Oswald', sans-serif", letterSpacing: "-0.005em" }}>{xiTotal}</span>
+                        <span style={{ fontSize: "0.72rem", fontWeight: 800, color: t.color, fontFamily: "'Oswald', sans-serif" }}>{xiTotal}</span>
                       )}
-                      <svg width="10" height="6" viewBox="0 0 10 6" fill="none" style={{ transition: "transform 0.35s cubic-bezier(0.34,1.56,0.64,1)", transform: xiOpen ? "rotate(180deg)" : "none", flexShrink: 0, opacity: 0.7 }}>
-                        <path d="M1 1l4 4 4-4" stroke={t.color} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
+                      <span className={`sub-header-chevron${xiOpen ? " open" : ""}`}>
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+                          <path d="M1 1l4 4 4-4" stroke={t.color} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </span>
                     </div>
-                  </button>
+                  </div>
 
                   {/* === PLAYING XI GRID (SMOOTH BLEND) === */}
                   {xiOpen && (
@@ -2777,31 +2767,23 @@ export default function App() {
                   )}
 
                   {/* === BENCH TOGGLE === */}
-                  <button
-                    onClick={() => setBenchOpen(o => !o)}
-                    style={{
-                      display: "flex", alignItems: "center", justifyContent: "space-between",
-                      width: "100%", marginBottom: benchOpen ? 0 : 0,
-                      background: benchOpen ? "linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01))" : "transparent",
-                      border: "none",
-                      borderRadius: 0,
-                      cursor: "pointer", padding: "14px 16px",
-                      WebkitTapHighlightColor: "transparent",
-                      boxShadow: benchOpen ? "inset 0 1px 0 rgba(255,255,255,0.08)" : "none",
-                      transition: "all 0.22s ease",
-                      borderBottom: benchOpen ? "1px solid rgba(255,255,255,0.1)" : "none",
-                    }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ fontSize: "0.61rem", fontWeight: 600, color: "var(--text-3)", letterSpacing: "0.055em", textTransform: "uppercase" as const }}>Reserves</span>
-                      <span style={{ fontSize: "0.76rem", fontWeight: 800, color: "var(--text-2)", fontFamily: "'Oswald', sans-serif", letterSpacing: "0.01em" }}>{bench.length}</span>
-                      {Object.keys(playerPoints).length > 0 && benchTotal > 0 && (
-                        <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "var(--text-2)", fontFamily: "'Oswald', sans-serif", letterSpacing: "-0.005em", marginLeft: "auto" }}>{benchTotal}</span>
-                      )}
+                  <div className="sub-header" onClick={() => setBenchOpen(o => !o)}
+                    style={benchOpen ? { background: "linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))" } : { borderBottom: "1px solid transparent" }}>
+                    <div className="sub-header-title">
+                      Reserves
+                      <span className="sub-header-count">{bench.length}</span>
                     </div>
-                    <svg width="10" height="6" viewBox="0 0 10 6" fill="none" style={{ transition: "transform 0.35s cubic-bezier(0.34,1.56,0.64,1)", transform: benchOpen ? "rotate(180deg)" : "none", flexShrink: 0, opacity: 0.7 }}>
-                      <path d="M1 1l4 4 4-4" stroke="rgba(255,255,255,0.35)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </button>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      {Object.keys(playerPoints).length > 0 && benchTotal > 0 && (
+                        <span style={{ fontSize: "0.72rem", fontWeight: 800, color: "var(--text-2)", fontFamily: "'Oswald', sans-serif" }}>{benchTotal}</span>
+                      )}
+                      <span className={`sub-header-chevron${benchOpen ? " open" : ""}`}>
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+                          <path d="M1 1l4 4 4-4" stroke="rgba(255,255,255,0.35)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </span>
+                    </div>
+                  </div>
 
                   {/* === BENCH GRID === */}
                   {benchOpen && (
@@ -2853,29 +2835,18 @@ export default function App() {
 
                   return (
                     <div style={{ marginTop: 8 }}>
-                      <button
-                        onClick={() => setMatchPtsOpen(o => !o)}
-                        style={{
-                          display: "flex", alignItems: "center", justifyContent: "space-between",
-                          width: "100%", marginBottom: matchPtsOpen ? 0 : 0,
-                          background: matchPtsOpen ? "linear-gradient(135deg, rgba(245,166,35,0.10), rgba(245,166,35,0.02))" : "transparent",
-                          border: "none",
-                          borderRadius: 0,
-                          cursor: "pointer", padding: "14px 16px",
-                          WebkitTapHighlightColor: "transparent",
-                          boxShadow: matchPtsOpen ? "inset 0 1px 0 rgba(245,166,35,0.1)" : "none",
-                          transition: "all 0.22s ease",
-                          borderBottom: matchPtsOpen ? "1px solid rgba(245,166,35,0.15)" : "none",
-                          marginTop: 8,
-                        }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <span style={{ fontSize: "0.61rem", fontWeight: 600, color: "var(--text-3)", letterSpacing: "0.055em", textTransform: "uppercase" as const }}>Performance</span>
-                          {grandTotal > 0 && <span style={{ fontSize: "0.76rem", color: "var(--gold)", fontWeight: 800, fontFamily: "'Oswald', sans-serif", letterSpacing: "0.01em" }}>{grandTotal}</span>}
+                      <div className="sub-header" onClick={() => setMatchPtsOpen(o => !o)}
+                        style={matchPtsOpen ? { background: "linear-gradient(135deg, rgba(245,166,35,0.08), rgba(245,166,35,0.02))", borderBottomColor: "rgba(245,166,35,0.15)" } : { borderBottom: "1px solid transparent" }}>
+                        <div className="sub-header-title">
+                          Performance
+                          {grandTotal > 0 && <span className="sub-header-count" style={{ color: "var(--gold)", background: "rgba(245,166,35,0.12)" }}>{grandTotal}</span>}
                         </div>
-                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" style={{ transition: "transform 0.35s cubic-bezier(0.34,1.56,0.64,1)", transform: matchPtsOpen ? "rotate(180deg)" : "none", flexShrink: 0, opacity: 0.7 }}>
-                          <path d="M1 1l4 4 4-4" stroke="rgba(245,166,35,0.6)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      </button>
+                        <span className={`sub-header-chevron${matchPtsOpen ? " open" : ""}`}>
+                          <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+                            <path d="M1 1l4 4 4-4" stroke="rgba(245,166,35,0.6)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </span>
+                      </div>
 
                       {matchPtsOpen && (
                         <div style={{ display: "flex", flexDirection: "column" as const, gap: 3, borderTop: "1px solid rgba(245,166,35,0.12)", paddingTop: 10 }}>
@@ -2971,7 +2942,7 @@ export default function App() {
         {standings.length > 0 && (
           <div style={{ marginBottom: 16 }}>
             <div className="sec-title">Points Table</div>
-            <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
+            <div className="pts-wrap">
             <div style={{ overflowX: "auto" }}>
               <table style={{ width: "100%", borderCollapse: "collapse" as const, fontSize: "0.68rem", tableLayout: "fixed" as const }}>
                 <colgroup>
@@ -3032,7 +3003,7 @@ export default function App() {
                 </tbody>
               </table>
             </div>
-            <div style={{ padding: "5px 12px", fontSize: "0.58rem", color: "var(--text-3)", borderTop: "1px solid var(--border)", letterSpacing: "0.04em" }}>
+            <div className="pts-footer">
               Top 4 qualify for playoffs
             </div>
             </div>
@@ -3045,9 +3016,9 @@ export default function App() {
               {Array.from(teamFilter).map(code => {
                 const tc = IPL_COLORS[code] || "#888";
                 return (
-                  <div key={code} style={{ display: "flex", alignItems: "center", gap: 5, padding: "4px 10px", borderRadius: 20, background: tc + "18", border: `1px solid ${tc}44`, fontSize: "0.68rem", fontWeight: 600, color: tc }}>
+                  <div key={code} className="team-chip" style={{ background: tc + "18", border: `1px solid ${tc}44`, color: tc }}>
                     {code}
-                    <button onClick={() => toggleTeamFilter(code)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0, lineHeight: 1, color: "inherit", opacity: 0.6, fontSize: "0.72rem" }}>✕</button>
+                    <button className="team-chip-x" onClick={() => toggleTeamFilter(code)}>✕</button>
                   </div>
                 );
               })}
@@ -3078,31 +3049,30 @@ export default function App() {
           </div>
         )}
         {/* Filter bar */}
-        <div style={{ display: "flex", gap: 6, marginBottom: 16 }}>
+        <div className="seg-row">
           {(["live", "upcoming", "completed", "all"] as const).map(f => {
             const count = f === "live" ? live.length : f === "upcoming" ? upcoming.length : f === "completed" ? completed.length : liveMatches.length;
             const isActive = activeFilter === f;
             return (
-              <button key={f} onClick={() => setMatchFilter(f)}
-                style={{ flex: 1, padding: "8px 0", borderRadius: 10, border: "1px solid", fontSize: "0.65rem", fontWeight: 500, cursor: "pointer", fontFamily: "inherit", textTransform: "capitalize" as const,
-                  background: isActive ? "var(--surface-2)" : "transparent",
-                  borderColor: isActive ? "var(--border-2)" : "var(--border)",
-                  color: isActive ? (f === "live" ? "#22c55e" : f === "upcoming" ? "var(--blue)" : "var(--text)") : "var(--text-3)" }}>
-                {f}<br />
-                <span style={{ fontSize: "0.6rem", opacity: 0.7 }}>{count}</span>
+              <button key={f} className={`seg-btn${isActive ? " active" : ""}`}
+                onClick={() => setMatchFilter(f)}
+                style={isActive ? { color: f === "live" ? "#22c55e" : f === "upcoming" ? "var(--blue)" : undefined } : undefined}>
+                {f}
+                <span className="seg-count">{count}</span>
               </button>
             );
           })}
         </div>
         {apiError && <div className="notice" style={{ background: "rgba(239,68,68,0.08)", borderColor: "rgba(239,68,68,0.2)", color: "#f87171", marginBottom: 12 }}>{apiError}</div>}
         {filteredMatches.length === 0 && (
-          <div style={{ textAlign: "center" as const, color: "var(--text-3)", fontSize: "0.78rem", padding: "32px 0" }}>
+          <div className="empty-msg">
+            <span className="empty-icon">{activeFilter === "live" ? "📡" : activeFilter === "upcoming" ? "📅" : "🏏"}</span>
             {teamFilter.size > 0 ? `No ${activeFilter === "all" ? "" : activeFilter + " "}${fixtureHomeAwayFilter !== "all" ? fixtureHomeAwayFilter + " " : ""}matches for ${Array.from(teamFilter).join(" / ")}` : activeFilter === "live" ? "No live matches right now" : activeFilter === "upcoming" ? "No upcoming matches" : "No matches"}
           </div>
         )}
         {Object.entries(filteredGrouped).map(([date, matches]: [string, any[]]) => (
           <div key={date}>
-            <div style={{ fontSize: "0.6rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-3)", margin: "16px 0 8px", fontWeight: 600 }}>
+            <div className="date-label">
               {fmtDate(date)}
             </div>
             {matches.map((m: any) => {
@@ -3658,13 +3628,11 @@ export default function App() {
       <div>
         <div className="sec-title">IPL 2026 Stats</div>
 
-        <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
+        <div className="seg-row">
           {([["all", "All IPL"], ["fantasy", "Fantasy Only"], ["predictions", "Predictions"]] as [string, string][]).map(([f, label]) => (
-            <button key={f} onClick={() => { setStatsFilter(f as any); setStatsExpanded(false); }}
-              style={{ flex: 1, padding: "8px 0", borderRadius: 10, border: "1px solid", fontSize: "0.68rem", fontWeight: 500, cursor: "pointer", fontFamily: "inherit",
-                background: statsFilter === f ? "var(--surface-2)" : "transparent",
-                borderColor: statsFilter === f ? "var(--border-2)" : "var(--border)",
-                color: statsFilter === f ? (f === "fantasy" ? "#22c55e" : f === "predictions" ? "#a78bfa" : "var(--text)") : "var(--text-3)" }}>
+            <button key={f} className={`seg-btn${statsFilter === f ? " active" : ""}`}
+              onClick={() => { setStatsFilter(f as any); setStatsExpanded(false); }}
+              style={statsFilter === f ? { color: f === "fantasy" ? "#22c55e" : f === "predictions" ? "#a78bfa" : undefined } : undefined}>
               {label}
             </button>
           ))}
@@ -3819,14 +3787,13 @@ export default function App() {
                     {/* Archive section — all completed matches */}
                     {archiveMatches.length > 0 && (
                       <div style={{ marginBottom: 10 }}>
-                        <button
-                          onClick={() => setPredArchiveOpen(o => !o)}
-                          style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: "transparent", border: "1px solid var(--border)", borderRadius: predArchiveOpen ? "10px 10px 0 0" : 10, padding: "7px 12px", cursor: "pointer", color: "var(--text-3)", fontSize: "0.65rem", fontFamily: "inherit", marginBottom: 0 }}>
-                          <span style={{ fontSize: "0.7rem" }}>{predArchiveOpen ? "▲" : "▼"}</span>
+                        <button className={`archive-toggle ${predArchiveOpen ? "open" : "closed"}`}
+                          onClick={() => setPredArchiveOpen(o => !o)}>
+                          <span style={{ fontSize: "0.7rem", transition: "transform 0.22s", transform: predArchiveOpen ? "rotate(180deg)" : "none" }}>▼</span>
                           {predArchiveOpen ? "Hide" : "Show"} {archiveMatches.length} completed match{archiveMatches.length !== 1 ? "es" : ""}
                         </button>
                         {predArchiveOpen && (
-                          <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderTop: "none", borderRadius: "0 0 10px 10px", overflow: "hidden", opacity: 0.55, marginBottom: 10 }}>
+                          <div className="data-panel" style={{ borderTop: "none", borderRadius: "0 0 var(--radius-lg) var(--radius-lg)", opacity: 0.55, marginBottom: 10 }}>
                             {tableHeader}
                             {archiveMatches.map((m: any, idx: number) => renderRow(m, idx === archiveMatches.length - 1))}
                           </div>
@@ -3835,7 +3802,7 @@ export default function App() {
                     )}
 
                     {/* Current / upcoming matches */}
-                    <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden", marginBottom: 4 }}>
+                    <div className="data-panel" style={{ marginBottom: 4 }}>
                       {tableHeader}
                       {currentMatches.length === 0 && sortedMatches.length === 0 && (
                         <div style={{ padding: "20px 12px", fontSize: "0.75rem", color: "var(--text-3)", textAlign: "center" as const }}>Matches loading...</div>
@@ -3846,20 +3813,20 @@ export default function App() {
                       {visibleCurrent.map((m: any, idx: number) => renderRow(m, idx === visibleCurrent.length - 1))}
                     </div>
                     {(hasMoreCurrent || predVisibleCount > 10) && (
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 2px 2px" }}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 4px 2px" }}>
                         {predVisibleCount > 10 ? (
-                          <button onClick={() => setPredVisibleCount(c => Math.max(10, c - 10))}
-                            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", borderRadius: 20, padding: "5px 12px", cursor: "pointer", fontSize: "0.63rem", color: "var(--text-3)", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 4 }}>
-                            <span>↑</span><span>Less</span>
+                          <button className="team-chip" onClick={() => setPredVisibleCount(c => Math.max(10, c - 10))}
+                            style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--text-3)", cursor: "pointer", fontSize: "0.62rem", fontFamily: "inherit", padding: "5px 12px" }}>
+                            ↑ Less
                           </button>
                         ) : <div />}
-                        <span style={{ fontSize: "0.58rem", color: "var(--text-3)" }}>
+                        <span style={{ fontSize: "0.56rem", color: "var(--text-3)", letterSpacing: "0.04em" }}>
                           {Math.min(predVisibleCount, currentMatches.length) + archiveMatches.length} of {sortedMatches.length}
                         </span>
                         {hasMoreCurrent ? (
-                          <button onClick={() => setPredVisibleCount(c => c + 10)}
-                            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", borderRadius: 20, padding: "5px 12px", cursor: "pointer", fontSize: "0.63rem", color: "var(--text-3)", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 4 }}>
-                            <span>More</span><span>↓</span>
+                          <button className="team-chip" onClick={() => setPredVisibleCount(c => c + 10)}
+                            style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--text-3)", cursor: "pointer", fontSize: "0.62rem", fontFamily: "inherit", padding: "5px 12px" }}>
+                            More ↓
                           </button>
                         ) : <div />}
                       </div>
@@ -3899,13 +3866,13 @@ export default function App() {
               const visible = fantasyPtsOpen ? ranked : ranked.slice(0, 10);
               const rankColors = ["#d4a843", "#94a3b8", "#cd7c3a"];
               return (
-                <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden", marginBottom: 12 }}>
-                  <div style={{ padding: "12px 14px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text)" }}>Most Fantasy Points</div>
-                    <div style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{ranked.length} players</div>
+                <div className="data-panel">
+                  <div className="data-panel-hdr">
+                    <div className="data-panel-title">Most Fantasy Points</div>
+                    <div className="data-panel-sub">{ranked.length} players</div>
                   </div>
                   {visible.map((p, i) => (
-                    <div key={p.name} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderBottom: i < visible.length - 1 ? "1px solid var(--border)" : "none" }}>
+                    <div key={p.name} className="stat-data-row">
                       <div style={{ width: 18, textAlign: "center" as const, fontSize: "0.68rem", fontWeight: 700, color: i < 3 ? rankColors[i] : "var(--text-3)", flexShrink: 0 }}>{i + 1}</div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: "0.82rem", fontWeight: 500, color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
@@ -3913,13 +3880,12 @@ export default function App() {
                         </div>
                         {statsFilter === "fantasy" && p.isFantasy && <div style={{ fontSize: "0.58rem", color: p.color, marginTop: 1 }}>{p.owner}</div>}
                       </div>
-                      <div style={{ fontSize: "1rem", fontWeight: 700, color: i === 0 ? "#d4a843" : i < 3 ? "var(--text)" : "var(--text-2)", flexShrink: 0 }}>{p.pts}</div>
-                      <div style={{ fontSize: "0.55rem", color: "var(--text-3)", flexShrink: 0, marginLeft: -4 }}>pts</div>
+                      <div style={{ fontFamily: "'Oswald', sans-serif", fontSize: "1.05rem", fontWeight: 700, color: i === 0 ? "#d4a843" : i < 3 ? "var(--text)" : "var(--text-2)", flexShrink: 0 }}>{p.pts}</div>
+                      <div style={{ fontSize: "0.5rem", color: "var(--text-3)", flexShrink: 0, marginLeft: -4, letterSpacing: "0.06em", textTransform: "uppercase" as const }}>pts</div>
                     </div>
                   ))}
                   {ranked.length > 10 && (
-                    <button onClick={() => setFantasyPtsOpen(x => !x)}
-                      style={{ width: "100%", padding: "11px 0", background: "transparent", border: "none", borderTop: "1px solid var(--border)", cursor: "pointer", fontSize: "0.68rem", color: "var(--text-3)", fontFamily: "inherit" }}>
+                    <button className="data-panel-expand" onClick={() => setFantasyPtsOpen(x => !x)}>
                       {fantasyPtsOpen ? "Show less" : `Show all ${ranked.length}`}
                     </button>
                   )}
@@ -3938,17 +3904,16 @@ export default function App() {
               const visible = statsExpanded ? entries : entries.slice(0, 10);
               const hasMore = entries.length > 10;
               return (
-                <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden", marginBottom: 12 }}>
-                  <div style={{ padding: "12px 14px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text)" }}>
+                <div className="data-panel">
+                  <div className="data-panel-hdr">
+                    <div className="data-panel-title">
                       {STAT_CATS.find(c => c.id === cat)?.sub}
                     </div>
-                    <div style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{iplStats.matchesProcessed} matches</div>
+                    <div className="data-panel-sub">{iplStats.matchesProcessed} matches</div>
                   </div>
                   {visible.map((e: any, i: number) => renderStatRow(e, i, cat))}
                   {hasMore && (
-                    <button onClick={() => setStatsExpanded(x => !x)}
-                      style={{ width: "100%", padding: "11px 0", background: "transparent", border: "none", borderTop: "1px solid var(--border)", cursor: "pointer", fontSize: "0.68rem", color: "var(--text-3)", fontFamily: "inherit" }}>
+                    <button className="data-panel-expand" onClick={() => setStatsExpanded(x => !x)}>
                       {statsExpanded ? `Show less` : `Show all ${entries.length}`}
                     </button>
                   )}
