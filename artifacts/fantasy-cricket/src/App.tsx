@@ -2739,6 +2739,24 @@ export default function App() {
                   backdropFilter: "blur(20px)",
                   WebkitBackdropFilter: "blur(20px)",
                 }}>
+                  {/* === TEAM STATS HEADER === */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12, fontSize: "0.64rem", fontWeight: 700, color: "var(--text-2)" }}>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
+                      <span style={{ fontSize: "0.57rem", fontWeight: 600, color: "var(--text-3)", letterSpacing: "0.04em", textTransform: "uppercase" }}>Squad</span>
+                      <span style={{ fontSize: "0.75rem", fontWeight: 800, color: t.color }}>{xi.length}</span>
+                    </div>
+                    <span style={{ color: "var(--text-3)", opacity: 0.4 }}>·</span>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
+                      <span style={{ fontSize: "0.57rem", fontWeight: 600, color: "var(--text-3)", letterSpacing: "0.04em", textTransform: "uppercase" }}>Reserves</span>
+                      <span style={{ fontSize: "0.75rem", fontWeight: 800, color: "var(--text-2)" }}>{bench.length}</span>
+                    </div>
+                    <span style={{ color: "var(--text-3)", opacity: 0.4 }}>·</span>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
+                      <span style={{ fontSize: "0.57rem", fontWeight: 600, color: "var(--text-3)", letterSpacing: "0.04em", textTransform: "uppercase" }}>Total</span>
+                      <span style={{ fontSize: "0.75rem", fontWeight: 800, color: "var(--text-2)" }}>{xi.length + bench.length}</span>
+                    </div>
+                  </div>
+
                   {/* === PLAYING XI HEADER (COLLAPSIBLE) === */}
                   <button
                     onClick={() => setXIOpen(o => !o)}
