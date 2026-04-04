@@ -3796,12 +3796,23 @@ export default function App() {
                 ? Array.from(fantasyPlayerMap.entries())
                     .map(([name, info]) => ({ name, pts: playerPoints[name] ?? 0, isFantasy: true, ...info }))
                     .sort((a, b) => b.pts - a.pts)
-                : Object.entries(playerPoints)
-                    .map(([name, pts]) => {
+                : (() => {
+                    const seen = new Set<string>();
+                    const all: { name: string; pts: number; isFantasy: boolean; color: string; owner: string }[] = [];
+                    for (const entry of [...(iplStats?.orangeCap || []), ...(iplStats?.purpleCap || [])]) {
+                      if (seen.has(entry.name)) continue;
+                      seen.add(entry.name);
+                      const fi = fantasyPlayerMap.get(entry.name);
+                      all.push({ name: entry.name, pts: playerPoints[entry.name] ?? 0, isFantasy: !!fi, color: fi?.color ?? "var(--text-3)", owner: fi?.owner ?? "" });
+                    }
+                    for (const [name, pts] of Object.entries(playerPoints)) {
+                      if (seen.has(name)) continue;
+                      seen.add(name);
                       const fi = fantasyPlayerMap.get(name);
-                      return { name, pts, isFantasy: !!fi, color: fi?.color ?? "var(--text-3)", owner: fi?.owner ?? "" };
-                    })
-                    .sort((a, b) => b.pts - a.pts);
+                      all.push({ name, pts, isFantasy: !!fi, color: fi?.color ?? "var(--text-3)", owner: fi?.owner ?? "" });
+                    }
+                    return all.sort((a, b) => b.pts - a.pts);
+                  })();
               const visible = fantasyPtsOpen ? ranked : ranked.slice(0, 10);
               const rankColors = ["#d4a843", "#94a3b8", "#cd7c3a"];
               return (
