@@ -4404,20 +4404,14 @@ export default function App() {
         <div className="bg-field" />
         <div className="content">
           <div className="header">
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div className="header-logo-ring">
-                <div className="header-logo-inner">
-                  <img
-                    src={`${import.meta.env.BASE_URL}app-icon.png`}
-                    alt="Logo"
-                    className="header-logo"
-                  />
-                </div>
-              </div>
-              <div className="header-title-row">
-                <span className="header-title">Indian Premier League</span>
-                <span className="header-year">2026</span>
-              </div>
+            <div className="header-wordmark">
+              <img
+                src={`${import.meta.env.BASE_URL}app-icon.png`}
+                alt="IPL"
+                className="header-logo"
+              />
+              <span className="header-ipl">IPL</span>
+              <span className="header-season-badge">2026 Season</span>
             </div>
             <div className="header-right">
               {installPrompt && !appInstalled && (
