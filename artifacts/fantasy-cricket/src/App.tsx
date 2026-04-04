@@ -2739,49 +2739,6 @@ export default function App() {
                   backdropFilter: "blur(20px)",
                   WebkitBackdropFilter: "blur(20px)",
                 }}>
-                  {/* === SUMMARY STATS === */}
-                  <div style={{
-                    display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 13,
-                    borderBottom: `1px solid ${t.color}12`, paddingBottom: 12,
-                  }}>
-                    {/* XI Active */}
-                    <div style={{
-                      background: `linear-gradient(135deg, ${t.color}0c 0%, ${t.color}03 100%)`,
-                      border: `1px solid ${t.color}1d`,
-                      borderRadius: 11, padding: "9px 10px",
-                      textAlign: "center" as const,
-                      boxShadow: `inset 0 1px 0 ${t.color}0f`,
-                      transition: "all 0.2s ease",
-                    }}>
-                      <div style={{ fontSize: "0.68rem", fontWeight: 800, color: t.color, fontFamily: "'Oswald', sans-serif", letterSpacing: "0.05em" }}>XI</div>
-                      <div style={{ fontSize: "0.5rem", color: "var(--text-2)", marginTop: 3, fontWeight: 700 }}>{xi.length}/11</div>
-                    </div>
-                    {/* Bench Depth */}
-                    <div style={{
-                      background: "linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01))",
-                      border: "1px solid rgba(255,255,255,0.08)",
-                      borderRadius: 11, padding: "9px 10px",
-                      textAlign: "center" as const,
-                      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
-                      transition: "all 0.2s ease",
-                    }}>
-                      <div style={{ fontSize: "0.68rem", fontWeight: 800, color: "var(--text-2)", letterSpacing: "0.05em" }}>BENCH</div>
-                      <div style={{ fontSize: "0.5rem", color: "var(--text-3)", marginTop: 3, fontWeight: 700 }}>{bench.length}</div>
-                    </div>
-                    {/* Points */}
-                    <div style={{
-                      background: "linear-gradient(135deg, rgba(245,166,35,0.08), rgba(245,166,35,0.02))",
-                      border: "1px solid rgba(245,166,35,0.2)",
-                      borderRadius: 11, padding: "9px 10px",
-                      textAlign: "center" as const,
-                      boxShadow: "inset 0 1px 0 rgba(245,166,35,0.1)",
-                      transition: "all 0.2s ease",
-                    }}>
-                      <div style={{ fontSize: "0.68rem", fontWeight: 800, color: "var(--gold)", letterSpacing: "0.05em" }}>PTS</div>
-                      <div style={{ fontSize: "0.5rem", color: "var(--text-2)", marginTop: 3, fontWeight: 700 }}>{td.total}</div>
-                    </div>
-                  </div>
-
                   {/* === PLAYING XI HEADER (COLLAPSIBLE) === */}
                   <button
                     onClick={() => setXIOpen(o => !o)}
