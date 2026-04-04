@@ -3788,26 +3788,37 @@ export default function App() {
         })() : (
           <>
             {cat === "fantasyPts" && (() => {
-              const allFantasyPlayers = Object.values(FANTASY_TEAMS).flatMap(ft =>
-                ft.players.map((p) => ({ name: p.name, teamId: ft.id, color: ft.color, owner: ft.owner }))
+              const fantasyPlayerMap = new Map<string, { color: string; owner: string }>();
+              Object.values(FANTASY_TEAMS).forEach(ft =>
+                ft.players.forEach((p) => fantasyPlayerMap.set(p.name, { color: ft.color, owner: ft.owner }))
               );
-              const ranked = allFantasyPlayers
-                .map(p => ({ ...p, pts: playerPoints[p.name] ?? 0 }))
-                .sort((a, b) => b.pts - a.pts);
+              const ranked = statsFilter === "fantasy"
+                ? Array.from(fantasyPlayerMap.entries())
+                    .map(([name, info]) => ({ name, pts: playerPoints[name] ?? 0, isFantasy: true, ...info }))
+                    .sort((a, b) => b.pts - a.pts)
+                : Object.entries(playerPoints)
+                    .map(([name, pts]) => {
+                      const fi = fantasyPlayerMap.get(name);
+                      return { name, pts, isFantasy: !!fi, color: fi?.color ?? "var(--text-3)", owner: fi?.owner ?? "" };
+                    })
+                    .sort((a, b) => b.pts - a.pts);
               const visible = fantasyPtsOpen ? ranked : ranked.slice(0, 10);
               const rankColors = ["#d4a843", "#94a3b8", "#cd7c3a"];
               return (
                 <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden", marginBottom: 12 }}>
                   <div style={{ padding: "12px 14px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text)" }}>Most Fantasy Points</div>
-                    <div style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{allFantasyPlayers.length} players</div>
+                    <div style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{ranked.length} players</div>
                   </div>
                   {visible.map((p, i) => (
                     <div key={p.name} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderBottom: i < visible.length - 1 ? "1px solid var(--border)" : "none" }}>
                       <div style={{ width: 18, textAlign: "center" as const, fontSize: "0.68rem", fontWeight: 700, color: i < 3 ? rankColors[i] : "var(--text-3)", flexShrink: 0 }}>{i + 1}</div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: "0.82rem", fontWeight: 500, color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{p.name}</div>
-                        <div style={{ fontSize: "0.58rem", color: p.color, marginTop: 1 }}>{p.owner}</div>
+                        <div style={{ fontSize: "0.82rem", fontWeight: 500, color: p.isFantasy ? "var(--text)" : "var(--text-2)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+                          {p.name}
+                          {p.isFantasy && <span style={{ marginLeft: 6, fontSize: "0.52rem", background: "rgba(34,197,94,0.12)", color: "#22c55e", borderRadius: 4, padding: "1px 5px", verticalAlign: "middle" }}>F</span>}
+                        </div>
+                        {p.isFantasy && <div style={{ fontSize: "0.58rem", color: p.color, marginTop: 1 }}>{p.owner}</div>}
                       </div>
                       <div style={{ fontSize: "1rem", fontWeight: 700, color: i === 0 ? "#d4a843" : i < 3 ? "var(--text)" : "var(--text-2)", flexShrink: 0 }}>{p.pts}</div>
                       <div style={{ fontSize: "0.55rem", color: "var(--text-3)", flexShrink: 0, marginLeft: -4 }}>pts</div>
