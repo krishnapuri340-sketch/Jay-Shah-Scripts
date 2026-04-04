@@ -2731,11 +2731,11 @@ export default function App() {
               <>
                 {/* === PREMIUM SECTION WRAPPER === */}
                 <div style={{
-                  background: `linear-gradient(180deg, ${t.color}06 0%, rgba(255,255,255,0.008) 100%)`,
-                  border: `1px solid ${t.color}18`,
+                  background: `linear-gradient(180deg, ${t.color}04 0%, rgba(255,255,255,0.003) 100%)`,
+                  border: `1px solid ${t.color}12`,
                   borderRadius: 20,
-                  padding: "16px", marginBottom: 14,
-                  boxShadow: `0 16px 64px rgba(0,0,0,0.35), inset 0 1px 0 ${t.color}10`,
+                  padding: "0", marginBottom: 14,
+                  boxShadow: `0 16px 64px rgba(0,0,0,0.35), inset 0 1px 0 ${t.color}08`,
                   backdropFilter: "blur(24px)",
                   WebkitBackdropFilter: "blur(24px)",
                   overflow: "hidden",
@@ -2745,14 +2745,15 @@ export default function App() {
                     onClick={() => setXIOpen(o => !o)}
                     style={{
                       display: "flex", alignItems: "center", justifyContent: "space-between",
-                      width: "100%", marginBottom: xiOpen ? 0 : 10,
-                      background: xiOpen ? `linear-gradient(135deg, ${t.color}12 0%, ${t.color}08 100%)` : "transparent",
-                      border: xiOpen ? `1px solid ${t.color}26` : "none",
-                      borderRadius: xiOpen ? "14px 14px 0 0" : 0,
-                      cursor: "pointer", padding: "14px 12px",
+                      width: "100%", marginBottom: xiOpen ? 0 : 0,
+                      background: xiOpen ? `linear-gradient(135deg, ${t.color}10 0%, ${t.color}06 100%)` : "transparent",
+                      border: "none",
+                      borderRadius: 0,
+                      cursor: "pointer", padding: "14px 16px",
                       WebkitTapHighlightColor: "transparent",
-                      boxShadow: xiOpen ? `inset 0 1px 0 ${t.color}14` : "none",
+                      boxShadow: xiOpen ? `inset 0 1px 0 ${t.color}12` : "none",
                       transition: "all 0.22s ease",
+                      borderBottom: xiOpen ? `1px solid ${t.color}15` : "none",
                     }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <span style={{ fontSize: "0.61rem", fontWeight: 600, color: "var(--text-3)", letterSpacing: "0.055em", textTransform: "uppercase" as const }}>Squad</span>
@@ -2770,7 +2771,7 @@ export default function App() {
 
                   {/* === PLAYING XI GRID (SMOOTH BLEND) === */}
                   {xiOpen && (
-                    <div className="players-grid" style={{ borderTop: `1.5px solid ${t.color}25`, borderRadius: "0 0 11px 11px", marginBottom: 8 }}>
+                    <div className="players-grid" style={{ borderTop: `1px solid ${t.color}12`, borderRadius: 0, marginBottom: 0, paddingTop: 2 }}>
                       {xi.map(p => renderPlayer(p, false))}
                     </div>
                   )}
@@ -2780,14 +2781,15 @@ export default function App() {
                     onClick={() => setBenchOpen(o => !o)}
                     style={{
                       display: "flex", alignItems: "center", justifyContent: "space-between",
-                      width: "100%", marginBottom: benchOpen ? 0 : 10,
-                      background: benchOpen ? "linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))" : "transparent",
-                      border: benchOpen ? "1px solid rgba(255,255,255,0.14)" : "none",
-                      borderRadius: benchOpen ? "14px 14px 0 0" : 0,
-                      cursor: "pointer", padding: "14px 12px",
+                      width: "100%", marginBottom: benchOpen ? 0 : 0,
+                      background: benchOpen ? "linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01))" : "transparent",
+                      border: "none",
+                      borderRadius: 0,
+                      cursor: "pointer", padding: "14px 16px",
                       WebkitTapHighlightColor: "transparent",
                       boxShadow: benchOpen ? "inset 0 1px 0 rgba(255,255,255,0.08)" : "none",
                       transition: "all 0.22s ease",
+                      borderBottom: benchOpen ? "1px solid rgba(255,255,255,0.1)" : "none",
                     }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <span style={{ fontSize: "0.61rem", fontWeight: 600, color: "var(--text-3)", letterSpacing: "0.055em", textTransform: "uppercase" as const }}>Reserves</span>
@@ -2803,7 +2805,7 @@ export default function App() {
 
                   {/* === BENCH GRID === */}
                   {benchOpen && (
-                    <div className="players-grid" style={{ opacity: 0.77, borderTop: "1px solid rgba(255,255,255,0.08)", borderRadius: "0 0 11px 11px", marginBottom: 8 }}>
+                    <div className="players-grid" style={{ opacity: 0.77, borderTop: "1px solid rgba(255,255,255,0.08)", borderRadius: 0, marginBottom: 0, paddingTop: 2 }}>
                       {bench.map(p => renderPlayer(p, true))}
                     </div>
                   )}
@@ -2856,13 +2858,15 @@ export default function App() {
                         style={{
                           display: "flex", alignItems: "center", justifyContent: "space-between",
                           width: "100%", marginBottom: matchPtsOpen ? 0 : 0,
-                          background: matchPtsOpen ? "linear-gradient(135deg, rgba(245,166,35,0.12), rgba(245,166,35,0.04))" : "transparent",
-                          border: matchPtsOpen ? "1px solid rgba(245,166,35,0.22)" : "none",
-                          borderRadius: matchPtsOpen ? "14px 14px 0 0" : 0,
-                          cursor: "pointer", padding: "14px 12px",
+                          background: matchPtsOpen ? "linear-gradient(135deg, rgba(245,166,35,0.10), rgba(245,166,35,0.02))" : "transparent",
+                          border: "none",
+                          borderRadius: 0,
+                          cursor: "pointer", padding: "14px 16px",
                           WebkitTapHighlightColor: "transparent",
-                          boxShadow: matchPtsOpen ? "inset 0 1px 0 rgba(245,166,35,0.12)" : "none",
+                          boxShadow: matchPtsOpen ? "inset 0 1px 0 rgba(245,166,35,0.1)" : "none",
                           transition: "all 0.22s ease",
+                          borderBottom: matchPtsOpen ? "1px solid rgba(245,166,35,0.15)" : "none",
+                          marginTop: 8,
                         }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                           <span style={{ fontSize: "0.61rem", fontWeight: 600, color: "var(--text-3)", letterSpacing: "0.055em", textTransform: "uppercase" as const }}>Performance</span>
