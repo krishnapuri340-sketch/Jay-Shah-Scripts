@@ -2144,12 +2144,12 @@ export default function App() {
                         style={{ color: Object.keys(playerPoints).length === 0 ? "var(--text-3)" : s.team.color, textShadow: `0 0 10px ${s.team.color}55, 0 1px 4px rgba(0,0,0,1)` }}>
                         {Object.keys(playerPoints).length === 0 ? "—" : s.total}
                       </div>
-                      {i === 0
-                        ? <div className="lb-pts-label" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>pts</div>
-                        : <div style={{ fontSize: "0.6rem", color: gap === 0 ? "var(--text-3)" : "#f87171", textShadow: "0 1px 4px rgba(0,0,0,0.9)", fontWeight: 600, marginTop: 1 }}>
-                            {Object.keys(playerPoints).length === 0 ? "pts" : `−${gap} pts`}
-                          </div>
-                      }
+                      <div className="lb-pts-label" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>pts</div>
+                      {i > 0 && Object.keys(playerPoints).length > 0 && (
+                        <div style={{ fontSize: "0.58rem", color: gap === 0 ? "var(--text-3)" : "#f87171", textShadow: "0 1px 4px rgba(0,0,0,0.9)", fontWeight: 600, marginTop: 1 }}>
+                          {`−${gap}`}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
