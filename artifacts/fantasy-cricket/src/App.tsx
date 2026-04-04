@@ -4403,7 +4403,7 @@ export default function App() {
       >
         <div className="bg-field" />
         <div className="content">
-          <div className="header">
+          <div className="header pl-[10px] pr-[10px]">
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <div className="header-logo-ring">
                 <div className="header-logo-inner">
