@@ -530,7 +530,7 @@ export default function App() {
   const [iplStats, setIplStats] = useState<any | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
   const [statsFilter, setStatsFilter] = useState<"all" | "fantasy" | "predictions">("all");
-  const [statsCategory, setStatsCategory] = useState<"orangeCap" | "purpleCap" | "sixesLeader" | "foursLeader" | "srLeader" | "ecoLeader">("orangeCap");
+  const [statsCategory, setStatsCategory] = useState<"fantasyPts" | "orangeCap" | "purpleCap" | "sixesLeader" | "foursLeader" | "srLeader" | "ecoLeader">("fantasyPts");
   const [statsExpanded, setStatsExpanded] = useState(false);
   const [predArchiveOpen, setPredArchiveOpen] = useState(false);
   const [fantasyPtsOpen, setFantasyPtsOpen] = useState(false);
@@ -3504,6 +3504,7 @@ export default function App() {
   };
 
   const STAT_CATS = [
+    { id: "fantasyPts", label: "Fantasy Pts", sub: "Most Fantasy Points" },
     { id: "orangeCap", label: "Orange Cap", sub: "Most Runs" },
     { id: "purpleCap", label: "Purple Cap", sub: "Most Wickets" },
     { id: "sixesLeader", label: "Sixes", sub: "Most Sixes" },
@@ -3580,44 +3581,6 @@ export default function App() {
             </button>
           ))}
         </div>
-
-        {statsFilter !== "predictions" && (() => {
-          const allFantasyPlayers = Object.values(FANTASY_TEAMS).flatMap(ft =>
-            ft.players.map((p) => ({ name: p.name, teamId: ft.id, color: ft.color, owner: ft.owner }))
-          );
-          const ranked = allFantasyPlayers
-            .map(p => ({ ...p, pts: playerPoints[p.name] ?? 0 }))
-            .sort((a, b) => b.pts - a.pts);
-          const visible = fantasyPtsOpen ? ranked : ranked.slice(0, 10);
-          const rankColors = ["#d4a843", "#94a3b8", "#cd7c3a"];
-          return (
-            <div style={{ marginBottom: 14 }}>
-              <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden" }}>
-                <div style={{ padding: "11px 14px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text)" }}>Fantasy Points</div>
-                  <div style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{allFantasyPlayers.length} players</div>
-                </div>
-                {visible.map((p, i) => (
-                  <div key={p.name} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 14px", borderBottom: i < visible.length - 1 ? "1px solid var(--border)" : "none" }}>
-                    <div style={{ width: 18, textAlign: "center" as const, fontSize: "0.68rem", fontWeight: 700, color: i < 3 ? rankColors[i] : "var(--text-3)", flexShrink: 0 }}>{i + 1}</div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: "0.8rem", fontWeight: 500, color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{p.name}</div>
-                      <div style={{ fontSize: "0.58rem", color: p.color, marginTop: 1 }}>{p.owner}</div>
-                    </div>
-                    <div style={{ fontSize: "1rem", fontWeight: 700, color: i === 0 ? "#d4a843" : i < 3 ? "var(--text)" : "var(--text-2)", flexShrink: 0 }}>{p.pts}</div>
-                    <div style={{ fontSize: "0.55rem", color: "var(--text-3)", flexShrink: 0, marginLeft: -4 }}>pts</div>
-                  </div>
-                ))}
-                {ranked.length > 10 && (
-                  <button onClick={() => setFantasyPtsOpen(x => !x)}
-                    style={{ width: "100%", padding: "10px 0", background: "transparent", border: "none", borderTop: "1px solid var(--border)", cursor: "pointer", fontSize: "0.68rem", color: "var(--text-3)", fontFamily: "inherit" }}>
-                    {fantasyPtsOpen ? "Show less" : `Show all ${ranked.length}`}
-                  </button>
-                )}
-              </div>
-            </div>
-          );
-        })()}
 
         {statsFilter !== "predictions" && (
           <div data-no-swipe="true" style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 8, marginBottom: 12, marginLeft: -16, marginRight: -16, paddingLeft: 16, paddingRight: 16 }}>
@@ -3824,15 +3787,50 @@ export default function App() {
           );
         })() : (
           <>
-            {!iplStats && statsLoading && (
+            {cat === "fantasyPts" && (() => {
+              const allFantasyPlayers = Object.values(FANTASY_TEAMS).flatMap(ft =>
+                ft.players.map((p) => ({ name: p.name, teamId: ft.id, color: ft.color, owner: ft.owner }))
+              );
+              const ranked = allFantasyPlayers
+                .map(p => ({ ...p, pts: playerPoints[p.name] ?? 0 }))
+                .sort((a, b) => b.pts - a.pts);
+              const visible = fantasyPtsOpen ? ranked : ranked.slice(0, 10);
+              const rankColors = ["#d4a843", "#94a3b8", "#cd7c3a"];
+              return (
+                <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden", marginBottom: 12 }}>
+                  <div style={{ padding: "12px 14px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text)" }}>Most Fantasy Points</div>
+                    <div style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{allFantasyPlayers.length} players</div>
+                  </div>
+                  {visible.map((p, i) => (
+                    <div key={p.name} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderBottom: i < visible.length - 1 ? "1px solid var(--border)" : "none" }}>
+                      <div style={{ width: 18, textAlign: "center" as const, fontSize: "0.68rem", fontWeight: 700, color: i < 3 ? rankColors[i] : "var(--text-3)", flexShrink: 0 }}>{i + 1}</div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: "0.82rem", fontWeight: 500, color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{p.name}</div>
+                        <div style={{ fontSize: "0.58rem", color: p.color, marginTop: 1 }}>{p.owner}</div>
+                      </div>
+                      <div style={{ fontSize: "1rem", fontWeight: 700, color: i === 0 ? "#d4a843" : i < 3 ? "var(--text)" : "var(--text-2)", flexShrink: 0 }}>{p.pts}</div>
+                      <div style={{ fontSize: "0.55rem", color: "var(--text-3)", flexShrink: 0, marginLeft: -4 }}>pts</div>
+                    </div>
+                  ))}
+                  {ranked.length > 10 && (
+                    <button onClick={() => setFantasyPtsOpen(x => !x)}
+                      style={{ width: "100%", padding: "11px 0", background: "transparent", border: "none", borderTop: "1px solid var(--border)", cursor: "pointer", fontSize: "0.68rem", color: "var(--text-3)", fontFamily: "inherit" }}>
+                      {fantasyPtsOpen ? "Show less" : `Show all ${ranked.length}`}
+                    </button>
+                  )}
+                </div>
+              );
+            })()}
+            {cat !== "fantasyPts" && !iplStats && statsLoading && (
               <div style={{ color: "var(--text-3)", fontSize: "0.78rem", textAlign: "center" as const, padding: "24px 0" }}>Loading stats...</div>
             )}
-            {iplStats && entries.length === 0 && (
+            {cat !== "fantasyPts" && iplStats && entries.length === 0 && (
               <div style={{ color: "var(--text-3)", fontSize: "0.78rem", textAlign: "center" as const, padding: "24px 0" }}>
                 {iplStats.matchesProcessed === 0 ? "Stats will appear once match innings data is synced." : `No ${statsFilter === "fantasy" ? "fantasy " : ""}players found.`}
               </div>
             )}
-            {entries.length > 0 && (() => {
+            {cat !== "fantasyPts" && entries.length > 0 && (() => {
               const visible = statsExpanded ? entries : entries.slice(0, 10);
               const hasMore = entries.length > 10;
               return (
@@ -3853,7 +3851,7 @@ export default function App() {
                 </div>
               );
             })()}
-            {iplStats && (
+            {cat !== "fantasyPts" && iplStats && (
               <div style={{ fontSize: "0.6rem", color: "var(--text-3)", textAlign: "center" as const, padding: "4px 0" }}>
                 <span style={{ color: "#22c55e" }}>F</span> = in one of the 4 fantasy teams
               </div>
