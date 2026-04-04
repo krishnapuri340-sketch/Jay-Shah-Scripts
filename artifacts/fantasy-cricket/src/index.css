@@ -275,8 +275,10 @@ body { background: var(--bg); }
   -webkit-tap-highlight-color: transparent;
   transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.22s cubic-bezier(0.4, 0, 0.2, 1);
   isolation: isolate;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
-.lb-card:active { transform: scale(0.982); box-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+.lb-card:active { transform: scale(0.982) translateZ(0); box-shadow: 0 2px 8px rgba(0,0,0,0.5); }
 .lb-card.rank-first {
   border-color: rgba(245,166,35,0.28);
   background: linear-gradient(145deg, rgba(245,166,35,0.09) 0%, var(--surface-2) 40%, var(--surface) 100%);
