@@ -1364,18 +1364,50 @@ const IPL_STATS_COMP = 284;
 interface AllStatsEntry { innings: InningData[]; fetched: number; playerFantasyPts: Record<string, number> }
 const allStatsInningsCache = new Map<string, AllStatsEntry>();
 
-/** Compute per-player fantasy points for a single match from its innings data */
+/** Parse a batting dismissal string and return the names of credited fielder / keeper / lbw-bowled bowler */
+function parseDismissalFielding(dismissal: string): {
+  catchBy?: string; stumpedBy?: string; runOutBy?: string; lbwBowledBy?: string;
+} {
+  if (!dismissal) return {};
+  const d = dismissal.trim();
+  // Caught & bowled: "c & b BowlerName"
+  const cAndB = d.match(/^c\s*&\s*b\s+(.+)/i);
+  if (cAndB) return { catchBy: cAndB[1].trim() };
+  // Caught: "c FielderName b BowlerName"
+  const caught = d.match(/^c\s+(.+?)\s+b\s+/i);
+  if (caught) return { catchBy: caught[1].trim() };
+  // Stumped: "st KeeperName b BowlerName"
+  const stumped = d.match(/^st\s+(.+?)\s+b\s+/i);
+  if (stumped) return { stumpedBy: stumped[1].trim() };
+  // Run out: "run out (PlayerName)" or "run out (A / B)" — credit first name only
+  const runOut = d.match(/run\s+out\s*\(?([^/)]+)/i);
+  if (runOut) return { runOutBy: runOut[1].trim().replace(/\s*\/$/, "").trim() };
+  // LBW: "lbw b BowlerName"
+  if (/^lbw\s+b\s+/i.test(d)) return { lbwBowledBy: d.replace(/^lbw\s+b\s+/i, "").trim() };
+  // Bowled: "b BowlerName"
+  if (/^b\s+\S/i.test(d)) return { lbwBowledBy: d.replace(/^b\s+/i, "").trim() };
+  return {};
+}
+
+/** Compute per-player fantasy points for a single match from its innings data (batting + bowling + fielding) */
 function computeMatchFantasyPts(innings: InningData[]): Record<string, number> {
   const matchStats: Record<string, PlayerStats> = {};
   const getMs = (k: string) => {
     if (!matchStats[k]) matchStats[k] = { played: true, runs: 0, balls: 0, fours: 0, sixes: 0, duck: false, wickets: 0, dots: 0, lbwBowled: 0, maidens: 0, ballsBowled: 0, runsConceded: 0, catches: 0, runOuts: 0, stumpings: 0 };
     return matchStats[k];
   };
+  const normKey = (s: string) => s.replace(/\s*\(.*?\)\s*/g, " ").trim();
+
+  // Build a case-insensitive name → canonical key map so dismissal names can match bowling-card names
+  const caseMap = new Map<string, string>(); // lowercase → matchStats key
+
   for (const inning of innings) {
+    // Batting pass
     for (const bat of inning.batting || []) {
       if (bat.dnb || !bat.name) continue;
-      const k = bat.name.replace(/\s*\(.*?\)\s*/g, " ").trim();
+      const k = normKey(bat.name);
       if (!k) continue;
+      caseMap.set(k.toLowerCase(), k);
       const ms = getMs(k);
       ms.runs += bat.runs || 0;
       ms.balls += bat.balls || 0;
@@ -1383,10 +1415,12 @@ function computeMatchFantasyPts(innings: InningData[]): Record<string, number> {
       ms.sixes += bat.sixes || 0;
       if (!bat.notOut && (bat.runs || 0) === 0 && (bat.balls || 0) > 0) ms.duck = true;
     }
+    // Bowling pass
     for (const bowl of inning.bowling || []) {
       if (!bowl.name) continue;
-      const k = bowl.name.replace(/\s*\(.*?\)\s*/g, " ").trim();
+      const k = normKey(bowl.name);
       if (!k) continue;
+      caseMap.set(k.toLowerCase(), k);
       const ms = getMs(k);
       ms.wickets += bowl.wickets || 0;
       ms.dots += bowl.dots || 0;
@@ -1395,6 +1429,37 @@ function computeMatchFantasyPts(innings: InningData[]): Record<string, number> {
       ms.runsConceded += bowl.runs || 0;
     }
   }
+
+  // Fielding + LBW/bowled bonus pass — parse every dismissal string
+  const resolveKey = (rawName: string): string | undefined => {
+    const n = normKey(rawName);
+    if (matchStats[n]) return n;
+    return caseMap.get(n.toLowerCase());
+  };
+
+  for (const inning of innings) {
+    for (const bat of inning.batting || []) {
+      if (bat.notOut || bat.dnb || !bat.dismissal) continue;
+      const { catchBy, stumpedBy, runOutBy, lbwBowledBy } = parseDismissalFielding(bat.dismissal);
+      if (catchBy) {
+        const k = resolveKey(catchBy);
+        if (k) getMs(k).catches += 1;
+      }
+      if (stumpedBy) {
+        const k = resolveKey(stumpedBy);
+        if (k) getMs(k).stumpings += 1;
+      }
+      if (runOutBy) {
+        const k = resolveKey(runOutBy);
+        if (k) getMs(k).runOuts += 1;
+      }
+      if (lbwBowledBy) {
+        const k = resolveKey(lbwBowledBy);
+        if (k) getMs(k).lbwBowled += 1;
+      }
+    }
+  }
+
   const result: Record<string, number> = {};
   for (const [name, stats] of Object.entries(matchStats)) {
     result[name] = calcPoints(stats);
