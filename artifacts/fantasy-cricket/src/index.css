@@ -204,7 +204,8 @@ body { background: var(--bg); }
 }
 .header-logo {
   width: 100%; height: 100%; border-radius: 12px; object-fit: cover;
-  object-position: center center; display: block;
+  object-position: center 10%; display: block; transform: scale(1.1);
+  transform-origin: center top;
 }
 .header-title-row { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
 .header-title {
