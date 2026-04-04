@@ -3803,7 +3803,8 @@ export default function App() {
                       if (seen.has(entry.name)) continue;
                       seen.add(entry.name);
                       const fi = fantasyPlayerMap.get(entry.name);
-                      all.push({ name: entry.name, pts: entry.fantasyPts ?? playerPoints[entry.name] ?? 0, isFantasy: !!fi, color: fi?.color ?? "var(--text-3)", owner: fi?.owner ?? "" });
+                      const officialPts = fi ? (playerPoints[entry.name] ?? playerPoints[entry.name.toLowerCase()]) : undefined;
+                      all.push({ name: entry.name, pts: officialPts != null ? officialPts : (entry.fantasyPts ?? 0), isFantasy: !!fi, color: fi?.color ?? "var(--text-3)", owner: fi?.owner ?? "" });
                     }
                     return all.sort((a, b) => b.pts - a.pts);
                   })();
