@@ -3583,7 +3583,7 @@ export default function App() {
 
         {statsFilter !== "predictions" && (() => {
           const allFantasyPlayers = Object.values(FANTASY_TEAMS).flatMap(ft =>
-            ft.players.map((name: string) => ({ name, teamId: ft.id, color: ft.color, owner: ft.owner }))
+            ft.players.map((p) => ({ name: p.name, teamId: ft.id, color: ft.color, owner: ft.owner }))
           );
           const ranked = allFantasyPlayers
             .map(p => ({ ...p, pts: playerPoints[p.name] ?? 0 }))
