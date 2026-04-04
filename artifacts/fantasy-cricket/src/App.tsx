@@ -3219,7 +3219,7 @@ export default function App() {
                               const canEdit = !isLocked && (ownerId === currentUser || currentUser === "rajveer");
                               return canEdit ? (
                                 /* Big team pick cards */
-                                <div key={ownerId} style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                                (<div key={ownerId} style={{ display: "flex", flexDirection: "column", gap: 5 }}>
                                   <span style={{ fontSize: "0.58rem", color: ft.color, fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase" as const }}>{ft.owner}</span>
                                   <div style={{ display: "flex", gap: 8 }}>
                                     {[m.homeTeamCode, m.awayTeamCode].map((code: string) => {
@@ -3281,10 +3281,10 @@ export default function App() {
                                       );
                                     })}
                                   </div>
-                                </div>
+                                </div>)
                               ) : (
                                 /* Compact read-only row */
-                                <div key={ownerId} style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 8px", borderRadius: 8, background: "rgba(255,255,255,0.02)", border: "1px solid var(--border)" }}>
+                                (<div key={ownerId} style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 8px", borderRadius: 8, background: "rgba(255,255,255,0.02)", border: "1px solid var(--border)" }}>
                                   <span style={{ fontSize: "0.6rem", color: ft.color, fontWeight: 700, minWidth: 32, flexShrink: 0 }}>{ft.owner}</span>
                                   {pick ? (
                                     <div style={{ display: "flex", alignItems: "center", gap: 4, flex: 1 }}>
@@ -3296,7 +3296,7 @@ export default function App() {
                                   ) : (
                                     <span style={{ fontSize: "0.6rem", color: "var(--text-3)", fontStyle: "italic" }}>—</span>
                                   )}
-                                </div>
+                                </div>)
                               );
                             })}
                           </div>
@@ -4403,7 +4403,7 @@ export default function App() {
       >
         <div className="bg-field" />
         <div className="content">
-          <div className="header">
+          <div className="header pt-[0px] pb-[0px]">
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <div className="header-logo-ring">
                 <div className="header-logo-inner">
