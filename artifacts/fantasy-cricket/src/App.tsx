@@ -506,6 +506,7 @@ export default function App() {
   const [playerMatchPoints, setPlayerMatchPoints] = useState<Record<string, Array<{ matchNum: number; label: string; pts: number; source: string; stats?: PlayerStats }>>>({});
   const [iplIdToMatchNum, setIplIdToMatchNum] = useState<Record<string, number>>({});
   const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
+  const [xiOpen, setXIOpen] = useState(true);
   const [benchOpen, setBenchOpen] = useState(false);
   const [matchPtsOpen, setMatchPtsOpen] = useState(false);
   const [expandedMatchNums, setExpandedMatchNums] = useState<Set<number>>(new Set());
@@ -2728,27 +2729,40 @@ export default function App() {
 
             return (
               <>
-                {/* === PLAYING XI HEADER === */}
-                <div style={{
-                  display: "flex", alignItems: "center", justifyContent: "space-between",
-                  marginBottom: 10, padding: "9px 14px",
-                  background: `linear-gradient(135deg, ${t.color}10 0%, rgba(255,255,255,0.03) 100%)`,
-                  border: `1px solid ${t.color}28`,
-                  borderRadius: 12,
-                  boxShadow: `inset 0 1px 0 ${t.color}18, 0 2px 12px rgba(0,0,0,0.35)`,
-                }}>
+                {/* === PLAYING XI HEADER (COLLAPSIBLE) === */}
+                <button
+                  onClick={() => setXIOpen(o => !o)}
+                  style={{
+                    display: "flex", alignItems: "center", justifyContent: "space-between",
+                    width: "100%", marginBottom: xiOpen ? 0 : 10,
+                    background: `linear-gradient(135deg, ${t.color}10 0%, rgba(255,255,255,0.03) 100%)`,
+                    border: `1px solid ${t.color}28`,
+                    borderRadius: xiOpen ? "12px 12px 0 0" : 12,
+                    cursor: "pointer", padding: "9px 14px",
+                    WebkitTapHighlightColor: "transparent",
+                    boxShadow: `inset 0 1px 0 ${t.color}18, 0 2px 12px rgba(0,0,0,0.35)`,
+                  }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <div style={{ width: 3, height: 18, borderRadius: 2, background: `linear-gradient(180deg, ${t.color}, ${t.color}55)`, boxShadow: `0 0 8px ${t.color}60`, flexShrink: 0 }} />
                     <span style={{ fontSize: "0.62rem", fontWeight: 900, color: "var(--text)", letterSpacing: "0.12em", textTransform: "uppercase" as const }}>Playing XI</span>
                     <span style={{ fontSize: "0.55rem", fontWeight: 800, color: t.color, background: `${t.color}18`, border: `1px solid ${t.color}30`, padding: "1px 7px", borderRadius: 20, letterSpacing: "0.04em" }}>11</span>
                   </div>
-                  {Object.keys(playerPoints).length > 0 && (
-                    <span style={{ fontSize: "0.7rem", fontWeight: 900, color: t.color, fontFamily: "'Oswald', sans-serif", letterSpacing: "0.02em" }}>{xiTotal} <span style={{ fontSize: "0.5rem", fontWeight: 700, opacity: 0.7, letterSpacing: "0.1em" }}>PTS</span></span>
-                  )}
-                </div>
-                <div className="players-grid" style={{ borderTop: `2px solid ${t.color}38`, borderRadius: "var(--radius-md)", marginBottom: 4 }}>
-                  {xi.map(p => renderPlayer(p, false))}
-                </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    {Object.keys(playerPoints).length > 0 && (
+                      <span style={{ fontSize: "0.7rem", fontWeight: 900, color: t.color, fontFamily: "'Oswald', sans-serif", letterSpacing: "0.02em" }}>{xiTotal} <span style={{ fontSize: "0.5rem", fontWeight: 700, opacity: 0.7, letterSpacing: "0.1em" }}>PTS</span></span>
+                    )}
+                    <svg width="12" height="8" viewBox="0 0 12 8" fill="none" style={{ transition: "transform 0.25s cubic-bezier(0.4,0,0.2,1)", transform: xiOpen ? "rotate(180deg)" : "none", flexShrink: 0 }}>
+                      <path d="M1 1l5 5 5-5" stroke={t.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                </button>
+
+                {/* === PLAYING XI GRID (SMOOTH BLEND) === */}
+                {xiOpen && (
+                  <div className="players-grid" style={{ borderTop: `2px solid ${t.color}38`, borderRadius: "0 0 var(--radius-md) var(--radius-md)", marginBottom: 10 }}>
+                    {xi.map(p => renderPlayer(p, false))}
+                  </div>
+                )}
 
                 {/* === BENCH TOGGLE === */}
                 <button
