@@ -2243,23 +2243,27 @@ export default function App() {
     // Helper: extract match label + players for this team from a preview list
     const extractForTeam = (previews: typeof upcomingLineupPreviews) => {
       const playing = new Set<string>();
+      const playerMatchLabel = new Map<string, string>();
       const infos: { matchLabel: string; playingTeams: string[] }[] = [];
       previews.forEach(lp => {
         const myPlayers = lp.preview.find(x => x.team.id === selectedTeam);
         if (myPlayers && myPlayers.activePlayers.length > 0) {
-          myPlayers.activePlayers.forEach(p => playing.add(p.name));
           const ti: any[] = lp.match.teamInfo || [];
           const matchLabel = ti.length >= 2
             ? `${ti[0]?.shortname || ""} vs ${ti[1]?.shortname || ""}`
             : lp.match.name;
+          myPlayers.activePlayers.forEach(p => {
+            playing.add(p.name);
+            playerMatchLabel.set(p.name, matchLabel);
+          });
           infos.push({ matchLabel, playingTeams: lp.playingTeams });
         }
       });
-      return { playing, infos };
+      return { playing, infos, playerMatchLabel };
     };
 
     const { playing: liveNowPlaying, infos: liveNowInfo } = extractForTeam(liveMatchPreviews);
-    const { playing: nextMatchPlaying, infos: nextMatchInfoForTeam } = extractForTeam(upcomingLineupPreviews);
+    const { playing: nextMatchPlaying, infos: nextMatchInfoForTeam, playerMatchLabel: nextPlayerMatchLabel } = extractForTeam(upcomingLineupPreviews);
 
     const hasLiveNow = liveNowPlaying.size > 0;
     const hasNextMatch = nextMatchPlaying.size > 0;
@@ -2371,9 +2375,14 @@ export default function App() {
             {/* UPCOMING section */}
             {hasNextMatch && (
               <div>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8, flexWrap: "wrap" as const }}>
                   <span style={{ fontSize: "0.65rem", fontWeight: 600, color: "var(--text-3)", letterSpacing: "0.06em" }}>NEXT</span>
-                  {nextMatchInfoForTeam[0] && <span style={{ fontSize: "0.65rem", color: "var(--text-2)" }}>{nextMatchInfoForTeam[0].matchLabel}</span>}
+                  {nextMatchInfoForTeam.map((info, idx) => (
+                    <span key={idx} style={{ fontSize: "0.65rem", color: "var(--text-2)" }}>
+                      {idx > 0 && <span style={{ color: "var(--text-3)", marginRight: 4 }}>·</span>}
+                      {info.matchLabel}
+                    </span>
+                  ))}
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                   {td.players.filter(p => nextMatchPlaying.has(p.name) && !liveNowPlaying.has(p.name)).map(p => (
@@ -2383,7 +2392,12 @@ export default function App() {
                         {p.name === t.captain && <span style={{ fontSize: "0.55rem", fontWeight: 700, color: "#d4a843" }}>C</span>}
                         {p.name === t.vc && <span style={{ fontSize: "0.55rem", fontWeight: 700, color: "var(--text-3)" }}>VC</span>}
                       </div>
-                      <span style={{ fontSize: "0.62rem", color: IPL_COLORS[p.ipl] || "var(--text-3)", fontWeight: 600 }}>{p.ipl}</span>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        {nextMatchInfoForTeam.length > 1 && nextPlayerMatchLabel.get(p.name) && (
+                          <span style={{ fontSize: "0.55rem", color: "var(--text-3)" }}>{nextPlayerMatchLabel.get(p.name)}</span>
+                        )}
+                        <span style={{ fontSize: "0.62rem", color: IPL_COLORS[p.ipl] || "var(--text-3)", fontWeight: 600 }}>{p.ipl}</span>
+                      </div>
                     </div>
                   ))}
                 </div>
