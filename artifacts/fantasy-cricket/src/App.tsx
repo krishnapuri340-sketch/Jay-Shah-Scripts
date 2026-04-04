@@ -2839,13 +2839,15 @@ export default function App() {
                         style={matchPtsOpen ? { background: "linear-gradient(135deg, rgba(245,166,35,0.08), rgba(245,166,35,0.02))", borderBottomColor: "rgba(245,166,35,0.15)" } : { borderBottom: "1px solid transparent" }}>
                         <div className="sub-header-title">
                           Performance
-                          {grandTotal > 0 && <span className="sub-header-count" style={{ color: "var(--gold)", background: "rgba(245,166,35,0.12)" }}>{grandTotal}</span>}
                         </div>
-                        <span className={`sub-header-chevron${matchPtsOpen ? " open" : ""}`}>
-                          <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
-                            <path d="M1 1l4 4 4-4" stroke="rgba(245,166,35,0.6)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </span>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          {grandTotal > 0 && <span style={{ fontSize: "0.72rem", fontWeight: 800, color: "var(--gold)", fontFamily: "'Oswald', sans-serif" }}>{grandTotal}</span>}
+                          <span className={`sub-header-chevron${matchPtsOpen ? " open" : ""}`}>
+                            <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+                              <path d="M1 1l4 4 4-4" stroke="rgba(245,166,35,0.6)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          </span>
+                        </div>
                       </div>
 
                       {matchPtsOpen && (
