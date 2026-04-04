@@ -97,6 +97,7 @@ body { background: var(--bg); }
   65%  { transform: scale(0.96); }
   100% { transform: scale(1); box-shadow: 0 0 8px color-mix(in srgb, var(--pick-color, var(--gold)) 18%, transparent); }
 }
+@keyframes headerEdgeScan { to { --logo-angle: 360deg; } }
 @property --logo-angle {
   syntax: '<angle>';
   inherits: false;
@@ -172,38 +173,48 @@ body { background: var(--bg); }
 
 /* === HEADER === */
 .header {
-  padding: calc(env(safe-area-inset-top, 0px) + 12px) 0 12px;
+  padding: calc(env(safe-area-inset-top, 0px) + 14px) 0 14px;
   display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 20px; gap: 10px;
-  background: linear-gradient(180deg, rgba(6,4,3,0.98) 0%, rgba(6,4,3,0.88) 65%, rgba(6,4,3,0) 100%);
-  backdrop-filter: blur(28px) saturate(1.8); -webkit-backdrop-filter: blur(28px) saturate(1.8);
+  margin-bottom: 22px; gap: 10px;
+  background: linear-gradient(180deg, rgba(6,4,3,0.99) 0%, rgba(6,4,3,0.93) 55%, rgba(6,4,3,0) 100%);
+  backdrop-filter: blur(30px) saturate(2); -webkit-backdrop-filter: blur(30px) saturate(2);
   position: relative; z-index: 400;
 }
-.header::after {
+.header-logo-ring {
+  position: relative; width: 46px; height: 46px; border-radius: 13px; flex-shrink: 0;
+}
+.header-logo-ring::before {
   content: '';
-  position: absolute; bottom: 0; left: -16px; right: -16px; height: 1px;
-  background: linear-gradient(90deg, transparent 0%, rgba(245,166,35,0.18) 35%, rgba(245,166,35,0.1) 65%, transparent 100%);
+  position: absolute; inset: -1.5px; border-radius: 15px;
+  padding: 1.5px;
+  background: conic-gradient(from var(--logo-angle, 0deg),
+    rgba(245,166,35,0.55) 0deg,
+    rgba(255,220,110,1) 90deg,
+    rgba(245,166,35,0.55) 180deg,
+    rgba(160,90,10,0.45) 270deg,
+    rgba(245,166,35,0.55) 360deg);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: headerEdgeScan 4s linear infinite; z-index: 0;
+}
+.header-logo-inner {
+  position: absolute; inset: 1.5px; border-radius: 12px;
+  overflow: hidden; background: #0d0b09; z-index: 1;
 }
 .header-logo {
-  width: 28px; height: 28px; border-radius: 8px; object-fit: cover;
-  object-position: center; display: block; flex-shrink: 0;
-  border: 1px solid rgba(245,166,35,0.3);
-  box-shadow: 0 0 10px rgba(245,166,35,0.15);
+  width: 100%; height: 100%; border-radius: 12px; object-fit: cover;
+  object-position: center center; display: block;
 }
-.header-wordmark {
-  display: flex; align-items: center; gap: 8px;
-}
-.header-ipl {
+.header-title-row { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.header-title {
   font-family: 'Oswald', sans-serif; text-transform: uppercase;
-  font-size: 1.1rem; font-weight: 700; letter-spacing: 0.08em;
-  color: var(--text); line-height: 1;
+  font-size: 0.88rem; font-weight: 600; letter-spacing: 0.06em;
+  color: var(--text); line-height: 1.1;
 }
-.header-season-badge {
-  font-size: 0.48rem; font-weight: 900; letter-spacing: 0.14em;
-  color: var(--gold); background: rgba(245,166,35,0.1);
-  border: 1px solid rgba(245,166,35,0.25); border-radius: 5px;
-  padding: 2px 6px; text-transform: uppercase; line-height: 1.4;
-  align-self: center;
+.header-year {
+  font-size: 0.5rem; font-weight: 800; color: var(--gold);
+  letter-spacing: 0.22em; text-transform: uppercase; opacity: 0.9;
 }
 .header-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 
