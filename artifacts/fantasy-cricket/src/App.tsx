@@ -230,15 +230,18 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
   };
   const bgOverlay: React.CSSProperties = {
     position: "absolute", inset: 0, pointerEvents: "none",
-    background: `linear-gradient(to bottom,
-      rgba(4,2,1,0.98) 0%,
-      rgba(4,2,1,0.88) 12%,
-      rgba(4,2,1,0.62) 28%,
-      rgba(4,2,1,0.32) 44%,
-      rgba(4,2,1,0.12) 62%,
-      rgba(4,2,1,0.06) 78%,
-      rgba(4,2,1,0.22) 100%
-    )`,
+    background: `
+      radial-gradient(ellipse 80% 40% at 50% 0%, rgba(245,155,25,0.08) 0%, transparent 55%),
+      linear-gradient(to bottom,
+        rgba(4,2,1,0.97) 0%,
+        rgba(4,2,1,0.82) 15%,
+        rgba(4,2,1,0.55) 30%,
+        rgba(4,2,1,0.28) 48%,
+        rgba(4,2,1,0.10) 65%,
+        rgba(4,2,1,0.08) 80%,
+        rgba(4,2,1,0.32) 100%
+      )
+    `,
   };
 
   if (sel) {
@@ -387,21 +390,21 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
       <div style={{ position: "relative", zIndex: 2, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, width: "100%", maxWidth: 400 }}>
         {Object.values(FANTASY_TEAMS).map((ft, idx) => (
           <button key={ft.id} className="team-card" onClick={() => setSel(ft.id)} style={{
-            background: "rgba(8,5,3,0.25)",
-            border: "1px solid rgba(255,255,255,0.18)",
+            background: `linear-gradient(160deg, rgba(12,8,5,0.42) 0%, rgba(6,4,2,0.28) 100%)`,
+            border: `1px solid rgba(255,255,255,0.14)`,
             borderRadius: 24, padding: "26px 16px 22px",
             cursor: "pointer", fontFamily: "inherit",
             display: "flex", flexDirection: "column" as const, alignItems: "center",
-            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.22), inset 0 -1px 0 rgba(0,0,0,0.2), 0 8px 32px rgba(0,0,0,0.4)",
+            boxShadow: `inset 0 1.5px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.25), 0 12px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.06), 0 0 32px ${ft.color}18`,
             animation: `team-card-in 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) ${idx * 0.09 + 0.1}s both`,
-            backdropFilter: "blur(36px) saturate(1.8)",
-            WebkitBackdropFilter: "blur(36px) saturate(1.8)",
+            backdropFilter: "blur(40px) saturate(2.0)",
+            WebkitBackdropFilter: "blur(40px) saturate(2.0)",
           }}>
-            <div style={{ width: 66, height: 66, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.22)", overflow: "hidden", marginBottom: 14, boxShadow: "0 0 0 4px rgba(255,255,255,0.06), 0 6px 24px rgba(0,0,0,0.45)", flexShrink: 0, position: "relative" as const }}>
+            <div style={{ width: 68, height: 68, borderRadius: "50%", border: `2px solid ${ft.color}60`, overflow: "hidden", marginBottom: 14, boxShadow: `0 0 0 3px ${ft.color}18, 0 0 16px ${ft.color}30, 0 6px 24px rgba(0,0,0,0.5)`, flexShrink: 0, position: "relative" as const }}>
               <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center center", display: "block" }} />
             </div>
-            <div style={{ fontSize: "1rem", fontWeight: 800, color: "#fff", marginBottom: 5, letterSpacing: "-0.02em", textShadow: "0 1px 12px rgba(0,0,0,0.7)" }}>{ft.owner}</div>
-            <div style={{ fontSize: "0.62rem", color: ft.color, fontWeight: 700, lineHeight: 1.4, letterSpacing: "0.04em" }}>{ft.name}</div>
+            <div style={{ fontSize: "1rem", fontWeight: 800, color: "#fff", marginBottom: 5, letterSpacing: "-0.02em", textShadow: "0 1px 12px rgba(0,0,0,0.8)" }}>{ft.owner}</div>
+            <div style={{ fontSize: "0.62rem", color: ft.color, fontWeight: 700, lineHeight: 1.4, letterSpacing: "0.04em", textShadow: `0 0 10px ${ft.color}55` }}>{ft.name}</div>
           </button>
         ))}
       </div>
