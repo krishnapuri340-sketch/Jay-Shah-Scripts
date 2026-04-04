@@ -434,7 +434,7 @@ const TABS = [
   { id: "history",  label: "History"      },
 ];
 
-const NAV_ICON: Record<string, JSX.Element> = {
+const NAV_ICON: Record<string, React.ReactNode> = {
   home: (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
       <path d="M8 21h8M12 17v4M17 3h3v5c0 2.5-1.5 4-4 4M7 3H4v5c0 2.5 1.5 4 4 4"/><path d="M7 3h10v8a5 5 0 0 1-10 0V3z"/>
@@ -574,12 +574,12 @@ export default function App() {
   // PTR refs
   const pullState = useRef({ active: false, startY: 0, startX: 0 });
   const pullYRef = useRef(0);
-  const sparkTipTimer = useRef<ReturnType<typeof setTimeout>>();
+  const sparkTipTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Always-fresh ref to refresh fn (avoids stale closure in PTR listener)
   const refreshFnRef = useRef(() => {});
   const [countdown, setCountdown] = useState<{ text: string; matchName: string; venue?: string; homeTeam?: string; awayTeam?: string } | null>(null);
   const [currentUser, setCurrentUser] = useState<string | null>(() => localStorage.getItem("ipl-current-user"));
-  const [userPins, setUserPins] = useState<Record<string, string>>(loadPins);
+  const [userPins, setUserPins] = useState<Record<string, string>>(loadPins());
   const [pinEditTarget, setPinEditTarget] = useState<string | null>(null);
   const [pinEditVal, setPinEditVal] = useState("");
   const [pinConfirmVal, setPinConfirmVal] = useState("");
@@ -2238,7 +2238,7 @@ export default function App() {
     const W = ms.length * (BAR_W + GAP) - GAP;
     const handleBarTap = (e: React.MouseEvent | React.TouchEvent, m: typeof ms[0]) => {
       e.stopPropagation();
-      clearTimeout(sparkTipTimer.current);
+      if (sparkTipTimer.current) clearTimeout(sparkTipTimer.current);
       setSparkTip({ label: m.label, pts: m.pts });
       sparkTipTimer.current = setTimeout(() => setSparkTip(null), 2500);
     };
