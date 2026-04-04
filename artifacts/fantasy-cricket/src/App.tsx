@@ -2753,9 +2753,9 @@ export default function App() {
                       boxShadow: xiOpen ? `inset 0 1px 0 ${t.color}10` : "none",
                       transition: "all 0.2s ease",
                     }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <span style={{ fontSize: "0.63rem", fontWeight: 800, color: "var(--text)", letterSpacing: "0.08em", textTransform: "uppercase" as const }}>Squad</span>
-                      <span style={{ fontSize: "0.52rem", fontWeight: 700, color: t.color, background: `${t.color}18`, border: `1px solid ${t.color}28`, padding: "2px 6px", borderRadius: 16, letterSpacing: "0.04em" }}>{xi.length}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <span style={{ fontSize: "0.64rem", fontWeight: 600, color: "var(--text-3)", letterSpacing: "0.06em", textTransform: "uppercase" as const }}>Squad</span>
+                      <span style={{ fontSize: "0.7rem", fontWeight: 800, color: t.color, fontFamily: "'Oswald', sans-serif", letterSpacing: "0.02em" }}>{xi.length}</span>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                       {Object.keys(playerPoints).length > 0 && (
@@ -2788,11 +2788,11 @@ export default function App() {
                       boxShadow: benchOpen ? "inset 0 1px 0 rgba(255,255,255,0.05)" : "none",
                       transition: "all 0.2s ease",
                     }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <span style={{ fontSize: "0.63rem", fontWeight: 800, color: "var(--text-2)", letterSpacing: "0.08em", textTransform: "uppercase" as const }}>Reserves</span>
-                      <span style={{ fontSize: "0.52rem", fontWeight: 700, color: "var(--text-3)", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", padding: "2px 6px", borderRadius: 16, letterSpacing: "0.04em" }}>{bench.length}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <span style={{ fontSize: "0.64rem", fontWeight: 600, color: "var(--text-3)", letterSpacing: "0.06em", textTransform: "uppercase" as const }}>Reserves</span>
+                      <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "var(--text-2)", fontFamily: "'Oswald', sans-serif", letterSpacing: "0.02em" }}>{bench.length}</span>
                       {Object.keys(playerPoints).length > 0 && benchTotal > 0 && (
-                        <span style={{ fontSize: "0.51rem", color: "var(--text-3)", opacity: 0.6, fontStyle: "italic" as const, fontWeight: 600 }}>{benchTotal}pt</span>
+                        <span style={{ fontSize: "0.56rem", color: "var(--text-3)", opacity: 0.6, fontWeight: 600 }}>{benchTotal}pt</span>
                       )}
                     </div>
                     <svg width="10" height="6" viewBox="0 0 10 6" fill="none" style={{ transition: "transform 0.35s cubic-bezier(0.34,1.56,0.64,1)", transform: benchOpen ? "rotate(180deg)" : "none", flexShrink: 0, opacity: 0.6 }}>
@@ -2863,9 +2863,9 @@ export default function App() {
                           boxShadow: matchPtsOpen ? "inset 0 1px 0 rgba(245,166,35,0.1)" : "none",
                           transition: "all 0.2s ease",
                         }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                          <span style={{ fontSize: "0.63rem", fontWeight: 800, color: "var(--text)", letterSpacing: "0.08em", textTransform: "uppercase" as const }}>Performance</span>
-                          {grandTotal > 0 && <span style={{ fontSize: "0.68rem", color: "var(--gold)", fontWeight: 800, fontFamily: "'Oswald', sans-serif", letterSpacing: "0.01em" }}>{grandTotal}</span>}
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          <span style={{ fontSize: "0.64rem", fontWeight: 600, color: "var(--text-3)", letterSpacing: "0.06em", textTransform: "uppercase" as const }}>Performance</span>
+                          {grandTotal > 0 && <span style={{ fontSize: "0.7rem", color: "var(--gold)", fontWeight: 800, fontFamily: "'Oswald', sans-serif", letterSpacing: "0.02em" }}>{grandTotal}</span>}
                         </div>
                         <svg width="10" height="6" viewBox="0 0 10 6" fill="none" style={{ transition: "transform 0.35s cubic-bezier(0.34,1.56,0.64,1)", transform: matchPtsOpen ? "rotate(180deg)" : "none", flexShrink: 0, opacity: 0.6 }}>
                           <path d="M1 1l4 4 4-4" stroke="rgba(245,166,35,0.5)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
