@@ -6248,7 +6248,7 @@
         },
         {
           "name": "Chennai Super Kings Inning 2",
-          "total": "47/3 (4.2 ov)",
+          "total": "52/3 (4.3 ov)",
           "batting": [
             {
               "name": "Sanju Samson",
@@ -6285,11 +6285,11 @@
             },
             {
               "name": "Sarfaraz Khan",
-              "runs": 28,
-              "balls": 14,
-              "fours": 4,
+              "runs": 32,
+              "balls": 15,
+              "fours": 5,
               "sixes": 2,
-              "sr": "200.00",
+              "sr": "213.33",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -6386,12 +6386,12 @@
           "bowling": [
             {
               "name": "Jacob Duffy",
-              "overs": "2.2",
+              "overs": "2.3",
               "maidens": 0,
-              "runs": 27,
+              "runs": 32,
               "wickets": 2,
-              "eco": "11.57",
-              "wides": 0,
+              "eco": "12.8",
+              "wides": 1,
               "noBalls": 0,
               "dots": 5
             },
@@ -7379,6 +7379,6 @@
   "lastUpdated": "2026-04-05T16:22:00.253Z",
   "dailyHits": {
     "date": "2026-04-05",
-    "count": 8
+    "count": 10
   }
 }
