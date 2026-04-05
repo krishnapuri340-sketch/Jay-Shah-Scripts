@@ -40,7 +40,7 @@ export const SWIPEABLE_TABS = ["home", "teams", "fixtures", "stats", "history"];
 export const IPL_HISTORY = [
   {
     year: 2025, season: 18, champion: "Royal Challengers Bengaluru", runnerUp: "Punjab Kings",
-    color: "#EC1C24", orangeCap: "Sai Sudharsan", orangeRuns: 759, purpleCap: "Prasidh Krishna", purpleWkts: 25, mvp: "Sai Sudharsan",
+    color: "#EC1C24", orangeCap: "Sai Sudharsan", orangeRuns: 759, purpleCap: "Prasidh Krishna", purpleWkts: 25, mvp: "Suryakumar Yadav",
     topBat: [
       { name: "Sai Sudharsan", team: "GT", val: 759 }, { name: "Suryakumar Yadav", team: "MI", val: 717 },
       { name: "Virat Kohli", team: "RCB", val: 657 }, { name: "Shubman Gill", team: "GT", val: 650 },
