@@ -6415,7 +6415,7 @@
         "Shivam Dube": 62,
         "Ruturaj Gaikwad": 17,
         "Sanju Samson": 19,
-        "Prashant Veer": 13,
+        "Prashant Veer": 22,
         "Virat Kohli": 54,
         "Khaleel Ahmed": 22
       },
@@ -6617,7 +6617,7 @@
         },
         {
           "name": "Chennai Super Kings Inning 2",
-          "total": "94/5 (8.0 ov)",
+          "total": "99/5 (8.2 ov)",
           "batting": [
             {
               "name": "Sanju Samson",
@@ -6687,11 +6687,11 @@
             },
             {
               "name": "Prashant Veer",
-              "runs": 5,
-              "balls": 3,
-              "fours": 1,
+              "runs": 10,
+              "balls": 5,
+              "fours": 2,
               "sixes": 0,
-              "sr": "166.67",
+              "sr": "200.00",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -6788,11 +6788,11 @@
             },
             {
               "name": "Krunal Pandya",
-              "overs": "1",
+              "overs": "1.2",
               "maidens": 0,
-              "runs": 7,
+              "runs": 12,
               "wickets": 2,
-              "eco": "7",
+              "eco": "9",
               "wides": 0,
               "noBalls": 0,
               "dots": 4
@@ -6866,8 +6866,8 @@
           "dots": 4,
           "lbwBowled": 0,
           "maidens": 0,
-          "ballsBowled": 6,
-          "runsConceded": 7,
+          "ballsBowled": 8,
+          "runsConceded": 12,
           "catches": 0,
           "runOuts": 0,
           "sharedRunOuts": 0,
@@ -6965,9 +6965,9 @@
         },
         "Prashant Veer": {
           "played": true,
-          "runs": 5,
-          "balls": 3,
-          "fours": 1,
+          "runs": 10,
+          "balls": 5,
+          "fours": 2,
           "sixes": 0,
           "duck": false,
           "wickets": 0,
@@ -7833,6 +7833,6 @@
   "lastUpdated": "2026-04-05T16:44:04.069Z",
   "dailyHits": {
     "date": "2026-04-05",
-    "count": 11
+    "count": 13
   }
 }
