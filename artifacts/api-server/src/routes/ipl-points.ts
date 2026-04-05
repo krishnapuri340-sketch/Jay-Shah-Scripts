@@ -33,6 +33,7 @@ interface PlayerStats {
   runsConceded: number;
   catches: number;
   runOuts: number;
+  sharedRunOuts: number;
   stumpings: number;
 }
 
@@ -211,6 +212,7 @@ function calcPoints(p: PlayerStats): number {
   pts += c * 8;
   if (c >= 3) pts += 4;
   pts += (p.runOuts || 0) * 10;
+  pts += (p.sharedRunOuts || 0) * 5;
   pts += (p.stumpings || 0) * 12;
 
   return pts;
@@ -265,7 +267,7 @@ function parseOversTooBalls(overs: string | number): number {
   return (parseInt(parts[0]) || 0) * 6 + (parseInt(parts[1]) || 0);
 }
 
-function parseDismissal(dismissal: string): { caught?: string; lbwBowled?: boolean; stumped?: string; runOut?: string } {
+function parseDismissal(dismissal: string): { caught?: string; lbwBowled?: boolean; stumped?: string; runOut?: string; sharedRunOut?: string[] } {
   const d = (dismissal || "").toLowerCase().trim();
   if (!d || d === "not out" || d === "dnb") return {};
   const result: any = {};
@@ -275,8 +277,14 @@ function parseDismissal(dismissal: string): { caught?: string; lbwBowled?: boole
   if (/^lbw\s+b\s/.test(d) || /^b\s/.test(d) || /^lbw\s+bowled\s/.test(d) || /^bowled\s/.test(d)) result.lbwBowled = true;
   const stMatch = d.match(/^st\s+(.+?)\s+b\s/) || d.match(/^stumped\s+(.+?)\s+bowled\s/);
   if (stMatch) result.stumped = stMatch[1].trim();
-  const roMatch = d.match(/^run\s+out\s+\(([^/)]+)/);
-  if (roMatch) result.runOut = roMatch[1].trim();
+  // Shared run-out: "run out (PlayerA/PlayerB)" → 5 pts each
+  // Solo run-out:   "run out (PlayerA)"          → 10 pts
+  const roFull = d.match(/^run\s+out\s+\(([^)]+)\)/);
+  if (roFull) {
+    const parts = roFull[1].split("/").map((s: string) => s.trim()).filter(Boolean);
+    if (parts.length >= 2) result.sharedRunOut = parts;
+    else if (parts.length === 1) result.runOut = parts[0];
+  }
   return result;
 }
 
@@ -287,7 +295,7 @@ function processScorecard(scorecard: any[]): { players: Record<string, PlayerSta
   const getPlayer = (name: string): PlayerStats => {
     const key = normalizeName(name);
     if (!players[key]) {
-      players[key] = { played: true, runs: 0, balls: 0, fours: 0, sixes: 0, duck: false, wickets: 0, dots: 0, lbwBowled: 0, maidens: 0, ballsBowled: 0, runsConceded: 0, catches: 0, runOuts: 0, stumpings: 0 };
+      players[key] = { played: true, runs: 0, balls: 0, fours: 0, sixes: 0, duck: false, wickets: 0, dots: 0, lbwBowled: 0, maidens: 0, ballsBowled: 0, runsConceded: 0, catches: 0, runOuts: 0, sharedRunOuts: 0, stumpings: 0 };
     }
     return players[key];
   };
@@ -344,6 +352,12 @@ function processScorecard(scorecard: any[]): { players: Record<string, PlayerSta
         if (parsed.runOut) {
           const fielder = getPlayer(parsed.runOut);
           fielder.runOuts = (fielder.runOuts || 0) + 1;
+        }
+        if (parsed.sharedRunOut) {
+          parsed.sharedRunOut.forEach((fname: string) => {
+            const f = getPlayer(fname);
+            f.sharedRunOuts = (f.sharedRunOuts || 0) + 1;
+          });
         }
       }
     }
@@ -413,7 +427,7 @@ function processInningsForPoints(
     if (!rawStats[key]) {
       rawStats[key] = { played: true, runs: 0, balls: 0, fours: 0, sixes: 0, duck: false,
         wickets: 0, dots: 0, lbwBowled: 0, maidens: 0, ballsBowled: 0, runsConceded: 0,
-        catches: 0, runOuts: 0, stumpings: 0 };
+        catches: 0, runOuts: 0, sharedRunOuts: 0, stumpings: 0 };
     }
     return rawStats[key];
   };
@@ -435,6 +449,7 @@ function processInningsForPoints(
       }
       if (parsed.stumped) getP(parsed.stumped).stumpings++;
       if (parsed.runOut) getP(parsed.runOut).runOuts++;
+      if (parsed.sharedRunOut) parsed.sharedRunOut.forEach((fn: string) => { getP(fn).sharedRunOuts++; });
       if (parsed.lbwBowled) {
         const bMatch = b.dismissal.match(/\sb\s(.+)$/);
         if (bMatch) getP(bMatch[1].trim()).lbwBowled++;
@@ -1483,7 +1498,7 @@ function buildStatsResponse() {
     // Build per-player stats for this match to compute fantasy pts accurately
     const matchStats: Record<string, PlayerStats> = {};
     const getMs = (k: string) => {
-      if (!matchStats[k]) matchStats[k] = { played: true, runs: 0, balls: 0, fours: 0, sixes: 0, duck: false, wickets: 0, dots: 0, lbwBowled: 0, maidens: 0, ballsBowled: 0, runsConceded: 0, catches: 0, runOuts: 0, stumpings: 0 };
+      if (!matchStats[k]) matchStats[k] = { played: true, runs: 0, balls: 0, fours: 0, sixes: 0, duck: false, wickets: 0, dots: 0, lbwBowled: 0, maidens: 0, ballsBowled: 0, runsConceded: 0, catches: 0, runOuts: 0, sharedRunOuts: 0, stumpings: 0 };
       return matchStats[k];
     };
 
