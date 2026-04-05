@@ -3595,7 +3595,7 @@ export default function App() {
 
         <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
           {([["all", "All IPL"], ["fantasy", "Fantasy Only"], ["predictions", "Predictions"]] as [string, string][]).map(([f, label]) => (
-            <button key={f} onClick={() => { setStatsFilter(f as any); setStatsExpanded(false); if (f === "fantasy" && statsCategory === "fantasyPts") setStatsCategory(STAT_CATS.find(c => c.id !== "fantasyPts")?.id ?? "orangeCap"); }}
+            <button key={f} onClick={() => { setStatsFilter(f as any); setStatsExpanded(false); }}
               style={{ flex: 1, padding: "8px 0", borderRadius: 10, border: "1px solid", fontSize: "0.68rem", fontWeight: 500, cursor: "pointer", fontFamily: "inherit",
                 background: statsFilter === f ? "var(--surface-2)" : "transparent",
                 borderColor: statsFilter === f ? "var(--border-2)" : "var(--border)",
@@ -3607,7 +3607,7 @@ export default function App() {
 
         {statsFilter !== "predictions" && (
           <div data-no-swipe="true" style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 8, marginBottom: 12, marginLeft: -16, marginRight: -16, paddingLeft: 16, paddingRight: 16 }}>
-            {STAT_CATS.filter(c => !(statsFilter === "fantasy" && c.id === "fantasyPts")).map(c => (
+            {STAT_CATS.map(c => (
               <button key={c.id} onClick={() => { setStatsCategory(c.id); setStatsExpanded(false); }} className={`stats-cat-btn ${statsCategory === c.id ? "active" : ""}`}>
                 {c.label}
               </button>
