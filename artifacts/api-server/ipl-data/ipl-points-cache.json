@@ -6409,10 +6409,10 @@
         "Rajat Patidar": 112,
         "Bhuvneshwar Kumar": 50,
         "Phil Salt": 82,
-        "Krunal Pandya": 72,
+        "Krunal Pandya": 74,
         "Tim David": 150,
         "Jitesh Sharma": 16,
-        "Shivam Dube": 62,
+        "Shivam Dube": 63,
         "Ruturaj Gaikwad": 17,
         "Sanju Samson": 19,
         "Prashant Veer": 22,
@@ -6617,7 +6617,7 @@
         },
         {
           "name": "Chennai Super Kings Inning 2",
-          "total": "99/5 (8.2 ov)",
+          "total": "100/5 (8.4 ov)",
           "batting": [
             {
               "name": "Sanju Samson",
@@ -6676,11 +6676,11 @@
             },
             {
               "name": "Shivam Dube",
-              "runs": 12,
-              "balls": 7,
+              "runs": 13,
+              "balls": 9,
               "fours": 1,
               "sixes": 1,
-              "sr": "171.43",
+              "sr": "144.44",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -6788,14 +6788,14 @@
             },
             {
               "name": "Krunal Pandya",
-              "overs": "1.2",
+              "overs": "1.4",
               "maidens": 0,
-              "runs": 12,
+              "runs": 13,
               "wickets": 2,
-              "eco": "9",
+              "eco": "7.8",
               "wides": 0,
               "noBalls": 0,
-              "dots": 4
+              "dots": 5
             }
           ]
         }
@@ -6863,11 +6863,11 @@
           "sixes": 0,
           "duck": false,
           "wickets": 2,
-          "dots": 4,
+          "dots": 5,
           "lbwBowled": 0,
           "maidens": 0,
-          "ballsBowled": 8,
-          "runsConceded": 12,
+          "ballsBowled": 10,
+          "runsConceded": 13,
           "catches": 0,
           "runOuts": 0,
           "sharedRunOuts": 0,
@@ -6911,8 +6911,8 @@
         },
         "Shivam Dube": {
           "played": true,
-          "runs": 12,
-          "balls": 7,
+          "runs": 13,
+          "balls": 9,
           "fours": 1,
           "sixes": 1,
           "duck": false,
@@ -7833,6 +7833,6 @@
   "lastUpdated": "2026-04-05T16:44:04.069Z",
   "dailyHits": {
     "date": "2026-04-05",
-    "count": 13
+    "count": 15
   }
 }
