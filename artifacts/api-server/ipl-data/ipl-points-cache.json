@@ -6411,10 +6411,10 @@
         "Phil Salt": 82,
         "Krunal Pandya": 64,
         "Tim David": 150,
-        "Shivam Dube": 42,
+        "Shivam Dube": 51,
         "Ruturaj Gaikwad": 17,
         "Sanju Samson": 19,
-        "Prashant Veer": 4,
+        "Prashant Veer": 22,
         "Virat Kohli": 54,
         "Khaleel Ahmed": 4
       },
@@ -6550,7 +6550,7 @@
         },
         {
           "name": "Chennai Super Kings Inning 1",
-          "total": "81/5 (7.1 ov)",
+          "total": "96/5 (8.4 ov)",
           "batting": [
             {
               "name": "Sanju Samson",
@@ -6609,22 +6609,22 @@
             },
             {
               "name": "Shivam Dube",
-              "runs": 8,
-              "balls": 4,
-              "fours": 0,
+              "runs": 13,
+              "balls": 9,
+              "fours": 1,
               "sixes": 1,
-              "sr": "200",
+              "sr": "144.44",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
             },
             {
               "name": "Prashant Veer",
-              "runs": 0,
-              "balls": 1,
-              "fours": 0,
+              "runs": 10,
+              "balls": 5,
+              "fours": 2,
               "sixes": 0,
-              "sr": "0.00",
+              "sr": "200",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -6655,22 +6655,22 @@
             },
             {
               "name": "Abhinandan Singh",
-              "overs": "1.1",
+              "overs": "2",
               "maidens": 0,
-              "runs": 14,
+              "runs": 23,
               "wickets": 0,
-              "eco": "12",
+              "eco": "11.5",
               "wides": 0,
               "noBalls": 0,
               "dots": 0
             },
             {
               "name": "Krunal Pandya",
-              "overs": "1",
+              "overs": "1.4",
               "maidens": 0,
-              "runs": 7,
+              "runs": 13,
               "wickets": 2,
-              "eco": "7",
+              "eco": "7.8",
               "wides": 0,
               "noBalls": 0,
               "dots": 0
@@ -6744,8 +6744,8 @@
           "dots": 0,
           "lbwBowled": 0,
           "maidens": 0,
-          "ballsBowled": 6,
-          "runsConceded": 7,
+          "ballsBowled": 10,
+          "runsConceded": 13,
           "catches": 0,
           "runOuts": 0,
           "sharedRunOuts": 0,
@@ -6771,9 +6771,9 @@
         },
         "Shivam Dube": {
           "played": true,
-          "runs": 8,
-          "balls": 4,
-          "fours": 0,
+          "runs": 13,
+          "balls": 9,
+          "fours": 1,
           "sixes": 1,
           "duck": false,
           "wickets": 1,
@@ -6825,9 +6825,9 @@
         },
         "Prashant Veer": {
           "played": true,
-          "runs": 0,
-          "balls": 1,
-          "fours": 0,
+          "runs": 10,
+          "balls": 5,
+          "fours": 2,
           "sixes": 0,
           "duck": false,
           "wickets": 0,
@@ -7693,6 +7693,6 @@
   "lastUpdated": "2026-04-05T16:44:04.069Z",
   "dailyHits": {
     "date": "2026-04-05",
-    "count": 9
+    "count": 11
   }
 }
