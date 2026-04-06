@@ -2827,33 +2827,52 @@ export default function App() {
                             const toggleMn = () => setExpandedMatchNums(prev => {
                               const n = new Set(prev); n.has(mn) ? n.delete(mn) : n.add(mn); return n;
                             });
+                            const [teamA, teamB] = short.split(" vs ");
+                            const colorA = IPL_COLORS[teamA] || "rgba(255,255,255,0.15)";
+                            const colorB = IPL_COLORS[teamB] || "rgba(255,255,255,0.15)";
                             return (
-                              <div key={mn} style={{ borderRadius: 10, border: "1px solid var(--border)", overflow: "hidden" as const, background: "rgba(255,255,255,0.02)" }}>
-                                <button onClick={toggleMn} style={{ display: "flex", alignItems: "center", width: "100%", background: "transparent", border: "none", cursor: "pointer", padding: "8px 10px", gap: 8, WebkitTapHighlightColor: "transparent" }}>
-                                  <span style={{ fontSize: "0.53rem", fontWeight: 700, color: "var(--text-3)", background: "rgba(255,255,255,0.06)", borderRadius: 5, padding: "1px 5px", flexShrink: 0 }}>M{mn}</span>
-                                  <span style={{ fontSize: "0.68rem", fontWeight: 600, color: "var(--text-2)", flex: 1, textAlign: "left" as const }}>{short}</span>
-                                  <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.9rem", fontWeight: 700, color: total >= 120 ? "#d4a843" : "var(--text)", flexShrink: 0 }}>{total}</span>
-                                  <span style={{ fontSize: "0.53rem", color: "var(--text-3)", flexShrink: 0 }}>pts</span>
-                                  <svg width="7" height="5" viewBox="0 0 10 6" fill="none" style={{ transition: "transform 0.2s", transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", flexShrink: 0 }}>
+                              <div key={mn} style={{ borderRadius: 12, border: "1px solid var(--border)", overflow: "hidden" as const, background: `linear-gradient(90deg, ${colorA}08 0%, transparent 40%, ${colorB}08 100%)` }}>
+                                <button onClick={toggleMn} style={{ display: "flex", alignItems: "center", width: "100%", background: "transparent", border: "none", cursor: "pointer", padding: "10px 12px", gap: 10, WebkitTapHighlightColor: "transparent", minHeight: 52 }}>
+                                  {/* Match badge */}
+                                  <span style={{ fontSize: "0.5rem", fontWeight: 700, color: "var(--text-3)", background: "rgba(255,255,255,0.06)", borderRadius: 5, padding: "2px 6px", flexShrink: 0, lineHeight: 1.5 }}>M{mn}</span>
+                                  {/* Team logos + names */}
+                                  <div style={{ display: "flex", alignItems: "center", gap: 6, flex: 1, minWidth: 0 }}>
+                                    <img src={TEAM_LOGO_CDN[teamA]} alt={teamA} style={{ width: 26, height: 26, objectFit: "contain", flexShrink: 0 }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                                    <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.82rem", fontWeight: 600, letterSpacing: "0.04em", color: colorA }}>{teamA}</span>
+                                    <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.56rem", color: "var(--text-3)", letterSpacing: "0.1em", flexShrink: 0 }}>VS</span>
+                                    <img src={TEAM_LOGO_CDN[teamB]} alt={teamB} style={{ width: 26, height: 26, objectFit: "contain", flexShrink: 0 }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                                    <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.82rem", fontWeight: 600, letterSpacing: "0.04em", color: colorB }}>{teamB}</span>
+                                  </div>
+                                  {/* Total + chevron */}
+                                  <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "flex-end", flexShrink: 0 }}>
+                                    <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "1.28rem", fontWeight: 700, lineHeight: 1, color: total >= 120 ? "#d4a843" : "var(--text)", textShadow: total >= 120 ? "0 0 16px #d4a84355" : "none" }}>{total}</span>
+                                    <span style={{ fontSize: "0.44rem", color: "var(--text-3)", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" as const, marginTop: 2 }}>pts</span>
+                                  </div>
+                                  <svg width="7" height="5" viewBox="0 0 10 6" fill="none" style={{ transition: "transform 0.2s", transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", flexShrink: 0, marginLeft: 2 }}>
                                     <path d="M1 1l4 4 4-4" stroke="var(--text-3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                                   </svg>
                                 </button>
                                 {isExpanded && (
-                                  <div style={{ borderTop: "1px solid var(--border)", padding: "6px 10px 8px" }}>
-                                    {players.map((p, i) => (
-                                      <div key={p.name} style={{ display: "flex", alignItems: "center", gap: 5, padding: "3px 0", borderTop: i > 0 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
-                                        <span style={{ fontSize: "0.65rem", flex: 1, color: p.pts === 0 ? "var(--text-3)" : "var(--text-2)", fontWeight: p.pts !== 0 ? 600 : 400, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
-                                          {p.name}
-                                        </span>
-                                        {p.isCap && <span style={{ fontSize: "0.44rem", fontWeight: 900, color: "#d4a843", background: "rgba(212,168,67,0.18)", border: "1px solid rgba(212,168,67,0.4)", borderRadius: 3, padding: "0 3px", lineHeight: 1.4, flexShrink: 0 }}>C</span>}
-                                        {p.isVC && <span style={{ fontSize: "0.44rem", fontWeight: 900, color: "#94a3b8", background: "rgba(148,163,184,0.12)", border: "1px solid rgba(148,163,184,0.3)", borderRadius: 3, padding: "0 3px", lineHeight: 1.4, flexShrink: 0 }}>VC</span>}
-                                        {p.isCap && <span style={{ fontSize: "0.44rem", fontWeight: 700, color: "#d4a843", opacity: 0.8, flexShrink: 0 }}>2×</span>}
-                                        {p.isVC && <span style={{ fontSize: "0.44rem", fontWeight: 700, color: "#94a3b8", opacity: 0.8, flexShrink: 0 }}>1.5×</span>}
-                                        <span style={{ fontSize: "0.68rem", fontWeight: 700, minWidth: 26, textAlign: "right" as const, color: p.pts === 0 ? "var(--text-3)" : p.pts >= 60 ? "#d4a843" : p.pts >= 40 ? "#fb923c" : "#4ade80" }}>
-                                          {p.pts === 0 ? "—" : "+" + p.pts}
-                                        </span>
-                                      </div>
-                                    ))}
+                                  <div style={{ borderTop: "1px solid var(--border)", padding: "6px 12px 10px" }}>
+                                    {players.map((p, i) => {
+                                      const pIplColor = IPL_COLORS[p.ipl] || "rgba(255,255,255,0.15)";
+                                      return (
+                                        <div key={p.name} style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 0", borderTop: i > 0 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
+                                          {/* IPL badge */}
+                                          <span style={{ fontSize: "0.44rem", fontWeight: 900, color: pIplColor, background: pIplColor + "18", border: `1px solid ${pIplColor}33`, borderRadius: 4, padding: "1px 4px", flexShrink: 0, letterSpacing: "0.02em" }}>{p.ipl}</span>
+                                          <span style={{ fontSize: "0.72rem", flex: 1, color: p.pts === 0 ? "var(--text-3)" : "var(--text)", fontWeight: p.pts !== 0 ? 600 : 400, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+                                            {p.name}
+                                          </span>
+                                          {p.isCap && <span style={{ fontSize: "0.44rem", fontWeight: 900, color: "#d4a843", background: "rgba(212,168,67,0.18)", border: "1px solid rgba(212,168,67,0.4)", borderRadius: 3, padding: "0 3px", lineHeight: 1.4, flexShrink: 0 }}>C</span>}
+                                          {p.isVC && <span style={{ fontSize: "0.44rem", fontWeight: 900, color: "#94a3b8", background: "rgba(148,163,184,0.12)", border: "1px solid rgba(148,163,184,0.3)", borderRadius: 3, padding: "0 3px", lineHeight: 1.4, flexShrink: 0 }}>VC</span>}
+                                          {p.isCap && <span style={{ fontSize: "0.44rem", fontWeight: 700, color: "#d4a843", opacity: 0.8, flexShrink: 0 }}>2×</span>}
+                                          {p.isVC && <span style={{ fontSize: "0.44rem", fontWeight: 700, color: "#94a3b8", opacity: 0.8, flexShrink: 0 }}>1.5×</span>}
+                                          <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.9rem", fontWeight: 700, minWidth: 28, textAlign: "right" as const, color: p.pts === 0 ? "var(--text-3)" : p.pts >= 60 ? "#d4a843" : p.pts >= 40 ? "#fb923c" : "#4ade80" }}>
+                                            {p.pts === 0 ? "—" : "+" + p.pts}
+                                          </span>
+                                        </div>
+                                      );
+                                    })}
                                   </div>
                                 )}
                               </div>
