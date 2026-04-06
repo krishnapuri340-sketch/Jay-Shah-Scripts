@@ -2302,6 +2302,8 @@ export default function App() {
             const ft = s.team;
             const isActive = selectedTeam === ft.id;
             const rankNum = i + 1;
+            const shortName = ft.id === "rajveer" ? "Raj" : ft.id === "mombasa" ? "Rahul" : ft.id === "mumbai" ? "Smeet" : "Deb";
+            const hasPoints = Object.keys(playerPoints).length > 0;
             return (
               <button key={ft.id}
                 className={`team-avatar-btn${isActive ? " active" : ""}`}
@@ -2316,7 +2318,10 @@ export default function App() {
                   />
                   <div className="team-avatar-rank">{rankNum}</div>
                 </div>
-                <span className="team-avatar-name">{ft.id === "rajveer" ? "Raj" : ft.id === "mombasa" ? "Rahul" : ft.id === "mumbai" ? "Smeet" : "Deb"}</span>
+                <span className="team-avatar-name">{shortName}</span>
+                <span className="team-avatar-pts" style={{ color: isActive ? ft.color : "var(--text-3)" }}>
+                  {hasPoints ? s.total : "—"}
+                </span>
               </button>
             );
           })}

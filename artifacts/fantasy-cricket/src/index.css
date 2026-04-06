@@ -626,18 +626,22 @@ body { background: var(--bg); }
 
 /* Team avatar selector (replaces pill tabs) */
 .team-avatar-row {
-  display: flex; align-items: center; justify-content: center;
-  gap: 16px; margin-bottom: 20px;
+  display: flex; align-items: center; justify-content: space-around;
+  gap: 8px; margin-bottom: 20px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 18px; padding: 12px 8px;
 }
 .team-avatar-btn {
-  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
   background: transparent; border: none; cursor: pointer;
-  -webkit-tap-highlight-color: transparent; padding: 0;
+  -webkit-tap-highlight-color: transparent; padding: 8px 10px;
+  border-radius: 14px; transition: background 0.18s ease;
   position: relative;
 }
+.team-avatar-btn.active { background: color-mix(in srgb, var(--ta-color) 10%, transparent); }
 .team-avatar-btn:active { transform: scale(0.92); }
 .team-avatar-ring {
-  position: relative; width: 60px; height: 60px; border-radius: 50%;
+  position: relative; width: 64px; height: 64px; border-radius: 50%;
   border: 2.5px solid var(--ta-color, var(--border));
   overflow: visible; flex-shrink: 0;
   transition: border-color 0.22s var(--ease-out), box-shadow 0.22s var(--ease-out);
@@ -664,11 +668,16 @@ body { background: var(--bg); }
   color: var(--ta-color, var(--gold)); z-index: 2;
 }
 .team-avatar-name {
-  font-size: 0.64rem; font-weight: 800; letter-spacing: 0.04em;
+  font-size: 0.62rem; font-weight: 800; letter-spacing: 0.04em;
   text-transform: uppercase; color: var(--text-3);
   transition: color 0.22s;
 }
 .team-avatar-btn.active .team-avatar-name { color: var(--ta-color, var(--gold)); }
+.team-avatar-pts {
+  font-family: 'Oswald', sans-serif; font-size: 0.82rem; font-weight: 700;
+  line-height: 1; letter-spacing: 0.02em;
+  transition: color 0.22s;
+}
 
 /* Fixture filter button (collapsed) */
 .fixture-filter-bar {
