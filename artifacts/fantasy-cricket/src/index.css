@@ -225,13 +225,6 @@ body { background: var(--bg); }
 .btn-dashboard:hover { color: var(--text); border-color: var(--border-2); }
 .btn-dashboard.active { color: var(--gold); border-color: rgba(232,184,75,0.4); background: var(--gold-deep); }
 
-.btn-theme {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--border);
-  background: var(--surface-2); color: var(--text-3); cursor: pointer;
-  transition: all 0.15s;
-}
-.btn-theme:hover { color: var(--text); border-color: var(--border-2); }
 
 /* === BOTTOM NAV === */
 .nav {

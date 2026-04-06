@@ -587,7 +587,6 @@ export default function App() {
   // Always-fresh ref to refresh fn (avoids stale closure in PTR listener)
   const refreshFnRef = useRef(() => {});
   const [countdown, setCountdown] = useState<{ text: string; matchName: string; venue?: string; homeTeam?: string; awayTeam?: string } | null>(null);
-  const [theme, setTheme] = useState<"dark" | "light">(() => (localStorage.getItem("ipl-theme") as "dark" | "light") || "dark");
   const [currentUser, setCurrentUser] = useState<string | null>(() => localStorage.getItem("ipl-current-user"));
   const [userPins, setUserPins] = useState<Record<string, string>>(loadPins);
   const [pinEditTarget, setPinEditTarget] = useState<string | null>(null);
@@ -877,11 +876,6 @@ export default function App() {
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [settingsOpen]);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("light", theme === "light");
-    localStorage.setItem("ipl-theme", theme);
-  }, [theme]);
 
   // Initial fetch — runs on mount AND whenever the user logs in
   useEffect(() => {
@@ -4952,26 +4946,6 @@ export default function App() {
                   Install
                 </button>
               )}
-              {/* Theme toggle */}
-              <button
-                className="btn-theme"
-                onClick={() => setTheme(t => t === "dark" ? "light" : "dark")}
-                aria-label="Toggle theme"
-                title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-              >
-                {theme === "dark" ? (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
-                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-                    <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
-                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-                  </svg>
-                ) : (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                  </svg>
-                )}
-              </button>
               {/* Settings icon button */}
               {currentUser && (
                 <button className="btn-icon" onClick={() => setSettingsOpen(p => !p)} aria-label="Settings">
