@@ -2178,15 +2178,14 @@ export default function App() {
                     position: "absolute", inset: -6, zIndex: 0,
                     backgroundImage: `url(${LB_BG[s.id]})`,
                     backgroundSize: "cover", backgroundPosition: "center 30%",
-                    filter: "blur(24px) brightness(0.55) saturate(1.4)",
+                    filter: "blur(32px) brightness(0.72) saturate(1.4)",
                     transform: "translateZ(0)",
                     willChange: "filter",
                   }} />
                   {/* Glass scrim */}
                   <div style={{
                     position: "absolute", inset: 0, zIndex: 1,
-                    background: `linear-gradient(135deg, ${s.team.color}14 0%, rgba(9,9,11,0.28) 100%)`,
-                    backdropFilter: "blur(0px)",
+                    background: `linear-gradient(135deg, ${s.team.color}18 0%, rgba(9,9,11,0.18) 100%)`,
                   }} />
                   <div className="lb-accent" style={{ background: s.team.color, zIndex: 2, position: "relative" }} />
                   <div className="lb-inner" style={{ position: "relative", zIndex: 2 }}>
