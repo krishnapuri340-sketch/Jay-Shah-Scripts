@@ -2026,9 +2026,7 @@ export default function App() {
                   </div>
                   {countdown.venue && (
                     <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                      <img src={TEAM_LOGO_CDN[countdown.homeTeam]} alt={countdown.homeTeam}
-                        style={{ width: 12, height: 12, objectFit: "contain", opacity: 0.6 }}
-                        onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                      <span style={{ fontSize: "0.6rem" }}>🏟</span>
                       <span style={{ fontSize: "0.56rem", color: "var(--text-3)" }}>{countdown.venue}</span>
                     </div>
                   )}
