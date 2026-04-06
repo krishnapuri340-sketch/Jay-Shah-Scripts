@@ -262,6 +262,7 @@ body { background: var(--bg); }
   letter-spacing: 0.09em; text-transform: uppercase;
   transition: color 0.2s var(--ease-out);
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
   position: relative;
 }
 .nav-btn::before { display: none; }
