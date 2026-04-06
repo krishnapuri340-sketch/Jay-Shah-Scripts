@@ -2204,7 +2204,7 @@ export default function App() {
                     </div>
                     <div style={{ textAlign: "right", flexShrink: 0 }}>
                       <div className="lb-pts first opacity-[1] bg-[transparent]"
-                        style={{ color: Object.keys(playerPoints).length === 0 ? "var(--text-3)" : s.team.color, textShadow: `0 0 10px ${s.team.color}55, 0 1px 4px rgba(0,0,0,1)` }}>
+                        style={{ color: Object.keys(playerPoints).length === 0 ? "var(--text-3)" : s.team.color, textShadow: Object.keys(playerPoints).length === 0 ? "none" : `0 0 24px ${s.team.color}cc, 0 0 10px ${s.team.color}88, 0 0 4px ${s.team.color}55` }}>
                         {Object.keys(playerPoints).length === 0 ? "—" : s.total}
                       </div>
                       <div className="lb-pts-label" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>pts</div>
