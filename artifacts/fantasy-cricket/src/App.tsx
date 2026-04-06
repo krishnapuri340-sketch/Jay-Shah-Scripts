@@ -2929,71 +2929,69 @@ export default function App() {
         {/* Points Table */}
         {standings.length > 0 && (
           <div style={{ marginBottom: 16 }}>
-            <div className="sec-title">Points Table</div>
-            <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse" as const, fontSize: "0.68rem", tableLayout: "fixed" as const }}>
-                <colgroup>
-                  <col style={{ width: 28 }} />
-                  <col />
-                  <col style={{ width: 30 }} />
-                  <col style={{ width: 30 }} />
-                  <col style={{ width: 30 }} />
-                  <col style={{ width: 56 }} />
-                  <col style={{ width: 34 }} />
-                </colgroup>
-                <thead>
-                  <tr style={{ borderBottom: "1px solid var(--border)" }}>
-                    {["#","TEAM","M","W","L","NRR","PTS"].map((h, hi) => (
-                      <th key={h} style={{
-                        padding: "7px 0", fontWeight: 600, fontSize: "0.58rem", letterSpacing: "0.06em",
-                        color: "var(--text-3)",
-                        textAlign: (hi === 0 || hi === 1 ? "left" : "center") as "left"|"center",
-                        paddingLeft: hi === 0 ? 12 : hi === 1 ? 4 : 0,
-                        paddingRight: hi === 6 ? 12 : 0,
-                      }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {standings.map((t: any, i: number) => {
-                    const color = IPL_COLORS[t.teamCode] || "var(--text-3)";
-                    const isTop4 = i < 4;
-                    const isSelected = teamFilter.has(t.teamCode);
-                    const logoUrl = TEAM_LOGO_CDN[t.teamCode] || t.teamLogo;
-                    return (
-                      <tr key={t.teamCode}
-                        onClick={() => toggleTeamFilter(t.teamCode)}
-                        style={{ borderBottom: "1px solid var(--border)", cursor: "pointer", background: isSelected ? color + "14" : "transparent", transition: "background 0.15s" }}>
-                        <td style={{ padding: "8px 0 8px 12px", color: isTop4 ? "#22c55e" : "var(--text-3)", fontWeight: 700, fontSize: "0.68rem" }}>{i + 1}</td>
-                        <td style={{ padding: "8px 4px" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                            <div style={{ width: 2, height: 18, borderRadius: 2, background: color, flexShrink: 0 }} />
-                            {logoUrl
-                              ? <img src={logoUrl} alt={t.teamCode} style={{ width: 20, height: 20, objectFit: "contain", flexShrink: 0 }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                              : <div style={{ width: 20, height: 20, borderRadius: "50%", background: color + "33", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.5rem", fontWeight: 700, color, flexShrink: 0 }}>{t.teamCode.slice(0,2)}</div>
-                            }
-                            <span style={{ fontWeight: 700, color, fontSize: "0.68rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{t.teamCode}</span>
-                          </div>
-                        </td>
-                        <td style={{ textAlign: "center" as const, padding: "8px 0", color: "var(--text-2)", fontWeight: 500 }}>{t.matches}</td>
-                        <td style={{ textAlign: "center" as const, padding: "8px 0", color: "#22c55e", fontWeight: 700 }}>{t.won}</td>
-                        <td style={{ textAlign: "center" as const, padding: "8px 0", color: "#f87171", fontWeight: 500 }}>{t.lost}</td>
-                        <td style={{ textAlign: "center" as const, padding: "8px 0", color: t.nrr >= 0 ? "#22c55e" : "#f87171", fontSize: "0.6rem", fontWeight: 500 }}>
-                          {t.nrr >= 0 ? "+" : ""}{t.nrr.toFixed(3)}
-                        </td>
-                        <td style={{ textAlign: "center" as const, padding: "8px 12px 8px 0", fontSize: "0.82rem", fontWeight: 800, color }}>
-                          {t.points}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+              <div className="sec-title" style={{ margin: 0 }}>Points Table</div>
+              <span style={{ fontSize: "0.52rem", fontWeight: 600, letterSpacing: "0.08em", color: "#22c55e", background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.22)", borderRadius: 8, padding: "2px 8px" }}>TOP 4 QUALIFY</span>
             </div>
-            <div style={{ padding: "5px 12px", fontSize: "0.58rem", color: "var(--text-3)", borderTop: "1px solid var(--border)", letterSpacing: "0.04em" }}>
-              Top 4 qualify for playoffs
-            </div>
+            <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden" }}>
+              {/* Header */}
+              <div style={{ display: "grid", gridTemplateColumns: "28px 1fr 28px 28px 28px 52px 36px", alignItems: "center", padding: "6px 10px 6px 12px", borderBottom: "1px solid var(--border)", background: "rgba(255,255,255,0.02)" }}>
+                {["#","TEAM","M","W","L","NRR","PTS"].map((h, hi) => (
+                  <div key={h} style={{ fontSize: "0.5rem", fontWeight: 700, letterSpacing: "0.1em", color: "var(--text-3)", textAlign: (hi > 1 ? "center" : "left") as "left"|"center" }}>{h}</div>
+                ))}
+              </div>
+              {standings.map((t: any, i: number) => {
+                const color = IPL_COLORS[t.teamCode] || "rgba(255,255,255,0.3)";
+                const isTop4 = i < 4;
+                const isSelected = teamFilter.has(t.teamCode);
+                const logoUrl = TEAM_LOGO_CDN[t.teamCode] || t.teamLogo;
+                const isBoundary = i === 3;
+                return (
+                  <React.Fragment key={t.teamCode}>
+                    <div
+                      onClick={() => toggleTeamFilter(t.teamCode)}
+                      style={{
+                        display: "grid", gridTemplateColumns: "28px 1fr 28px 28px 28px 52px 36px",
+                        alignItems: "center", padding: "9px 10px 9px 12px",
+                        cursor: "pointer",
+                        borderBottom: isBoundary ? "none" : "1px solid rgba(255,255,255,0.04)",
+                        background: isSelected ? color + "18" : isTop4 ? color + "06" : "transparent",
+                        transition: "background 0.15s",
+                        borderLeft: isTop4 ? `2px solid ${color}55` : "2px solid transparent",
+                        position: "relative" as const,
+                      }}>
+                      {/* Rank */}
+                      <div style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.78rem", fontWeight: 700, color: isTop4 ? "#22c55e" : "var(--text-3)", lineHeight: 1 }}>{i + 1}</div>
+                      {/* Team */}
+                      <div style={{ display: "flex", alignItems: "center", gap: 7, minWidth: 0 }}>
+                        {logoUrl
+                          ? <img src={logoUrl} alt={t.teamCode} style={{ width: 26, height: 26, objectFit: "contain", flexShrink: 0, filter: isTop4 ? "none" : "grayscale(0.3) opacity(0.7)" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                          : <div style={{ width: 26, height: 26, borderRadius: "50%", background: color + "33", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.5rem", fontWeight: 700, color, flexShrink: 0 }}>{t.teamCode.slice(0,2)}</div>
+                        }
+                        <span style={{ fontFamily: "'Oswald', sans-serif", fontWeight: 600, fontSize: "0.78rem", letterSpacing: "0.03em", color: isTop4 ? color : "var(--text-2)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{t.teamCode}</span>
+                      </div>
+                      {/* M */}
+                      <div style={{ textAlign: "center" as const, fontFamily: "'Oswald', sans-serif", fontSize: "0.78rem", color: "var(--text-3)", fontWeight: 400 }}>{t.matches}</div>
+                      {/* W */}
+                      <div style={{ textAlign: "center" as const, fontFamily: "'Oswald', sans-serif", fontSize: "0.78rem", color: t.won > 0 ? "#4ade80" : "var(--text-3)", fontWeight: 700 }}>{t.won}</div>
+                      {/* L */}
+                      <div style={{ textAlign: "center" as const, fontFamily: "'Oswald', sans-serif", fontSize: "0.78rem", color: t.lost > 0 ? "#f87171" : "var(--text-3)", fontWeight: 400 }}>{t.lost}</div>
+                      {/* NRR */}
+                      <div style={{ textAlign: "center" as const, fontFamily: "'Oswald', sans-serif", fontSize: "0.66rem", fontWeight: 500, color: t.nrr > 0 ? "#4ade80" : t.nrr < 0 ? "#f87171" : "var(--text-3)" }}>
+                        {t.nrr >= 0 ? "+" : ""}{t.nrr.toFixed(3)}
+                      </div>
+                      {/* PTS */}
+                      <div style={{ textAlign: "center" as const, fontFamily: "'Oswald', sans-serif", fontSize: "1rem", fontWeight: 800, lineHeight: 1, color: isTop4 ? color : "var(--text-3)", textShadow: isTop4 ? `0 0 12px ${color}44` : "none" }}>{t.points}</div>
+                    </div>
+                    {isBoundary && (
+                      <div style={{ position: "relative" as const, height: 1, margin: "0", background: "transparent" }}>
+                        <div style={{ position: "absolute" as const, inset: 0, background: "linear-gradient(90deg, transparent 0%, rgba(34,197,94,0.35) 30%, rgba(34,197,94,0.35) 70%, transparent 100%)" }} />
+                        <div style={{ position: "absolute" as const, left: "50%", top: "50%", transform: "translate(-50%,-50%)", background: "var(--surface)", padding: "1px 8px", borderRadius: 6, fontSize: "0.42rem", fontWeight: 700, letterSpacing: "0.1em", color: "#22c55e", whiteSpace: "nowrap" as const, border: "1px solid rgba(34,197,94,0.3)", zIndex: 1 }}>PLAYOFF LINE</div>
+                      </div>
+                    )}
+                  </React.Fragment>
+                );
+              })}
             </div>
           </div>
         )}
