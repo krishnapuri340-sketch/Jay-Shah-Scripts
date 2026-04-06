@@ -334,6 +334,8 @@ body { background: var(--bg); }
   font-family: 'DM Mono', monospace;
   font-size: 1.75rem; font-weight: 500; letter-spacing: -0.03em; line-height: 1;
   text-align: right; min-width: 58px;
+  font-feature-settings: "zero" 0;
+  font-variant-numeric: tabular-nums;
 }
 .lb-pts.first {
   font-size: 2rem; min-width: 66px;
