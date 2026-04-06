@@ -2360,7 +2360,7 @@ export default function App() {
           <div style={{ flex: 1, position: "relative", zIndex: 2 }}>
             <div className="team-hname" style={{ color: t.color, textShadow: "0 1px 6px rgba(0,0,0,1)" }}>{t.name}</div>
             <div
-              style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.7)", marginBottom: 4 }}>{t.owner} </div>
+              style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.92)", marginBottom: 4 }}>{t.owner} </div>
             <div className="team-roles">
               {Object.entries(roleCounts).sort((a, b) => (b[1] as number) - (a[1] as number)).map(([role, n]) => (
                 <span key={role} className="role-badge"
