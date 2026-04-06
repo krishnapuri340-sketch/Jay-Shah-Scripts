@@ -2733,9 +2733,9 @@ export default function App() {
                 {/* === SEGMENTED PILL CONTROL === */}
                 <div style={{ display: "flex", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 22, padding: 3, marginBottom: 14, gap: 2 }}>
                   {([
-                    ["xi",       "Playing XI", `11`],
-                    ["bench",    "Bench",       `${bench.length}`],
-                    ["matchpts", "Match Pts",   Object.keys(playerPoints).length > 0 && xiTotal > 0 ? `${xiTotal} pts` : ""],
+                    ["xi",       "Playing XI", xiTotal > 0 ? `${xiTotal} pts` : ""],
+                    ["bench",    "Bench",       benchTotal > 0 ? `${benchTotal} pts` : ""],
+                    ["matchpts", "Match Pts",   xiTotal > 0 ? `${xiTotal} pts` : ""],
                   ] as const).map(([id, label, badge]) => (
                     <button key={id} onClick={() => setTeamSection(id)}
                       style={{
