@@ -251,12 +251,12 @@ body { background: var(--bg); }
 .nav-inner {
   display: flex; align-items: center;
   width: 100%; max-width: 580px;
-  padding: 2px 8px 6px;
+  padding: 2px 8px 0;
 }
 .nav-btn {
   flex: 1; max-width: 120px;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
-  padding: 10px 6px 8px; border: none; cursor: pointer; min-height: 54px;
+  padding: 8px 6px 6px; border: none; cursor: pointer; min-height: 48px;
   background: none; color: var(--text-3);
   font-family: inherit; font-size: 0.56rem; font-weight: 800;
   letter-spacing: 0.09em; text-transform: uppercase;
