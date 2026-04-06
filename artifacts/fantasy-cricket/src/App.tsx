@@ -2838,10 +2838,10 @@ export default function App() {
                                   {/* Team logos + names */}
                                   <div style={{ display: "flex", alignItems: "center", gap: 6, flex: 1, minWidth: 0 }}>
                                     <img src={TEAM_LOGO_CDN[teamA]} alt={teamA} style={{ width: 26, height: 26, objectFit: "contain", flexShrink: 0 }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                                    <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.82rem", fontWeight: 600, letterSpacing: "0.04em", color: colorA }}>{teamA}</span>
+                                    <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.82rem", fontWeight: 600, letterSpacing: "0.04em", color: colorA, width: 38, flexShrink: 0 }}>{teamA}</span>
                                     <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.56rem", color: "var(--text-3)", letterSpacing: "0.1em", flexShrink: 0 }}>VS</span>
                                     <img src={TEAM_LOGO_CDN[teamB]} alt={teamB} style={{ width: 26, height: 26, objectFit: "contain", flexShrink: 0 }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                                    <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.82rem", fontWeight: 600, letterSpacing: "0.04em", color: colorB }}>{teamB}</span>
+                                    <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.82rem", fontWeight: 600, letterSpacing: "0.04em", color: colorB, width: 38, flexShrink: 0 }}>{teamB}</span>
                                   </div>
                                   {/* Total + chevron */}
                                   <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "flex-end", flexShrink: 0 }}>
