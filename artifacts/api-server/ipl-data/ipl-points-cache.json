@@ -7038,6 +7038,260 @@
           "stumpings": 0
         }
       }
+    },
+    "2428": {
+      "points": {
+        "Cameron Green": 12,
+        "Arshdeep Singh": 10,
+        "Prabhsimran Singh": 20,
+        "Ajinkya Rahane": 16,
+        "Finn Allen": 14
+      },
+      "innings": [
+        {
+          "name": "Kolkata Knight Riders Inning 1",
+          "total": "25/2 (3.4 ov)",
+          "batting": [
+            {
+              "name": "Ajinkya Rahane",
+              "runs": 8,
+              "balls": 6,
+              "fours": 1,
+              "sixes": 0,
+              "sr": "133.33",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Finn Allen",
+              "runs": 6,
+              "balls": 7,
+              "fours": 1,
+              "sixes": 0,
+              "sr": "85.71",
+              "dismissal": "c Prabhsimran Singh b Xavier Bartlett",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Cameron Green",
+              "runs": 4,
+              "balls": 2,
+              "fours": 1,
+              "sixes": 0,
+              "sr": "200.00",
+              "dismissal": "c Prabhsimran Singh b Xavier Bartlett",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Angkrish Raghuvanshi",
+              "runs": 7,
+              "balls": 7,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "100.00",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Rovman Powell",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Rinku Singh",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Ramandeep Singh",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Anukul Roy",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Navdeep Saini",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Vaibhav Arora",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Kartik Tyagi",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            }
+          ],
+          "bowling": [
+            {
+              "name": "Arshdeep Singh",
+              "overs": "2",
+              "maidens": 0,
+              "runs": 16,
+              "wickets": 0,
+              "eco": "8",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 2
+            },
+            {
+              "name": "Xavier Bartlett",
+              "overs": "1.4",
+              "maidens": 0,
+              "runs": 9,
+              "wickets": 2,
+              "eco": "5.4",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 8
+            }
+          ]
+        }
+      ],
+      "playerStats": {
+        "Cameron Green": {
+          "played": true,
+          "runs": 4,
+          "balls": 2,
+          "fours": 1,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Arshdeep Singh": {
+          "played": true,
+          "runs": 0,
+          "balls": 0,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 2,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 12,
+          "runsConceded": 16,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Prabhsimran Singh": {
+          "played": true,
+          "runs": 0,
+          "balls": 0,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 2,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Ajinkya Rahane": {
+          "played": true,
+          "runs": 8,
+          "balls": 6,
+          "fours": 1,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Finn Allen": {
+          "played": true,
+          "runs": 6,
+          "balls": 7,
+          "fours": 1,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        }
+      }
     }
   },
   "supabaseScores": {
