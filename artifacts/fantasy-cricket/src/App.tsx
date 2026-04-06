@@ -2319,9 +2319,6 @@ export default function App() {
                   <div className="team-avatar-rank">{rankNum}</div>
                 </div>
                 <span className="team-avatar-name">{shortName}</span>
-                <span className="team-avatar-pts" style={{ color: isActive ? ft.color : "var(--text-3)" }}>
-                  {hasPoints ? s.total : "—"}
-                </span>
               </button>
             );
           })}
