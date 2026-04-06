@@ -338,14 +338,13 @@ body { background: var(--bg); }
 .lb-emoji { display: none; }
 .lb-rank {
   font-family: 'Oswald', sans-serif;
-  font-size: 3.8rem; font-weight: 800; letter-spacing: -0.05em; line-height: 1;
-  color: rgba(255,255,255,0.055);
-  min-width: 48px; text-align: center; flex-shrink: 0;
-  user-select: none; pointer-events: none;
+  font-size: 1.35rem; font-weight: 700; letter-spacing: 0; line-height: 1;
+  color: var(--text-3);
+  min-width: 28px; text-align: center; flex-shrink: 0;
 }
-.lb-rank.first  { color: rgba(245,166,35,0.10); }
-.lb-rank.second { color: rgba(200,191,176,0.065); }
-.lb-rank.third  { color: rgba(176,120,64,0.065); }
+.lb-rank.first  { color: var(--gold); }
+.lb-rank.second { color: rgba(200,191,176,0.7); }
+.lb-rank.third  { color: rgba(176,120,64,0.8); }
 .lb-info { flex: 1; min-width: 0; }
 .lb-name { font-size: 1.02rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
 .lb-name.first { font-size: 1.02rem; color: #fff8f0; }

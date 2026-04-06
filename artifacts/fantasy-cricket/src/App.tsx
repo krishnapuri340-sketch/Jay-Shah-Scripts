@@ -2876,38 +2876,6 @@ export default function App() {
 
                   return (
                     <div>
-                      {/* Cumulative trajectory chart */}
-                      {matchData.length > 1 && (() => {
-                        let cumulative = 0;
-                        const cumulativePts = matchData.map(m => { cumulative += m.total; return cumulative; });
-                        const W = 200, H = 40;
-                        const ptPairs = cumulativePts.map((v, i) => {
-                          const x = (i / (cumulativePts.length - 1)) * W;
-                          const y = H - (v / (grandTotal || 1)) * H * 0.85;
-                          return `${x},${y.toFixed(1)}`;
-                        });
-                        const lastX = ptPairs[ptPairs.length - 1].split(",")[0];
-                        const lastY = ptPairs[ptPairs.length - 1].split(",")[1];
-                        return (
-                          <div style={{ display: "flex", alignItems: "center", gap: 12, background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12, padding: "10px 14px", marginBottom: 10 }}>
-                            <div style={{ flexShrink: 0 }}>
-                              <div style={{ fontSize: "0.5rem", color: "var(--text-3)", letterSpacing: "0.1em", fontWeight: 700 }}>SEASON TOTAL</div>
-                              <div style={{ fontFamily: "'Oswald', sans-serif", fontSize: "1.35rem", fontWeight: 700, color: t.color, lineHeight: 1, marginTop: 2 }}>{grandTotal}</div>
-                              <div style={{ fontSize: "0.46rem", color: "var(--text-3)", marginTop: 2 }}>{matchData.length} matches</div>
-                            </div>
-                            <svg viewBox={`0 0 ${W} ${H}`} style={{ flex: 1, height: 40 }} preserveAspectRatio="none">
-                              <defs>
-                                <linearGradient id={`traj-${t.id}`} x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="0%" stopColor={t.color} stopOpacity="0.18" />
-                                  <stop offset="100%" stopColor={t.color} stopOpacity="0" />
-                                </linearGradient>
-                              </defs>
-                              <polyline points={ptPairs.join(" ")} fill="none" stroke={t.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.85" />
-                              <circle cx={lastX} cy={lastY} r="3.5" fill={t.color} />
-                            </svg>
-                          </div>
-                        );
-                      })()}
                       <div style={{ display: "flex", flexDirection: "column" as const, gap: 4 }}>
                           {matchData.map(({ mn, label, players, total }) => {
                             const short = shortLabel(label);
@@ -3733,7 +3701,7 @@ export default function App() {
 
         {/* Segmented control — iOS pill style */}
         <div style={{ display: "flex", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 22, padding: 3, marginBottom: 12, gap: 2 }}>
-          {([["all", "All IPL"], ["fantasy", "Fantasy"]] as [string, string][]).map(([f, label]) => (
+          {([["all", "All IPL"], ["fantasy", "Fantasy"], ["predictions", "Predictions"]] as [string, string][]).map(([f, label]) => (
             <button key={f} onClick={() => { setStatsFilter(f as any); setStatsExpanded(false); if (f !== "fantasy" && statsCategory === "fantasyPts") setStatsCategory("orangeCap"); }}
               style={{
                 flex: 1, padding: "7px 0", borderRadius: 18, border: "none", cursor: "pointer", fontFamily: "inherit",
