@@ -499,6 +499,7 @@ export default function App() {
   const [playerMatchPoints, setPlayerMatchPoints] = useState<Record<string, Array<{ matchNum: number; label: string; pts: number; source: string; stats?: PlayerStats }>>>({});
   const [iplIdToMatchNum, setIplIdToMatchNum] = useState<Record<string, number>>({});
   const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
+  const [expandedBdMatches, setExpandedBdMatches] = useState<Set<string>>(new Set());
   const [benchOpen, setBenchOpen] = useState(false);
   const [matchPtsOpen, setMatchPtsOpen] = useState(false);
   const [teamSection, setTeamSection] = useState<"xi"|"bench"|"matchpts">("xi");
@@ -2453,6 +2454,11 @@ export default function App() {
                   <>
                     {breakdown.map((entry, ei) => {
                       const s = entry.stats;
+                      const bdKey = `${playerName}-${ei}`;
+                      const isEntryOpen = expandedBdMatches.has(bdKey);
+                      const toggleEntry = () => setExpandedBdMatches(prev => {
+                        const n = new Set(prev); n.has(bdKey) ? n.delete(bdKey) : n.add(bdKey); return n;
+                      });
                       const lines: { label: string; pts: number; color: string }[] = [];
                       if (s) {
                         lines.push({ label: "Playing XI", pts: 4, color: "#64748b" });
@@ -2505,22 +2511,28 @@ export default function App() {
                       const diff = s ? entry.pts - computed : 0;
 
                       return (
-                        <div key={ei} style={{ marginBottom: ei < breakdown.length - 1 ? 8 : 0, paddingBottom: ei < breakdown.length - 1 ? 8 : 0, borderBottom: ei < breakdown.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none" }}>
-                          {/* Match row */}
-                          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: s ? 5 : 0 }}>
+                        <div key={ei} style={{ marginBottom: ei < breakdown.length - 1 ? 6 : 0, paddingBottom: ei < breakdown.length - 1 ? 6 : 0, borderBottom: ei < breakdown.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none" }}>
+                          {/* Match row — tap to expand score lines */}
+                          <div onClick={s ? toggleEntry : undefined}
+                            style={{ display: "flex", alignItems: "center", gap: 6, cursor: s ? "pointer" : "default", WebkitTapHighlightColor: "transparent", padding: "2px 0" }}>
                             <span style={{ fontSize: "0.5rem", fontWeight: 700, color: "var(--text-3)", background: "rgba(255,255,255,0.06)", borderRadius: 4, padding: "1px 4px", flexShrink: 0 }}>
                               {entry.matchNum < 900 ? `M${entry.matchNum}` : "LIVE"}
                             </span>
                             <span style={{ fontSize: "0.65rem", color: "var(--text-2)", flex: 1 }}>{shortMatchLabel(entry.label)}</span>
                             <span style={{ width: 5, height: 5, borderRadius: "50%", background: entry.source === "official" ? "#34d399" : "#fbbf24", flexShrink: 0 }} />
-                            <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.95rem", fontWeight: 700, color: entry.pts > 0 ? "var(--text)" : "var(--text-3)", minWidth: 26, textAlign: "right" as const }}>
+                            <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.92rem", fontWeight: 700, color: entry.pts > 0 ? "var(--text)" : "var(--text-3)", minWidth: 26, textAlign: "right" as const }}>
                               {entry.pts}
                             </span>
+                            {s && (
+                              <svg width="8" height="5" viewBox="0 0 10 6" fill="none" style={{ flexShrink: 0, transition: "transform 0.18s", transform: isEntryOpen ? "rotate(180deg)" : "rotate(0deg)" }}>
+                                <path d="M1 1l4 4 4-4" stroke="var(--text-3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            )}
                           </div>
 
-                          {/* Score lines */}
-                          {s && lines.length > 0 && (
-                            <div style={{ display: "grid", gridTemplateColumns: "1fr auto", rowGap: 1, columnGap: 10, padding: "5px 8px", background: "rgba(255,255,255,0.015)", borderRadius: 7 }}>
+                          {/* Score lines — shown only when expanded */}
+                          {isEntryOpen && s && lines.length > 0 && (
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr auto", rowGap: 1, columnGap: 10, padding: "6px 8px", background: "rgba(255,255,255,0.02)", borderRadius: 7, marginTop: 4 }}>
                               {lines.map((line, li) => (
                                 <React.Fragment key={li}>
                                   <span style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{line.label}</span>
@@ -2551,6 +2563,32 @@ export default function App() {
                       </span>
                       <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "1rem", fontWeight: 700, color: inTop11 ? t.color : "var(--text-3)" }}>{adj} pts</span>
                     </div>
+
+                    {/* Scoring guide */}
+                    <details style={{ marginTop: 8 }}>
+                      <summary style={{ fontSize: "0.58rem", color: "var(--text-3)", cursor: "pointer", userSelect: "none" as const, listStyle: "none", letterSpacing: "0.04em" }}>
+                        ℹ︎ Scoring guide
+                      </summary>
+                      <div style={{ marginTop: 6, padding: "7px 10px", background: "rgba(255,255,255,0.018)", borderRadius: 7, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 12px" }}>
+                        {[
+                          ["Playing XI", "+4"], ["Run scored", "+1"], ["Four", "+4"], ["Six", "+6"],
+                          ["25+ runs", "+4"], ["50+ runs", "+8"], ["75+ runs", "+12"], ["100+ runs", "+16"],
+                          ["Duck (bat)", "−2"],
+                          ["SR >190", "+8"], ["SR >170", "+6"], ["SR >150", "+4"], ["SR ≥130", "+2"],
+                          ["SR 70–100", "−2"], ["SR 60–70", "−4"], ["SR <60", "−6"],
+                          ["Wicket", "+30"], ["LBW/Bowled", "+8"], ["3W", "+8"], ["4W", "+12"], ["5W", "+16"],
+                          ["Dot ball", "+2"], ["Maiden", "+12"],
+                          ["Eco <5", "+8"], ["Eco <6", "+6"], ["Eco ≤7", "+4"], ["Eco ≤8", "+2"],
+                          ["Eco 10–11", "−2"], ["Eco 11–12", "−4"], ["Eco >12", "−6"],
+                          ["Catch", "+8"], ["Run out", "+10"], ["Stumping", "+12"], ["3+ catches", "+4"],
+                        ].map(([label, val], i) => (
+                          <React.Fragment key={i}>
+                            <span style={{ fontSize: "0.55rem", color: "var(--text-3)" }}>{label}</span>
+                            <span style={{ fontSize: "0.55rem", color: val.startsWith("−") ? "#ef4444" : "var(--text-2)", fontWeight: 600 }}>{val}</span>
+                          </React.Fragment>
+                        ))}
+                      </div>
+                    </details>
                   </>
                 )}
               </div>
