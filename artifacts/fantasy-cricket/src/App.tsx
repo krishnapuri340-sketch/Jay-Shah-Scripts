@@ -2714,6 +2714,8 @@ export default function App() {
                         }}>{p.name}</div>
                         {isCap && <CaptainBadge />}
                         {isVC && <VCBadge />}
+                        {isLiveNow && <span style={{ fontSize: "0.42rem", fontWeight: 800, color: "#f87171", letterSpacing: "0.09em", background: "rgba(248,113,113,0.12)", border: "1px solid rgba(248,113,113,0.28)", borderRadius: 3, padding: "1px 4px", flexShrink: 0, lineHeight: 1 }}>LIVE</span>}
+                        {isUpcoming && !isLiveNow && <span style={{ fontSize: "0.42rem", fontWeight: 800, color: "#4ade80", letterSpacing: "0.09em", background: "rgba(74,222,128,0.1)", border: "1px solid rgba(74,222,128,0.25)", borderRadius: 3, padding: "1px 4px", flexShrink: 0, lineHeight: 1 }}>NEXT</span>}
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 3 }}>
                         <span style={{
@@ -2757,16 +2759,10 @@ export default function App() {
                       }}>{p.adj}</div>
                       {isCap && <div className="player-pts-raw" style={{ color: "#d4a843" }}>×2</div>}
                       {isVC && <div className="player-pts-raw" style={{ color: "#9e8e7e" }}>×1.5</div>}
-                      {isLiveNow && (
-                        <div style={{ fontSize: "0.43rem", fontWeight: 800, color: "#f87171", letterSpacing: "0.09em", marginTop: 3, background: "rgba(248,113,113,0.12)", border: "1px solid rgba(248,113,113,0.28)", borderRadius: 4, padding: "1px 4px" }}>LIVE</div>
-                      )}
-                      {isUpcoming && !isLiveNow && (
-                        <div style={{ fontSize: "0.43rem", fontWeight: 800, color: "#4ade80", letterSpacing: "0.09em", marginTop: 3, background: "rgba(74,222,128,0.1)", border: "1px solid rgba(74,222,128,0.25)", borderRadius: 4, padding: "1px 4px" }}>NEXT</div>
-                      )}
-                      {!isLiveNow && !isUpcoming && isBench && !isCap && !isVC && (
+                      {isBench && !isCap && !isVC && (
                         <div style={{ fontSize: "0.44rem", color: "var(--text-3)", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" as const, marginTop: 2, opacity: 0.5 }}>bench</div>
                       )}
-                      {!isLiveNow && !isUpcoming && !isBench && !isCap && !isVC && p.adj > 0 && (
+                      {!isBench && !isCap && !isVC && p.adj > 0 && (
                         <div style={{ fontSize: "0.44rem", color: t.color, opacity: 0.55, fontWeight: 600, letterSpacing: "0.06em", marginTop: 2 }}>pts</div>
                       )}
                     </div>
