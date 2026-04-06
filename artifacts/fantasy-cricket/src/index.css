@@ -1070,5 +1070,28 @@ body { background: var(--bg); }
 .hist-cabinet-info { flex: 1; min-width: 0; }
 .hist-cabinet-name { font-size: 0.78rem; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 5px; }
 .hist-cabinet-bar-wrap { height: 4px; background: rgba(245,166,35,0.09); border-radius: 3px; overflow: hidden; }
-.hist-cabinet-bar { height: 100%; border-radius: 3px; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+.hist-cabinet-bar {
+  height: 100%; border-radius: 3px;
+  transform-origin: left center;
+  animation: barGrow 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes barGrow {
+  from { transform: scaleX(0); opacity: 0; }
+  to   { transform: scaleX(1); opacity: 1; }
+}
+.hist-cabinet-row {
+  animation: rowFadeUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.hist-cabinet-rows .hist-cabinet-row:nth-child(1) { animation-delay: 0.04s; }
+.hist-cabinet-rows .hist-cabinet-row:nth-child(2) { animation-delay: 0.10s; }
+.hist-cabinet-rows .hist-cabinet-row:nth-child(3) { animation-delay: 0.16s; }
+.hist-cabinet-rows .hist-cabinet-row:nth-child(4) { animation-delay: 0.22s; }
+.hist-cabinet-rows .hist-cabinet-row:nth-child(5) { animation-delay: 0.28s; }
+.hist-cabinet-rows .hist-cabinet-row:nth-child(6) { animation-delay: 0.34s; }
+.hist-cabinet-rows .hist-cabinet-row:nth-child(7) { animation-delay: 0.40s; }
+.hist-cabinet-rows .hist-cabinet-row:nth-child(8) { animation-delay: 0.46s; }
+@keyframes rowFadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 .hist-cabinet-count { font-family: 'Oswald', sans-serif; font-size: 1.15rem; font-weight: 700; min-width: 22px; text-align: right; }
