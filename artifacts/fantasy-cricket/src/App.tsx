@@ -2811,12 +2811,7 @@ export default function App() {
 
                   return (
                     <div>
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                        <span style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{matchData.length} matches</span>
-                        {grandTotal > 0 && <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.9rem", fontWeight: 700, color: "var(--gold)" }}>{grandTotal} pts</span>}
-                      </div>
-                      {true && (
-                        <div style={{ display: "flex", flexDirection: "column" as const, gap: 4 }}>
+                      <div style={{ display: "flex", flexDirection: "column" as const, gap: 4 }}>
                           {matchData.map(({ mn, label, players, total }) => {
                             const short = shortLabel(label);
                             const isExpanded = expandedMatchNums.has(mn);
@@ -2856,7 +2851,6 @@ export default function App() {
                             );
                           })}
                         </div>
-                      )}
                     </div>
                   );
                 })()}
