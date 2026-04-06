@@ -2127,26 +2127,6 @@ export default function App() {
             })()}
           </div>
         )}
-        {(() => {
-          const liveNow = liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded);
-          if (liveNow.length === 0) return null;
-          const m = liveNow[0];
-          const firstScore = (m.score || [])[0];
-          const scoreStr = firstScore
-            ? (firstScore.summary || (firstScore.r != null ? `${firstScore.r}/${firstScore.w} (${firstScore.o} ov)` : ""))
-            : "";
-          const matchTitle = shortMatchLabel(m.name || "");
-          return (
-            <div className="live-banner" onClick={() => { setTab("fixtures"); setMatchFilter("live"); }}>
-              <div className="live-banner-dot" />
-              <span className="live-banner-text">
-                {matchTitle}{liveNow.length > 1 ? ` +${liveNow.length - 1} more` : ""}
-              </span>
-              {scoreStr ? <span className="live-banner-score">{scoreStr}</span> : null}
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--text-3)", flexShrink: 0 }}><polyline points="9 18 15 12 9 6"/></svg>
-            </div>
-          );
-        })()}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, marginTop: countdown ? 16 : 0 }}>
           <div className="sec-title" style={{ marginBottom: 0 }}>Leaderboard</div>
           <button className="btn-primary" style={{ padding: "6px 10px", display: "flex", alignItems: "center", gap: 5 }} onClick={shareLeaderboard} title="Share leaderboard">
@@ -2218,6 +2198,26 @@ export default function App() {
           );
         })()}
 
+        {(() => {
+          const liveNow = liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded);
+          if (liveNow.length === 0) return null;
+          const m = liveNow[0];
+          const firstScore = (m.score || [])[0];
+          const scoreStr = firstScore
+            ? (firstScore.summary || (firstScore.r != null ? `${firstScore.r}/${firstScore.w} (${firstScore.o} ov)` : ""))
+            : "";
+          const matchTitle = shortMatchLabel(m.name || "");
+          return (
+            <div className="live-banner" onClick={() => { setTab("fixtures"); setMatchFilter("live"); }}>
+              <div className="live-banner-dot" />
+              <span className="live-banner-text">
+                {matchTitle}{liveNow.length > 1 ? ` +${liveNow.length - 1} more` : ""}
+              </span>
+              {scoreStr ? <span className="live-banner-score">{scoreStr}</span> : null}
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--text-3)", flexShrink: 0 }}><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          );
+        })()}
       </div>
     );
   };
