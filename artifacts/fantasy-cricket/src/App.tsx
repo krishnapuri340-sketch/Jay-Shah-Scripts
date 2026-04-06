@@ -2668,58 +2668,74 @@ export default function App() {
                 isLiveNow ? "live-now" : isUpcoming ? "playing-next" : isDimmed ? "not-playing-next" : ""
               ].filter(Boolean).join(" ");
 
+              const iplColor = IPL_COLORS[p.ipl] || "rgba(255,255,255,0.15)";
               return (
                 <React.Fragment key={p.name}>
                   <div className={cardClass} onClick={() => setExpandedPlayer(isExp ? null : p.name)}
-                    style={isLiveNow ? { boxShadow: "inset 3px 0 0 #f87171, inset 0 0 0 1px rgba(248,113,113,0.12)" } : {}}>
-
-                    {/* Status dot */}
-                    {isLiveNow
-                      ? <div className="playing-badge live-badge" />
-                      : <div className="playing-badge" style={{ background: isUpcoming ? "#4ade80" : hasAnyContext ? "transparent" : isBench ? "transparent" : "#4ade80" }} />
-                    }
+                    style={{
+                      borderLeft: `3px solid ${isLiveNow ? "#f87171" : isCap ? "var(--gold)" : isVC ? "#9e8e7e" : iplColor + (isBench ? "44" : "88")}`,
+                      background: isLiveNow
+                        ? `linear-gradient(90deg, rgba(248,113,113,0.06) 0%, transparent 50%)`
+                        : isExp
+                        ? `linear-gradient(90deg, ${iplColor}0a 0%, transparent 55%)`
+                        : `linear-gradient(90deg, ${iplColor}${isBench ? "05" : "09"} 0%, transparent 45%)`,
+                      boxShadow: isLiveNow ? "inset 0 0 0 1px rgba(248,113,113,0.08)" : "none",
+                    }}>
 
                     {/* IPL team badge */}
                     <div className="player-ipl-badge" style={{
-                      background: isBench ? IPL_COLORS[p.ipl] + "1a" : IPL_COLORS[p.ipl] + "30",
-                      color: isBench ? IPL_COLORS[p.ipl] + "88" : IPL_COLORS[p.ipl],
+                      background: iplColor + (isBench ? "15" : "22"),
+                      color: isBench ? iplColor + "99" : iplColor,
+                      border: `1px solid ${iplColor}${isBench ? "22" : "40"}`,
+                      fontWeight: 900,
                     }}>{p.ipl}</div>
 
                     {/* Name + role + sparkline */}
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 0, flexWrap: "nowrap" as const }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "nowrap" as const }}>
                         <div className="player-name" style={{
-                          color: isLiveNow ? "#fca5a5" : isBench ? "var(--text-2)" : "var(--text)",
-                          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, maxWidth: "100%",
+                          color: isLiveNow ? "#fca5a5" : isBench ? "var(--text-3)" : "var(--text)",
+                          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const,
+                          fontSize: "0.88rem",
                         }}>{p.name}</div>
                         {isCap && <CaptainBadge />}
                         {isVC && <VCBadge />}
                       </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 2 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 3 }}>
                         <span style={{
-                          fontSize: "0.52rem", fontWeight: 800, letterSpacing: "0.04em",
-                          padding: "1px 5px", borderRadius: 5,
-                          color: isBench ? roleColor + "77" : roleColor,
-                          background: roleColor + (isBench ? "10" : "18"),
-                          border: `1px solid ${roleColor}${isBench ? "20" : "30"}`,
+                          fontSize: "0.5rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase" as const,
+                          padding: "1px 5px", borderRadius: 4,
+                          color: isBench ? "var(--text-3)" : roleColor,
+                          background: isBench ? "rgba(255,255,255,0.04)" : roleColor + "18",
+                          border: `1px solid ${isBench ? "rgba(255,255,255,0.08)" : roleColor + "30"}`,
                           flexShrink: 0,
                         }}>{p.role}</span>
-                        <Sparkline name={p.name} color={isBench ? t.color + "66" : t.color} />
+                        {isLiveNow && <span style={{ fontSize: "0.48rem", fontWeight: 700, color: "#f87171", letterSpacing: "0.08em" }}>LIVE</span>}
+                        {isUpcoming && !isLiveNow && <span style={{ fontSize: "0.48rem", fontWeight: 700, color: "#4ade80", letterSpacing: "0.08em" }}>NEXT</span>}
+                        <Sparkline name={p.name} color={isBench ? "rgba(255,255,255,0.18)" : t.color} />
                       </div>
                     </div>
 
                     {/* Points */}
-                    <div style={{ textAlign: "right", flexShrink: 0 }}>
-                      <div className="player-pts" style={{
-                        color: isLiveNow ? "#fca5a5"
-                          : isBench ? "var(--text-3)"
-                          : p.adj > 0 ? t.color : "var(--text-3)",
-                        fontSize: isBench ? "1.05rem" : "1.18rem",
+                    <div style={{ textAlign: "right", flexShrink: 0, minWidth: 40 }}>
+                      <div style={{
+                        fontFamily: "'Oswald', sans-serif",
+                        fontSize: isBench ? "1.12rem" : "1.32rem",
+                        fontWeight: 700,
+                        lineHeight: 1,
+                        color: isLiveNow ? "#fca5a5" : isBench ? "var(--text-3)" : p.adj > 0 ? t.color : "rgba(255,255,255,0.2)",
+                        textShadow: (!isBench && p.adj > 0) ? `0 0 18px ${t.color}55` : "none",
                       }}>{p.adj}</div>
-                      {isCap && <div className="player-pts-raw">×2</div>}
-                      {isVC && <div className="player-pts-raw">×1.5</div>}
+                      {(isCap || isVC) && (
+                        <div style={{ fontSize: "0.48rem", fontWeight: 700, color: isCap ? "#d4a843" : "#9e8e7e", textAlign: "right", marginTop: 2, letterSpacing: "0.04em" }}>
+                          {isCap ? "×2 C" : "×1.5 VC"}
+                        </div>
+                      )}
                       {isBench && !isCap && !isVC && (
-                        <div style={{ fontSize: "0.48rem", color: "var(--text-3)", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" as const, marginTop: 1, opacity: 0.7 }}>bench</div>
+                        <div style={{ fontSize: "0.44rem", color: "var(--text-3)", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" as const, marginTop: 2, opacity: 0.5 }}>bench</div>
+                      )}
+                      {!isBench && !isCap && !isVC && p.adj > 0 && (
+                        <div style={{ fontSize: "0.44rem", color: t.color, opacity: 0.55, fontWeight: 600, letterSpacing: "0.06em", marginTop: 2 }}>pts</div>
                       )}
                     </div>
                   </div>
