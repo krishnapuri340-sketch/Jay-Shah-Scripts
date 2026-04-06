@@ -885,7 +885,7 @@ export default function App() {
   }, []);
 
   // Adaptive polling — split by data freshness needs:
-  //   Live status (fetchLive, standings):  8 s  — S3 feed, server cache 8 s
+  //   Live status (fetchLive, standings):  5 s  — S3 feed, server cache 5 s
   //   Points / stats:                     30 s  — server recalculates every 30 s (CricAPI cooldown)
   //   Idle (no live match):                5 min — nothing is changing
   const isAnyMatchLive = liveMatches.some((m: any) => m.matchStarted && !m.matchEnded);
@@ -896,7 +896,7 @@ export default function App() {
   useEffect(() => {
     if (!currentUser) return;
     const idleDelay  = 5 * 60_000;  // 5 min when nothing is live
-    const liveStatus = 8_000;        //  8 s — match status / scorecard
+    const liveStatus = 5_000;        //  5 s — match status / scorecard
     const livePoints = 30_000;       // 30 s — aligned with server CricAPI cooldown
     if (!isAnyMatchLive) {
       const ids = [

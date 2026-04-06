@@ -238,7 +238,7 @@ function transformMatch(m: any): any {
 
 let cache: { data: any; timestamp: number } | null = null;
 const CACHE_TTL_IDLE = 30 * 1000;  // 30 s when no live match
-const CACHE_TTL_LIVE = 8 * 1000;   //  8 s when a match is active
+const CACHE_TTL_LIVE = 5 * 1000;   //  5 s when a match is active
 let matchesRefreshing = false;
 let currentLiveIplIds: string[] = []; // updated by each doRefreshMatches run
 let completedMatchIds = new Set<string>(); // updated by each doRefreshMatches run
