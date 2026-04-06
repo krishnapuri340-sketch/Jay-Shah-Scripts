@@ -626,13 +626,13 @@ body { background: var(--bg); }
 
 /* Team avatar selector (replaces pill tabs) */
 .team-avatar-row {
-  display: flex; align-items: center; justify-content: center;
-  gap: 16px; margin-bottom: 20px;
+  display: flex; align-items: center; justify-content: space-evenly;
+  margin-bottom: 20px;
 }
 .team-avatar-btn {
-  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
   background: transparent; border: none; cursor: pointer;
-  -webkit-tap-highlight-color: transparent; padding: 8px 10px;
+  -webkit-tap-highlight-color: transparent; padding: 0;
   border-radius: 14px; transition: background 0.18s ease;
   position: relative;
 }
