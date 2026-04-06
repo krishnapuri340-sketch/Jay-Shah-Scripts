@@ -2438,11 +2438,11 @@ export default function App() {
               }}>
                 {/* Header */}
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--text)" }}>{playerName}</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                     {isCap && <span style={{ fontSize: "0.5rem", fontWeight: 800, color: "#d4a843", background: "rgba(212,168,67,0.14)", border: "1px solid rgba(212,168,67,0.3)", borderRadius: 5, padding: "1px 5px", letterSpacing: "0.04em" }}>C ×2</span>}
                     {isVC && <span style={{ fontSize: "0.5rem", fontWeight: 800, color: "#9e8e7e", background: "rgba(158,142,126,0.12)", border: "1px solid rgba(158,142,126,0.28)", borderRadius: 5, padding: "1px 5px", letterSpacing: "0.04em" }}>VC ×1.5</span>}
                     {!inTop11 && <span style={{ fontSize: "0.5rem", color: "var(--text-3)", background: "rgba(255,255,255,0.05)", borderRadius: 4, padding: "1px 5px" }}>bench</span>}
+                    <span style={{ fontSize: "0.58rem", color: "var(--text-3)" }}>Match breakdown</span>
                   </div>
                   <button onClick={(e) => { e.stopPropagation(); setExpandedPlayer(null); }}
                     style={{ background: "rgba(255,255,255,0.05)", border: "none", color: "var(--text-3)", cursor: "pointer", fontSize: "0.7rem", padding: "3px 7px", borderRadius: 6, lineHeight: 1 }}>✕</button>
