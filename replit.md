@@ -66,8 +66,17 @@ Primary application: IPL Fantasy Cricket Tracker for 4 teams (Rajveer Puri, Momb
 - IPL: Points table + team color grid
 - Admin: Manual refresh, debug info, PIN management, points breakdown
 
+### Visual Design (current)
+- **Palette (dark)**: `--bg:#09090b`, `--surface:#111113`, `--surface-2:#18181b`, `--gold:#e8b84b`, `--live:#22c55e`, `--red:#ef4444`
+- **Palette (light)**: `--bg:#f4f4f5`, `--gold:#c47f17` — toggled via `html.light` class
+- **Fonts**: Inter (UI) + DM Mono (numbers, codes, monospaced values); loaded from Google Fonts
+- **Theme toggle**: Sun/moon button in header; persisted to `localStorage: ipl-theme`; applies `.light` class to `<html>`
+- **Cards**: Flat, sharp-cornered (`border-radius: 12px`); single `1px solid var(--border)` outline; no gradient backgrounds
+- **Nav**: 6-tab pill nav, Inter 0.6rem labels, SVG stroke icons, sticky glass footer
+- **Header**: Slim glass sticky bar with Inter title + DM Mono year badge; no animated ring
+
 ### Key Files
-- `artifacts/fantasy-cricket/src/App.tsx` — Main frontend logic: state, effects, render functions, handlers (~4297 lines)
+- `artifacts/fantasy-cricket/src/App.tsx` — Main frontend logic: state, effects, render functions, handlers (~4800+ lines)
 - `artifacts/fantasy-cricket/src/constants.ts` — All static IPL data: IPL_COLORS, IPL_FULL_NAMES, ROLE_ICONS, ROLE_COLORS, IPL_TEAM_BADGE, SWIPEABLE_TABS, IPL_HISTORY (2008–2025)
 - `artifacts/fantasy-cricket/src/LineupPreviewCard.tsx` — Collapsible next-match lineup preview component
 - `artifacts/fantasy-cricket/src/teams.ts` — Fantasy team definitions (players, captains, colors)

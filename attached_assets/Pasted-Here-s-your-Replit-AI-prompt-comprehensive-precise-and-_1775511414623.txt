@@ -1,0 +1,301 @@
+Here’s your Replit AI prompt — comprehensive, precise, and ready to paste:
+
+🎯 Replit AI Design Overhaul Prompt
+
+You are redesigning an existing IPL 2026 Fantasy Cricket PWA (React + TypeScript + Vite). 
+The app is already fully functional — DO NOT change any logic, data fetching, API calls, 
+state management, or component structure. Only redesign the visual layer: CSS (index.css), 
+inline styles, className assignments, and typography imports.
+
+---
+
+## APP OVERVIEW
+
+6-tab mobile-first PWA with PIN login. Tabs:
+- Home → Leaderboard (ranked points for 4 fantasy teams)
+- Teams → Squad lineups per fantasy team
+- Matches → Fixtures, live scores, upcoming countdowns
+- Stats → Player stats (fantasy pts, orange/purple cap, SR, economy)
+- History → IPL historical data by year
+- What If → Match prediction & score simulation dashboard
+
+Stack: React, TypeScript, Tailwind not used — pure CSS variables + inline styles.
+Fonts imported via Google Fonts. Bottom pill nav bar. Swipeable tabs.
+
+---
+
+## DESIGN BRIEF: Minimalist · Modern · Sleek
+
+Reference aesthetic: Notion + Apple Health + Headspace + Linear.
+Think: quiet confidence, generous whitespace, crisp hierarchy, intentional colour.
+NOT: loud, flashy, neon, busy. Every element must earn its place.
+
+---
+
+## 1. COLOUR SYSTEM — Replace current warm gold palette
+
+Current: warm amber/gold (#f5a623) on near-black brown (#070504)
+Replace with a cold, editorial dark palette:
+
+:root {
+  --bg:        #09090b;          /* Near-black with cool undertone */
+  --surface:   #111113;
+  --surface-2: #18181b;
+  --surface-3: #1f1f23;
+  --border:    rgba(255,255,255,0.06);
+  --border-2:  rgba(255,255,255,0.1);
+  --text:      #fafafa;
+  --text-2:    #a1a1aa;
+  --text-3:    #52525b;
+
+  /* Single accent: keep gold but refine it — cooler, more muted */
+  --gold:      #e8b84b;
+  --gold-dim:  #c99a30;
+  --gold-glow: rgba(232,184,75,0.2);
+  --gold-deep: rgba(232,184,75,0.08);
+
+  --live:      #22c55e;          /* Clean green */
+  --red:       #ef4444;
+  --blue:      #60a5fa;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  /* Remove warm glass, replace with neutral glass */
+  --glass-surface: rgba(17,17,19,0.88);
+  --glass-blur: blur(20px) saturate(1.4);
+
+  /* Flat elevation — no warm tints */
+  --elev-1: 0 1px 4px rgba(0,0,0,0.4);
+  --elev-2: 0 4px 16px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.3);
+  --elev-3: 0 8px 32px rgba(0,0,0,0.65), 0 2px 6px rgba(0,0,0,0.4);
+
+  --shadow-card: 0 4px 24px rgba(0,0,0,0.5), 0 1px 4px rgba(0,0,0,0.3);
+}
+
+Light mode (class="light" on <html>):
+  --bg: #f4f4f5;
+  --surface: #ffffff;
+  --surface-2: #f9f9fb;
+  --surface-3: #f0f0f3;
+  --border: rgba(0,0,0,0.07);
+  --border-2: rgba(0,0,0,0.12);
+  --text: #09090b;
+  --text-2: #52525b;
+  --text-3: #a1a1aa;
+  --glass-surface: rgba(255,255,255,0.88);
+  --gold: #c47f17;
+  --live: #16a34a;
+  --red: #dc2626;
+  --blue: #2563eb;
+
+Add a light/dark toggle button (sun/moon icon) in the header right area. 
+Persist preference in localStorage key "ipl-theme". Apply class to <html> on mount.
+
+---
+
+## 2. TYPOGRAPHY — Replace Oswald + Plus Jakarta Sans
+
+Import from Google Fonts:
+  - 'Inter' (weights 300,400,500,600,700) — primary UI font
+  - 'DM Mono' (weights 400,500) — for numbers, stats, scores, countdowns
+
+Rules:
+  - No more all-caps Oswald headers. Use Inter 600–700, normal case, tight tracking.
+  - Scores, points, ranks, countdowns → DM Mono
+  - Body / labels → Inter 400–500
+  - Section headers → Inter 600, 0.95rem–1.1rem, letter-spacing: -0.01em
+  - Remove all font-family: 'Oswald' references
+
+---
+
+## 3. BACKGROUND — Flat & minimal
+
+Remove all radial gradient background decoration from .bg-field.
+Replace with: background: var(--bg); — pure flat colour. No noise, no grain.
+The countdown background image (countdown-bg.jpeg) can stay as a full-bleed 
+behind the countdown widget but add a stronger overlay:
+  background: linear-gradient(to bottom, rgba(9,9,11,0.6) 0%, rgba(9,9,11,0.95) 100%)
+
+---
+
+## 4. HEADER — Slim, editorial
+
+Keep current structure (logo ring + title + user chip) but:
+  - Reduce header vertical padding to 8px top/bottom
+  - Logo ring border: replace spinning conic-gradient with a static 1px solid var(--border-2)
+  - Remove the @keyframes headerEdgeScan animation entirely
+  - Header title: Inter 600, 0.82rem, normal case (not uppercase), letter-spacing: -0.01em
+  - Year badge: DM Mono 500, 0.55rem, --gold colour
+  - Header background: var(--glass-surface) with var(--glass-blur)
+  - Border-bottom: 1px solid var(--border)
+
+---
+
+## 5. BOTTOM NAV — Minimal pill bar
+
+Current: emoji icons + labels
+Replace with:
+  - Custom SVG line icons (24x24, stroke-width 1.5, no fill) for each tab:
+    Home/Leaderboard → trophy outline
+    Teams → shield outline  
+    Matches → calendar outline
+    Stats → bar-chart outline
+    History → clock/history outline
+    What If → sparkles/lightning outline
+  - Nav pill container: background var(--surface-2), border 1px solid var(--border), 
+    border-radius 20px, padding 6px
+  - Active tab: background var(--surface-3), icon colour var(--gold), 
+    no glow, no shadow — just colour change
+  - Inactive tab: icon colour var(--text-3)
+  - Labels: keep them, Inter 500, 0.6rem
+  - Transition: colour change only, 150ms ease — NO scale, NO bounce
+
+---
+
+## 6. CARDS & SURFACES — Sharp, flat, editorial
+
+All cards:
+  - border-radius: var(--radius-md) [12px]
+  - background: var(--surface-2)
+  - border: 1px solid var(--border)
+  - box-shadow: var(--elev-1) — subtle only
+  - Remove gold gradient borders, glowing outlines, shimmer effects
+  - Remove all box-shadow glow effects (rgba gold shadows)
+  - Keep backdrop-filter glass only on: header, bottom nav, modal overlays
+
+Leaderboard rows:
+  - Clean list items with 1px divider lines (var(--border)) instead of individual cards
+  - Rank number: DM Mono 600, larger (1.4rem), var(--text-3) for 4th, var(--gold) for 1st
+  - Top 3: add a subtle left-border accent (3px solid) in gold/silver/bronze — 
+    #e8b84b / #9ca3af / #92400e
+  - Remove any background gradient per rank row
+
+---
+
+## 7. STATS TAB — Apple Health card style
+
+Redesign the stats tab to use large metric cards:
+  - Each stat category (Fantasy Pts, Orange Cap, Purple Cap, SR Leader, Economy) 
+    gets its own full-width card
+  - Card anatomy: 
+      top-left: small label (Inter 500, 0.7rem, var(--text-2), uppercase, letter-spacing 0.08em)
+      large metric: DM Mono 700, 2.8rem, var(--text)
+      subtitle: player name / team, Inter 500, 0.8rem, var(--text-2)
+      right side: sparkline bar or mini rank list (top 3 shown inline)
+  - Category switcher: horizontal pill tabs (not a dropdown), minimal style
+  - Maintain data density by stacking 2 cards per row for secondary metrics
+  - Remove progress bar style stat displays — replace with clean ranked lists 
+    inside each card (name, team badge, value — 3 columns, clean row layout)
+
+---
+
+## 8. WHAT IF TAB — Sports analytics dashboard
+
+Redesign to feel like a premium analytics product:
+  - Section title: "Match Simulator" — Inter 600, clean
+  - Team selector: two team pill buttons side by side with a "VS" divider — 
+    no dropdowns, pill toggle style
+  - Prediction output: large confidence bar — thin (4px height), 
+    left half = home team colour, right half = away team colour
+  - Win probability: two large DM Mono numbers (e.g. "64%" vs "36%") 
+    flanking a centre divider
+  - Score prediction: displayed as a stat card (see §7 style)
+  - H2H record: clean 3-column layout: HomeWins | Draws | AwayWins 
+    in DM Mono, with team codes as labels
+  - Venue card: icon + venue name + avg score — one clean row
+  - Remove any game-show / lottery aesthetic. Make it read like ESPN Stats or 
+    Opta data viz.
+
+---
+
+## 9. FIXTURES TAB — Clean match cards
+
+Each match card:
+  - Two team rows: logo + team code (Inter 700) + score (DM Mono 600)
+  - Status pill: LIVE (green dot + "LIVE"), UPCOMING (muted), COMPLETED (dim)
+  - Thin separator between teams
+  - Card: var(--surface-2), radius 12px, border var(--border)
+  - LIVE cards: left border 3px solid var(--live) — no pulsing glow
+  - Venue + date: Inter 400, 0.72rem, var(--text-3) — bottom of card
+
+Live banner (bottom banner):
+  - Keep pulsing energy but make it cleaner: 
+    background var(--surface-3), border-left 3px solid var(--live), 
+    green dot pulse animation stays, but remove glow shadows
+
+---
+
+## 10. HISTORY TAB — Editorial timeline
+
+Year selector:
+  - Horizontal scrollable pill row — Inter 500, 0.75rem
+  - Active: var(--gold) text + 1px solid var(--gold) border, no filled background
+  - Inactive: var(--text-3)
+
+Content:
+  - Winner card: large team logo, Inter 700 team name, DM Mono year
+  - Stats grid: clean 2-col grid of metric cards (same §7 card style)
+  - Top 10 runs/wickets table: clean zebra-stripe rows (alternating var(--surface-2) / transparent)
+
+---
+
+## 11. INTERACTIONS & MOTION
+
+Global rules:
+  - Tab switching: instant (0ms) or max 100ms opacity fade — NO slide, NO spring
+  - Button active state: opacity 0.7, transition 100ms — NO scale transforms
+  - Remove all cubic-bezier spring easings (--ease-spring)
+  - Hover states (desktop): background shift only, no transforms
+  - Skeleton loaders: keep, but use var(--surface-3) base + var(--surface-2) shimmer
+
+Specific:
+  - Remove: headerEdgeScan animation, all pulsing gold shadows, scale() transforms on press
+  - Keep: live green dot pulse (scale subtle 1→1.3, opacity), page load fade-in
+
+---
+
+## 12. LIGHT MODE — Full implementation
+
+Every CSS variable already defined in :root must have a light counterpart 
+under html.light { ... } (variables listed in §1 above).
+
+Component-specific light mode considerations:
+  - Cards: white surface, light shadow (0 2px 8px rgba(0,0,0,0.08))
+  - Header: white/95% opacity glass
+  - Bottom nav: white surface, light border
+  - Team logo backgrounds: transparent (they already use PNG logos)
+  - Gold accent in light mode: darken to #c47f17 for contrast
+  - Stats numbers: --text (#09090b) — strong contrast
+
+Toggle button: place in header right area (before user chip).
+Icon: sun (☀️ or SVG sun outline) in dark mode, moon in light mode.
+Use Inter 400, 1rem icon or SVG — no emoji.
+
+---
+
+## 13. SPACING & DENSITY
+
+  - Content max-width: 560px, margin auto, padding 0 16px
+  - Card internal padding: 14px 16px
+  - Section gap: 20px between major sections
+  - Row gap within cards: 10px
+  - Remove excessive margin/padding bloat — tighten overall
+
+---
+
+## WHAT NOT TO CHANGE
+  - All TypeScript/React component logic
+  - API fetch calls and data processing
+  - Auth / PIN logic
+  - Tab routing / swipe gesture handlers
+  - constants.ts, teams.ts, utils.ts
+  - Any data in ipl-data/ folder
+
+Only modify: index.css, inline style props on JSX elements, 
+the Google Fonts import URL, and add the theme toggle button + logic 
+(~15 lines of state + localStorage).
+
+
+That’s a fully structured, copy-paste-ready prompt for Replit AI. It covers every design decision from your answers — cold palette, Inter + DM Mono, flat backgrounds, sharp cards, Apple Health stats, analytics-style What If, light mode toggle, and stripped-back motion. The constraint section protects all your working logic.​​​​​​​​​​​​​​​​
