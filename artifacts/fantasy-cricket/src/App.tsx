@@ -3738,9 +3738,13 @@ export default function App() {
                       flex: 1, background: sel ? ft.color + "22" : "var(--surface)",
                       border: `1px solid ${sel ? ft.color + "88" : "var(--border)"}`,
                       borderRadius: 10, padding: "9px 4px", cursor: "pointer",
+                      display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 5,
                     }}>
+                    <div style={{ width: 32, height: 32, borderRadius: "50%", border: `2px solid ${sel ? ft.color : "rgba(255,255,255,0.1)"}`, overflow: "hidden", flexShrink: 0, transition: "border-color 0.18s" }}>
+                      <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner}
+                        style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: ft.avatarPosition || "center center", display: "block" }} />
+                    </div>
                     <div style={{ fontSize: "0.55rem", fontWeight: 700, color: sel ? ft.color : "var(--text-3)", letterSpacing: "0.06em", textAlign: "center" as const }}>{ft.owner.toUpperCase()}</div>
-                    <div style={{ fontSize: "0.48rem", color: "var(--text-3)", textAlign: "center" as const, marginTop: 2, display: sel ? "block" : "none" }}>selected</div>
                   </button>
                 );
               })}
@@ -3779,7 +3783,7 @@ export default function App() {
 
             {/* Player list — same card style as Teams tab */}
             <div className="players-grid" style={{ borderTop: `2px solid ${wiTeam.color}70`, borderRadius: "var(--radius-md)", boxShadow: `0 -3px 14px ${wiTeam.color}33` }}>
-              {wiTeam.players.map(p => {
+              {[...wiTeam.players].sort((a, b) => (rawPts[b.name] || 0) - (rawPts[a.name] || 0)).map(p => {
                 const raw = rawPts[p.name] || 0;
                 const isCurCap = p.name === wiTeam.captain;
                 const isCurVC  = p.name === wiTeam.vc;
