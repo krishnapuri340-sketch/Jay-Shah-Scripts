@@ -2699,7 +2699,7 @@ export default function App() {
                           flexShrink: 0,
                         }}>{p.role}</span>
                         {p.price != null && (
-                          <span style={{ fontSize: "0.48rem", fontWeight: 600, color: "var(--text-3)", letterSpacing: "0.02em", flexShrink: 0 }}>
+                          <span style={{ fontSize: "0.48rem", fontWeight: 600, color: "var(--text-2)", letterSpacing: "0.02em", flexShrink: 0 }}>
                             {p.price}cr
                           </span>
                         )}
