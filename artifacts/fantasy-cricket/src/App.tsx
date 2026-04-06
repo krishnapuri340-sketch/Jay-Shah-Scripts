@@ -2732,18 +2732,6 @@ export default function App() {
                           </span>
                         )}
                         <Sparkline name={p.name} color={isBench ? "rgba(255,255,255,0.18)" : t.color} />
-                        {(() => {
-                          const ms = playerMatchPoints[p.name] || [];
-                          if (ms.length < 2) return null;
-                          const seasonAvg = ms.reduce((s: number, m: any) => s + m.pts, 0) / ms.length;
-                          const last3 = ms.slice(-3);
-                          const last3Avg = last3.reduce((s: number, m: any) => s + m.pts, 0) / last3.length;
-                          const diff = last3Avg - seasonAvg;
-                          if (Math.abs(diff) < 4) return <span style={{ fontSize: "0.6rem", color: "var(--text-3)", lineHeight: 1 }}>→</span>;
-                          return diff > 0
-                            ? <span style={{ fontSize: "0.65rem", color: "#4ade80", lineHeight: 1 }}>↑</span>
-                            : <span style={{ fontSize: "0.65rem", color: "#f87171", lineHeight: 1 }}>↓</span>;
-                        })()}
                       </div>
                     </div>
 
