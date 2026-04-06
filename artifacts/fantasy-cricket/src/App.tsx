@@ -1991,7 +1991,7 @@ export default function App() {
       <div>
         {/* Countdown to next match */}
         {countdown && (
-          <div className="countdown-card" style={{ flexDirection: "column", alignItems: "stretch", gap: 10 }}>
+          <div className="countdown-card">
             {/* Blurred colosseum background */}
             <div style={{
               position: "absolute", inset: -6, zIndex: 0,
@@ -1999,42 +1999,18 @@ export default function App() {
               backgroundSize: "cover", backgroundPosition: "center 40%",
               filter: "blur(4px) brightness(0.26) saturate(1.2)",
             }} />
-            {/* Warm amber vignette — bleeds into the amber timer colour */}
+            {/* Warm amber vignette */}
             <div style={{
               position: "absolute", inset: 0, zIndex: 1,
               background: "linear-gradient(160deg, rgba(245,166,35,0.12) 0%, rgba(6,4,2,0.6) 60%, rgba(6,4,2,0.75) 100%)",
             }} />
             <div style={{ position: "relative", zIndex: 2 }}>
-              {/* Matchup: large logos facing each other */}
-              {(countdown.homeTeam && countdown.awayTeam) ? (
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0, marginBottom: 10 }}>
-                  <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 5, flex: 1 }}>
-                    <img src={TEAM_LOGO_CDN[countdown.homeTeam]} alt={countdown.homeTeam}
-                      style={{ width: 58, height: 58, objectFit: "contain", filter: "drop-shadow(0 2px 10px rgba(0,0,0,0.9))" }}
-                      onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                    <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.78rem", fontWeight: 600, color: IPL_COLORS[countdown.homeTeam] || "var(--text)", letterSpacing: "0.04em", textShadow: "0 1px 6px rgba(0,0,0,1)" }}>{countdown.homeTeam}</span>
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 6, flexShrink: 0, padding: "0 8px" }}>
-                    <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "1.15rem", fontWeight: 700, color: "rgba(245,166,35,0.5)", letterSpacing: "0.12em" }}>VS</span>
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 5, flex: 1 }}>
-                    <img src={TEAM_LOGO_CDN[countdown.awayTeam]} alt={countdown.awayTeam}
-                      style={{ width: 58, height: 58, objectFit: "contain", filter: "drop-shadow(0 2px 10px rgba(0,0,0,0.9))" }}
-                      onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                    <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.78rem", fontWeight: 600, color: IPL_COLORS[countdown.awayTeam] || "var(--text)", letterSpacing: "0.04em", textShadow: "0 1px 6px rgba(0,0,0,1)" }}>{countdown.awayTeam}</span>
-                  </div>
-                </div>
-              ) : (
-                <div className="countdown-match" style={{ textAlign: "center" as const, marginBottom: 8, textShadow: "0 1px 6px rgba(0,0,0,1)" }}>{shortMatchLabel(countdown.matchName)}</div>
-              )}
-              {/* Countdown timer — centred, mono */}
-              <div style={{ textAlign: "center" as const, marginBottom: 4 }}>
-                <div className="countdown-timer" style={{ display: "inline-block", fontFamily: "monospace", textShadow: "0 0 24px rgba(245,166,35,0.55), 0 2px 8px rgba(0,0,0,1)" }}>{countdown.text}</div>
-                <div className="countdown-label" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>until kickoff</div>
-              </div>
+              <div className="countdown-match" style={{ marginBottom: 6 }}>{shortMatchLabel(countdown.matchName)}</div>
+              <div className="countdown-timer">{countdown.text}</div>
+              <div className="countdown-label">until kickoff</div>
               {countdown.venue && (
-                <div style={{ fontSize: "0.58rem", color: "var(--text-3)", textAlign: "center" as const, marginBottom: 2, textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>
-                  🏟 {countdown.venue}
+                <div style={{ fontSize: "0.58rem", color: "var(--text-3)", marginTop: 6 }}>
+                  {countdown.venue}
                 </div>
               )}
             </div>
