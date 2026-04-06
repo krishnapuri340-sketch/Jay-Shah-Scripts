@@ -637,6 +637,12 @@ body { background: var(--bg); }
   position: relative;
 }
 .team-avatar-btn:active { transform: scale(0.92); }
+.team-avatar-row:has(.team-avatar-btn.active) .team-avatar-btn:not(.active) {
+  opacity: 0.38; transition: opacity 0.22s ease;
+}
+.team-avatar-row:has(.team-avatar-btn.active) .team-avatar-btn.active {
+  opacity: 1; transition: opacity 0.22s ease;
+}
 .team-avatar-ring {
   position: relative; width: 64px; height: 64px; border-radius: 50%;
   border: 2.5px solid var(--ta-color, var(--border));
