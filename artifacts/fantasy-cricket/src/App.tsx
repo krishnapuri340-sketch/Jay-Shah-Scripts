@@ -2762,7 +2762,7 @@ export default function App() {
 
                 {/* === PLAYING XI === */}
                 {teamSection === "xi" && (
-                  <div className="players-grid" style={{ borderTop: `2px solid ${t.color}40`, borderRadius: "var(--radius-md)" }}>
+                  <div className="players-grid" style={{ borderTop: `2px solid ${t.color}70`, borderRadius: "var(--radius-md)", boxShadow: `0 -3px 14px ${t.color}33` }}>
                     {xi.map(p => renderPlayer(p, false))}
                   </div>
                 )}
