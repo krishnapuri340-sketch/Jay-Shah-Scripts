@@ -500,6 +500,7 @@ export default function App() {
   const [iplIdToMatchNum, setIplIdToMatchNum] = useState<Record<string, number>>({});
   const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
   const [expandedBdMatches, setExpandedBdMatches] = useState<Set<string>>(new Set());
+  const [scoringGuideOpen, setScoringGuideOpen] = useState(false);
   const [benchOpen, setBenchOpen] = useState(false);
   const [matchPtsOpen, setMatchPtsOpen] = useState(false);
   const [teamSection, setTeamSection] = useState<"xi"|"bench"|"matchpts">("xi");
@@ -2565,30 +2566,52 @@ export default function App() {
                     </div>
 
                     {/* Scoring guide */}
-                    <details style={{ marginTop: 8 }}>
-                      <summary style={{ fontSize: "0.58rem", color: "var(--text-3)", cursor: "pointer", userSelect: "none" as const, listStyle: "none", letterSpacing: "0.04em" }}>
-                        ℹ︎ Scoring guide
-                      </summary>
-                      <div style={{ marginTop: 6, padding: "7px 10px", background: "rgba(255,255,255,0.018)", borderRadius: 7, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 12px" }}>
-                        {[
-                          ["Playing XI", "+4"], ["Run scored", "+1"], ["Four", "+4"], ["Six", "+6"],
-                          ["25+ runs", "+4"], ["50+ runs", "+8"], ["75+ runs", "+12"], ["100+ runs", "+16"],
-                          ["Duck (bat)", "−2"],
-                          ["SR >190", "+8"], ["SR >170", "+6"], ["SR >150", "+4"], ["SR ≥130", "+2"],
-                          ["SR 70–100", "−2"], ["SR 60–70", "−4"], ["SR <60", "−6"],
-                          ["Wicket", "+30"], ["LBW/Bowled", "+8"], ["3W", "+8"], ["4W", "+12"], ["5W", "+16"],
-                          ["Dot ball", "+2"], ["Maiden", "+12"],
-                          ["Eco <5", "+8"], ["Eco <6", "+6"], ["Eco ≤7", "+4"], ["Eco ≤8", "+2"],
-                          ["Eco 10–11", "−2"], ["Eco 11–12", "−4"], ["Eco >12", "−6"],
-                          ["Catch", "+8"], ["Run out", "+10"], ["Stumping", "+12"], ["3+ catches", "+4"],
-                        ].map(([label, val], i) => (
-                          <React.Fragment key={i}>
-                            <span style={{ fontSize: "0.55rem", color: "var(--text-3)" }}>{label}</span>
-                            <span style={{ fontSize: "0.55rem", color: val.startsWith("−") ? "#ef4444" : "var(--text-2)", fontWeight: 600 }}>{val}</span>
-                          </React.Fragment>
-                        ))}
-                      </div>
-                    </details>
+                    <div style={{ marginTop: 8, borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: 8 }}>
+                      <button onClick={() => setScoringGuideOpen(o => !o)}
+                        style={{ display: "flex", alignItems: "center", gap: 5, width: "100%", background: "none", border: "none", cursor: "pointer", padding: 0, WebkitTapHighlightColor: "transparent" }}>
+                        <span style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.06em", textTransform: "uppercase" as const, fontWeight: 600, flex: 1, textAlign: "left" as const }}>Scoring guide</span>
+                        <svg width="8" height="5" viewBox="0 0 10 6" fill="none" style={{ flexShrink: 0, transition: "transform 0.18s", transform: scoringGuideOpen ? "rotate(180deg)" : "rotate(0deg)" }}>
+                          <path d="M1 1l4 4 4-4" stroke="var(--text-3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
+                      {scoringGuideOpen && (
+                        <div style={{ marginTop: 7, display: "grid", gridTemplateColumns: "1fr auto", rowGap: 3, columnGap: 14 }}>
+                          {([
+                            ["— BATTING —", ""],
+                            ["Playing XI", "+4"], ["Run scored", "+1"], ["Four", "+4"], ["Six", "+6"],
+                            ["25+ runs", "+4"], ["50+ runs", "+8"], ["75+ runs", "+12"], ["100+ runs", "+16"],
+                            ["Duck", "−2"],
+                            ["SR >190", "+8"], ["SR >170", "+6"], ["SR >150", "+4"], ["SR ≥130", "+2"],
+                            ["SR 70–100", "−2"], ["SR 60–70", "−4"], ["SR <60", "−6"],
+                            ["— BOWLING —", ""],
+                            ["Wicket", "+30"], ["LBW/Bowled", "+8"], ["3W haul", "+8"], ["4W haul", "+12"], ["5W haul", "+16"],
+                            ["Dot ball", "+2"], ["Maiden", "+12"],
+                            ["Eco <5", "+8"], ["Eco <6", "+6"], ["Eco ≤7", "+4"], ["Eco ≤8", "+2"],
+                            ["Eco 10–11", "−2"], ["Eco 11–12", "−4"], ["Eco >12", "−6"],
+                            ["— FIELDING —", ""],
+                            ["Catch", "+8"], ["3+ catches", "+4"], ["Run out", "+10"], ["Stumping", "+12"],
+                          ] as [string, string][]).map(([label, val], i) => {
+                            const isHeader = val === "";
+                            return (
+                              <React.Fragment key={i}>
+                                <span style={{
+                                  fontSize: isHeader ? "0.47rem" : "0.58rem",
+                                  color: isHeader ? "var(--gold)" : label.length && val.startsWith("−") ? "#ef4444" : "var(--text-3)",
+                                  fontWeight: isHeader ? 700 : 400,
+                                  letterSpacing: isHeader ? "0.1em" : "0.02em",
+                                  textTransform: isHeader ? "uppercase" as const : "none" as const,
+                                  paddingTop: isHeader ? 5 : 0,
+                                  gridColumn: isHeader ? "1 / -1" : undefined,
+                                }}>{label}</span>
+                                {!isHeader && (
+                                  <span style={{ fontSize: "0.58rem", fontWeight: 700, textAlign: "right" as const, color: val.startsWith("−") ? "#ef4444" : "#4ade80" }}>{val}</span>
+                                )}
+                              </React.Fragment>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
                   </>
                 )}
               </div>
