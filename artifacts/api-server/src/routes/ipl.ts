@@ -237,8 +237,8 @@ function transformMatch(m: any): any {
 }
 
 let cache: { data: any; timestamp: number } | null = null;
-const CACHE_TTL_IDLE = 90 * 1000;  // 90 s when no live match
-const CACHE_TTL_LIVE = 20 * 1000;  // 20 s when a match is active
+const CACHE_TTL_IDLE = 30 * 1000;  // 30 s when no live match
+const CACHE_TTL_LIVE = 8 * 1000;   //  8 s when a match is active
 let matchesRefreshing = false;
 let currentLiveIplIds: string[] = []; // updated by each doRefreshMatches run
 let completedMatchIds = new Set<string>(); // updated by each doRefreshMatches run
@@ -316,7 +316,7 @@ router.get("/ipl/matches", async (req, res) => {
     if (!cache) {
       // Very first boot — wait for the initial fill
       await doRefreshMatches();
-    } else if (Date.now() - cache.timestamp >= CACHE_TTL_IDLE) {
+    } else if (Date.now() - cache.timestamp >= (currentLiveIplIds.length > 0 ? CACHE_TTL_LIVE : CACHE_TTL_IDLE)) {
       // Stale — fire background refresh but respond immediately with old data
       doRefreshMatches().catch(() => {});
     }
@@ -329,7 +329,7 @@ router.get("/ipl/matches", async (req, res) => {
 });
 
 let standingsCache: { data: any; timestamp: number } | null = null;
-const STANDINGS_TTL = 3 * 60 * 1000; // 3 min
+const STANDINGS_TTL = 60 * 1000; // 60 s
 let standingsRefreshing = false;
 
 async function doRefreshStandings(): Promise<void> {

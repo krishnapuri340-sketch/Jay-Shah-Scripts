@@ -846,7 +846,7 @@ export default function App() {
         .map((m: any) => String(m.id))
     );
     if (!liveIds.has(expandedMatchId)) return;
-    const id = setInterval(() => fetchScorecard(expandedMatchId, true), 30_000);
+    const id = setInterval(() => fetchScorecard(expandedMatchId, true), 10_000);
     return () => clearInterval(id);
   }, [expandedMatchId, liveMatches]);
 
@@ -885,9 +885,9 @@ export default function App() {
   }, []);
 
   // Adaptive polling — split by data freshness needs:
-  //   Live status (fetchLive, standings): 20 s  — free IPL API, needs to be fast
-  //   Points / stats:                     60 s  — server only recalculates every 60 s (CricAPI cooldown)
-  //   Idle (no live match):               60 min — nothing is changing
+  //   Live status (fetchLive, standings):  8 s  — S3 feed, server cache 8 s
+  //   Points / stats:                     30 s  — server recalculates every 30 s (CricAPI cooldown)
+  //   Idle (no live match):                5 min — nothing is changing
   const isAnyMatchLive = liveMatches.some((m: any) => m.matchStarted && !m.matchEnded);
 
   // Reset home/away sub-filter whenever the team filter is changed
@@ -895,9 +895,9 @@ export default function App() {
 
   useEffect(() => {
     if (!currentUser) return;
-    const idleDelay  = 60 * 60_000; // 60 min when nothing is live
-    const liveStatus = 20_000;       // 20 s — match status / scorecard
-    const livePoints = 45_000;       // 45 s — aligned with server CricAPI cooldown
+    const idleDelay  = 5 * 60_000;  // 5 min when nothing is live
+    const liveStatus = 8_000;        //  8 s — match status / scorecard
+    const livePoints = 30_000;       // 30 s — aligned with server CricAPI cooldown
     if (!isAnyMatchLive) {
       const ids = [
         setInterval(fetchLive,        idleDelay),
