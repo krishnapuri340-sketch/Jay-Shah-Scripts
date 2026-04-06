@@ -1,0 +1,97 @@
+I’ve extracted all the players and their prices from your file. There are 71 players in total across the 4 teams.
+
+Here’s the complete list (Player — Price in Cr):
+
+⸻
+
+Mombasa Kenyans
+	1.	Marco Jansen — 4.5
+	2.	Arshdeep Singh — 15
+	3.	Shimron Hetmyer — 3.5
+	4.	Will Jacks — 10
+	5.	Prasidh Krishna — 4.5
+	6.	Varun Chakravarthy — 8
+	7.	Sai Sudharsan — 8
+	8.	Jitesh Sharma — 6.5
+	9.	Riyan Parag — 6
+	10.	Prabhsimran Singh — 6
+	11.	Ajinkya Rahane — 3
+	12.	Rashid Khan — 8.5
+	13.	Tilak Varma — 26.5
+	14.	Aiden Markram — 9
+	15.	Nehal Wadhera — 1
+	16.	Shivam Dube — 10
+	17.	Abhishek Sharma — 15.5
+	18.	Trent Boult — 4.5
+
+⸻
+
+Mumbai Mavericks
+	19.	Dewald Brevis — 3.5
+	20.	Harshal Patel — 1
+	21.	Venkatesh Iyer — 22
+	22.	Heinrich Klaasen — 5
+	23.	Prashant Veer — 1
+	24.	Sherfane Rutherford — 2
+	25.	Finn Allen — 20
+	26.	Rishabh Pant — 10
+	27.	Mohammed Siraj — 1.5
+	28.	Lungi Ngidi — 1
+	29.	Sanju Samson — 20
+	30.	Nitish Rana — 1
+	31.	Tristan Stubbs — 3.5
+	32.	Ruturaj Gaikwad — 3.5
+	33.	Rinku Singh — 1.5
+	34.	Rohit Sharma — 7
+	35.	Hardik Pandya — 30
+	36.	Ishan Kishan — 16.5
+
+⸻
+
+PonyGoat
+	37.	Suryakumar Yadav — 20.5
+	38.	Tim Seifert — 1
+	39.	Virat Kohli — 16
+	40.	Ravindra Jadeja — 9.5
+	41.	Khaleel Ahmed — 1
+	42.	Sunil Narine — 13.5
+	43.	Washington Sundar — 1
+	44.	Shashank Singh — 3.5
+	45.	Mitchell Marsh — 11.5
+	46.	Ryan Rickelton — 7
+	47.	KL Rahul — 10
+	48.	Kuldeep Yadav — 3
+	49.	Marcus Stoinis — 1.5
+	50.	T Natarajan — 1
+	51.	Yashasvi Jaiswal — 19
+	52.	Jasprit Bumrah — 19.5
+	53.	Travis Head — 11.5
+
+⸻
+
+Rajveer Puri’s Team
+	54.	Shreyas Iyer — 14
+	55.	Deepak Chahar — 36
+	56.	Axar Patel — 7
+	57.	Dhruv Jurel — 0.5
+	58.	Jacob Bethell — 2.5
+	59.	Cameron Green — 12
+	60.	Rajat Patidar — 7
+	61.	Yuzvendra Chahal — 2
+	62.	Nicholas Pooran — 10.5
+	63.	Mohammed Shami — 0.5
+	64.	Shubman Gill — 14
+	65.	Krunal Pandya — 6
+	66.	Vaibhav Sooryavanshi — 5
+	67.	Phil Salt — 14
+	68.	Tim David — 0.5
+	69.	Priyansh Arya — 6.5
+	70.	Bhuvneshwar Kumar — 5
+	71.	Jos Buttler — 7
+
+⸻
+
+If you want next steps, I can:
+	•	Calculate team-wise value efficiency (points per crore)
+	•	Highlight overpriced vs underpriced players
+	•	Suggest best XI from all 71 players
