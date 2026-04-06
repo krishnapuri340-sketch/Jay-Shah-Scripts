@@ -3041,7 +3041,7 @@ export default function App() {
             const count = f === "live" ? live.length : f === "upcoming" ? upcoming.length : f === "completed" ? completed.length : liveMatches.length;
             const isActive = activeFilter === f;
             const activeColor = f === "live" ? "#f87171" : f === "upcoming" ? "var(--blue)" : f === "completed" ? "var(--text)" : "var(--gold)";
-            const label = f === "live" ? "Live" : f === "upcoming" ? "Upcoming" : f === "completed" ? "Done" : "All";
+            const label = f === "live" ? "Live" : f === "upcoming" ? "Upcoming" : f === "completed" ? "Completed" : "All";
             return (
               <button key={f} onClick={() => setMatchFilter(f)}
                 style={{
