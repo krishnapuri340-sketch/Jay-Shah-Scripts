@@ -2198,7 +2198,7 @@ export default function App() {
                         </div>
                       </div>
                       <div className="lb-meta">
-                        {s.team.owner} · <span style={{ color: "#d4a843" }}>C:</span> {s.team.captain} · <span style={{ color: "var(--text-3)" }}>VC:</span> {s.team.vc}
+                        {s.team.owner} · <span style={{ color: "#d4a843" }}>C:</span> {s.team.captain} · <span style={{ color: "rgba(255,255,255,0.45)" }}>VC:</span> {s.team.vc}
                       </div>
                     </div>
                     <div style={{ textAlign: "right", flexShrink: 0 }}>
