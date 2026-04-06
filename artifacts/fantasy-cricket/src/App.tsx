@@ -2345,7 +2345,6 @@ export default function App() {
             );
           })}
         </div>
-
         <div className="team-header-card" style={{ "--team-color": t.color } as React.CSSProperties}>
           {/* Blurred team artwork background */}
           <div style={{
@@ -2360,7 +2359,9 @@ export default function App() {
           }} />
           <div style={{ flex: 1, position: "relative", zIndex: 2 }}>
             <div className="team-hname" style={{ color: t.color, textShadow: "0 1px 6px rgba(0,0,0,1)" }}>{t.name}</div>
-            <div style={{ fontSize: "0.7rem", color: "var(--text-3)", marginBottom: 4, textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>{t.owner}</div>
+            <div
+              style={{ fontSize: "0.7rem", color: "var(--text-3)", marginBottom: 4, textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}
+              className="text-[#ffffff]">{t.owner} </div>
             <div className="team-roles">
               {Object.entries(roleCounts).sort((a, b) => (b[1] as number) - (a[1] as number)).map(([role, n]) => (
                 <span key={role} className="role-badge"
@@ -2377,7 +2378,6 @@ export default function App() {
             <div className="team-hlabel" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>total pts</div>
           </div>
         </div>
-
         {/* Match status banner — shows LIVE and/or UPCOMING players */}
         {hasAnyContext && (
           <div className={`team-next-match-banner ${hasLiveNow ? "has-live" : ""}`}>
@@ -2444,7 +2444,6 @@ export default function App() {
             )}
           </div>
         )}
-
         {(() => {
           const renderBreakdown = (p: { name: string; raw: number; adj: number; role: string; ipl: string }) => {
             const playerName = p.name;
@@ -3267,7 +3266,7 @@ export default function App() {
                               const canEdit = !isLocked && (ownerId === currentUser || currentUser === "rajveer");
                               return canEdit ? (
                                 /* Big team pick cards */
-                                <div key={ownerId} style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                                (<div key={ownerId} style={{ display: "flex", flexDirection: "column", gap: 5 }}>
                                   <span style={{ fontSize: "0.58rem", color: ft.color, fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase" as const }}>{ft.owner}</span>
                                   <div style={{ display: "flex", gap: 8 }}>
                                     {[m.homeTeamCode, m.awayTeamCode].map((code: string) => {
@@ -3329,10 +3328,10 @@ export default function App() {
                                       );
                                     })}
                                   </div>
-                                </div>
+                                </div>)
                               ) : (
                                 /* Compact read-only row */
-                                <div key={ownerId} style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 8px", borderRadius: 8, background: "rgba(255,255,255,0.02)", border: "1px solid var(--border)" }}>
+                                (<div key={ownerId} style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 8px", borderRadius: 8, background: "rgba(255,255,255,0.02)", border: "1px solid var(--border)" }}>
                                   <span style={{ fontSize: "0.6rem", color: ft.color, fontWeight: 700, minWidth: 32, flexShrink: 0 }}>{ft.owner}</span>
                                   {pick ? (
                                     <div style={{ display: "flex", alignItems: "center", gap: 4, flex: 1 }}>
@@ -3344,7 +3343,7 @@ export default function App() {
                                   ) : (
                                     <span style={{ fontSize: "0.6rem", color: "var(--text-3)", fontStyle: "italic" }}>—</span>
                                   )}
-                                </div>
+                                </div>)
                               );
                             })}
                           </div>
