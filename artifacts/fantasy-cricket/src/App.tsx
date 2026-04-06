@@ -492,6 +492,7 @@ const buildMatchPreviews = (matches: any[]) =>
 export default function App() {
   const [tab, setTab] = useState("home");
   const [historyYear, setHistoryYear] = useState<number | null>(null);
+  const [histTop10Tab, setHistTop10Tab] = useState<"bat" | "bwl">("bat");
   const [selectedTeam, setSelectedTeam] = useState("rajveer");
   const [fixtureHomeAwayFilter, setFixtureHomeAwayFilter] = useState<"all" | "home" | "away">("all");
   const [playerPoints, setPlayerPoints] = useState<Record<string, number>>({});
@@ -1889,29 +1890,37 @@ export default function App() {
                 </div>
               </div>
             </div>
-            {/* Top 10 lists */}
-            <div className="hist-top10-grid">
-              <div className="hist-top10-col">
-                <div className="hist-top10-hdr" style={{ color: "#f97316" }}><span style={{filter:"hue-rotate(175deg) saturate(3) brightness(1.1)"}}>🧢</span> Top Run-scorers</div>
-                {s.topBat.map((p, i) => (
-                  <div key={i} className="hist-top10-row">
-                    <span className="hist-rk">{i + 1}</span>
-                    <TeamBadge name={p.team} size={20} />
-                    <span className="hist-pname">{p.name}</span>
-                    <span className="hist-pval">{p.val}</span>
-                  </div>
+            {/* Top 10 — segmented toggle */}
+            <div style={{ marginTop: 16 }}>
+              {/* Segmented pill */}
+              <div style={{ display: "flex", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 22, padding: 3, marginBottom: 12, gap: 2 }}>
+                {([["bat", "🏏 Batting"] as const, ["bwl", "🎯 Bowling"] as const]).map(([id, label]) => (
+                  <button key={id} onClick={() => setHistTop10Tab(id)}
+                    style={{
+                      flex: 1, padding: "7px 0", borderRadius: 18, border: "none", cursor: "pointer",
+                      fontFamily: "inherit", fontSize: "0.72rem", fontWeight: 600, transition: "all 0.18s ease",
+                      background: histTop10Tab === id ? "var(--surface-3)" : "transparent",
+                      color: histTop10Tab === id ? (id === "bat" ? "#f97316" : "#7c3aed") : "var(--text-3)",
+                      boxShadow: histTop10Tab === id ? "0 1px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)" : "none",
+                    }}>
+                    {label}
+                  </button>
                 ))}
               </div>
-              <div className="hist-top10-col">
-                <div className="hist-top10-hdr" style={{ color: "#7c3aed" }}><span style={{filter:"hue-rotate(25deg) saturate(4) brightness(0.5)"}}>🧢</span> Top Wicket-takers</div>
-                {s.topBwl.map((p, i) => (
-                  <div key={i} className="hist-top10-row">
-                    <span className="hist-rk">{i + 1}</span>
-                    <TeamBadge name={p.team} size={20} />
-                    <span className="hist-pname">{p.name}</span>
-                    <span className="hist-pval">{p.val}</span>
-                  </div>
-                ))}
+              {/* Full-width list */}
+              <div style={{ background: "var(--surface)", borderRadius: "var(--radius-md)", border: "1px solid var(--border)", overflow: "hidden" }}>
+                {(histTop10Tab === "bat" ? s.topBat : s.topBwl).map((p, i) => {
+                  const accentColors = ["#d4a843", "#94a3b8", "#71717a"];
+                  const accentColor = i < 3 ? accentColors[i] : "var(--border)";
+                  return (
+                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderBottom: i < (histTop10Tab === "bat" ? s.topBat : s.topBwl).length - 1 ? "1px solid var(--border)" : "none", borderLeft: `4px solid ${accentColor}` }}>
+                      <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.9rem", fontWeight: 700, color: i < 3 ? accentColors[i] : "var(--text-3)", width: 18, textAlign: "center" as const, flexShrink: 0 }}>{i + 1}</span>
+                      <TeamBadge name={p.team} size={22} />
+                      <span style={{ flex: 1, fontSize: "0.82rem", fontWeight: 500, color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{p.name}</span>
+                      <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "1.05rem", fontWeight: 700, color: histTop10Tab === "bat" ? "#f97316" : "#7c3aed", flexShrink: 0 }}>{p.val}</span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -2128,6 +2137,11 @@ export default function App() {
                   <div className="lb-accent" style={{ background: s.team.color, zIndex: 2, position: "relative" }} />
                   <div className="lb-inner" style={{ position: "relative", zIndex: 2 }}>
                     <div className={`lb-rank ${rankLabel(i)}`} style={{ textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>{i + 1}</div>
+                    {/* Avatar */}
+                    <div style={{ width: 28, height: 28, borderRadius: "50%", border: `1.5px solid ${s.team.color}70`, overflow: "hidden", flexShrink: 0, boxShadow: `0 0 0 1px ${s.team.color}25` }}>
+                      <img src={`${import.meta.env.BASE_URL}avatars/${s.team.avatar}`} alt={s.team.owner}
+                        style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: s.team.avatarPosition || "center center", display: "block" }} />
+                    </div>
                     <div className="lb-info">
                       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                         <div className={`lb-name ${i === 0 ? "first" : ""}`}
@@ -2136,7 +2150,7 @@ export default function App() {
                         </div>
                       </div>
                       <div className="lb-meta" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>
-                        {s.team.owner} · <span style={{ color: "#d4a843" }}>C:</span> {s.team.captain} · <span style={{ color: "var(--text-2)" }}>VC:</span> {s.team.vc}
+                        {s.team.owner} · <span style={{ color: "#d4a843" }}>{s.team.captain.split(" ").slice(-1)[0]}</span> / <span style={{ color: "var(--text-2)" }}>{s.team.vc.split(" ").slice(-1)[0]}</span>
                       </div>
                     </div>
                     <div style={{ textAlign: "right", flexShrink: 0 }}>
@@ -3095,25 +3109,38 @@ export default function App() {
                       )}
                     </div>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-                    {teams.length > 0 ? teams.map((ti: any, i: number) => (
-                      <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                        {i === 1 && <span style={{ fontFamily: "'Oswald', sans-serif", color: "var(--text-3)", fontSize: "0.65rem", letterSpacing: "0.1em", margin: "0 1px" }}>VS</span>}
-                        <img src={TEAM_LOGO_CDN[ti.shortname] || ti.img} alt={ti.shortname} style={{ width: 20, height: 20, objectFit: "contain", filter: "drop-shadow(0 1px 4px rgba(0,0,0,0.7))" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                        <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "1.05rem", fontWeight: 500, letterSpacing: "0.05em", color: "var(--text)", textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>{ti.shortname}</span>
+                  {(() => {
+                    const cardWinner = isDone ? getMatchWinner(m) : null;
+                    return (
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                        {teams.length > 0 ? teams.map((ti: any, i: number) => {
+                          const isWinner = cardWinner && cardWinner !== "tie" && ti.shortname === cardWinner;
+                          const teamCol = IPL_COLORS[ti.shortname] || "var(--text)";
+                          return (
+                            <div key={i} style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                              {i === 1 && <span style={{ fontFamily: "'Oswald', sans-serif", color: "var(--text-3)", fontSize: "0.62rem", letterSpacing: "0.1em", margin: "0 1px" }}>VS</span>}
+                              <img src={TEAM_LOGO_CDN[ti.shortname] || ti.img} alt={ti.shortname} style={{ width: 28, height: 28, objectFit: "contain", filter: `drop-shadow(0 1px 6px rgba(0,0,0,0.8))${isWinner ? ` drop-shadow(0 0 6px ${teamCol}88)` : ""}` }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                              <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "1.08rem", fontWeight: isWinner ? 700 : 400, letterSpacing: "0.04em", color: isWinner ? "#fff" : isDone ? "var(--text-3)" : "var(--text)", textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>{ti.shortname}</span>
+                            </div>
+                          );
+                        }) : (
+                          <div style={{ fontFamily: "'Oswald', sans-serif", fontSize: "1rem", fontWeight: 500, letterSpacing: "0.04em", color: "var(--text)", textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>{(m.name || "").replace(/,\s*\d+(?:st|nd|rd|th) Match.*/i, "")}</div>
+                        )}
                       </div>
-                    )) : (
-                      <div style={{ fontFamily: "'Oswald', sans-serif", fontSize: "1rem", fontWeight: 500, letterSpacing: "0.04em", color: "var(--text)", textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>{(m.name || "").replace(/,\s*\d+(?:st|nd|rd|th) Match.*/i, "")}</div>
-                    )}
-                  </div>
-                  {(m.score || []).map((s: any, i: number) => (
-                    <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.72rem", color: "var(--text-2)", padding: "3px 0", borderTop: i === 0 ? "1px solid var(--border)" : "none" }}>
-                      <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.68rem", letterSpacing: "0.04em", color: "var(--text-3)" }}>{(s.inning || "").replace(" Innings", "").replace(" Inning", "")}</span>
-                      <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.78rem", fontWeight: 500, letterSpacing: "0.03em", color: "var(--text-2)" }}>
-                        {s.summary || (s.r != null ? `${s.r}/${s.w} (${s.o}ov)` : "")}
-                      </span>
-                    </div>
-                  ))}
+                    );
+                  })()}
+                  {(m.score || []).map((s: any, i: number) => {
+                    const inningTeamCode = (s.inning || "").split(" Inning")[0].split(" Innings")[0].trim();
+                    const teamColorForScore = IPL_COLORS[inningTeamCode] || "var(--text-2)";
+                    return (
+                      <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.72rem", color: "var(--text-2)", padding: "3px 0", borderTop: i === 0 ? "1px solid var(--border)" : "none" }}>
+                        <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.68rem", letterSpacing: "0.04em", color: "var(--text-3)" }}>{inningTeamCode || (s.inning || "").replace(" Innings", "").replace(" Inning", "")}</span>
+                        <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.78rem", fontWeight: 600, letterSpacing: "0.03em", color: teamColorForScore }}>
+                          {s.summary || (s.r != null ? `${s.r}/${s.w} (${s.o}ov)` : "")}
+                        </span>
+                      </div>
+                    );
+                  })}
                   {isDone && m.status && <div style={{ fontSize: "0.68rem", color: "var(--blue)", marginTop: 5 }}>{m.status}</div>}
                   {isLive && m.toss && <div style={{ fontSize: "0.65rem", color: "var(--text-2)", marginTop: 5 }}>{m.toss}</div>}
                   {m.venue && (
@@ -3539,15 +3566,16 @@ export default function App() {
 
   const renderStatRow = (entry: any, i: number, cat: string) => {
     const isBat = ["orangeCap", "sixesLeader", "foursLeader", "srLeader"].includes(cat);
-    const rankColors = ["#d4a843", "var(--text-2)", "var(--text-2)"];
+    const accentColors = ["#d4a843", "#94a3b8", "#71717a"];
+    const accentColor = i < 3 ? accentColors[i] : "var(--border)";
     const statColor = i === 0 ? "#d4a843" : i < 3 ? "var(--text)" : "var(--blue)";
     return (
-      <div key={entry.name} style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 14px", borderBottom: "1px solid var(--border)" }}>
-        <div style={{ width: 18, textAlign: "center" as const, fontSize: "0.68rem", fontWeight: 700, color: i < 3 ? rankColors[i] : "var(--text-3)", flexShrink: 0 }}>{i + 1}</div>
+      <div key={entry.name} style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 14px", borderBottom: "1px solid var(--border)", borderLeft: `4px solid ${accentColor}` }}>
+        <div style={{ width: 18, textAlign: "center" as const, fontFamily: "'Oswald', sans-serif", fontSize: "0.9rem", fontWeight: 700, color: i < 3 ? accentColors[i] : "var(--text-3)", flexShrink: 0 }}>{i + 1}</div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: "0.82rem", fontWeight: 500, color: entry.isFantasy ? "var(--text)" : "var(--text-2)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
             {entry.name}
-            {entry.isFantasy && <span style={{ marginLeft: 6, fontSize: "0.55rem", background: "rgba(34,197,94,0.12)", color: "#22c55e", borderRadius: 4, padding: "1px 5px", verticalAlign: "middle" }}>F</span>}
+            {entry.isFantasy && <span style={{ marginLeft: 5, fontSize: "0.6rem", verticalAlign: "middle" }}>⭐</span>}
           </div>
           {isBat ? (
             <div style={{ fontSize: "0.62rem", color: "var(--text-3)", marginTop: 1 }}>
@@ -3564,7 +3592,7 @@ export default function App() {
           )}
         </div>
         <div style={{ textAlign: "right" as const, flexShrink: 0 }}>
-          <div style={{ fontSize: "1.3rem", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1, color: statColor }}>
+          <div style={{ fontFamily: "'Oswald', sans-serif", fontSize: "1.1rem", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1, color: statColor }}>
             {cat === "orangeCap" && entry.runs}
             {cat === "purpleCap" && entry.wickets}
             {cat === "sixesLeader" && entry.sixes}
@@ -3594,13 +3622,17 @@ export default function App() {
       <div>
         <div className="sec-title">IPL 2026 Stats</div>
 
-        <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
-          {([["all", "All IPL"], ["fantasy", "Fantasy Only"], ["predictions", "Predictions"]] as [string, string][]).map(([f, label]) => (
+        {/* Segmented control — iOS pill style */}
+        <div style={{ display: "flex", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 22, padding: 3, marginBottom: 12, gap: 2 }}>
+          {([["all", "All IPL"], ["fantasy", "Fantasy"], ["predictions", "Predictions"]] as [string, string][]).map(([f, label]) => (
             <button key={f} onClick={() => { setStatsFilter(f as any); setStatsExpanded(false); if (f !== "fantasy" && statsCategory === "fantasyPts") setStatsCategory("orangeCap"); }}
-              style={{ flex: 1, padding: "8px 0", borderRadius: 10, border: "1px solid", fontSize: "0.68rem", fontWeight: 500, cursor: "pointer", fontFamily: "inherit",
-                background: statsFilter === f ? "var(--surface-2)" : "transparent",
-                borderColor: statsFilter === f ? "var(--border-2)" : "var(--border)",
-                color: statsFilter === f ? (f === "fantasy" ? "#22c55e" : f === "predictions" ? "#a78bfa" : "var(--text)") : "var(--text-3)" }}>
+              style={{
+                flex: 1, padding: "7px 0", borderRadius: 18, border: "none", cursor: "pointer", fontFamily: "inherit",
+                fontSize: "0.7rem", fontWeight: 600, transition: "all 0.18s ease",
+                background: statsFilter === f ? "var(--surface-3)" : "transparent",
+                color: statsFilter === f ? (f === "fantasy" ? "#22c55e" : f === "predictions" ? "#a78bfa" : "var(--text)") : "var(--text-3)",
+                boxShadow: statsFilter === f ? "0 1px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)" : "none",
+              }}>
               {label}
             </button>
           ))}
@@ -4452,12 +4484,14 @@ export default function App() {
             </div>
           </div>
 
-          {tab === "home" && renderHome()}
-          {tab === "teams" && renderTeams()}
-          {tab === "fixtures" && renderFixtures()}
-          {tab === "stats" && renderStats()}
-          {tab === "history" && renderHistory()}
-          {tab === "admin" && renderAdmin()}
+          <div key={tab} className="tab-content">
+            {tab === "home" && renderHome()}
+            {tab === "teams" && renderTeams()}
+            {tab === "fixtures" && renderFixtures()}
+            {tab === "stats" && renderStats()}
+            {tab === "history" && renderHistory()}
+            {tab === "admin" && renderAdmin()}
+          </div>
         </div>
 
         <nav className="nav">

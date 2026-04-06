@@ -1,0 +1,482 @@
+# IPL Fantasy App — Full Design Upgrade Prompt for Replit
+
+-----
+
+## CONTEXT
+
+This is a private IPL fantasy cricket app for 4 friends. It is a React + TypeScript PWA. The design system uses:
+
+- **Fonts**: `Plus Jakarta Sans` (body) + `Oswald` (numbers/headings)
+- **Color**: Dark theme, `#070504` background, `--gold: #f5a623` as the primary accent
+- **CSS variables** already defined in `index.css` (–bg, –surface, –surface-2, –surface-3, –border, –border-2, –text, –text-2, –text-3, –gold, –live, –red, –blue, –radius-sm/md/lg)
+- 5 tabs: Home (Leaderboard), Teams, Fixtures, Stats, History
+- Swipe navigation between tabs already works
+
+The app currently feels **dense, text-heavy, and web-like** in places. The goal is to make it feel like a **native premium sports app** — like a dark-themed ESPN or Cricbuzz done with restraint and personality.
+
+-----
+
+## CORE DESIGN PHILOSOPHY
+
+Apply these principles globally across every change:
+
+1. **Breathe** — increase padding inside every card. Nothing should feel cramped.
+1. **One job per screen zone** — every section should have one clear visual hero, not 6 competing things.
+1. **Numbers are heroes** — points, scores, and stats should be the biggest things on screen. Labels should whisper, numbers should shout.
+1. **Less borders, more depth** — replace hard borders with shadows and subtle background gradients where possible.
+1. **Consistent spacing rhythm** — use 8px as the base unit. Gaps should be 8, 12, 16, 20, 24px — not arbitrary values.
+1. **Tap targets** — every interactive element must be at minimum 44px tall on mobile.
+
+-----
+
+## SECTION 1 — GLOBAL / ALL SCREENS
+
+### 1.1 — Typography Scale Tightening
+
+In `index.css`, update the body font-size base and tighten letter-spacing across the app:
+
+```css
+/* In :root, add: */
+font-size: 16px;
+
+/* Update these existing classes: */
+.lb-name        { font-size: 1.02rem; font-weight: 700; letter-spacing: -0.02em; }
+.lb-pts         { font-size: 2.4rem; letter-spacing: -0.03em; }
+.lb-pts.first   { font-size: 2.8rem; }
+.lb-meta        { font-size: 0.68rem; line-height: 1.5; opacity: 0.75; }
+.match-name     { font-size: 0.94rem; letter-spacing: -0.01em; }
+.team-hname     { font-size: 1.22rem; letter-spacing: -0.02em; }
+.team-htotal    { font-size: 3rem; letter-spacing: -0.04em; }
+.stat-val       { font-size: 2.2rem; letter-spacing: -0.03em; }
+.player-name    { font-size: 0.9rem; letter-spacing: -0.01em; }
+.player-pts     { font-size: 1.22rem; }
+```
+
+### 1.2 — Card Padding Increase
+
+In `index.css`, update padding on all major card types:
+
+```css
+.lb-inner          { padding: 18px 20px 16px 22px; }
+.match-card        { padding: 16px 18px; margin-bottom: 10px; }
+.team-header-card  { padding: 26px 24px; }
+.player-card       { padding: 14px 18px; gap: 13px; }
+.stat-card         { padding: 20px 22px; }
+.countdown-card    { padding: 18px 22px; gap: 20px; }
+```
+
+### 1.3 — Reduce Border Noise
+
+Remove or soften borders that are fighting with content. In `index.css`:
+
+```css
+/* Soften all card borders — they should barely exist */
+.lb-card     { border-color: rgba(255,200,120,0.06); }
+.match-card  { border-color: rgba(255,200,120,0.05); }
+.stat-card   { border-color: rgba(255,200,120,0.05); }
+
+/* Increase shadow depth to compensate */
+.lb-card    { box-shadow: 0 6px 28px rgba(0,0,0,0.55), 0 1px 4px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,200,120,0.04); }
+.match-card { box-shadow: 0 5px 22px rgba(0,0,0,0.52), 0 1px 3px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,200,120,0.03); }
+```
+
+### 1.4 — Section Title Redesign
+
+Update `.sec-title` in `index.css` to be cleaner — remove the after-line which adds visual noise, increase spacing:
+
+```css
+.sec-title {
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  font-weight: 800;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sec-title::before {
+  content: '';
+  width: 3px;
+  height: 12px;
+  border-radius: 2px;
+  background: var(--gold);
+  box-shadow: 0 0 8px rgba(245,166,35,0.5);
+  flex-shrink: 0;
+}
+/* Remove the ::after line entirely */
+.sec-title::after { display: none; }
+```
+
+-----
+
+## SECTION 2 — HOME (LEADERBOARD) TAB
+
+**Current problems**: The countdown card, leaderboard, and live match card are all competing for attention. The leaderboard meta line is cramped. The share button in the header feels secondary.
+
+### 2.1 — Leaderboard Card: Avatar + Points Hero Layout
+
+In `renderHome` in `App.tsx`, update each `lb-card` inner layout. The current layout is: rank | name+meta | points. Upgrade to:
+
+```
+[rank] [avatar (32px circle)] [name + meta column] [points + sparkline]
+```
+
+- Show the user’s avatar image (`avatars/${s.team.avatar}`) as a 32px circle after the rank number. Use `overflow: hidden; border-radius: 50%; border: 1.5px solid ${s.team.color}50`.
+- Move the sparkline (already exists in the Sparkline component) to sit below the points number on the right, not hidden inside a tooltip.
+- Add a gap of 6px between the points number and the sparkline on the right column.
+- The `.lb-meta` line (Owner · C: captain · VC: vc) is too text-dense. Simplify it to just show `C: {captain}` in gold and the owner name. Remove the VC from the collapsed view.
+
+### 2.2 — Leaderboard Card: Points Bar
+
+The existing `.lb-bar` and `.lb-bar-fill` are 1.5px — too thin to read. Update in `index.css`:
+
+```css
+.lb-bar      { height: 2px; margin: 0; border-radius: 0 0 var(--radius-md) var(--radius-md); background: rgba(255,200,120,0.04); }
+.lb-bar-fill { height: 100%; border-radius: 2px; opacity: 0.6; box-shadow: 0 0 6px rgba(245,166,35,0.3); }
+```
+
+In `renderHome`, make sure every `lb-card` renders the `lb-bar` + `lb-bar-fill` with `width: ${Math.round((s.total / maxPts) * 100)}%` and the team’s color.
+
+### 2.3 — Countdown Card Upgrade
+
+The countdown card is currently text-only. In `renderHome`, enhance the countdown card:
+
+- Render both team logos from `TEAM_LOGO_CDN` at 36px flanking the timer: `[home logo] [timer] [away logo]`
+- Add `VS` between logo and timer in Oswald, 0.6rem, `var(--text-3)` color
+- Add a subtle pulsing animation on the timer digits using `@keyframes countdownPulse` — scale 1 → 1.015 → 1 every 1s to feel alive
+- Remove the venue text from the collapsed countdown card — it’s low-value clutter. It can show on expand if needed.
+
+### 2.4 — Live Match Card on Home
+
+The live card on Home currently duplicates the fixture card style. Make it distinct:
+
+- Remove the match-card wrapper styles and instead make the live card a simpler inline banner: `● LIVE · [team1] vs [team2] · [score]` on a single line with `var(--live)` accent
+- Tap it to go to Fixtures tab (already does this)
+- This frees up vertical space — the card should be ~52px tall max, not a full match card
+
+-----
+
+## SECTION 3 — TEAMS TAB
+
+**Current problems**: The team selector tabs are scrollable pills — fine. But the player list is very dense. The expanded player breakdown panel is overwhelming. The live/upcoming banner repeats player names with too many small labels fighting each other.
+
+### 3.1 — Player List Row Redesign
+
+In `renderTeams`, each player row currently has: `[ipl badge] [name] [sparkline] [pts raw] [pts adj]`. This is too much on one line.
+
+Restructure to a two-line row:
+
+```
+Line 1: [ipl color dot 6px] [player name]         [adj pts large]
+Line 2:                     [role badge] [ipl code]  [sparkline 5 bars]
+```
+
+Specifically:
+
+- Replace the `.player-ipl-badge` (wide pill) with a 6px circle dot in `IPL_COLORS[p.ipl]` color — saves horizontal space
+- Move role badge to line 2 as a tiny pill: same styling as existing `.role-badge`
+- Move the IPL team code (e.g. “MI”) next to the role badge in `var(--text-3)`
+- Keep the sparkline on line 2, right-aligned
+- Remove `.player-pts-raw` from the collapsed row — show raw pts only in the expanded breakdown
+- Captain (C) badge: make it a gold circle 16px with “C” inside, not just a text label
+- VC badge: same but silver/grey, 16px circle
+
+This change makes each row ~20px taller but dramatically less cluttered.
+
+### 3.2 — Live/Upcoming Banner Simplification
+
+The `team-next-match-banner` currently shows a detailed list of playing players. Simplify it:
+
+- Show only the match label + a count: `● LIVE · CSK vs MI · 4 players active`
+- Tap the banner to expand it and reveal the individual player rows
+- In the collapsed state, it should be ~40px tall max
+- Use `useState(false)` for `bannerExpanded` to control this
+
+### 3.3 — Expanded Player Breakdown
+
+The player breakdown panel (rendered by `renderBreakdown`) is currently a full-height overlay-style card inside the list. It’s visually overwhelming.
+
+Redesign it as a **bottom sheet modal** triggered when a player row is tapped:
+
+- On mobile, it slides up from the bottom with a 60% viewport height panel
+- Has a grey handle bar (32px wide, 4px tall, rounded, centered) at the top
+- Background: `rgba(14,11,9,0.98)` with backdrop blur on what’s behind it
+- Can be dismissed by tapping outside or dragging down
+- Header: player name large (1.1rem, bold), team color, role + IPL badge on the same line
+- Stats grid (3 cols: matches, total pts, avg pts) with `stat-val` sizing
+- Match-by-match breakdown as a clean scrollable list below
+
+To implement, add a `bottomSheetPlayer` state (string | null) in App.tsx. When a player is tapped, set it. Render the sheet as a `position: fixed; bottom: 0; left: 0; right: 0` panel with a transform: translateY animation (closed: translateY(100%), open: translateY(0)).
+
+-----
+
+## SECTION 4 — FIXTURES TAB
+
+**Current problems**: The filter row (All/Upcoming/Live/Completed + Home/Away + team logos) is a dense multi-row mess. The prediction section inside each expanded card adds a lot of vertical content. Scorecards are functional but visually flat.
+
+### 4.1 — Filter Row Cleanup
+
+Currently there are: 4 status filter buttons + 3 home/away buttons + 10 team logo filter buttons. That’s 17 buttons in a filter row. Too many.
+
+Restructure:
+
+- **Row 1**: Status tabs (All · Upcoming · Live · Done) — keep as is, slightly more padding (`padding: 9px 20px`)
+- **Row 2**: Collapse the Home/Away toggle and team logo filters into a single “Filter” button that opens a compact bottom sheet filter panel. The button should show: `⊞ Filter` with a badge showing how many filters are active (e.g. `⊞ Filter ·2`)
+- This reduces the filter area from ~3 rows to ~2 rows, freeing significant vertical space
+
+### 4.2 — Match Card Team Display
+
+Currently match teams are shown as `[logo 20px] [team code in Oswald]` side by side with a VS. This is good but the sizing is too small.
+
+Upgrade to:
+
+- Logo: 26px (up from 20px)
+- Team code: `1.15rem` in Oswald (up from `1.05rem`)
+- VS: add a thin 1px vertical divider line instead of the text “VS” — cleaner
+- For completed matches, visually highlight the winning team: increase logo opacity to 1.0 for winner, reduce to 0.35 for loser. Add a subtle green underline (2px, `#22c55e`) beneath the winning team code.
+
+### 4.3 — Prediction Section Header
+
+The prediction collapse trigger currently shows: `[icon] PREDICTIONS / PREDICT` on the left and a summary pill on the right. Good pattern, but:
+
+- Increase the height of the trigger row to 36px (bigger tap target)
+- Add `padding: 6px 0` to the trigger row
+- Change the summary pill to show owner avatars (16px circles) instead of text like “3/4 picked” — show the avatar for each owner with a ✓ or ✗ overlay. This is immediately more personal and scannable.
+
+### 4.4 — Match Intel Section
+
+The “MATCH INTEL” section inside the expanded prediction area (H2H, PRED TOTAL, ALGO PICK) currently renders as a flat list of label-value rows. Upgrade to a 3-col pill grid:
+
+```
+[H2H: CSK 14 – MI 19]  [Avg Score: 183]  [Pick: MI]
+```
+
+Each pill: `background: var(--surface-3)`, `border-radius: 10px`, `padding: 7px 10px`, font `0.65rem`. This compresses the intel section from ~4 rows to 1 row.
+
+-----
+
+## SECTION 5 — STATS TAB
+
+**Current problems**: The three filter tabs (All / My Fantasy / Predictions) look identical to the stat category row below them (Orange Cap / Purple Cap / etc), creating confusion about hierarchy. The predictions sub-section table is functional but dense.
+
+### 5.1 — Filter Hierarchy Visual Fix
+
+Make the top filter (All / My Fantasy / Predictions) visually distinct from the stat category row:
+
+- Top filter: render as a **segmented control** — a single pill-shaped container with the 3 options inside, background `var(--surface-2)`, selected option gets `background: var(--surface-3)` + gold border. Height: 38px. This looks like an iOS segmented control, not a row of buttons.
+- Stat category row: keep as scrollable chips but reduce padding to `padding: 7px 15px` and use `font-size: 0.7rem`
+
+### 5.2 — Stat Row Design
+
+Each player row in the stat table currently shows rank, team badge, name, value (and an F badge for fantasy players). Clean it up:
+
+- Show the IPL team color as a 4px left accent bar on each row (like `.lb-accent`)
+- Rank number: `font-family: Oswald; font-size: 0.9rem; color: var(--text-3); min-width: 24px`
+- Name: `0.86rem`, truncate with ellipsis if needed
+- Value (runs/wickets): right-aligned, `font-family: Oswald; font-size: 1.1rem; font-weight: 700; color: var(--text)`
+- The “F” fantasy badge: change from a letter to a small ⭐ icon (0.6rem) in gold — more intuitive
+
+### 5.3 — Predictions Archive Table
+
+The predictions table (M# | Teams | R/M/Mo/P columns) is the most text-dense thing in the app. It works but needs air:
+
+- Increase row height: `padding: 10px 12px` (up from `8px 12px`)
+- Each user’s column header: show their avatar (16px circle) instead of their 3-letter abbreviation
+- For completed matches: correct picks get a green background tint `rgba(34,197,94,0.06)` on that cell, wrong picks get red tint `rgba(248,113,113,0.06)`
+- The match teams display (`CSK vs MI`): show small 12px logos instead of just text codes
+
+-----
+
+## SECTION 6 — HISTORY TAB
+
+**Current problems**: The trophy cabinet bar chart and the year grid are both visible at once on the “All Seasons” view, making it feel like a Wikipedia page. The season detail view (hero card + top 10 lists) is the most cluttered screen in the app.
+
+### 6.1 — All Seasons View: Focus on One Thing
+
+On the `historyYear === null` view, show only the **year grid** by default. Move the trophy cabinet behind a `Show Trophy Cabinet` expandable toggle at the top. Most users come here to browse a specific year, not to read the cabinet.
+
+The year grid buttons should be slightly larger: `padding: 11px 0; font-size: 0.82rem`. The “All Seasons” button can be removed — it’s the default state.
+
+### 6.2 — Season Detail: Champion Hero Card
+
+The `hist-hero` card currently shows everything (year, champion, runner-up, orange cap, purple cap, MVP) in one dense card. Split it:
+
+**Card 1 — Champion Banner** (the visual hero):
+
+- Full-width, taller (~110px)
+- Team color as a wash background (20% opacity)
+- Large champion team logo (56px) centered left
+- Champion name in large text (1.1rem, bold, team color)
+- “IPL {year} Champions” label in small caps below
+- Runner-up shown smaller on the right: logo 32px + name 0.75rem + “Runner-up” label
+
+**Card 2 — Awards Row** (horizontal scroll if needed):
+
+- 3 pill cards side by side: Orange Cap, Purple Cap, MVP
+- Each pill: `[colored cap icon] [player name] [stat value]`
+- These should be horizontal chips, not vertical stacks
+
+### 6.3 — Season Detail: Top 10 Lists
+
+The two-column top 10 grid is very cramped on mobile (each column is barely 160px wide). Replace with:
+
+- A single segmented control toggle: `🏏 Batting | 🎯 Bowling`
+- Show one list at a time, full-width
+- Each row: rank (Oswald), team badge (20px), player name, value — same as the Stats tab row style
+
+-----
+
+## SECTION 7 — BOTTOM NAV
+
+**Current problems**: The nav icons are emoji-based and inconsistently sized. The active state (gold text + top bar) is subtle on small screens.
+
+### 7.1 — Nav Active State Enhancement
+
+In `index.css`, enhance the active state:
+
+```css
+.nav-btn.active {
+  color: var(--gold);
+}
+.nav-btn.active .nav-icon {
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 5px rgba(245,166,35,0.5));
+}
+/* Increase the top indicator bar thickness and width */
+.nav-btn::before {
+  left: 30%; right: 30%;
+  height: 2px;
+  border-radius: 0 0 4px 4px;
+  background: var(--gold);
+}
+```
+
+### 7.2 — Nav Label Size
+
+Increase nav label from `0.54rem` to `0.58rem` — barely visible currently.
+
+### 7.3 — Nav Height
+
+Add `min-height: 58px` to `.nav-btn` to ensure all 4 buttons are taller tap targets on all device sizes.
+
+-----
+
+## SECTION 8 — MICRO-INTERACTIONS & ANIMATION
+
+Add these specific animations — all should be CSS-only in `index.css`:
+
+### 8.1 — Card Tap Feedback
+
+Currently `.lb-card:active { transform: scale(0.982) }`. Change all card active states to a consistent:
+
+```css
+.lb-card:active, .match-card:active, .hist-card:active {
+  transform: scale(0.978);
+  transition: transform 0.1s ease;
+}
+```
+
+### 8.2 — Tab Switch Fade
+
+When the tab changes in `App.tsx`, wrap each tab’s content in a `<div>` with a CSS class `tab-content` that applies:
+
+```css
+.tab-content {
+  animation: tabFadeIn 0.18s ease-out;
+}
+@keyframes tabFadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+```
+
+Apply the animation by using a `key={tab}` prop on the content wrapper — React will remount it on tab change, triggering the animation.
+
+### 8.3 — Number Count-Up on Mount
+
+For the leaderboard points numbers (`.lb-pts`) and team total (`.team-htotal`), add a count-up animation when the value first loads (goes from 0 to the actual value). Use a simple `useEffect` + `requestAnimationFrame` loop over 800ms with an `easeOutCubic` easing function. Only trigger when `Object.keys(playerPoints).length > 0` changes from 0 to >0.
+
+### 8.4 — Live Pulse Dot Enhancement
+
+Update `@keyframes livePulse` in `index.css` for a more organic feel:
+
+```css
+@keyframes livePulse {
+  0%   { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(46,204,143,0.5); }
+  50%  { opacity: 0.7; transform: scale(0.8); box-shadow: 0 0 0 4px rgba(46,204,143,0); }
+  100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(46,204,143,0); }
+}
+```
+
+-----
+
+## SECTION 9 — SPACING AUDIT (QUICK WINS)
+
+Make these changes across `index.css` — they require no logic changes:
+
+```css
+/* More breathing room between sections */
+.divider { margin: 26px 0; }
+
+/* More space below section titles */
+.sec-title { margin-bottom: 18px; }
+
+/* Team tabs: more gap between pills */
+.team-tabs { gap: 9px; }
+
+/* Stats category row: more gap */
+.stats-cat-row { gap: 9px; margin-bottom: 20px; }
+
+/* Match cards: slightly more gap between them */
+.match-card { margin-bottom: 10px; }
+
+/* Stat grid: slightly more gap */
+.stat-grid { gap: 12px; }
+
+/* Player card: more comfortable touch target */
+.player-card { padding: 14px 18px; min-height: 56px; }
+
+/* Scorecard table: more row padding */
+.scorecard-table td { padding: 10px 10px; }
+.scorecard-table th { padding: 8px 10px; }
+```
+
+-----
+
+## WHAT NOT TO CHANGE
+
+- Do not change the color scheme (`--gold`, `--bg`, etc.) — it’s strong
+- Do not change fonts — Plus Jakarta Sans + Oswald is a great pairing
+- Do not change the swipe navigation behavior
+- Do not remove the stadium background blur on match cards — it’s atmospheric
+- Do not change the login screen — it’s excellent as-is
+- Do not change the sparkline component logic — only its visual position in the player row
+- Do not change the API calls, data fetching, or prediction save logic
+
+-----
+
+## PRIORITY ORDER
+
+If you need to do this in phases:
+
+**Phase 1 (biggest visual impact, low risk)**:
+
+- Section 1 (Global typography + padding + borders)
+- Section 2.1 (Leaderboard avatar + layout)
+- Section 4.2 (Match card team display)
+- Section 8.2 (Tab switch fade animation)
+
+**Phase 2 (declutter)**:
+
+- Section 3.1 (Player list row redesign)
+- Section 4.1 (Filter row cleanup)
+- Section 5.1 (Stats filter segmented control)
+- Section 6 (History tab)
+
+**Phase 3 (polish)**:
+
+- Section 3.2 (Bottom sheet player breakdown)
+- Section 8.3 (Count-up animation)
+- Section 9 (Spacing audit)
