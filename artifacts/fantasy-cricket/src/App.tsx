@@ -2681,10 +2681,12 @@ export default function App() {
                     {/* IPL team badge */}
                     <div className="player-ipl-badge" style={{
                       background: iplColor + (isBench ? "15" : "22"),
-                      color: isBench ? iplColor + "99" : iplColor,
                       border: `1px solid ${iplColor}${isBench ? "22" : "40"}`,
-                      fontWeight: 900,
-                    }}>{p.ipl}</div>
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      opacity: isBench ? 0.55 : 1,
+                    }}>
+                      <img src={TEAM_LOGO_CDN[p.ipl]} alt={p.ipl} style={{ width: 30, height: 30, objectFit: "contain" }} onError={e => { const el = e.target as HTMLImageElement; el.style.display = "none"; el.parentElement!.textContent = p.ipl; }} />
+                    </div>
 
                     {/* Name + role + sparkline */}
                     <div style={{ flex: 1, minWidth: 0 }}>

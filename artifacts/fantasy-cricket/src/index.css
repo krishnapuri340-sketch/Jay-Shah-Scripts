@@ -540,9 +540,8 @@ body { background: var(--bg); }
 
 .player-ipl-badge {
   display: inline-flex; align-items: center; justify-content: center;
-  font-size: 0.56rem; font-weight: 900; letter-spacing: 0.06em;
-  padding: 3px 0; border-radius: 6px; white-space: nowrap; flex-shrink: 0;
-  width: 34px; text-align: center;
+  border-radius: 8px; flex-shrink: 0;
+  width: 34px; height: 34px; overflow: hidden;
 }
 .player-name { font-size: 0.88rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.01em; }
 .player-role-icon { display: none; }
