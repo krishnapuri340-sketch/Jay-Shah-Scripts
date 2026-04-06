@@ -2988,7 +2988,6 @@ export default function App() {
                     {isBoundary && (
                       <div style={{ position: "relative" as const, height: 1, margin: "0", background: "transparent" }}>
                         <div style={{ position: "absolute" as const, inset: 0, background: "linear-gradient(90deg, transparent 0%, rgba(34,197,94,0.35) 30%, rgba(34,197,94,0.35) 70%, transparent 100%)" }} />
-                        <div style={{ position: "absolute" as const, left: "50%", top: "50%", transform: "translate(-50%,-50%)", background: "var(--surface)", padding: "1px 8px", borderRadius: 6, fontSize: "0.42rem", fontWeight: 700, letterSpacing: "0.1em", color: "#22c55e", whiteSpace: "nowrap" as const, border: "1px solid rgba(34,197,94,0.3)", zIndex: 1 }}>PLAYOFF LINE</div>
                       </div>
                     )}
                   </React.Fragment>
