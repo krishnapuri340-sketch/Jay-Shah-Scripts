@@ -2189,7 +2189,7 @@ export default function App() {
                   }} />
                   <div className="lb-accent" style={{ background: s.team.color, zIndex: 2, position: "relative" }} />
                   <div className="lb-inner" style={{ position: "relative", zIndex: 2 }}>
-                    <div className={`lb-rank ${rankLabel(i)}`} style={{ textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>{i + 1}</div>
+                    <div className={`lb-rank ${rankLabel(i)}`} style={{ textShadow: "0 1px 4px rgba(0,0,0,0.4)" }}>{i + 1}</div>
                     <div className="lb-info">
                       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                         <div className={`lb-name ${i === 0 ? "first" : ""}`}
