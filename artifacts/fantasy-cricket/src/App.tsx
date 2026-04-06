@@ -2145,11 +2145,6 @@ export default function App() {
                   <div className="lb-accent" style={{ background: s.team.color, zIndex: 2, position: "relative" }} />
                   <div className="lb-inner" style={{ position: "relative", zIndex: 2 }}>
                     <div className={`lb-rank ${rankLabel(i)}`} style={{ textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>{i + 1}</div>
-                    {/* Avatar */}
-                    <div style={{ width: 44, height: 44, borderRadius: "50%", border: `2px solid ${s.team.color}70`, overflow: "hidden", flexShrink: 0, boxShadow: `0 0 0 1px ${s.team.color}25, 0 0 14px ${s.team.color}22` }}>
-                      <img src={`${import.meta.env.BASE_URL}avatars/${s.team.avatar}`} alt={s.team.owner}
-                        style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: s.team.avatarPosition || "center center", display: "block" }} />
-                    </div>
                     <div className="lb-info">
                       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                         <div className={`lb-name ${i === 0 ? "first" : ""}`}
