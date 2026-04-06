@@ -2744,7 +2744,7 @@ export default function App() {
                   {([
                     ["xi",       "Playing XI", xiTotal > 0 ? `${xiTotal} pts` : ""],
                     ["bench",    "Bench",       benchTotal > 0 ? `${benchTotal} pts` : ""],
-                    ["matchpts", "Match Pts",   xiTotal > 0 ? `${xiTotal} pts` : ""],
+                    ["matchpts", "Match Pts",   (xiTotal + benchTotal) > 0 ? `${xiTotal + benchTotal} pts` : ""],
                   ] as const).map(([id, label, badge]) => (
                     <button key={id} onClick={() => setTeamSection(id)}
                       style={{
