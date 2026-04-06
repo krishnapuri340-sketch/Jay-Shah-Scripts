@@ -1998,6 +1998,7 @@ export default function App() {
               backgroundImage: `url(${import.meta.env.BASE_URL}countdown-bg.jpeg)`,
               backgroundSize: "cover", backgroundPosition: "center 40%",
               filter: "blur(4px) brightness(0.26) saturate(1.2)",
+              transform: "translateZ(0)", willChange: "filter",
             }} />
             {/* Warm amber vignette */}
             <div style={{
@@ -2346,6 +2347,7 @@ export default function App() {
             backgroundImage: `url(${TEAM_BG[selectedTeam]})`,
             backgroundSize: "cover", backgroundPosition: "center 30%",
             filter: "blur(8px) brightness(0.33) saturate(1.3)",
+            transform: "translateZ(0)", willChange: "filter",
           }} />
           <div style={{
             position: "absolute", inset: 0, zIndex: 1,
@@ -3124,6 +3126,7 @@ export default function App() {
                     backgroundImage: `url(${import.meta.env.BASE_URL}match-bg.jpeg)`,
                     backgroundSize: "cover", backgroundPosition: "center 35%",
                     filter: `blur(3px) brightness(${isLive ? 0.28 : 0.24}) saturate(${isLive ? 1.0 : 0.7})`,
+                    transform: "translateZ(0)", willChange: "filter",
                   }} />
                   <div style={{
                     position: "absolute", inset: 0, zIndex: 1,
@@ -3988,6 +3991,7 @@ export default function App() {
                             backgroundImage: `url(${PRED_BG[id]})`,
                             backgroundSize: "cover", backgroundPosition: "center 30%",
                             filter: "blur(8px) brightness(0.45) saturate(1.5)",
+                            transform: "translateZ(0)", willChange: "filter",
                           }} />
                           {/* Gradient overlay */}
                           <div style={{

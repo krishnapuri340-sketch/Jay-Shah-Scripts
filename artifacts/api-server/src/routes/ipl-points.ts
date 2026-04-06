@@ -5,6 +5,27 @@ import { fileURLToPath } from "url";
 
 const router: IRouter = Router();
 
+// --- Simple in-memory rate limiter for admin routes ---
+// Max 10 admin POSTs per IP per 60 s window. Resets per-window automatically.
+const adminRateLimitMap = new Map<string, { count: number; resetAt: number }>();
+function adminRateLimit(req: any, res: any, next: () => void) {
+  const ip = (req.headers["x-forwarded-for"] as string || req.socket?.remoteAddress || "unknown").split(",")[0].trim();
+  const now = Date.now();
+  const window = 60_000; // 1 minute
+  const limit = 10;
+  const entry = adminRateLimitMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    adminRateLimitMap.set(ip, { count: 1, resetAt: now + window });
+    return next();
+  }
+  if (entry.count >= limit) {
+    const retryIn = Math.ceil((entry.resetAt - now) / 1000);
+    return res.status(429).json({ error: `Rate limit exceeded. Try again in ${retryIn}s.` });
+  }
+  entry.count++;
+  next();
+}
+
 const CRICAPI_KEY = process.env.CRICAPI_KEY;
 const CRICAPI_BASE = "https://api.cricapi.com/v1";
 
@@ -1596,7 +1617,7 @@ router.get("/ipl/stats", (_req, res) => {
 });
 
 // Admin: force re-fetch all innings from S3 and rebuild stats cache
-router.post("/ipl/stats/refresh", async (req, res) => {
+router.post("/ipl/stats/refresh", adminRateLimit, async (req, res) => {
   try {
     const result = await doRefreshAllStats(true);
     res.json({ ok: true, ...result, matchesInCache: allStatsInningsCache.size });
@@ -1683,7 +1704,7 @@ export async function refreshLiveMatches(liveIplIds: string[]): Promise<void> {
 }
 
 // POST /api/ipl/scorecard/prefetch-s3 — prefetch IPL S3 innings for all known match IDs (admin only)
-router.post("/ipl/scorecard/prefetch-s3", async (req, res) => {
+router.post("/ipl/scorecard/prefetch-s3", adminRateLimit, async (req, res) => {
   if (req.headers["x-owner-id"] !== "rajveer") return res.status(403).json({ error: "Forbidden" });
 
   const allIds = Object.keys(pointsCache.matchMetadata || {});
@@ -1728,7 +1749,7 @@ router.post("/ipl/scorecard/prefetch-s3", async (req, res) => {
   res.json({ ok: true, found: foundIds.length, missing: missingIds.length, foundIds, missingIds });
 });
 
-router.post("/ipl/points/reset", async (req, res) => {
+router.post("/ipl/points/reset", adminRateLimit, async (req, res) => {
   if (req.headers["x-owner-id"] !== "rajveer") return res.status(403).json({ error: "Forbidden" });
   pointsCache = {
     seriesId: null, cricapiMatchIds: {}, processedMatches: {},
