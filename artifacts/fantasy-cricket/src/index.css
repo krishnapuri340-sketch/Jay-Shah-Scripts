@@ -146,7 +146,7 @@ body { background: var(--bg); }
 .user-chip:active { background: rgba(255,255,255,0.07); }
 .user-chip-avatar {
   width: 26px; height: 26px; border-radius: 50%;
-  object-fit: cover; border: none;
+  object-fit: cover; border: 1.5px solid currentColor;
   opacity: 0.9; flex-shrink: 0;
 }
 .user-chip-name  { font-size: 0.68rem; font-weight: 700; line-height: 1; }
