@@ -2316,7 +2316,7 @@ export default function App() {
                     className="team-avatar-img"
                     style={{ objectPosition: ft.avatarPosition || "center center" }}
                   />
-                  <div className="team-avatar-rank">{rankNum}</div>
+                  {/* rank badge hidden but order preserved */}
                 </div>
                 <span className="team-avatar-name">{shortName}</span>
               </button>
