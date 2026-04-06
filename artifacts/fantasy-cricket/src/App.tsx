@@ -3035,18 +3035,26 @@ export default function App() {
           </div>
         )}
         {/* Filter bar */}
-        <div style={{ display: "flex", gap: 6, marginBottom: 16 }}>
+        <div style={{ display: "flex", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 22, padding: 3, marginBottom: 16, gap: 2 }}>
           {(["live", "upcoming", "completed", "all"] as const).map(f => {
             const count = f === "live" ? live.length : f === "upcoming" ? upcoming.length : f === "completed" ? completed.length : liveMatches.length;
             const isActive = activeFilter === f;
+            const activeColor = f === "live" ? "#f87171" : f === "upcoming" ? "var(--blue)" : f === "completed" ? "var(--text)" : "var(--gold)";
+            const label = f === "live" ? "Live" : f === "upcoming" ? "Upcoming" : f === "completed" ? "Done" : "All";
             return (
               <button key={f} onClick={() => setMatchFilter(f)}
-                style={{ flex: 1, padding: "8px 0", borderRadius: 10, border: "1px solid", fontSize: "0.65rem", fontWeight: 500, cursor: "pointer", fontFamily: "inherit", textTransform: "capitalize" as const,
-                  background: isActive ? "var(--surface-2)" : "transparent",
-                  borderColor: isActive ? "var(--border-2)" : "var(--border)",
-                  color: isActive ? (f === "live" ? "#22c55e" : f === "upcoming" ? "var(--blue)" : "var(--text)") : "var(--text-3)" }}>
-                {f}<br />
-                <span style={{ fontSize: "0.6rem", opacity: 0.7 }}>{count}</span>
+                style={{
+                  flex: 1, padding: "6px 0 7px", borderRadius: 18, border: "none", cursor: "pointer",
+                  fontFamily: "inherit", fontSize: "0.65rem", fontWeight: 600,
+                  transition: "all 0.18s ease",
+                  background: isActive ? "var(--surface-3)" : "transparent",
+                  color: isActive ? activeColor : "var(--text-3)",
+                  boxShadow: isActive ? "0 1px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)" : "none",
+                  WebkitTapHighlightColor: "transparent",
+                  display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 1,
+                }}>
+                <span>{label}</span>
+                <span style={{ fontSize: "0.56rem", opacity: 0.65, fontWeight: 500 }}>{count}</span>
               </button>
             );
           })}
