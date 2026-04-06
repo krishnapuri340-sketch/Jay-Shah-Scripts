@@ -636,7 +636,6 @@ body { background: var(--bg); }
   border-radius: 14px; transition: background 0.18s ease;
   position: relative;
 }
-.team-avatar-btn.active { background: color-mix(in srgb, var(--ta-color) 10%, transparent); }
 .team-avatar-btn:active { transform: scale(0.92); }
 .team-avatar-ring {
   position: relative; width: 64px; height: 64px; border-radius: 50%;
