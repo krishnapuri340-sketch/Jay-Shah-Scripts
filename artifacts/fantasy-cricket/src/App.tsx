@@ -2732,50 +2732,40 @@ export default function App() {
               <>
                 {/* === SEGMENTED PILL CONTROL === */}
                 <div style={{ display: "flex", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 22, padding: 3, marginBottom: 14, gap: 2 }}>
-                  {([["xi", "Playing XI"], ["bench", "Bench"], ["matchpts", "Match Points"]] as const).map(([id, label]) => (
+                  {([
+                    ["xi",       "Playing XI", `11`],
+                    ["bench",    "Bench",       `${bench.length}`],
+                    ["matchpts", "Match Pts",   Object.keys(playerPoints).length > 0 && xiTotal > 0 ? `${xiTotal} pts` : ""],
+                  ] as const).map(([id, label, badge]) => (
                     <button key={id} onClick={() => setTeamSection(id)}
                       style={{
-                        flex: 1, padding: "7px 0", borderRadius: 18, border: "none", cursor: "pointer",
-                        fontFamily: "inherit", fontSize: "0.7rem", fontWeight: 600,
+                        flex: 1, padding: "6px 0 7px", borderRadius: 18, border: "none", cursor: "pointer",
+                        fontFamily: "inherit", fontSize: "0.68rem", fontWeight: 600,
                         transition: "all 0.18s ease",
                         background: teamSection === id ? "var(--surface-3)" : "transparent",
                         color: teamSection === id ? (id === "xi" ? "#4ade80" : id === "bench" ? "var(--text)" : "var(--gold)") : "var(--text-3)",
                         boxShadow: teamSection === id ? "0 1px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)" : "none",
                         WebkitTapHighlightColor: "transparent",
+                        display: "flex", flexDirection: "column", alignItems: "center", gap: 1,
                       }}>
-                      {label}
+                      <span>{label}</span>
+                      {badge ? <span style={{ fontSize: "0.58rem", opacity: 0.7, fontWeight: 500 }}>{badge}</span> : null}
                     </button>
                   ))}
                 </div>
 
                 {/* === PLAYING XI === */}
                 {teamSection === "xi" && (
-                  <>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                      <span style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>11 players</span>
-                      {Object.keys(playerPoints).length > 0 && (
-                        <span style={{ fontSize: "0.62rem", fontWeight: 800, color: t.color, opacity: 0.85 }}>{xiTotal} pts</span>
-                      )}
-                    </div>
-                    <div className="players-grid" style={{ borderTop: `2px solid ${t.color}40`, borderRadius: "var(--radius-md)" }}>
-                      {xi.map(p => renderPlayer(p, false))}
-                    </div>
-                  </>
+                  <div className="players-grid" style={{ borderTop: `2px solid ${t.color}40`, borderRadius: "var(--radius-md)" }}>
+                    {xi.map(p => renderPlayer(p, false))}
+                  </div>
                 )}
 
                 {/* === BENCH === */}
                 {teamSection === "bench" && (
-                  <>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                      <span style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{bench.length} players</span>
-                      {Object.keys(playerPoints).length > 0 && benchTotal > 0 && (
-                        <span style={{ fontSize: "0.62rem", color: "var(--text-3)", opacity: 0.75 }}>{benchTotal} pts (not counted)</span>
-                      )}
-                    </div>
-                    <div className="players-grid" style={{ opacity: 0.82, borderTop: "1.5px solid rgba(255,255,255,0.05)", borderRadius: "var(--radius-md)" }}>
-                      {bench.map(p => renderPlayer(p, true))}
-                    </div>
-                  </>
+                  <div className="players-grid" style={{ opacity: 0.82, borderTop: "1.5px solid rgba(255,255,255,0.05)", borderRadius: "var(--radius-md)" }}>
+                    {bench.map(p => renderPlayer(p, true))}
+                  </div>
                 )}
 
                 {/* === POINTS FROM EACH MATCH === */}
