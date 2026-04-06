@@ -2836,12 +2836,12 @@ export default function App() {
                                   <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 0 }}>
                                     <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
                                       <img src={TEAM_LOGO_CDN[teamA]} alt={teamA} style={{ width: 26, height: 26, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                                      <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.82rem", fontWeight: 600, letterSpacing: "0.04em", color: colorA, width: 38 }}>{teamA}</span>
+                                      <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.82rem", fontWeight: 600, letterSpacing: "0.04em", color: "var(--text)", width: 38 }}>{teamA}</span>
                                     </div>
                                     <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.56rem", color: "var(--text-3)", letterSpacing: "0.1em", flexShrink: 0 }}>VS</span>
                                     <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
                                       <img src={TEAM_LOGO_CDN[teamB]} alt={teamB} style={{ width: 26, height: 26, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                                      <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.82rem", fontWeight: 600, letterSpacing: "0.04em", color: colorB, width: 38 }}>{teamB}</span>
+                                      <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.82rem", fontWeight: 600, letterSpacing: "0.04em", color: "var(--text)", width: 38 }}>{teamB}</span>
                                     </div>
                                   </div>
                                   {/* Total + chevron */}
