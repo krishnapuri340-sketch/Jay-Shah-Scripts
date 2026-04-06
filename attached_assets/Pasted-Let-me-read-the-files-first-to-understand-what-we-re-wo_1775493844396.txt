@@ -1,0 +1,61 @@
+Let me read the files first to understand what we’re working with.​​​​​​​​​​​​​​​​
+
+Now I have a very thorough understanding of the app. Let me ask you the 20 questions:​​​​​​​​​​​​​​​​
+
+I now have everything I need from the code + your answers. Here are the 20 answers I’ve collected and what I’ll build the prompt around — let me know if any need correcting before I write it:
+
+From the code analysis:
+	1.	Single 3000+ line App.tsx with 60+ useState hooks — serious re-render risk
+	2.	Blurred image backgrounds on every card (lb-card, countdown, match-card) — GPU expensive on mobile
+	3.	Canvas-based share functions (~500 lines each) — blocking the main thread
+	4.	Polling intervals recreated on every render inside useEffect with isAnyMatchLive dependency
+	5.	Admin section styled entirely inline, dark-only, no theme awareness
+	6.	Predictions buried inside each individual match card — hard to find
+	7.	History tab has great data but minimal visual design (trophy cabinet is just bars)
+	8.	Stats tab has a tab within a tab (All IPL / Fantasy / Predictions) which competes with the main nav
+From your answers:
+9. Performance: Both — split into proper components AND fix inefficiencies
+10. Design vibe: Premium sports app (ESPN/Sofascore aesthetic)
+11. Admin light mode: Toggle in the settings/gear menu
+12. Information density: Rich but well-organised
+13. Countdown card: Replace it with a visual matchup card
+14. Match cards: Needs a live score visual (mini scorecard on the card itself)
+15. Performance pain point: All of these (speed, polling, points sync)
+16. New feature excitement: A match simulation / score predictor
+17. App-opener feature: A “what if” captain selector
+18. Live experience: Add richer scorecard visuals (worm chart)
+19. Animations: Only on key moments (big milestones)
+20. Player form: Add a trend arrow (up/down/flat) per player
+A few more quick ones before I write the prompt:​​​​​​​​​​​​​​​​
+
+Now I have everything. Let me write the prompt.
+
+Your Replit AI Prompt
+Here it is — structured, precise, and grounded in the actual codebase:
+
+IPL Fantasy App 2026 — Replit AI Prompt
+
+CONTEXT
+This is a private IPL 2026 fantasy cricket tracker for 4 friends (teams: Rajveer Puri / Mombasa K / Mumbai Ma / PonyGoat). The frontend is a single-file React/TypeScript app (fantasy-cricket/src/App.tsx) with an Express API server (api-server/src/). The app is mobile-first, PWA-capable, with a dark cinematic theme. The current App.tsx is ~3000 lines with 60+ useState hooks in a single component.
+
+SECTION 1 — PERFORMANCE & CODE FIXES
+1.1 — Component splitting (critical)
+Break App.tsx into proper sub-components. Each tab should be its own file:
+	∙	components/TabLeaderboard.tsx
+	∙	components/TabTeams.tsx
+	∙	components/TabFixtures.tsx
+	∙	components/TabStats.tsx
+	∙	components/TabHistory.tsx
+	∙	components/AdminPanel.tsx
+	∙	components/LoginScreen.tsx (already partially isolated)
+Wrap each tab component in React.memo. Move shared state (playerPoints, liveMatches, predictions, standings, playerMatchPoints) into a useAppData custom hook. This prevents full-tree re-renders when a single state value changes.
+1.2 — Blurred background GPU cost
+Every leaderboard card, countdown card, and match card uses filter: blur(8px) brightness(...) on an absolutely-positioned <div> with a background image. On lower-end phones this hammers GPU. Fix: use will-change: transform on the blur divs (already partially done), and lazy-load background images — only load lb-bg-*.jpeg for the team card currently in view (use IntersectionObserver or loading="lazy" on a real <img>). Consider converting the blurred-background pattern to a single backdrop-filter on a glass overlay instead of per-card blurred image divs.
+1.3 — Polling interval leak
+The polling useEffect has [isAnyMatchLive, currentUser] as deps, which means every render where isAnyMatchLive flips, all 5 intervals are torn down and recreated. Extract fetchLive, fetchPoints, fetchStandings, fetchStats, fetchPredictions into stable callbacks using useCallback with appropriate deps, so the interval effect doesn’t needlessly recreate.
+1.4 — Canvas share functions
+The three canvas-based share functions (shareLeaderboard, shareTeams, shareMatchCard) are defined inline and recreated every render. Move them to a separate utils/share.ts file and call them via refs or stable callbacks. They also load images synchronously via await new Promise — ensure these are properly wrapped with try/catch and abort gracefully if the user cancels before the image loads.
+1.5 — API security (minor)
+The admin API routes (/api/ipl/points/reset, /api/ipl/scorecard/prefetch-s3, /api/ipl/stats/refresh) check X-Owner-Id: rajveer as the sole auth mechanism. This is fine for a private app, but Replit should add a simple rate limiter (e.g. max 10 admin POST requests per minute per IP) to prevent accidental hammering.
+1.6 — localStorage key collision
+loadPins(), savePins(), PRED_CACHE_KEY, ipl-current-user all use raw localStorage with string k...
