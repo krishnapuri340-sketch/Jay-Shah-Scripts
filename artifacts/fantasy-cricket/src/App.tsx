@@ -4155,7 +4155,7 @@ export default function App() {
 
         {statsFilter !== "predictions" && (
           <div data-no-swipe="true" style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 8, marginBottom: 12, marginLeft: -16, marginRight: -16, paddingLeft: 16, paddingRight: 16 }}>
-            {STAT_CATS.filter(c => c.id !== "fantasyPts" || statsFilter === "fantasy").map(c => (
+            {STAT_CATS.map(c => (
               <button key={c.id} onClick={() => { setStatsCategory(c.id); setStatsExpanded(false); }} className={`stats-cat-btn ${statsCategory === c.id ? "active" : ""}`}>
                 {c.label}
               </button>
