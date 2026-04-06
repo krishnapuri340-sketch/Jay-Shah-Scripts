@@ -1900,16 +1900,16 @@ export default function App() {
             <div style={{ marginTop: 16 }}>
               {/* Segmented pill */}
               <div style={{ display: "flex", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 22, padding: 3, marginBottom: 12, gap: 2 }}>
-                {([["bat", "🏏 Batting"] as const, ["bwl", "🎯 Bowling"] as const]).map(([id, label]) => (
+                {([["bat", "Orange Cap", "hue-rotate(175deg) saturate(3) brightness(1.1)", "#f97316"] as const, ["bwl", "Purple Cap", "hue-rotate(25deg) saturate(4) brightness(0.5)", "#7c3aed"] as const]).map(([id, label, capFilter, activeColor]) => (
                   <button key={id} onClick={() => setHistTop10Tab(id)}
                     style={{
                       flex: 1, padding: "7px 0", borderRadius: 18, border: "none", cursor: "pointer",
                       fontFamily: "inherit", fontSize: "0.72rem", fontWeight: 600, transition: "all 0.18s ease",
                       background: histTop10Tab === id ? "var(--surface-3)" : "transparent",
-                      color: histTop10Tab === id ? (id === "bat" ? "#f97316" : "#7c3aed") : "var(--text-3)",
+                      color: histTop10Tab === id ? activeColor : "var(--text-3)",
                       boxShadow: histTop10Tab === id ? "0 1px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)" : "none",
                     }}>
-                    {label}
+                    <span style={{ filter: histTop10Tab === id ? capFilter : "grayscale(1) opacity(0.4)" }}>🧢</span> {label}
                   </button>
                 ))}
               </div>
