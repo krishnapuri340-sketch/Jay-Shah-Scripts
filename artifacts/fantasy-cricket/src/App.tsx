@@ -424,6 +424,7 @@ const TABS = [
   { id: "fixtures", label: "Matches"      },
   { id: "stats",    label: "Stats"        },
   { id: "history",  label: "History"      },
+  { id: "whatif",   label: "What If"      },
 ];
 
 const NAV_ICON: Record<string, JSX.Element> = {
@@ -450,6 +451,12 @@ const NAV_ICON: Record<string, JSX.Element> = {
   history: (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+    </svg>
+  ),
+  whatif: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r="0.5" fill="currentColor"/>
+      <circle cx="12" cy="12" r="10"/>
     </svg>
   ),
 };
@@ -491,6 +498,10 @@ const buildMatchPreviews = (matches: any[]) =>
 
 export default function App() {
   const [tab, setTab] = useState("home");
+  const [wiSection, setWiSection] = useState<"swap" | "intel">("swap");
+  const [wiTeamId, setWiTeamId] = useState("rajveer");
+  const [altCap, setAltCap] = useState("");
+  const [altVC, setAltVC] = useState("");
   const [historyYear, setHistoryYear] = useState<number | null>(null);
   const [histTop10Tab, setHistTop10Tab] = useState<"bat" | "bwl">("bat");
   const [selectedTeam, setSelectedTeam] = useState("rajveer");
@@ -3690,6 +3701,243 @@ export default function App() {
     );
   };
 
+  const renderWhatIf = () => {
+    const PRED_OWNERS = ["rajveer", "mombasa", "mumbai", "ponygoat"] as const;
+    const wiTeam = FANTASY_TEAMS[wiTeamId];
+    const hasMatchData = Object.keys(playerMatchPoints).length > 0;
+
+    // Raw season points from match data (no captain/VC multiplier)
+    const rawPts: Record<string, number> = {};
+    for (const p of wiTeam.players) {
+      rawPts[p.name] = (playerMatchPoints[p.name] || [])
+        .filter((e: any) => e.matchNum < 900)
+        .reduce((s: number, e: any) => s + e.pts, 0);
+    }
+
+    // Simulate team total with given C/VC using raw per-match pts
+    const simulateSeason = (teamObj: typeof wiTeam, cap: string, vc: string) => {
+      const sorted = teamObj.players.map(p => {
+        const raw = (playerMatchPoints[p.name] || []).filter((e: any) => e.matchNum < 900).reduce((s: number, e: any) => s + e.pts, 0);
+        return { ...p, adj: applyMultiplier(raw, p.name === cap, p.name === vc) };
+      }).sort((a, b) => b.adj - a.adj);
+      return Math.round(sorted.slice(0, 11).reduce((s, p) => s + p.adj, 0));
+    };
+
+    const currentSim = simulateSeason(wiTeam, wiTeam.captain, wiTeam.vc);
+    const effectiveCap = altCap || wiTeam.captain;
+    const effectiveVC  = altVC  || wiTeam.vc;
+    const altSim  = simulateSeason(wiTeam, effectiveCap, effectiveVC);
+    const delta   = altSim - currentSim;
+    const changed = effectiveCap !== wiTeam.captain || effectiveVC !== wiTeam.vc;
+
+    // Match Intel — upcoming matches
+    const upcoming = liveMatches
+      .filter((m: any) => !m.matchStarted && m.dateTimeGMT && m.homeTeamCode && m.awayTeamCode)
+      .sort((a: any, b: any) => new Date(a.dateTimeGMT).getTime() - new Date(b.dateTimeGMT).getTime())
+      .slice(0, 5);
+
+    const ownerExposure = (codes: string[]) =>
+      PRED_OWNERS.map(oid => {
+        const ft = FANTASY_TEAMS[oid];
+        const count = ft.players.filter(p => codes.includes(p.ipl)).length;
+        const capIn = codes.includes(ft.players.find(pp => pp.name === ft.captain)?.ipl || "");
+        const vcIn  = codes.includes(ft.players.find(pp => pp.name === ft.vc)?.ipl || "");
+        return { oid, ft, count, capIn, vcIn };
+      }).sort((a, b) => b.count - a.count);
+
+    return (
+      <div className="tab-view">
+        <div className="sec-title">What If?</div>
+
+        {/* Sub-tabs */}
+        <div style={{ display: "flex", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 22, padding: 3, marginBottom: 14, gap: 2 }}>
+          {([["swap", "Captain Swap"], ["intel", "Match Intel"]] as const).map(([id, label]) => (
+            <button key={id} onClick={() => setWiSection(id)}
+              style={{
+                flex: 1, padding: "7px 0", borderRadius: 18, border: "none", cursor: "pointer",
+                fontFamily: "inherit", fontSize: "0.7rem", fontWeight: 600, transition: "all 0.18s",
+                background: wiSection === id ? "var(--surface-3)" : "transparent",
+                color: wiSection === id ? "var(--gold)" : "var(--text-3)",
+              }}>{label}</button>
+          ))}
+        </div>
+
+        {/* ============ CAPTAIN SWAP ============ */}
+        {wiSection === "swap" && (
+          <div>
+            {/* Owner selector */}
+            <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
+              {PRED_OWNERS.map(id => {
+                const ft = FANTASY_TEAMS[id];
+                const sel = wiTeamId === id;
+                return (
+                  <button key={id} onClick={() => { setWiTeamId(id); setAltCap(""); setAltVC(""); }}
+                    style={{
+                      flex: 1, background: sel ? ft.color + "22" : "var(--surface)",
+                      border: `1px solid ${sel ? ft.color + "88" : "var(--border)"}`,
+                      borderRadius: 10, padding: "9px 4px", cursor: "pointer",
+                    }}>
+                    <div style={{ fontSize: "0.55rem", fontWeight: 700, color: sel ? ft.color : "var(--text-3)", letterSpacing: "0.06em", textAlign: "center" as const }}>{ft.owner.toUpperCase()}</div>
+                    <div style={{ fontSize: "0.48rem", color: "var(--text-3)", textAlign: "center" as const, marginTop: 2, display: sel ? "block" : "none" }}>selected</div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Delta bar */}
+            {hasMatchData ? (
+              <div style={{ background: "var(--surface)", border: `1px solid ${changed ? wiTeam.color + "55" : "var(--border)"}`, borderRadius: 14, padding: "14px 16px", marginBottom: 14 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
+                  <div style={{ textAlign: "center" as const, flex: 1 }}>
+                    <div style={{ fontSize: "0.48rem", color: "var(--text-3)", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 4 }}>CURRENT</div>
+                    <div style={{ fontFamily: "'Oswald', sans-serif", fontSize: "1.6rem", fontWeight: 700, color: wiTeam.color, lineHeight: 1 }}>{currentSim}</div>
+                    <div style={{ fontSize: "0.5rem", color: "var(--text-3)", marginTop: 3 }}>C: {wiTeam.captain.split(" ").pop()} · VC: {wiTeam.vc.split(" ").pop()}</div>
+                  </div>
+                  <div style={{ textAlign: "center" as const, flexShrink: 0, padding: "0 14px" }}>
+                    {changed ? (
+                      <div style={{ fontFamily: "'Oswald', sans-serif", fontSize: "1.3rem", fontWeight: 800, color: delta > 0 ? "#2ecc8f" : delta < 0 ? "#f05050" : "var(--text-3)" }}>
+                        {delta > 0 ? `+${delta}` : delta}
+                      </div>
+                    ) : (
+                      <div style={{ fontSize: "0.62rem", color: "var(--text-3)", maxWidth: 70 }}>tap C / VC below</div>
+                    )}
+                  </div>
+                  <div style={{ textAlign: "center" as const, flex: 1 }}>
+                    <div style={{ fontSize: "0.48rem", color: "var(--text-3)", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 4 }}>SIMULATED</div>
+                    <div style={{ fontFamily: "'Oswald', sans-serif", fontSize: "1.6rem", fontWeight: 700, color: changed ? (delta >= 0 ? "#2ecc8f" : "#f05050") : "var(--text-3)", lineHeight: 1 }}>{altSim}</div>
+                    <div style={{ fontSize: "0.5rem", color: "var(--text-3)", marginTop: 3 }}>{changed ? `C: ${effectiveCap.split(" ").pop()} · VC: ${effectiveVC.split(" ").pop()}` : "—"}</div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, padding: 16, marginBottom: 14, textAlign: "center" as const }}>
+                <div style={{ fontSize: "0.72rem", color: "var(--text-3)" }}>Match data loading…</div>
+              </div>
+            )}
+
+            {/* Player list */}
+            <div style={{ display: "flex", flexDirection: "column" as const, gap: 6 }}>
+              {wiTeam.players.map(p => {
+                const raw = rawPts[p.name] || 0;
+                const isCurCap = p.name === wiTeam.captain;
+                const isCurVC  = p.name === wiTeam.vc;
+                const isAltCap = p.name === effectiveCap && changed;
+                const isAltVC  = p.name === effectiveVC && changed;
+                const isActive = p.name === effectiveCap || p.name === effectiveVC;
+                return (
+                  <div key={p.name} style={{
+                    background: isActive ? wiTeam.color + "12" : "var(--surface)",
+                    border: `1px solid ${isActive ? wiTeam.color + "44" : "var(--border)"}`,
+                    borderRadius: 10, padding: "10px 12px",
+                    display: "flex", alignItems: "center", gap: 10,
+                  }}>
+                    <span style={{ fontSize: "0.75rem", width: 18, textAlign: "center" as const, opacity: 0.65 }}>{ROLE_ICONS[p.role] || "?"}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--text)", whiteSpace: "nowrap" as const, overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {p.name}
+                        {isCurCap && <span style={{ marginLeft: 6, fontSize: "0.52rem", background: "#d4a84322", color: "#d4a843", borderRadius: 4, padding: "1px 5px", fontWeight: 700 }}>C</span>}
+                        {isCurVC  && <span style={{ marginLeft: 5, fontSize: "0.52rem", background: "rgba(255,255,255,0.07)", color: "var(--text-3)", borderRadius: 4, padding: "1px 5px", fontWeight: 700 }}>VC</span>}
+                      </div>
+                      <div style={{ fontSize: "0.58rem", color: "var(--text-3)", marginTop: 2 }}>{p.ipl} · {raw} raw pts</div>
+                    </div>
+                    <div style={{ display: "flex", gap: 5, flexShrink: 0 }}>
+                      <button onClick={() => { if (altCap === p.name) { setAltCap(""); } else { setAltCap(p.name); if (altVC === p.name) setAltVC(""); } }}
+                        style={{
+                          background: isAltCap ? "#d4a843" : "var(--surface-2)",
+                          color: isAltCap ? "#000" : "var(--text-3)",
+                          border: `1px solid ${isAltCap ? "#d4a843" : "var(--border)"}`,
+                          borderRadius: 6, padding: "4px 9px", cursor: "pointer", fontFamily: "inherit",
+                          fontSize: "0.62rem", fontWeight: 700, transition: "all 0.15s",
+                        }}>C</button>
+                      <button onClick={() => { if (altVC === p.name) { setAltVC(""); } else { setAltVC(p.name); if (altCap === p.name) setAltCap(""); } }}
+                        style={{
+                          background: isAltVC ? "rgba(255,255,255,0.18)" : "var(--surface-2)",
+                          color: isAltVC ? "var(--text)" : "var(--text-3)",
+                          border: `1px solid ${isAltVC ? "rgba(255,255,255,0.28)" : "var(--border)"}`,
+                          borderRadius: 6, padding: "4px 9px", cursor: "pointer", fontFamily: "inherit",
+                          fontSize: "0.62rem", fontWeight: 700, transition: "all 0.15s",
+                        }}>VC</button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ============ MATCH INTEL ============ */}
+        {wiSection === "intel" && (
+          <div>
+            {upcoming.length === 0 ? (
+              <div style={{ textAlign: "center" as const, color: "var(--text-3)", padding: "40px 0", fontSize: "0.8rem" }}>No upcoming matches found</div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column" as const, gap: 14 }}>
+                {upcoming.map((m: any) => {
+                  const codes = [m.homeTeamCode, m.awayTeamCode].filter(Boolean);
+                  const venue = VENUE_AVG[m.venue] || null;
+                  const h2h = (m.homeTeamCode && m.awayTeamCode) ? getH2H(m.homeTeamCode, m.awayTeamCode) : null;
+                  const exposure = ownerExposure(codes);
+                  const dateStr = m.dateTimeGMT ? new Date(m.dateTimeGMT).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : "";
+                  return (
+                    <div key={m.id} style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden" }}>
+                      {/* Match header */}
+                      <div style={{ padding: "12px 14px 10px", borderBottom: "1px solid var(--border)", background: "var(--surface-2)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <div>
+                          <div style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.95rem", fontWeight: 600, color: "var(--text)", letterSpacing: "0.02em" }}>
+                            {m.homeTeamCode} <span style={{ color: "var(--text-3)", fontWeight: 400 }}>vs</span> {m.awayTeamCode}
+                          </div>
+                          <div style={{ display: "flex", gap: 6, marginTop: 5, flexWrap: "wrap" as const }}>
+                            {h2h && (
+                              <span style={{ fontSize: "0.55rem", color: "var(--text-3)", background: "var(--surface-3)", borderRadius: 5, padding: "2px 7px", whiteSpace: "nowrap" as const }}>
+                                H2H: {m.homeTeamCode} {h2h.aWins}–{h2h.bWins} {m.awayTeamCode}
+                              </span>
+                            )}
+                            {venue && (
+                              <span style={{ fontSize: "0.55rem", color: "var(--text-3)", background: "var(--surface-3)", borderRadius: 5, padding: "2px 7px" }}>
+                                avg {venue.avg}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div style={{ fontSize: "0.6rem", color: "var(--text-3)", textAlign: "right" as const, flexShrink: 0, marginLeft: 10 }}>{dateStr}</div>
+                      </div>
+                      {/* Owner exposure */}
+                      <div style={{ padding: "12px 14px" }}>
+                        <div style={{ fontSize: "0.5rem", color: "var(--text-3)", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 8 }}>OWNER EXPOSURE</div>
+                        <div style={{ display: "flex", flexDirection: "column" as const, gap: 7 }}>
+                          {exposure.map(({ oid, ft, count, capIn, vcIn }) => (
+                            <div key={oid} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                              <div style={{ fontSize: "0.65rem", fontWeight: 700, color: "var(--text)", minWidth: 44 }}>{ft.owner}</div>
+                              <div style={{ flex: 1 }}>
+                                <div style={{ height: 4, background: "var(--surface-3)", borderRadius: 2, overflow: "hidden" }}>
+                                  <div style={{ height: "100%", width: `${Math.round((count / 18) * 100)}%`, background: ft.color, borderRadius: 2, transition: "width 0.4s ease" }} />
+                                </div>
+                              </div>
+                              <div style={{ fontSize: "0.65rem", color: ft.color, fontWeight: 700, minWidth: 18, textAlign: "center" as const }}>{count}</div>
+                              <div style={{ fontSize: "0.5rem", minWidth: 40, textAlign: "right" as const }}>
+                                {capIn && <span style={{ color: "#d4a843", fontWeight: 700 }}>C✓ </span>}
+                                {vcIn  && <span style={{ color: "var(--text-2)" }}>VC✓</span>}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        {venue && (
+                          <div style={{ marginTop: 10, fontSize: "0.58rem", color: "var(--text-3)", background: "var(--surface-2)", borderRadius: 8, padding: "6px 10px" }}>
+                            🏟 {venue.note} · Top: {venue.high}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const renderStats = () => {
     const cat = statsCategory;
     const raw: any[] = iplStats?.[cat] || [];
@@ -4566,6 +4814,7 @@ export default function App() {
             {tab === "fixtures" && renderFixtures()}
             {tab === "stats" && renderStats()}
             {tab === "history" && renderHistory()}
+            {tab === "whatif" && renderWhatIf()}
             {tab === "admin" && renderAdmin()}
           </div>
         </div>

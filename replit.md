@@ -9,7 +9,7 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 Primary application: IPL Fantasy Cricket Tracker for 4 teams (Rajveer Puri, Mombasa K, Mumbai Ma, PonyGoat).
 
 ### Architecture
-- **Frontend**: `artifacts/fantasy-cricket` — React + Vite SPA, tabs: Home (Leaderboard), Teams, Matches, IPL, Admin
+- **Frontend**: `artifacts/fantasy-cricket` — React + Vite SPA, tabs: Home (Leaderboard), Teams, Matches, Stats, History, What If, Admin
 - **Backend**: `artifacts/api-server` — Express API with two main route modules:
   - `routes/ipl.ts` — Fetches live match schedule from IPL official S3 feed (Competition ID 284)
   - `routes/ipl-points.ts` — Syncs fantasy points from AuctionRoom (Supabase); fetches innings via CricAPI for display; caches to `ipl-points-cache.json`
