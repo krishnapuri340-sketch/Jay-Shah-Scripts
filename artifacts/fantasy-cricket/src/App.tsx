@@ -3836,8 +3836,8 @@ export default function App() {
                         <div className="player-name" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, fontSize: "0.88rem" }}>
                           {p.name}
                         </div>
-                        {isCurCap && <CaptainBadge />}
-                        {isCurVC  && <VCBadge />}
+                        {isCurCap && <span style={{ fontSize: "0.5rem", fontWeight: 800, background: "#d4a84322", color: "#d4a843", borderRadius: 4, padding: "1px 5px", flexShrink: 0 }}>C</span>}
+                        {isCurVC  && <span style={{ fontSize: "0.5rem", fontWeight: 800, background: "rgba(255,255,255,0.07)", color: "var(--text-3)", borderRadius: 4, padding: "1px 5px", flexShrink: 0 }}>VC</span>}
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 3 }}>
                         <span style={{
