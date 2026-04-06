@@ -3569,7 +3569,7 @@ export default function App() {
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: "0.82rem", fontWeight: 500, color: entry.isFantasy ? "var(--text)" : "var(--text-2)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
             {entry.name}
-            {entry.isFantasy && <span style={{ marginLeft: 5, fontSize: "0.6rem", verticalAlign: "middle" }}>⭐</span>}
+            {entry.isFantasy && <span style={{ marginLeft: 5, fontSize: "0.58rem", fontWeight: 800, color: "#22c55e", verticalAlign: "middle" }}>F</span>}
           </div>
           {isBat ? (
             <div style={{ fontSize: "0.62rem", color: "var(--text-3)", marginTop: 1 }}>
