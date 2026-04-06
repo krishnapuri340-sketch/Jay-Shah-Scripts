@@ -2197,41 +2197,6 @@ export default function App() {
             </div>
           );
         })()}
-        {/* === PREDICTIONS SUMMARY STRIP === */}
-        {(() => {
-          const PRED_OWNERS = ["rajveer","mombasa","mumbai","ponygoat"] as const;
-          const ownerScores: Record<string, number> = Object.fromEntries(PRED_OWNERS.map(id => [id, 0]));
-          liveMatches.forEach((m: any) => {
-            const winner = getMatchWinner(m);
-            if (!winner || winner === "tie") return;
-            const preds = predictions[String(m.id)] || {};
-            PRED_OWNERS.forEach(id => { if (preds[id] === winner) ownerScores[id]++; });
-          });
-          const totalScorable = liveMatches.filter((m: any) => { const w = getMatchWinner(m); return w && w !== "tie"; }).length;
-          if (totalScorable === 0) return null;
-          const sorted = [...PRED_OWNERS].sort((a, b) => ownerScores[b] - ownerScores[a]);
-          return (
-            <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, padding: "10px 14px", marginBottom: 16 }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                <div style={{ fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.12em", color: "var(--text-3)" }}>PREDICTION ACCURACY</div>
-                <div style={{ fontSize: "0.52rem", color: "var(--text-3)" }}>{totalScorable} results</div>
-              </div>
-              <div style={{ display: "flex", gap: 6 }}>
-                {sorted.map((id, i) => {
-                  const ft = FANTASY_TEAMS[id];
-                  const score = ownerScores[id];
-                  const isLeader = i === 0 && score > 0;
-                  return (
-                    <div key={id} style={{ flex: 1, textAlign: "center" as const, background: isLeader ? ft.color + "14" : "transparent", border: `1px solid ${isLeader ? ft.color + "44" : "var(--border)"}`, borderRadius: 9, padding: "7px 4px" }}>
-                      <div style={{ fontFamily: "'Oswald', sans-serif", fontSize: "1.1rem", fontWeight: 700, color: isLeader ? ft.color : "var(--text-2)", lineHeight: 1 }}>{score}</div>
-                      <div style={{ fontSize: "0.46rem", color: "var(--text-3)", fontWeight: 700, letterSpacing: "0.06em", marginTop: 3 }}>{ft.owner.slice(0,3).toUpperCase()}</div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })()}
 
         {(() => {
           const liveNow = liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded);
