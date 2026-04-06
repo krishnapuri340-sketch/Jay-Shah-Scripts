@@ -2717,8 +2717,8 @@ export default function App() {
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 3 }}>
                         <span style={{
-                          fontSize: "0.5rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase" as const,
-                          padding: "1px 5px", borderRadius: 4,
+                          fontSize: "0.43rem", fontWeight: 800, letterSpacing: "0.05em", textTransform: "uppercase" as const,
+                          padding: "1px 4px", borderRadius: 3,
                           color: isBench ? "var(--text-3)" : roleColor,
                           background: isBench ? "rgba(255,255,255,0.04)" : roleColor + "18",
                           border: `1px solid ${isBench ? "rgba(255,255,255,0.08)" : roleColor + "30"}`,
