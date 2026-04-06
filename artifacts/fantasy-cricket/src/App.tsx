@@ -2678,15 +2678,8 @@ export default function App() {
                       boxShadow: isLiveNow ? "inset 0 0 0 1px rgba(248,113,113,0.08)" : "none",
                     }}>
 
-                    {/* IPL team badge */}
-                    <div className="player-ipl-badge" style={{
-                      background: iplColor + (isBench ? "15" : "22"),
-                      border: `1px solid ${iplColor}${isBench ? "22" : "40"}`,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      opacity: isBench ? 0.55 : 1,
-                    }}>
-                      <img src={TEAM_LOGO_CDN[p.ipl]} alt={p.ipl} style={{ width: 30, height: 30, objectFit: "contain" }} onError={e => { const el = e.target as HTMLImageElement; el.style.display = "none"; el.parentElement!.textContent = p.ipl; }} />
-                    </div>
+                    {/* IPL team logo */}
+                    <img src={TEAM_LOGO_CDN[p.ipl]} alt={p.ipl} style={{ width: 32, height: 32, objectFit: "contain", flexShrink: 0, opacity: isBench ? 0.45 : 1 }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
 
                     {/* Name + role + sparkline */}
                     <div style={{ flex: 1, minWidth: 0 }}>

@@ -538,11 +538,6 @@ body { background: var(--bg); }
 .player-card.is-c::before   { background: var(--gold); box-shadow: 2px 0 7px rgba(245,166,35,0.22); }
 .player-card.is-vc::before  { background: #9e8e7e; }
 
-.player-ipl-badge {
-  display: inline-flex; align-items: center; justify-content: center;
-  border-radius: 8px; flex-shrink: 0;
-  width: 34px; height: 34px; overflow: hidden;
-}
 .player-name { font-size: 0.88rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.01em; }
 .player-role-icon { display: none; }
 .player-pts {
