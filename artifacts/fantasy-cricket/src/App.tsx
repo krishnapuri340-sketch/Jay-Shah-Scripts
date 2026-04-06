@@ -501,6 +501,7 @@ export default function App() {
   const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
   const [benchOpen, setBenchOpen] = useState(false);
   const [matchPtsOpen, setMatchPtsOpen] = useState(false);
+  const [teamSection, setTeamSection] = useState<"xi"|"bench"|"matchpts">("xi");
   const [expandedMatchNums, setExpandedMatchNums] = useState<Set<number>>(new Set());
   const [expandedAdminPlayer, setExpandedAdminPlayer] = useState<string | null>(null);
   const [adminBreakdownOpen, setAdminBreakdownOpen] = useState(false);
@@ -2729,48 +2730,56 @@ export default function App() {
 
             return (
               <>
-                {/* === PLAYING XI HEADER === */}
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                  <div className="sec-title" style={{ marginBottom: 0 }}>
-                    Playing XI
-                    <span style={{ fontSize: "0.62rem", fontWeight: 700, color: "var(--text-3)", background: "rgba(74,222,128,0.08)", border: "1px solid rgba(74,222,128,0.15)", padding: "1px 7px", borderRadius: 6 }}>11</span>
-                  </div>
-                  {Object.keys(playerPoints).length > 0 && (
-                    <span style={{ fontSize: "0.62rem", fontWeight: 800, color: t.color, opacity: 0.85 }}>{xiTotal} pts</span>
-                  )}
-                </div>
-                <div className="players-grid" style={{ borderTop: `2px solid ${t.color}40`, borderRadius: "var(--radius-md)" }}>
-                  {xi.map(p => renderPlayer(p, false))}
+                {/* === SEGMENTED PILL CONTROL === */}
+                <div style={{ display: "flex", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 22, padding: 3, marginBottom: 14, gap: 2 }}>
+                  {([["xi", "Playing XI"], ["bench", "Bench"], ["matchpts", "Match Points"]] as const).map(([id, label]) => (
+                    <button key={id} onClick={() => setTeamSection(id)}
+                      style={{
+                        flex: 1, padding: "7px 0", borderRadius: 18, border: "none", cursor: "pointer",
+                        fontFamily: "inherit", fontSize: "0.7rem", fontWeight: 600,
+                        transition: "all 0.18s ease",
+                        background: teamSection === id ? "var(--surface-3)" : "transparent",
+                        color: teamSection === id ? (id === "xi" ? "#4ade80" : id === "bench" ? "var(--text)" : "var(--gold)") : "var(--text-3)",
+                        boxShadow: teamSection === id ? "0 1px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)" : "none",
+                        WebkitTapHighlightColor: "transparent",
+                      }}>
+                      {label}
+                    </button>
+                  ))}
                 </div>
 
-                {/* === BENCH TOGGLE === */}
-                <button
-                  onClick={() => setBenchOpen(o => !o)}
-                  style={{
-                    display: "flex", alignItems: "center", justifyContent: "space-between",
-                    width: "100%", marginTop: 18, marginBottom: benchOpen ? 10 : 0,
-                    background: "transparent", border: "none", cursor: "pointer",
-                    padding: "0 2px", WebkitTapHighlightColor: "transparent",
-                  }}>
-                  <div className="sec-title" style={{ marginBottom: 0 }}>
-                    Bench
-                    <span style={{ fontSize: "0.62rem", fontWeight: 700, color: "var(--text-3)", background: "rgba(255,255,255,0.05)", border: "1px solid var(--border)", padding: "1px 7px", borderRadius: 6 }}>{bench.length}</span>
-                    {Object.keys(playerPoints).length > 0 && benchTotal > 0 && (
-                      <span style={{ fontSize: "0.62rem", color: "var(--text-3)", opacity: 0.65 }}>{benchTotal} pts</span>
-                    )}
-                  </div>
-                  <span style={{ fontSize: "0.58rem", color: "var(--text-3)", display: "inline-block", transition: "transform 0.22s cubic-bezier(0.4,0,0.2,1)", transform: benchOpen ? "rotate(180deg)" : "none", marginBottom: benchOpen ? 0 : 28 }}>▼</span>
-                </button>
+                {/* === PLAYING XI === */}
+                {teamSection === "xi" && (
+                  <>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                      <span style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>11 players</span>
+                      {Object.keys(playerPoints).length > 0 && (
+                        <span style={{ fontSize: "0.62rem", fontWeight: 800, color: t.color, opacity: 0.85 }}>{xiTotal} pts</span>
+                      )}
+                    </div>
+                    <div className="players-grid" style={{ borderTop: `2px solid ${t.color}40`, borderRadius: "var(--radius-md)" }}>
+                      {xi.map(p => renderPlayer(p, false))}
+                    </div>
+                  </>
+                )}
 
-                {/* === BENCH GRID === */}
-                {benchOpen && (
-                  <div className="players-grid" style={{ opacity: 0.82, borderTop: "1.5px solid rgba(255,255,255,0.05)", borderRadius: "var(--radius-md)" }}>
-                    {bench.map(p => renderPlayer(p, true))}
-                  </div>
+                {/* === BENCH === */}
+                {teamSection === "bench" && (
+                  <>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                      <span style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{bench.length} players</span>
+                      {Object.keys(playerPoints).length > 0 && benchTotal > 0 && (
+                        <span style={{ fontSize: "0.62rem", color: "var(--text-3)", opacity: 0.75 }}>{benchTotal} pts (not counted)</span>
+                      )}
+                    </div>
+                    <div className="players-grid" style={{ opacity: 0.82, borderTop: "1.5px solid rgba(255,255,255,0.05)", borderRadius: "var(--radius-md)" }}>
+                      {bench.map(p => renderPlayer(p, true))}
+                    </div>
+                  </>
                 )}
 
                 {/* === POINTS FROM EACH MATCH === */}
-                {(() => {
+                {teamSection === "matchpts" && (() => {
                   const allNums = new Set<number>();
                   const matchLabels: Record<number, string> = {};
                   for (const entries of Object.values(playerMatchPoints)) {
@@ -2811,18 +2820,12 @@ export default function App() {
                   const grandTotal = matchData.reduce((s, m) => s + m.total, 0);
 
                   return (
-                    <div style={{ marginTop: 20 }}>
-                      <button
-                        onClick={() => setMatchPtsOpen(o => !o)}
-                        style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", marginBottom: matchPtsOpen ? 10 : 0, background: "transparent", border: "none", cursor: "pointer", padding: "0 2px", WebkitTapHighlightColor: "transparent" }}>
-                        <div className="sec-title" style={{ marginBottom: 0 }}>
-                          Match Points
-                          {grandTotal > 0 && <span style={{ fontSize: "0.68rem", color: "var(--gold)", fontWeight: 700, fontFamily: "'Oswald', sans-serif" }}>{grandTotal}</span>}
-                        </div>
-                        <span style={{ fontSize: "0.58rem", color: "var(--text-3)", display: "inline-block", transition: "transform 0.22s cubic-bezier(0.4,0,0.2,1)", transform: matchPtsOpen ? "rotate(180deg)" : "none" }}>▼</span>
-                      </button>
-
-                      {matchPtsOpen && (
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                        <span style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{matchData.length} matches</span>
+                        {grandTotal > 0 && <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.9rem", fontWeight: 700, color: "var(--gold)" }}>{grandTotal} pts</span>}
+                      </div>
+                      {true && (
                         <div style={{ display: "flex", flexDirection: "column" as const, gap: 4 }}>
                           {matchData.map(({ mn, label, players, total }) => {
                             const short = shortLabel(label);
