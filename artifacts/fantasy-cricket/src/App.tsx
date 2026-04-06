@@ -2198,7 +2198,7 @@ export default function App() {
                           {s.team.name}
                         </div>
                       </div>
-                      <div className="lb-meta" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>
+                      <div className="lb-meta">
                         {s.team.owner} · <span style={{ color: "#d4a843" }}>C:</span> {s.team.captain} · <span style={{ color: "var(--text-3)" }}>VC:</span> {s.team.vc}
                       </div>
                     </div>
