@@ -2004,15 +2004,38 @@ export default function App() {
               position: "absolute", inset: 0, zIndex: 1,
               background: "linear-gradient(160deg, rgba(245,166,35,0.12) 0%, rgba(6,4,2,0.6) 60%, rgba(6,4,2,0.75) 100%)",
             }} />
-            <div style={{ position: "relative", zIndex: 2 }}>
-              <div className="countdown-match" style={{ marginBottom: 6 }}>{shortMatchLabel(countdown.matchName)}</div>
-              <div className="countdown-timer">{countdown.text}</div>
-              <div className="countdown-label">until kickoff</div>
-              {countdown.venue && (
-                <div style={{ fontSize: "0.58rem", color: "var(--text-3)", marginTop: 6 }}>
-                  {countdown.venue}
+            <div style={{ position: "relative", zIndex: 2, display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10, marginBottom: 12 }}>
+              {/* Left: timer */}
+              <div>
+                <div className="countdown-timer">{countdown.text}</div>
+                <div className="countdown-label">next match</div>
+              </div>
+              {/* Right: team logos + venue */}
+              {(countdown.homeTeam && countdown.awayTeam) ? (
+                <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "flex-end", gap: 5, flexShrink: 0 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <img src={TEAM_LOGO_CDN[countdown.homeTeam]} alt={countdown.homeTeam}
+                      style={{ width: 22, height: 22, objectFit: "contain" }}
+                      onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                    <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.88rem", fontWeight: 700, color: "var(--text)", letterSpacing: "0.04em" }}>{countdown.homeTeam}</span>
+                    <span style={{ fontSize: "0.6rem", color: "var(--text-3)", fontWeight: 500 }}>vs</span>
+                    <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.88rem", fontWeight: 700, color: "var(--text)", letterSpacing: "0.04em" }}>{countdown.awayTeam}</span>
+                    <img src={TEAM_LOGO_CDN[countdown.awayTeam]} alt={countdown.awayTeam}
+                      style={{ width: 22, height: 22, objectFit: "contain" }}
+                      onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                  </div>
+                  {countdown.venue && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                      <img src={TEAM_LOGO_CDN[countdown.homeTeam]} alt={countdown.homeTeam}
+                        style={{ width: 12, height: 12, objectFit: "contain", opacity: 0.6 }}
+                        onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                      <span style={{ fontSize: "0.56rem", color: "var(--text-3)" }}>{countdown.venue}</span>
+                    </div>
+                  )}
                 </div>
-              )}
+              ) : countdown.venue ? (
+                <div style={{ fontSize: "0.56rem", color: "var(--text-3)", alignSelf: "center" }}>{countdown.venue}</div>
+              ) : null}
             </div>
             {(() => {
               const nextM = liveMatches.filter((m: any) => !m.matchStarted && m.dateTimeGMT)
