@@ -4402,14 +4402,13 @@ export default function App() {
         <div className="bg-field" />
         <div className="content">
           <div className="header">
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginLeft: 8 }}>
               <div className="header-logo-ring">
                 <div className="header-logo-inner">
                   <img
                     src={`${import.meta.env.BASE_URL}app-icon.png`}
                     alt="Logo"
                     className="header-logo"
-                    style={{ marginLeft: 8 }}
                   />
                 </div>
               </div>
