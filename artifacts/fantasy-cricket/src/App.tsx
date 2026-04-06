@@ -3815,47 +3815,57 @@ export default function App() {
               </div>
             )}
 
-            {/* Player list */}
-            <div style={{ display: "flex", flexDirection: "column" as const, gap: 6 }}>
+            {/* Player list — same card style as Teams tab */}
+            <div className="players-grid" style={{ borderTop: `2px solid ${wiTeam.color}70`, borderRadius: "var(--radius-md)", boxShadow: `0 -3px 14px ${wiTeam.color}33` }}>
               {wiTeam.players.map(p => {
                 const raw = rawPts[p.name] || 0;
                 const isCurCap = p.name === wiTeam.captain;
                 const isCurVC  = p.name === wiTeam.vc;
                 const isAltCap = p.name === effectiveCap && changed;
                 const isAltVC  = p.name === effectiveVC && changed;
-                const isActive = p.name === effectiveCap || p.name === effectiveVC;
+                const iplColor = IPL_COLORS[p.ipl] || "rgba(255,255,255,0.15)";
+                const roleColor = ROLE_COLORS[p.role] || "var(--text-3)";
                 return (
-                  <div key={p.name} style={{
-                    background: isActive ? wiTeam.color + "12" : "var(--surface)",
-                    border: `1px solid ${isActive ? wiTeam.color + "44" : "var(--border)"}`,
-                    borderRadius: 10, padding: "10px 12px",
-                    display: "flex", alignItems: "center", gap: 10,
-                  }}>
-                    <span style={{ fontSize: "0.75rem", width: 18, textAlign: "center" as const, opacity: 0.65 }}>{ROLE_ICONS[p.role] || "?"}</span>
+                  <div key={p.name} className="player-card"
+                    style={{ background: `linear-gradient(90deg, ${iplColor}08 0%, transparent 45%)` }}>
+                    <img src={TEAM_LOGO_CDN[p.ipl]} alt={p.ipl}
+                      style={{ width: 32, height: 32, objectFit: "contain", flexShrink: 0 }}
+                      onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--text)", whiteSpace: "nowrap" as const, overflow: "hidden", textOverflow: "ellipsis" }}>
-                        {p.name}
-                        {isCurCap && <span style={{ marginLeft: 6, fontSize: "0.52rem", background: "#d4a84322", color: "#d4a843", borderRadius: 4, padding: "1px 5px", fontWeight: 700 }}>C</span>}
-                        {isCurVC  && <span style={{ marginLeft: 5, fontSize: "0.52rem", background: "rgba(255,255,255,0.07)", color: "var(--text-3)", borderRadius: 4, padding: "1px 5px", fontWeight: 700 }}>VC</span>}
+                      <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                        <div className="player-name" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, fontSize: "0.88rem" }}>
+                          {p.name}
+                        </div>
+                        {isCurCap && <CaptainBadge />}
+                        {isCurVC  && <VCBadge />}
                       </div>
-                      <div style={{ fontSize: "0.58rem", color: "var(--text-3)", marginTop: 2 }}>{p.ipl} · {raw} raw pts</div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 3 }}>
+                        <span style={{
+                          fontSize: "0.5rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase" as const,
+                          padding: "1px 5px", borderRadius: 4,
+                          color: roleColor, background: roleColor + "18", border: `1px solid ${roleColor}30`, flexShrink: 0,
+                        }}>{p.role}</span>
+                        {p.price != null && <span style={{ fontSize: "0.48rem", fontWeight: 600, color: "var(--text-2)" }}>{p.price}cr</span>}
+                        <span style={{ fontSize: "0.48rem", color: "var(--text-3)" }}>{raw} pts</span>
+                      </div>
                     </div>
+                    {/* C / VC toggle buttons */}
                     <div style={{ display: "flex", gap: 5, flexShrink: 0 }}>
-                      <button onClick={() => { if (altCap === p.name) { setAltCap(""); } else { setAltCap(p.name); if (altVC === p.name) setAltVC(""); } }}
+                      <button onClick={e => { e.stopPropagation(); if (altCap === p.name) { setAltCap(""); } else { setAltCap(p.name); if (altVC === p.name) setAltVC(""); } }}
                         style={{
                           background: isAltCap ? "#d4a843" : "var(--surface-2)",
                           color: isAltCap ? "#000" : "var(--text-3)",
                           border: `1px solid ${isAltCap ? "#d4a843" : "var(--border)"}`,
-                          borderRadius: 6, padding: "4px 9px", cursor: "pointer", fontFamily: "inherit",
-                          fontSize: "0.62rem", fontWeight: 700, transition: "all 0.15s",
+                          borderRadius: 6, padding: "5px 10px", cursor: "pointer", fontFamily: "inherit",
+                          fontSize: "0.62rem", fontWeight: 800, transition: "all 0.15s", lineHeight: 1,
                         }}>C</button>
-                      <button onClick={() => { if (altVC === p.name) { setAltVC(""); } else { setAltVC(p.name); if (altCap === p.name) setAltCap(""); } }}
+                      <button onClick={e => { e.stopPropagation(); if (altVC === p.name) { setAltVC(""); } else { setAltVC(p.name); if (altCap === p.name) setAltCap(""); } }}
                         style={{
                           background: isAltVC ? "rgba(255,255,255,0.18)" : "var(--surface-2)",
                           color: isAltVC ? "var(--text)" : "var(--text-3)",
                           border: `1px solid ${isAltVC ? "rgba(255,255,255,0.28)" : "var(--border)"}`,
-                          borderRadius: 6, padding: "4px 9px", cursor: "pointer", fontFamily: "inherit",
-                          fontSize: "0.62rem", fontWeight: 700, transition: "all 0.15s",
+                          borderRadius: 6, padding: "5px 10px", cursor: "pointer", fontFamily: "inherit",
+                          fontSize: "0.62rem", fontWeight: 800, transition: "all 0.15s", lineHeight: 1,
                         }}>VC</button>
                     </div>
                   </div>
@@ -3923,7 +3933,7 @@ export default function App() {
                         </div>
                         {venue && (
                           <div style={{ marginTop: 10, fontSize: "0.58rem", color: "var(--text-3)", background: "var(--surface-2)", borderRadius: 8, padding: "6px 10px" }}>
-                            🏟 {venue.note} · Top: {venue.high}
+                            {venue.note} · Top: {venue.high}
                           </div>
                         )}
                       </div>
