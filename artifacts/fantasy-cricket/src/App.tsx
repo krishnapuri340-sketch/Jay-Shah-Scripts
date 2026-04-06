@@ -2157,26 +2157,6 @@ export default function App() {
                       <div className="lb-meta" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>
                         {s.team.owner} · <span style={{ color: "#d4a843" }}>{s.team.captain.split(" ").slice(-1)[0]}</span> / <span style={{ color: "var(--text-2)" }}>{s.team.vc.split(" ").slice(-1)[0]}</span>
                       </div>
-                      {/* Form strip — last 5 match outcomes */}
-                      {(() => {
-                        const matchResults: Array<{ id: string; result: "W"|"L"|"T" }> = liveMatches
-                          .filter((m: any) => m.matchEnded)
-                          .slice(-5)
-                          .map((m: any) => {
-                            const won = (m.winner || "").toLowerCase().includes(s.team.name.toLowerCase())
-                              || (m.winner || "").toLowerCase().includes(s.team.id.toLowerCase());
-                            const tied = (m.winner || "").toLowerCase().includes("tie") || (m.winner || "").toLowerCase().includes("draw");
-                            return { id: m.id, result: tied ? "T" : won ? "W" : "L" };
-                          });
-                        if (matchResults.length === 0) return null;
-                        return (
-                          <div className="lb-form-strip">
-                            {matchResults.map((r, ri) => (
-                              <div key={ri} className={`lb-form-dot ${r.result}`}>{r.result}</div>
-                            ))}
-                          </div>
-                        );
-                      })()}
                     </div>
                     <div style={{ textAlign: "right", flexShrink: 0 }}>
                       <div className="lb-pts first opacity-[1] bg-[transparent]"
