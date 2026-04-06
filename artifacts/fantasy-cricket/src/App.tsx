@@ -2949,9 +2949,8 @@ export default function App() {
         {/* Points Table */}
         {standings.length > 0 && (
           <div style={{ marginBottom: 16 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+            <div style={{ marginBottom: 10 }}>
               <div className="sec-title" style={{ margin: 0 }}>Points Table</div>
-              <span style={{ fontSize: "0.52rem", fontWeight: 600, letterSpacing: "0.08em", color: "#22c55e", background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.22)", borderRadius: 8, padding: "2px 8px" }}>TOP 4 QUALIFY</span>
             </div>
             <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden" }}>
               {/* Header */}
@@ -3004,8 +3003,9 @@ export default function App() {
                       <div style={{ textAlign: "center" as const, fontFamily: "'Inter', sans-serif", fontSize: "1rem", fontWeight: 800, lineHeight: 1, color: isTop4 ? color : "var(--text-3)", textShadow: isTop4 ? `0 0 12px ${color}44` : "none" }}>{t.points}</div>
                     </div>
                     {isBoundary && (
-                      <div style={{ position: "relative" as const, height: 1, margin: "0", background: "transparent" }}>
-                        <div style={{ position: "absolute" as const, inset: 0, background: "linear-gradient(90deg, transparent 0%, rgba(34,197,94,0.35) 30%, rgba(34,197,94,0.35) 70%, transparent 100%)" }} />
+                      <div style={{ position: "relative" as const, height: 14, margin: "0", background: "transparent", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <div style={{ position: "absolute" as const, inset: "50% 0 auto", height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(34,197,94,0.35) 30%, rgba(34,197,94,0.35) 70%, transparent 100%)" }} />
+                        <span style={{ position: "relative", fontSize: "0.42rem", fontWeight: 700, letterSpacing: "0.12em", color: "#22c55e", background: "var(--surface)", padding: "0 8px", lineHeight: 1 }}>TOP 4 QUALIFY</span>
                       </div>
                     )}
                   </React.Fragment>
