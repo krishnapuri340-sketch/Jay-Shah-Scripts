@@ -3066,12 +3066,12 @@ export default function App() {
                     position: "absolute", inset: -4, zIndex: 0,
                     backgroundImage: `url(${import.meta.env.BASE_URL}match-bg.jpeg)`,
                     backgroundSize: "cover", backgroundPosition: "center 35%",
-                    filter: `blur(3px) brightness(${isDone ? 0.14 : 0.32}) saturate(${isDone ? 0.5 : 1.1})`,
+                    filter: `blur(3px) brightness(${isDone ? 0.24 : 0.32}) saturate(${isDone ? 0.7 : 1.1})`,
                   }} />
                   <div style={{
                     position: "absolute", inset: 0, zIndex: 1,
                     background: isDone
-                      ? "linear-gradient(160deg, rgba(4,3,2,0.82) 0%, rgba(3,2,1,0.88) 100%)"
+                      ? "linear-gradient(160deg, rgba(6,4,3,0.68) 0%, rgba(4,3,2,0.76) 100%)"
                       : "linear-gradient(160deg, rgba(10,7,5,0.52) 0%, rgba(6,4,3,0.62) 100%)",
                   }} />
                   <div style={{ position: "relative", zIndex: 2 }}>
@@ -3112,7 +3112,7 @@ export default function App() {
                           return (
                             <div key={i} style={{ display: "flex", alignItems: "center", gap: 7 }}>
                               {i === 1 && <span style={{ fontFamily: "'Oswald', sans-serif", color: "var(--text-3)", fontSize: "0.62rem", letterSpacing: "0.1em", margin: "0 1px" }}>VS</span>}
-                              <img src={TEAM_LOGO_CDN[ti.shortname] || ti.img} alt={ti.shortname} style={{ width: 28, height: 28, objectFit: "contain", filter: `drop-shadow(0 1px 6px rgba(0,0,0,0.8))${isWinner ? ` drop-shadow(0 0 6px ${teamCol}88)` : ""}` }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                              <img src={TEAM_LOGO_CDN[ti.shortname] || ti.img} alt={ti.shortname} style={{ width: 28, height: 28, objectFit: "contain", filter: `drop-shadow(0 1px 6px rgba(0,0,0,0.8))${isWinner ? ` drop-shadow(0 0 6px ${teamCol}88)` : ""}${isDone && cardWinner && cardWinner !== "tie" && !isWinner ? " grayscale(0.6) opacity(0.45)" : ""}`, transition: "filter 0.2s" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                               <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "1.08rem", fontWeight: isWinner ? 700 : 400, letterSpacing: "0.04em", color: isWinner ? "#fff" : isDone ? "var(--text-3)" : "var(--text)", textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>{ti.shortname}</span>
                             </div>
                           );
