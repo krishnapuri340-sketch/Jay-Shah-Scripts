@@ -126,7 +126,7 @@ body { background: var(--bg); }
   color: var(--text); line-height: 1.1; text-transform: none;
 }
 .header-year {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Inter', sans-serif;
   font-size: 0.55rem; font-weight: 500; color: var(--gold);
   letter-spacing: 0.08em; opacity: 0.9; text-transform: none;
 }
@@ -318,7 +318,7 @@ body { background: var(--bg); }
 .lb-inner { padding: 16px 18px 14px 18px; display: flex; align-items: center; gap: 13px; }
 .lb-emoji { display: none; }
 .lb-rank {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Inter', sans-serif;
   font-size: 1.4rem; font-weight: 500; letter-spacing: 0; line-height: 1;
   color: var(--text-3);
   min-width: 28px; text-align: center; flex-shrink: 0;
@@ -373,7 +373,7 @@ body { background: var(--bg); }
   position: relative; overflow: hidden;
 }
 .countdown-timer {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Inter', sans-serif;
   font-size: 1.85rem; font-weight: 500; color: var(--gold);
   letter-spacing: 0.01em; line-height: 1; min-width: 84px; flex-shrink: 0;
 }
@@ -427,7 +427,7 @@ body { background: var(--bg); }
   border-left: 3px solid var(--live);
 }
 .match-name { font-size: 0.92rem; font-weight: 600; color: var(--text); margin-bottom: 9px; line-height: 1.3; letter-spacing: -0.01em; }
-.match-score { font-family: 'DM Mono', monospace; font-size: 0.95rem; color: var(--text-2); }
+.match-score { font-family: 'Inter', sans-serif; font-size: 0.95rem; color: var(--text-2); }
 .match-venue { font-family: 'Inter', sans-serif; font-size: 0.63rem; font-weight: 400; color: var(--text-3); margin-top: 9px; }
 
 /* === TEAM TABS === */
@@ -510,7 +510,7 @@ body { background: var(--bg); }
 .player-name { font-size: 0.88rem; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.01em; }
 .player-role-icon { display: none; }
 .player-pts {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Inter', sans-serif;
   font-size: 1.25rem; font-weight: 500; color: var(--text);
   text-align: right; flex-shrink: 0; line-height: 1;
 }
@@ -593,7 +593,7 @@ body { background: var(--bg); }
   animation: dotPulse 1.4s ease-in-out infinite;
 }
 .live-banner-text { flex: 1; font-size: 0.76rem; font-weight: 600; color: var(--text); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.live-banner-score { font-family: 'DM Mono', monospace; font-size: 0.78rem; color: var(--text-2); flex-shrink: 0; }
+.live-banner-score { font-family: 'Inter', sans-serif; font-size: 0.78rem; color: var(--text-2); flex-shrink: 0; }
 
 /* Team avatar selector */
 .team-avatar-row {
@@ -638,7 +638,7 @@ body { background: var(--bg); }
   width: 20px; height: 20px; border-radius: 50%;
   background: var(--bg); border: 1.5px solid var(--ta-color, var(--gold));
   display: flex; align-items: center; justify-content: center;
-  font-family: 'DM Mono', monospace; font-size: 0.68rem; font-weight: 500;
+  font-family: 'Inter', sans-serif; font-size: 0.68rem; font-weight: 500;
   color: var(--ta-color, var(--gold)); z-index: 2;
 }
 .team-avatar-name {
@@ -648,7 +648,7 @@ body { background: var(--bg); }
 }
 .team-avatar-btn.active .team-avatar-name { color: var(--ta-color, var(--gold)); }
 .team-avatar-pts {
-  font-family: 'DM Mono', monospace; font-size: 0.82rem; font-weight: 500;
+  font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 500;
   line-height: 1; letter-spacing: 0.02em;
   transition: color 0.2s;
 }
@@ -705,7 +705,7 @@ body { background: var(--bg); }
   border: 1px solid var(--border); box-shadow: var(--elev-1);
 }
 .stat-val {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Inter', sans-serif;
   font-size: 2.2rem; font-weight: 500; color: var(--text); letter-spacing: -0.03em; line-height: 1;
 }
 .stat-lbl {
@@ -804,7 +804,7 @@ body { background: var(--bg); }
 }
 .player-detail-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin-top: 9px; }
 .player-detail-stat { text-align: center; }
-.player-detail-stat-val { font-family: 'DM Mono', monospace; font-size: 1.18rem; font-weight: 500; color: var(--text); }
+.player-detail-stat-val { font-family: 'Inter', sans-serif; font-size: 1.18rem; font-weight: 500; color: var(--text); }
 .player-detail-stat-lbl { font-size: 0.54rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); font-weight: 600; margin-top: 2px; }
 .player-match-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--border); }
 .player-match-row:last-child { border-bottom: none; }
@@ -872,7 +872,7 @@ body { background: var(--bg); }
   min-width: 52px; flex-shrink: 0; padding: 12px 9px;
   border-right: 1px solid var(--border); background: var(--surface);
 }
-.hist-card-year { font-family: 'DM Mono', monospace; font-size: 1.1rem; font-weight: 500; line-height: 1.1; }
+.hist-card-year { font-family: 'Inter', sans-serif; font-size: 1.1rem; font-weight: 500; line-height: 1.1; }
 .hist-card-sn { font-size: 0.56rem; color: var(--text-3); font-weight: 600; letter-spacing: 0.08em; margin-top: 4px; text-transform: uppercase; }
 .hist-card-main { flex: 1; min-width: 0; padding: 12px 11px; }
 .hist-card-row { display: flex; align-items: center; gap: 7px; }
@@ -897,7 +897,7 @@ body { background: var(--bg); }
   padding: 8px 6px; border-radius: var(--radius-sm);
   border: 1px solid var(--border); background: var(--surface-2);
   color: var(--text-3); font-size: 0.82rem; font-weight: 600; cursor: pointer;
-  transition: all 0.15s; text-align: center; font-family: 'DM Mono', monospace;
+  transition: all 0.15s; text-align: center; font-family: 'Inter', sans-serif;
   letter-spacing: 0; white-space: nowrap;
 }
 .hist-yr-btn:active { opacity: 0.7; }
@@ -958,7 +958,7 @@ body { background: var(--bg); }
 .hist-award-icon { font-size: 1.1rem; margin-bottom: 4px; }
 .hist-award-lbl { font-size: 0.52rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); margin-bottom: 3px; }
 .hist-award-name { font-size: 0.72rem; font-weight: 600; color: var(--text); line-height: 1.25; }
-.hist-hero-year { font-family: 'DM Mono', monospace; font-size: 0.68rem; font-weight: 500; margin-bottom: 8px; letter-spacing: 0.04em; color: var(--gold); text-transform: uppercase; }
+.hist-hero-year { font-family: 'Inter', sans-serif; font-size: 0.68rem; font-weight: 500; margin-bottom: 8px; letter-spacing: 0.04em; color: var(--gold); text-transform: uppercase; }
 .hist-hero-champion { display: flex; align-items: center; gap: 11px; margin-bottom: 11px; }
 .hist-hero-runner { margin-bottom: 14px; display: flex; align-items: center; gap: 11px; padding: 11px 0 0; border-top: 1px solid var(--border); }
 .hist-hero-awards { display: flex; gap: 7px; flex-wrap: wrap; }
@@ -981,10 +981,10 @@ body { background: var(--bg); }
 .hist-top10-hdr { font-size: 0.68rem; font-weight: 600; padding: 12px 15px 8px; border-bottom: 1px solid var(--border); letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-2); }
 .hist-top10-row { display: flex; align-items: center; gap: 9px; padding: 10px 15px; border-bottom: 1px solid var(--border); font-size: 0.78rem; }
 .hist-top10-row:last-child { border-bottom: none; }
-.hist-rk { font-family: 'DM Mono', monospace; color: var(--text-3); font-weight: 500; min-width: 18px; font-size: 0.82rem; }
+.hist-rk { font-family: 'Inter', sans-serif; color: var(--text-3); font-weight: 500; min-width: 18px; font-size: 0.82rem; }
 .hist-pname { flex: 1; color: var(--text); font-weight: 500; }
 .hist-ptm { color: var(--text-3); font-size: 0.6rem; font-weight: 600; background: var(--surface-3); border-radius: 5px; padding: 2px 5px; letter-spacing: 0.03em; }
-.hist-pval { font-family: 'DM Mono', monospace; font-weight: 500; color: var(--text); min-width: 36px; text-align: right; font-size: 0.92rem; }
+.hist-pval { font-family: 'Inter', sans-serif; font-weight: 500; color: var(--text); min-width: 36px; text-align: right; font-size: 0.92rem; }
 
 /* === INSTALL BUTTON === */
 .btn-install {
@@ -1035,7 +1035,7 @@ body { background: var(--bg); }
 .hist-cabinet-rows .hist-cabinet-row:nth-child(6) { animation-delay: 0.34s; }
 .hist-cabinet-rows .hist-cabinet-row:nth-child(7) { animation-delay: 0.40s; }
 .hist-cabinet-rows .hist-cabinet-row:nth-child(8) { animation-delay: 0.46s; }
-.hist-cabinet-count { font-family: 'DM Mono', monospace; font-size: 1.1rem; font-weight: 500; min-width: 22px; text-align: right; }
+.hist-cabinet-count { font-family: 'Inter', sans-serif; font-size: 1.1rem; font-weight: 500; min-width: 22px; text-align: right; }
 
 /* === SPARKLINE TOOLTIP === */
 .spark-tip {

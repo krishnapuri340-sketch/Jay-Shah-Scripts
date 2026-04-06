@@ -350,7 +350,7 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
               </div>
             </div>
 
-            <div style={{ fontSize: "1.45rem", fontWeight: 900, color: "#fff", letterSpacing: "-0.01em", lineHeight: 1.15, fontFamily: "'DM Mono', monospace", textTransform: "uppercase", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,1), 0 4px 32px rgba(0,0,0,0.95), 0 0 2px rgba(0,0,0,1)" }}>
+            <div style={{ fontSize: "1.45rem", fontWeight: 900, color: "#fff", letterSpacing: "-0.01em", lineHeight: 1.15, fontFamily: "'Inter', sans-serif", textTransform: "uppercase", textAlign: "center", textShadow: "0 2px 8px rgba(0,0,0,1), 0 4px 32px rgba(0,0,0,0.95), 0 0 2px rgba(0,0,0,1)" }}>
               Indian Premier League
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 10 }}>
@@ -1940,10 +1940,10 @@ export default function App() {
                   const accentColor = i < 3 ? accentColors[i] : "var(--border)";
                   return (
                     <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderBottom: i < (histTop10Tab === "bat" ? s.topBat : s.topBwl).length - 1 ? "1px solid var(--border)" : "none", borderLeft: `4px solid ${accentColor}` }}>
-                      <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.9rem", fontWeight: 700, color: i < 3 ? accentColors[i] : "var(--text-3)", width: 18, textAlign: "center" as const, flexShrink: 0 }}>{i + 1}</span>
+                      <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.9rem", fontWeight: 700, color: i < 3 ? accentColors[i] : "var(--text-3)", width: 18, textAlign: "center" as const, flexShrink: 0 }}>{i + 1}</span>
                       <TeamBadge name={p.team} size={22} />
                       <span style={{ flex: 1, fontSize: "0.82rem", fontWeight: 500, color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{p.name}</span>
-                      <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "1.05rem", fontWeight: 700, color: histTop10Tab === "bat" ? "#f97316" : "#7c3aed", flexShrink: 0 }}>{p.val}</span>
+                      <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.05rem", fontWeight: 700, color: histTop10Tab === "bat" ? "#f97316" : "#7c3aed", flexShrink: 0 }}>{p.val}</span>
                     </div>
                   );
                 })}
@@ -2023,9 +2023,9 @@ export default function App() {
                     <img src={TEAM_LOGO_CDN[countdown.homeTeam]} alt={countdown.homeTeam}
                       style={{ width: 22, height: 22, objectFit: "contain" }}
                       onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                    <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.88rem", fontWeight: 700, color: "var(--text)", letterSpacing: "0.04em" }}>{countdown.homeTeam}</span>
+                    <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.88rem", fontWeight: 700, color: "var(--text)", letterSpacing: "0.04em" }}>{countdown.homeTeam}</span>
                     <span style={{ fontSize: "0.6rem", color: "var(--text-3)", fontWeight: 500 }}>vs</span>
-                    <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.88rem", fontWeight: 700, color: "var(--text)", letterSpacing: "0.04em" }}>{countdown.awayTeam}</span>
+                    <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.88rem", fontWeight: 700, color: "var(--text)", letterSpacing: "0.04em" }}>{countdown.awayTeam}</span>
                     <img src={TEAM_LOGO_CDN[countdown.awayTeam]} alt={countdown.awayTeam}
                       style={{ width: 22, height: 22, objectFit: "contain" }}
                       onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
@@ -2544,7 +2544,7 @@ export default function App() {
                             </span>
                             <span style={{ fontSize: "0.65rem", color: "var(--text-2)", flex: 1 }}>{shortMatchLabel(entry.label)}</span>
                             <span style={{ width: 5, height: 5, borderRadius: "50%", background: entry.source === "official" ? "#34d399" : "#fbbf24", flexShrink: 0 }} />
-                            <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.92rem", fontWeight: 700, color: entry.pts > 0 ? "var(--text)" : "var(--text-3)", minWidth: 26, textAlign: "right" as const }}>
+                            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.92rem", fontWeight: 700, color: entry.pts > 0 ? "var(--text)" : "var(--text-3)", minWidth: 26, textAlign: "right" as const }}>
                               {entry.pts}
                             </span>
                             {s && (
@@ -2585,7 +2585,7 @@ export default function App() {
                       <span style={{ fontSize: "0.62rem", color: "var(--text-3)" }}>
                         {multiplier ? `${raw} raw · ${multiplier}` : (inTop11 ? "Total" : "Bench — not counted")}
                       </span>
-                      <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "1rem", fontWeight: 700, color: inTop11 ? t.color : "var(--text-3)" }}>{adj} pts</span>
+                      <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "1rem", fontWeight: 700, color: inTop11 ? t.color : "var(--text-3)" }}>{adj} pts</span>
                     </div>
 
                     {/* Scoring guide */}
@@ -2750,7 +2750,7 @@ export default function App() {
                     {/* Points */}
                     <div style={{ textAlign: "right", flexShrink: 0, minWidth: 40 }}>
                       <div style={{
-                        fontFamily: "'DM Mono', monospace",
+                        fontFamily: "'Inter', sans-serif",
                         fontSize: isBench ? "1.12rem" : "1.32rem",
                         fontWeight: 700,
                         lineHeight: 1,
@@ -2874,17 +2874,17 @@ export default function App() {
                                   <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 0 }}>
                                     <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
                                       <img src={TEAM_LOGO_CDN[teamA]} alt={teamA} style={{ width: 26, height: 26, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                                      <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.82rem", fontWeight: 600, letterSpacing: "0.04em", color: "var(--text)", width: 38 }}>{teamA}</span>
+                                      <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.82rem", fontWeight: 600, letterSpacing: "0.04em", color: "var(--text)", width: 38 }}>{teamA}</span>
                                     </div>
-                                    <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.56rem", color: "var(--text-3)", letterSpacing: "0.1em", flexShrink: 0 }}>VS</span>
+                                    <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.56rem", color: "var(--text-3)", letterSpacing: "0.1em", flexShrink: 0 }}>VS</span>
                                     <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
                                       <img src={TEAM_LOGO_CDN[teamB]} alt={teamB} style={{ width: 26, height: 26, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                                      <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.82rem", fontWeight: 600, letterSpacing: "0.04em", color: "var(--text)", width: 38 }}>{teamB}</span>
+                                      <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.82rem", fontWeight: 600, letterSpacing: "0.04em", color: "var(--text)", width: 38 }}>{teamB}</span>
                                     </div>
                                   </div>
                                   {/* Total + chevron */}
                                   <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "flex-end", flexShrink: 0 }}>
-                                    <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "1.28rem", fontWeight: 700, lineHeight: 1, color: total >= 120 ? "#d4a843" : "var(--text)", textShadow: total >= 120 ? "0 0 16px #d4a84355" : "none" }}>{total}</span>
+                                    <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.28rem", fontWeight: 700, lineHeight: 1, color: total >= 120 ? "#d4a843" : "var(--text)", textShadow: total >= 120 ? "0 0 16px #d4a84355" : "none" }}>{total}</span>
                                     <span style={{ fontSize: "0.44rem", color: "var(--text-3)", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" as const, marginTop: 2 }}>pts</span>
                                   </div>
                                   <svg width="7" height="5" viewBox="0 0 10 6" fill="none" style={{ transition: "transform 0.2s", transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", flexShrink: 0, marginLeft: 2 }}>
@@ -2906,7 +2906,7 @@ export default function App() {
                                           {p.isVC && <span style={{ fontSize: "0.44rem", fontWeight: 900, color: "#94a3b8", background: "rgba(148,163,184,0.12)", border: "1px solid rgba(148,163,184,0.3)", borderRadius: 3, padding: "0 3px", lineHeight: 1.4, flexShrink: 0 }}>VC</span>}
                                           {p.isCap && <span style={{ fontSize: "0.44rem", fontWeight: 700, color: "#d4a843", opacity: 0.8, flexShrink: 0 }}>2×</span>}
                                           {p.isVC && <span style={{ fontSize: "0.44rem", fontWeight: 700, color: "#94a3b8", opacity: 0.8, flexShrink: 0 }}>1.5×</span>}
-                                          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.9rem", fontWeight: 700, minWidth: 28, textAlign: "right" as const, color: p.pts === 0 ? "var(--text-3)" : p.pts >= 60 ? "#d4a843" : p.pts >= 40 ? "#fb923c" : "#4ade80" }}>
+                                          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.9rem", fontWeight: 700, minWidth: 28, textAlign: "right" as const, color: p.pts === 0 ? "var(--text-3)" : p.pts >= 60 ? "#d4a843" : p.pts >= 40 ? "#fb923c" : "#4ade80" }}>
                                             {p.pts === 0 ? "—" : "+" + p.pts}
                                           </span>
                                         </div>
@@ -3001,27 +3001,27 @@ export default function App() {
                         position: "relative" as const,
                       }}>
                       {/* Rank */}
-                      <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.78rem", fontWeight: 700, color: isTop4 ? "#22c55e" : "var(--text-3)", lineHeight: 1 }}>{i + 1}</div>
+                      <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.78rem", fontWeight: 700, color: isTop4 ? "#22c55e" : "var(--text-3)", lineHeight: 1 }}>{i + 1}</div>
                       {/* Team */}
                       <div style={{ display: "flex", alignItems: "center", gap: 7, minWidth: 0 }}>
                         {logoUrl
                           ? <img src={logoUrl} alt={t.teamCode} style={{ width: 26, height: 26, objectFit: "contain", flexShrink: 0, filter: isTop4 ? "none" : "grayscale(0.3) opacity(0.7)" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
                           : <div style={{ width: 26, height: 26, borderRadius: "50%", background: color + "33", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.5rem", fontWeight: 700, color, flexShrink: 0 }}>{t.teamCode.slice(0,2)}</div>
                         }
-                        <span style={{ fontFamily: "'DM Mono', monospace", fontWeight: 600, fontSize: "0.78rem", letterSpacing: "0.03em", color: isTop4 ? color : "var(--text-2)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{t.teamCode}</span>
+                        <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: "0.78rem", letterSpacing: "0.03em", color: isTop4 ? color : "var(--text-2)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{t.teamCode}</span>
                       </div>
                       {/* M */}
-                      <div style={{ textAlign: "center" as const, fontFamily: "'DM Mono', monospace", fontSize: "0.78rem", color: "var(--text-3)", fontWeight: 400 }}>{t.matches}</div>
+                      <div style={{ textAlign: "center" as const, fontFamily: "'Inter', sans-serif", fontSize: "0.78rem", color: "var(--text-3)", fontWeight: 400 }}>{t.matches}</div>
                       {/* W */}
-                      <div style={{ textAlign: "center" as const, fontFamily: "'DM Mono', monospace", fontSize: "0.78rem", color: t.won > 0 ? "#4ade80" : "var(--text-3)", fontWeight: 700 }}>{t.won}</div>
+                      <div style={{ textAlign: "center" as const, fontFamily: "'Inter', sans-serif", fontSize: "0.78rem", color: t.won > 0 ? "#4ade80" : "var(--text-3)", fontWeight: 700 }}>{t.won}</div>
                       {/* L */}
-                      <div style={{ textAlign: "center" as const, fontFamily: "'DM Mono', monospace", fontSize: "0.78rem", color: t.lost > 0 ? "#f87171" : "var(--text-3)", fontWeight: 400 }}>{t.lost}</div>
+                      <div style={{ textAlign: "center" as const, fontFamily: "'Inter', sans-serif", fontSize: "0.78rem", color: t.lost > 0 ? "#f87171" : "var(--text-3)", fontWeight: 400 }}>{t.lost}</div>
                       {/* NRR */}
-                      <div style={{ textAlign: "center" as const, fontFamily: "'DM Mono', monospace", fontSize: "0.66rem", fontWeight: 500, color: t.nrr > 0 ? "#4ade80" : t.nrr < 0 ? "#f87171" : "var(--text-3)" }}>
+                      <div style={{ textAlign: "center" as const, fontFamily: "'Inter', sans-serif", fontSize: "0.66rem", fontWeight: 500, color: t.nrr > 0 ? "#4ade80" : t.nrr < 0 ? "#f87171" : "var(--text-3)" }}>
                         {t.nrr >= 0 ? "+" : ""}{t.nrr.toFixed(3)}
                       </div>
                       {/* PTS */}
-                      <div style={{ textAlign: "center" as const, fontFamily: "'DM Mono', monospace", fontSize: "1rem", fontWeight: 800, lineHeight: 1, color: isTop4 ? color : "var(--text-3)", textShadow: isTop4 ? `0 0 12px ${color}44` : "none" }}>{t.points}</div>
+                      <div style={{ textAlign: "center" as const, fontFamily: "'Inter', sans-serif", fontSize: "1rem", fontWeight: 800, lineHeight: 1, color: isTop4 ? color : "var(--text-3)", textShadow: isTop4 ? `0 0 12px ${color}44` : "none" }}>{t.points}</div>
                     </div>
                     {isBoundary && (
                       <div style={{ position: "relative" as const, height: 1, margin: "0", background: "transparent" }}>
@@ -3174,13 +3174,13 @@ export default function App() {
                           const teamCol = IPL_COLORS[ti.shortname] || "var(--text)";
                           return (
                             <div key={i} style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                              {i === 1 && <span style={{ fontFamily: "'DM Mono', monospace", color: "var(--text-3)", fontSize: "0.62rem", letterSpacing: "0.1em", margin: "0 1px" }}>VS</span>}
+                              {i === 1 && <span style={{ fontFamily: "'Inter', sans-serif", color: "var(--text-3)", fontSize: "0.62rem", letterSpacing: "0.1em", margin: "0 1px" }}>VS</span>}
                               <img src={TEAM_LOGO_CDN[ti.shortname] || ti.img} alt={ti.shortname} style={{ width: 28, height: 28, objectFit: "contain", filter: `drop-shadow(0 1px 6px rgba(0,0,0,0.8))${isWinner ? ` drop-shadow(0 0 6px ${teamCol}88)` : ""}${isDone && cardWinner && cardWinner !== "tie" && !isWinner ? " grayscale(0.6) opacity(0.45)" : ""}`, transition: "filter 0.2s" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                              <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "1.08rem", fontWeight: isWinner ? 700 : 400, letterSpacing: "0.04em", color: isWinner ? "#fff" : isDone ? "var(--text-3)" : "var(--text)", textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>{ti.shortname}</span>
+                              <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.08rem", fontWeight: isWinner ? 700 : 400, letterSpacing: "0.04em", color: isWinner ? "#fff" : isDone ? "var(--text-3)" : "var(--text)", textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>{ti.shortname}</span>
                             </div>
                           );
                         }) : (
-                          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "1rem", fontWeight: 500, letterSpacing: "0.04em", color: "var(--text)", textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>{(m.name || "").replace(/,\s*\d+(?:st|nd|rd|th) Match.*/i, "")}</div>
+                          <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "1rem", fontWeight: 500, letterSpacing: "0.04em", color: "var(--text)", textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>{(m.name || "").replace(/,\s*\d+(?:st|nd|rd|th) Match.*/i, "")}</div>
                         )}
                       </div>
                     );
@@ -3190,8 +3190,8 @@ export default function App() {
                     const teamColorForScore = IPL_COLORS[inningTeamCode] || "var(--text-2)";
                     return (
                       <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.72rem", color: "var(--text-2)", padding: "3px 0", borderTop: i === 0 ? "1px solid var(--border)" : "none" }}>
-                        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.68rem", letterSpacing: "0.04em", color: "var(--text-3)" }}>{inningTeamCode || (s.inning || "").replace(" Innings", "").replace(" Inning", "")}</span>
-                        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.78rem", fontWeight: 600, letterSpacing: "0.03em", color: teamColorForScore }}>
+                        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.68rem", letterSpacing: "0.04em", color: "var(--text-3)" }}>{inningTeamCode || (s.inning || "").replace(" Innings", "").replace(" Inning", "")}</span>
+                        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.78rem", fontWeight: 600, letterSpacing: "0.03em", color: teamColorForScore }}>
                           {s.summary || (s.r != null ? `${s.r}/${s.w} (${s.o}ov)` : "")}
                         </span>
                       </div>
@@ -3245,7 +3245,7 @@ export default function App() {
                             ) : (
                               <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="9.5" width="3" height="5" rx="0.8" fill="var(--gold)"/><rect x="6.5" y="6.5" width="3" height="8" rx="0.8" fill="var(--gold)" opacity="0.65"/><rect x="11.5" y="3.5" width="3" height="11" rx="0.8" fill="var(--gold)" opacity="0.35"/></svg>
                             )}
-                            <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.62rem", letterSpacing: "0.14em", fontWeight: isLocked || isDone ? 400 : 500, color: isDone || isLocked ? "var(--text-3)" : "var(--gold)" }}>
+                            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.62rem", letterSpacing: "0.14em", fontWeight: isLocked || isDone ? 400 : 500, color: isDone || isLocked ? "var(--text-3)" : "var(--gold)" }}>
                               {isDone || isLocked ? "PREDICTIONS" : "PREDICT"}
                             </span>
                           </div>
@@ -3318,7 +3318,7 @@ export default function App() {
                                             });
                                           }}>
                                           <img src={TEAM_LOGO_CDN[code]} alt={code} style={{ width: 24, height: 24, objectFit: "contain", filter: isSelected ? "none" : "grayscale(0.3) opacity(0.7)", transition: "filter 0.2s" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                                          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.68rem", fontWeight: 500, letterSpacing: "0.06em", color: isSelected ? "var(--text)" : "var(--text-3)", transition: "color 0.2s" }}>{code}</span>
+                                          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.68rem", fontWeight: 500, letterSpacing: "0.06em", color: isSelected ? "var(--text)" : "var(--text-3)", transition: "color 0.2s" }}>{code}</span>
                                           {isSelected && (
                                             <div style={{ position: "absolute", top: 4, right: 4, width: 12, height: 12, borderRadius: "50%", background: teamColor, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                                               <svg width="7" height="7" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.8 2.8L8.5 2.5" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -3355,7 +3355,7 @@ export default function App() {
                             if (!h2h && !vd && !pred.pick) return null;
                             return (
                               <div style={{ marginTop: 8, borderTop: "1px solid var(--border)", paddingTop: 7, display: "flex", flexDirection: "column" as const, gap: 5 }}>
-                                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.62rem", color: "var(--text-3)", letterSpacing: "0.14em", fontWeight: 400 }}>MATCH INTEL</div>
+                                <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.62rem", color: "var(--text-3)", letterSpacing: "0.14em", fontWeight: 400 }}>MATCH INTEL</div>
                                 {h2h && (
                                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                                     <span style={{ fontSize: "0.52rem", color: "var(--text-3)", letterSpacing: "0.04em", minWidth: 70, flexShrink: 0 }}>H2H</span>
@@ -3411,7 +3411,7 @@ export default function App() {
                       {/* Toggle header */}
                       <div onClick={() => toggleMatch(matchIdStr, isDone, isLive)}
                         style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", userSelect: "none" as const }}>
-                        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.62rem", color: "var(--text-3)", fontWeight: 400, letterSpacing: "0.14em" }}>SCORECARD</span>
+                        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.62rem", color: "var(--text-3)", fontWeight: 400, letterSpacing: "0.14em" }}>SCORECARD</span>
                         <span style={{ fontSize: "0.55rem", color: "var(--text-3)", display: "inline-block", transition: "transform 0.2s", transform: isExpanded ? "rotate(180deg)" : "none" }}>▼</span>
                       </div>
                       {isExpanded && (
@@ -3627,7 +3627,7 @@ export default function App() {
     const statColor = i === 0 ? "#d4a843" : i < 3 ? "var(--text)" : "var(--blue)";
     return (
       <div key={entry.name} style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 14px", borderBottom: "1px solid var(--border)", borderLeft: `4px solid ${accentColor}` }}>
-        <div style={{ width: 18, textAlign: "center" as const, fontFamily: "'DM Mono', monospace", fontSize: "0.9rem", fontWeight: 700, color: i < 3 ? accentColors[i] : "var(--text-3)", flexShrink: 0 }}>{i + 1}</div>
+        <div style={{ width: 18, textAlign: "center" as const, fontFamily: "'Inter', sans-serif", fontSize: "0.9rem", fontWeight: 700, color: i < 3 ? accentColors[i] : "var(--text-3)", flexShrink: 0 }}>{i + 1}</div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: "0.82rem", fontWeight: 500, color: entry.isFantasy ? "var(--text)" : "var(--text-2)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
             {entry.name}
@@ -3648,7 +3648,7 @@ export default function App() {
           )}
         </div>
         <div style={{ textAlign: "right" as const, flexShrink: 0 }}>
-          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "1.1rem", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1, color: statColor }}>
+          <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.1rem", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1, color: statColor }}>
             {cat === "orangeCap" && entry.runs}
             {cat === "purpleCap" && entry.wickets}
             {cat === "sixesLeader" && entry.sixes}
@@ -3762,12 +3762,12 @@ export default function App() {
                 <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
                   <div style={{ textAlign: "center" as const, flex: 1 }}>
                     <div style={{ fontSize: "0.48rem", color: "var(--text-3)", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 4 }}>CURRENT</div>
-                    <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "1.6rem", fontWeight: 700, color: wiTeam.color, lineHeight: 1 }}>{currentSim}</div>
+                    <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.6rem", fontWeight: 700, color: wiTeam.color, lineHeight: 1 }}>{currentSim}</div>
                     <div style={{ fontSize: "0.5rem", color: "var(--text-3)", marginTop: 3 }}>C: {wiTeam.captain.split(" ").pop()} · VC: {wiTeam.vc.split(" ").pop()}</div>
                   </div>
                   <div style={{ textAlign: "center" as const, flexShrink: 0, padding: "0 14px" }}>
                     {changed ? (
-                      <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "1.3rem", fontWeight: 800, color: delta > 0 ? "#2ecc8f" : delta < 0 ? "#f05050" : "var(--text-3)" }}>
+                      <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.3rem", fontWeight: 800, color: delta > 0 ? "#2ecc8f" : delta < 0 ? "#f05050" : "var(--text-3)" }}>
                         {delta > 0 ? `+${delta}` : delta}
                       </div>
                     ) : (
@@ -3776,7 +3776,7 @@ export default function App() {
                   </div>
                   <div style={{ textAlign: "center" as const, flex: 1 }}>
                     <div style={{ fontSize: "0.48rem", color: "var(--text-3)", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 4 }}>SIMULATED</div>
-                    <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "1.6rem", fontWeight: 700, color: changed ? (delta >= 0 ? "#2ecc8f" : "#f05050") : "var(--text-3)", lineHeight: 1 }}>{altSim}</div>
+                    <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.6rem", fontWeight: 700, color: changed ? (delta >= 0 ? "#2ecc8f" : "#f05050") : "var(--text-3)", lineHeight: 1 }}>{altSim}</div>
                     <div style={{ fontSize: "0.5rem", color: "var(--text-3)", marginTop: 3 }}>{changed ? `C: ${effectiveCap.split(" ").pop()} · VC: ${effectiveVC.split(" ").pop()}` : "—"}</div>
                   </div>
                 </div>
@@ -3865,7 +3865,7 @@ export default function App() {
                       {/* Match header */}
                       <div style={{ padding: "12px 14px 10px", borderBottom: "1px solid var(--border)", background: "var(--surface-2)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                         <div>
-                          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.95rem", fontWeight: 600, color: "var(--text)", letterSpacing: "0.02em" }}>
+                          <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.95rem", fontWeight: 600, color: "var(--text)", letterSpacing: "0.02em" }}>
                             {m.homeTeamCode} <span style={{ color: "var(--text-3)", fontWeight: 400 }}>vs</span> {m.awayTeamCode}
                           </div>
                           <div style={{ display: "flex", gap: 6, marginTop: 5, flexWrap: "wrap" as const }}>
@@ -4452,7 +4452,7 @@ export default function App() {
                           <div style={{ fontSize: "0.58rem", color: "#3f3f46" }}>{ft.name}</div>
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <span style={{ fontSize: "0.8rem", letterSpacing: "4px", color: "#27272a", fontFamily: "'DM Mono', monospace", lineHeight: 1 }}>••••</span>
+                          <span style={{ fontSize: "0.8rem", letterSpacing: "4px", color: "#27272a", fontFamily: "'Inter', sans-serif", lineHeight: 1 }}>••••</span>
                           <button
                             onClick={() => { setPinEditTarget(ft.id); setPinEditVal(""); setPinConfirmVal(""); setPinStep("confirm"); setPinConfirmError(false); }}
                             style={{
