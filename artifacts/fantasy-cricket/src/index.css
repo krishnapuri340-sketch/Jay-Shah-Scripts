@@ -531,6 +531,13 @@ body { background: var(--bg); }
 .player-card.live-now { opacity: 1 !important; }
 .player-card.player-expanded { border-bottom: 1px solid rgba(255,255,255,0.04); }
 
+/* Captain / VC accent */
+.player-card.is-c::before, .player-card.is-vc::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2.5px;
+}
+.player-card.is-c::before   { background: var(--gold); box-shadow: 2px 0 7px rgba(245,166,35,0.22); }
+.player-card.is-vc::before  { background: #9e8e7e; }
+
 .player-ipl-badge {
   display: inline-flex; align-items: center; justify-content: center;
   font-size: 0.56rem; font-weight: 900; letter-spacing: 0.06em;

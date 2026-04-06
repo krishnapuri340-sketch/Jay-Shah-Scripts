@@ -2673,12 +2673,11 @@ export default function App() {
                 <React.Fragment key={p.name}>
                   <div className={cardClass} onClick={() => setExpandedPlayer(isExp ? null : p.name)}
                     style={{
-                      borderLeft: `3px solid ${isLiveNow ? "#f87171" : isCap ? "var(--gold)" : isVC ? "#9e8e7e" : iplColor + (isBench ? "44" : "88")}`,
                       background: isLiveNow
                         ? `linear-gradient(90deg, rgba(248,113,113,0.06) 0%, transparent 50%)`
                         : isExp
                         ? `linear-gradient(90deg, ${iplColor}0a 0%, transparent 55%)`
-                        : `linear-gradient(90deg, ${iplColor}${isBench ? "05" : "09"} 0%, transparent 45%)`,
+                        : `linear-gradient(90deg, ${iplColor}${isBench ? "05" : "08"} 0%, transparent 45%)`,
                       boxShadow: isLiveNow ? "inset 0 0 0 1px rgba(248,113,113,0.08)" : "none",
                     }}>
 
@@ -2726,11 +2725,8 @@ export default function App() {
                         color: isLiveNow ? "#fca5a5" : isBench ? "var(--text-3)" : p.adj > 0 ? t.color : "rgba(255,255,255,0.2)",
                         textShadow: (!isBench && p.adj > 0) ? `0 0 18px ${t.color}55` : "none",
                       }}>{p.adj}</div>
-                      {(isCap || isVC) && (
-                        <div style={{ fontSize: "0.48rem", fontWeight: 700, color: isCap ? "#d4a843" : "#9e8e7e", textAlign: "right", marginTop: 2, letterSpacing: "0.04em" }}>
-                          {isCap ? "×2 C" : "×1.5 VC"}
-                        </div>
-                      )}
+                      {isCap && <div className="player-pts-raw" style={{ color: "#d4a843" }}>×2</div>}
+                      {isVC && <div className="player-pts-raw" style={{ color: "#9e8e7e" }}>×1.5</div>}
                       {isBench && !isCap && !isVC && (
                         <div style={{ fontSize: "0.44rem", color: "var(--text-3)", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" as const, marginTop: 2, opacity: 0.5 }}>bench</div>
                       )}
