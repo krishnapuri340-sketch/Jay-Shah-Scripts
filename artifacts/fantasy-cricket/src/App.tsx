@@ -1855,38 +1855,43 @@ export default function App() {
             <button className="hist-back-btn" onClick={() => setHistoryYear(null)}>
               ← All Seasons
             </button>
-            {/* Champion hero card */}
+            {/* Season hero — split champion/runner-up + awards grid */}
             <div className="hist-hero" style={{ borderColor: s.color }}>
               <div className="hist-hero-year" style={{ color: s.color }}>Season {s.season} · IPL {s.year}</div>
-              <div className="hist-hero-champion">
-                <TeamBadge name={s.champion} size={44} />
-                <div>
-                  <div style={{ color: s.color, fontSize: "1.05rem", fontWeight: 800, lineHeight: 1.2 }}>{s.champion}</div>
-                  <div style={{ fontSize: "0.68rem", color: "var(--text-3)", marginTop: 3, fontWeight: 500 }}>Champions</div>
+              <div className="hist-hero-row">
+                <div className="hist-hero-card champion">
+                  <div className="hist-hero-card-label">🏆 Champions</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
+                    <TeamBadge name={s.champion} size={36} />
+                    <div className="hist-hero-card-val" style={{ color: s.color }}>{s.champion}</div>
+                  </div>
+                </div>
+                <div className="hist-hero-card">
+                  <div className="hist-hero-card-label">🥈 Runner-up</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
+                    <TeamBadge name={s.runnerUp} size={36} />
+                    <div className="hist-hero-card-val">{s.runnerUp}</div>
+                  </div>
                 </div>
               </div>
-              <div className="hist-hero-runner">
-                <TeamBadge name={s.runnerUp} size={44} />
-                <div>
-                  <div style={{ color: "var(--text-2)", fontSize: "1.05rem", fontWeight: 800, lineHeight: 1.2 }}>{s.runnerUp}</div>
-                  <div style={{ fontSize: "0.68rem", color: "var(--text-3)", marginTop: 3, fontWeight: 500 }}>Runner-up</div>
+              <div className="hist-awards-grid">
+                <div className="hist-award-cell">
+                  <div className="hist-award-icon" style={{ filter: "hue-rotate(175deg) saturate(3) brightness(1.1)" }}>🧢</div>
+                  <div className="hist-award-lbl" style={{ color: "#f97316" }}>Orange Cap</div>
+                  <div className="hist-award-name">{s.orangeCap}</div>
+                  <div style={{ fontSize: "0.62rem", color: "#f97316", marginTop: 2, fontWeight: 700 }}>{s.orangeRuns} runs</div>
                 </div>
-              </div>
-              <div className="hist-hero-awards">
-                <div className="hist-hero-award">
-                  <span style={{ fontSize: "0.65rem", color: "#f97316" }}><span style={{filter:"hue-rotate(175deg) saturate(3) brightness(1.1)"}}>🧢</span> Orange Cap</span>
-                  <span className="hist-hero-aname">{s.orangeCap}</span>
-                  <span className="hist-hero-aval">{s.orangeRuns} runs</span>
+                <div className="hist-award-cell">
+                  <div className="hist-award-icon" style={{ filter: "hue-rotate(25deg) saturate(4) brightness(0.5)" }}>🧢</div>
+                  <div className="hist-award-lbl" style={{ color: "#7c3aed" }}>Purple Cap</div>
+                  <div className="hist-award-name">{s.purpleCap}</div>
+                  <div style={{ fontSize: "0.62rem", color: "#7c3aed", marginTop: 2, fontWeight: 700 }}>{s.purpleWkts} wkts</div>
                 </div>
-                <div className="hist-hero-award">
-                  <span style={{ fontSize: "0.65rem", color: "#7c3aed" }}><span style={{filter:"hue-rotate(25deg) saturate(4) brightness(0.5)"}}>🧢</span> Purple Cap</span>
-                  <span className="hist-hero-aname">{s.purpleCap}</span>
-                  <span className="hist-hero-aval">{s.purpleWkts} wkts</span>
-                </div>
-                <div className="hist-hero-award">
-                  <span style={{ fontSize: "0.65rem", color: "#d4a843" }}><span style={{filter:"sepia(1) saturate(4) hue-rotate(5deg) brightness(1.1)"}}>🧢</span> MVP</span>
-                  <span className="hist-hero-aname">{s.mvp}</span>
-                  <span className="hist-hero-aval" style={{ color: "#d4a843" }}>Player of Tournament</span>
+                <div className="hist-award-cell">
+                  <div className="hist-award-icon">⭐</div>
+                  <div className="hist-award-lbl" style={{ color: "#d4a843" }}>MVP</div>
+                  <div className="hist-award-name">{s.mvp}</div>
+                  <div style={{ fontSize: "0.62rem", color: "#d4a843", marginTop: 2, fontWeight: 700 }}>Tournament</div>
                 </div>
               </div>
             </div>
@@ -2138,7 +2143,7 @@ export default function App() {
                   <div className="lb-inner" style={{ position: "relative", zIndex: 2 }}>
                     <div className={`lb-rank ${rankLabel(i)}`} style={{ textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>{i + 1}</div>
                     {/* Avatar */}
-                    <div style={{ width: 28, height: 28, borderRadius: "50%", border: `1.5px solid ${s.team.color}70`, overflow: "hidden", flexShrink: 0, boxShadow: `0 0 0 1px ${s.team.color}25` }}>
+                    <div style={{ width: 44, height: 44, borderRadius: "50%", border: `2px solid ${s.team.color}70`, overflow: "hidden", flexShrink: 0, boxShadow: `0 0 0 1px ${s.team.color}25, 0 0 14px ${s.team.color}22` }}>
                       <img src={`${import.meta.env.BASE_URL}avatars/${s.team.avatar}`} alt={s.team.owner}
                         style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: s.team.avatarPosition || "center center", display: "block" }} />
                     </div>
@@ -2152,6 +2157,26 @@ export default function App() {
                       <div className="lb-meta" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>
                         {s.team.owner} · <span style={{ color: "#d4a843" }}>{s.team.captain.split(" ").slice(-1)[0]}</span> / <span style={{ color: "var(--text-2)" }}>{s.team.vc.split(" ").slice(-1)[0]}</span>
                       </div>
+                      {/* Form strip — last 5 match outcomes */}
+                      {(() => {
+                        const matchResults: Array<{ id: string; result: "W"|"L"|"T" }> = liveMatches
+                          .filter((m: any) => m.matchEnded)
+                          .slice(-5)
+                          .map((m: any) => {
+                            const won = (m.winner || "").toLowerCase().includes(s.team.name.toLowerCase())
+                              || (m.winner || "").toLowerCase().includes(s.team.id.toLowerCase());
+                            const tied = (m.winner || "").toLowerCase().includes("tie") || (m.winner || "").toLowerCase().includes("draw");
+                            return { id: m.id, result: tied ? "T" : won ? "W" : "L" };
+                          });
+                        if (matchResults.length === 0) return null;
+                        return (
+                          <div className="lb-form-strip">
+                            {matchResults.map((r, ri) => (
+                              <div key={ri} className={`lb-form-dot ${r.result}`}>{r.result}</div>
+                            ))}
+                          </div>
+                        );
+                      })()}
                     </div>
                     <div style={{ textAlign: "right", flexShrink: 0 }}>
                       <div className="lb-pts first opacity-[1] bg-[transparent]"
@@ -2175,33 +2200,21 @@ export default function App() {
         {(() => {
           const liveNow = liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded);
           if (liveNow.length === 0) return null;
+          const m = liveNow[0];
+          const firstScore = (m.score || [])[0];
+          const scoreStr = firstScore
+            ? (firstScore.summary || (firstScore.r != null ? `${firstScore.r}/${firstScore.w} (${firstScore.o} ov)` : ""))
+            : "";
+          const matchTitle = shortMatchLabel(m.name || "");
           return (
-            <>
-              <div className="divider" />
-              <div className="sec-title">Live Now</div>
-              {liveNow.map((m: any) => (
-                <div key={m.id} className="match-card" onClick={() => { setTab("fixtures"); setMatchFilter("live"); }}
-                  style={{ cursor: "pointer" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div className="match-status" style={{ color: "var(--live)" }}>Live</div>
-                    <div style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>View in Matches →</div>
-                  </div>
-                  <div className="match-name">{m.name}</div>
-                  {(m.score || []).map((s: any, i: number) => (
-                    <div key={i} className="match-score" style={{ marginTop: 3 }}>
-                      <span style={{ color: "var(--text-3)", fontSize: "0.67rem" }}>{(s.inning || "").replace(" Innings", "").replace(" Inning", "")} </span>
-                      {s.summary || (s.r != null ? `${s.r}/${s.w} (${s.o} ov)` : "")}
-                    </div>
-                  ))}
-                  {m.toss && <div style={{ fontSize: "0.65rem", color: "var(--text-2)", marginTop: 5 }}>{m.toss}</div>}
-                  {m.venue && (
-                    <div className="match-venue">
-                      🏟 {m.venue}{m.homeTeamCode ? ` (${m.homeTeamCode})` : ""}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </>
+            <div className="live-banner" onClick={() => { setTab("fixtures"); setMatchFilter("live"); }}>
+              <div className="live-banner-dot" />
+              <span className="live-banner-text">
+                {matchTitle}{liveNow.length > 1 ? ` +${liveNow.length - 1} more` : ""}
+              </span>
+              {scoreStr ? <span className="live-banner-score">{scoreStr}</span> : null}
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--text-3)", flexShrink: 0 }}><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
           );
         })()}
       </div>
@@ -2301,21 +2314,26 @@ export default function App() {
             <span style={{ fontSize: "0.68rem" }}>Share</span>
           </button>
         </div>
-        <div className="team-tabs" data-no-swipe="true">
-          {teamScores.map(s => {
+        <div className="team-avatar-row" data-no-swipe="true">
+          {teamScores.map((s, i) => {
             const ft = s.team;
+            const isActive = selectedTeam === ft.id;
+            const rankNum = i + 1;
             return (
-              <button key={ft.id} className={`team-tab ${selectedTeam === ft.id ? "active" : ""}`}
-                style={selectedTeam === ft.id ? { color: ft.color, borderColor: ft.color } : {}}
+              <button key={ft.id}
+                className={`team-avatar-btn${isActive ? " active" : ""}`}
+                style={{ "--ta-color": ft.color } as React.CSSProperties}
                 onClick={() => setSelectedTeam(ft.id)}>
-                <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                  <div style={{ position: "relative", width: 20, height: 20, borderRadius: "50%", border: `1.5px solid ${ft.color}60`, overflow: "hidden", flexShrink: 0 }}>
-                    <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center center", display: "block" }} />
-                    <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "radial-gradient(circle, transparent 40%, rgba(8,12,20,0.8) 80%, rgba(8,12,20,0.95) 100%)" }} />
-                  </div>
-                  {ft.name}
+                <div className="team-avatar-ring">
+                  <img
+                    src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`}
+                    alt={ft.owner}
+                    className="team-avatar-img"
+                    style={{ objectPosition: ft.avatarPosition || "center center" }}
+                  />
+                  <div className="team-avatar-rank">{rankNum}</div>
                 </div>
-                <div style={{ fontSize: "0.6rem", opacity: 0.65, marginTop: 1 }}>{ft.owner}</div>
+                <span className="team-avatar-name">{ft.id === "rajveer" ? "Raj" : ft.id === "mombasa" ? "Rahul" : ft.id === "mumbai" ? "Smeet" : "Deb"}</span>
               </button>
             );
           })}
@@ -4437,6 +4455,22 @@ export default function App() {
                   Install
                 </button>
               )}
+              {/* User chip — avatar + name */}
+              {currentUser && (() => {
+                const cu = FANTASY_TEAMS[currentUser];
+                return (
+                  <div className="user-chip" style={{ color: cu.color, borderColor: cu.color + "44" }}
+                    onClick={() => setSettingsOpen(p => !p)}>
+                    <img
+                      src={`${import.meta.env.BASE_URL}avatars/${cu.avatar}`}
+                      alt={cu.owner}
+                      className="user-chip-avatar"
+                      style={{ borderColor: cu.color + "88" }}
+                    />
+                    <span className="user-chip-name">{cu.owner}</span>
+                  </div>
+                );
+              })()}
               <div className="settings-wrap" ref={settingsRef}>
                 <button
                   className={`btn-icon${settingsOpen ? " active" : ""}`}
@@ -4495,15 +4529,17 @@ export default function App() {
         </div>
 
         <nav className="nav">
-          {TABS.map(t => {
-            const isActive = tab === t.id;
-            return (
-              <button key={t.id} className={`nav-btn ${isActive ? "active" : ""}`} onClick={() => setTab(t.id)}>
-                <span className="nav-icon">{NAV_ICON[t.id]}</span>
-                {t.label}
-              </button>
-            );
-          })}
+          <div className="nav-inner">
+            {TABS.map(t => {
+              const isActive = tab === t.id;
+              return (
+                <button key={t.id} className={`nav-btn ${isActive ? "active" : ""}`} onClick={() => setTab(t.id)}>
+                  <span className="nav-icon">{NAV_ICON[t.id]}</span>
+                  {t.label}
+                </button>
+              );
+            })}
+          </div>
         </nav>
       </div>
     </>
