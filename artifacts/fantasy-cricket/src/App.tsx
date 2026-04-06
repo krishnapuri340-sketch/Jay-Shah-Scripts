@@ -2038,8 +2038,115 @@ export default function App() {
                 </div>
               )}
             </div>
+            {(() => {
+              const nextM = liveMatches.filter((m: any) => !m.matchStarted && m.dateTimeGMT)
+                .sort((a: any, b: any) => new Date(a.dateTimeGMT).getTime() - new Date(b.dateTimeGMT).getTime())[0];
+              if (!nextM?.homeTeamCode || !nextM?.awayTeamCode) return null;
+              const stakes = Object.values(FANTASY_TEAMS).map(ft => ({
+                owner: ft.owner, color: ft.color,
+                count: ft.players.filter((p: any) => p.ipl === nextM.homeTeamCode || p.ipl === nextM.awayTeamCode).length
+              }));
+              const h2h = getH2H(nextM.homeTeamCode, nextM.awayTeamCode);
+              const vd = VENUE_AVG[nextM.venue || ""];
+              const pred = predictNextMatch(nextM.homeTeamCode, nextM.awayTeamCode);
+              const hasIntel = h2h || vd;
+              const sortedStakes = [...stakes].filter(s => s.count > 0).sort((a, b) => b.count - a.count);
+              return (
+                <div style={{ borderTop: "1px solid rgba(255,200,120,0.1)", paddingTop: 9, display: "flex", flexDirection: "column" as const, gap: 0, position: "relative", zIndex: 2 }}>
+                  {/* Row 1: picks — consistent size, sorted by count */}
+                  {sortedStakes.length > 0 && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, paddingBottom: 8 }}>
+                      <span style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em", flexShrink: 0 }}>PICKS</span>
+                      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" as const }}>
+                        {sortedStakes.map(s => (
+                          <span key={s.owner} style={{ display: "flex", alignItems: "baseline", gap: 3 }}>
+                            <span style={{ fontSize: "0.68rem", fontWeight: 700, color: s.color }}>{s.owner}</span>
+                            <span style={{ fontSize: "0.6rem", fontWeight: 500, color: "var(--text-3)" }}>{s.count}</span>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {/* Collapsible intel section */}
+                  {hasIntel && (
+                    <div style={{ borderTop: "1px solid var(--border)", paddingTop: 7 }}>
+                      {/* Toggle row */}
+                      <div onClick={() => setIntelOpen(o => !o)}
+                        style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", userSelect: "none" as const }}>
+                        <span style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em" }}>MATCH INTEL</span>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          {!intelOpen && pred.pick && (
+                            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                              <img src={TEAM_LOGO_CDN[pred.pick]} alt={pred.pick} style={{ width: 13, height: 13, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                              <span style={{ fontSize: "0.63rem", fontWeight: 700, color: "var(--gold)" }}>{pred.pick}</span>
+                            </div>
+                          )}
+                          <span style={{ fontSize: "0.55rem", color: "var(--text-3)", display: "inline-block", transition: "transform 0.2s", transform: intelOpen ? "rotate(180deg)" : "none" }}>▼</span>
+                        </div>
+                      </div>
+                      {/* Expanded rows */}
+                      {intelOpen && (
+                        <div style={{ display: "flex", flexDirection: "column" as const, gap: 7, marginTop: 9 }}>
+                          {h2h && (
+                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                              <span style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em", flexShrink: 0, minWidth: 90 }}>H2H</span>
+                              <span style={{ fontSize: "0.68rem" }}>
+                                <span style={{ fontWeight: 700, color: h2h.aWins >= h2h.bWins ? "var(--text)" : "var(--text-3)" }}>{nextM.homeTeamCode} {h2h.aWins}</span>
+                                <span style={{ margin: "0 5px", color: "var(--text-3)" }}>–</span>
+                                <span style={{ fontWeight: 700, color: h2h.bWins > h2h.aWins ? "var(--text)" : "var(--text-3)" }}>{h2h.bWins} {nextM.awayTeamCode}</span>
+                              </span>
+                            </div>
+                          )}
+                          {vd && (
+                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                              <span style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em", flexShrink: 0, minWidth: 90 }}>PRED TOTAL</span>
+                              <span style={{ fontSize: "0.68rem" }}>
+                                <span style={{ fontWeight: 700, color: "var(--text)" }}>{predictFirstInningsTotal(nextM.homeTeamCode, nextM.awayTeamCode, vd.avg)}</span>
+                                <span style={{ fontSize: "0.6rem", color: "var(--text-3)", marginLeft: 6 }}>{vd.note}</span>
+                              </span>
+                            </div>
+                          )}
+                          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                            <span style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.05em", flexShrink: 0, minWidth: 90 }}>MATCH PRED</span>
+                            {pred.pick ? (
+                              <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                                <img src={TEAM_LOGO_CDN[pred.pick]} alt={pred.pick} style={{ width: 15, height: 15, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                                <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--gold)" }}>{pred.pick}</span>
+                                <span style={{ fontSize: "0.56rem", color: "var(--text-3)", fontStyle: "italic" }}>· {pred.reason}</span>
+                              </div>
+                            ) : (
+                              <span style={{ fontSize: "0.6rem", color: "var(--text-3)", fontStyle: "italic" }}>{pred.reason}</span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </div>
         )}
+        {(() => {
+          const liveNow = liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded);
+          if (liveNow.length === 0) return null;
+          const m = liveNow[0];
+          const firstScore = (m.score || [])[0];
+          const scoreStr = firstScore
+            ? (firstScore.summary || (firstScore.r != null ? `${firstScore.r}/${firstScore.w} (${firstScore.o} ov)` : ""))
+            : "";
+          const matchTitle = shortMatchLabel(m.name || "");
+          return (
+            <div className="live-banner" onClick={() => { setTab("fixtures"); setMatchFilter("live"); }}>
+              <div className="live-banner-dot" />
+              <span className="live-banner-text">
+                {matchTitle}{liveNow.length > 1 ? ` +${liveNow.length - 1} more` : ""}
+              </span>
+              {scoreStr ? <span className="live-banner-score">{scoreStr}</span> : null}
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--text-3)", flexShrink: 0 }}><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          );
+        })()}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, marginTop: countdown ? 16 : 0 }}>
           <div className="sec-title" style={{ marginBottom: 0 }}>Leaderboard</div>
           <button className="btn-primary" style={{ padding: "6px 10px", display: "flex", alignItems: "center", gap: 5 }} onClick={shareLeaderboard} title="Share leaderboard">
@@ -2111,26 +2218,6 @@ export default function App() {
           );
         })()}
 
-        {(() => {
-          const liveNow = liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded);
-          if (liveNow.length === 0) return null;
-          const m = liveNow[0];
-          const firstScore = (m.score || [])[0];
-          const scoreStr = firstScore
-            ? (firstScore.summary || (firstScore.r != null ? `${firstScore.r}/${firstScore.w} (${firstScore.o} ov)` : ""))
-            : "";
-          const matchTitle = shortMatchLabel(m.name || "");
-          return (
-            <div className="live-banner" onClick={() => { setTab("fixtures"); setMatchFilter("live"); }}>
-              <div className="live-banner-dot" />
-              <span className="live-banner-text">
-                {matchTitle}{liveNow.length > 1 ? ` +${liveNow.length - 1} more` : ""}
-              </span>
-              {scoreStr ? <span className="live-banner-score">{scoreStr}</span> : null}
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--text-3)", flexShrink: 0 }}><polyline points="9 18 15 12 9 6"/></svg>
-            </div>
-          );
-        })()}
       </div>
     );
   };
