@@ -4460,13 +4460,12 @@ export default function App() {
               {currentUser && (() => {
                 const cu = FANTASY_TEAMS[currentUser];
                 return (
-                  <div className="user-chip" style={{ color: cu.color, borderColor: cu.color + "44" }}
+                  <div className="user-chip" style={{ color: cu.color }}
                     onClick={() => setSettingsOpen(p => !p)}>
                     <img
                       src={`${import.meta.env.BASE_URL}avatars/${cu.avatar}`}
                       alt={cu.owner}
                       className="user-chip-avatar"
-                      style={{ borderColor: cu.color + "88" }}
                     />
                     <span className="user-chip-name">{cu.owner}</span>
                   </div>
