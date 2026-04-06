@@ -257,14 +257,17 @@ body { background: var(--bg); }
   flex: 1; max-width: 120px;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
   padding: 10px 6px 8px; border: none; cursor: pointer; min-height: 54px;
-  background: transparent; color: var(--text-3);
+  background: none; color: var(--text-3);
   font-family: inherit; font-size: 0.56rem; font-weight: 800;
   letter-spacing: 0.09em; text-transform: uppercase;
   transition: color 0.2s var(--ease-out);
   -webkit-tap-highlight-color: transparent;
+  -webkit-appearance: none;
   touch-action: manipulation;
+  outline: none;
   position: relative;
 }
+.nav-btn:focus, .nav-btn:focus-visible { outline: none; background: none; }
 .nav-btn::before { display: none; }
 .nav-btn::after { display: none; }
 .nav-btn.active { color: var(--gold); }
