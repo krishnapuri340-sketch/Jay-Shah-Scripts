@@ -2717,20 +2717,12 @@ export default function App() {
                         {isLiveNow && <span style={{ fontSize: "0.42rem", fontWeight: 800, color: "#f87171", letterSpacing: "0.09em", background: "rgba(248,113,113,0.12)", border: "1px solid rgba(248,113,113,0.28)", borderRadius: 3, padding: "1px 4px", flexShrink: 0, lineHeight: 1 }}>LIVE</span>}
                         {isUpcoming && !isLiveNow && <span style={{ fontSize: "0.42rem", fontWeight: 800, color: "#4ade80", letterSpacing: "0.09em", background: "rgba(74,222,128,0.1)", border: "1px solid rgba(74,222,128,0.25)", borderRadius: 3, padding: "1px 4px", flexShrink: 0, lineHeight: 1 }}>NEXT</span>}
                       </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 3 }}>
-                        <span style={{
-                          fontSize: "0.48rem", fontWeight: 800, letterSpacing: "0.05em", textTransform: "uppercase" as const,
-                          padding: "1px 4px", borderRadius: 3,
-                          color: isBench ? "var(--text-3)" : roleColor,
-                          background: isBench ? "rgba(255,255,255,0.04)" : roleColor + "18",
-                          border: `1px solid ${isBench ? "rgba(255,255,255,0.08)" : roleColor + "30"}`,
-                          flexShrink: 0,
-                        }}>{p.role}</span>
-                        {p.price != null && (
-                          <span style={{ fontSize: "0.43rem", fontWeight: 600, color: "var(--text-2)", letterSpacing: "0.02em", flexShrink: 0 }}>
-                            {p.price}cr
-                          </span>
-                        )}
+                      <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 2 }}>
+                        <span style={{ fontSize: "0.5rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" as const, color: isBench ? "var(--text-3)" : roleColor, flexShrink: 0, lineHeight: 1 }}>{p.role}</span>
+                        {p.price != null && <>
+                          <span style={{ fontSize: "0.44rem", color: "rgba(255,255,255,0.18)", lineHeight: 1 }}>·</span>
+                          <span style={{ fontSize: "0.5rem", fontWeight: 500, color: "var(--text-3)", letterSpacing: "0.01em", flexShrink: 0, lineHeight: 1 }}>{p.price}cr</span>
+                        </>}
                         <Sparkline name={p.name} color={isBench ? "rgba(255,255,255,0.18)" : t.color} />
                       </div>
                     </div>
