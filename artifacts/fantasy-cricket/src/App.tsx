@@ -2836,12 +2836,16 @@ export default function App() {
                                   {/* Match badge */}
                                   <span style={{ fontSize: "0.5rem", fontWeight: 700, color: "var(--text-3)", background: "rgba(255,255,255,0.06)", borderRadius: 5, padding: "2px 6px", flexShrink: 0, lineHeight: 1.5 }}>M{mn}</span>
                                   {/* Team logos + names */}
-                                  <div style={{ display: "flex", alignItems: "center", gap: 6, flex: 1, minWidth: 0 }}>
-                                    <img src={TEAM_LOGO_CDN[teamA]} alt={teamA} style={{ width: 26, height: 26, objectFit: "contain", flexShrink: 0 }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                                    <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.82rem", fontWeight: 600, letterSpacing: "0.04em", color: colorA, width: 38, flexShrink: 0 }}>{teamA}</span>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 0 }}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
+                                      <img src={TEAM_LOGO_CDN[teamA]} alt={teamA} style={{ width: 26, height: 26, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                                      <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.82rem", fontWeight: 600, letterSpacing: "0.04em", color: colorA, width: 38 }}>{teamA}</span>
+                                    </div>
                                     <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.56rem", color: "var(--text-3)", letterSpacing: "0.1em", flexShrink: 0 }}>VS</span>
-                                    <img src={TEAM_LOGO_CDN[teamB]} alt={teamB} style={{ width: 26, height: 26, objectFit: "contain", flexShrink: 0 }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                                    <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.82rem", fontWeight: 600, letterSpacing: "0.04em", color: colorB, width: 38, flexShrink: 0 }}>{teamB}</span>
+                                    <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
+                                      <img src={TEAM_LOGO_CDN[teamB]} alt={teamB} style={{ width: 26, height: 26, objectFit: "contain" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                                      <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.82rem", fontWeight: 600, letterSpacing: "0.04em", color: colorB, width: 38 }}>{teamB}</span>
+                                    </div>
                                   </div>
                                   {/* Total + chevron */}
                                   <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "flex-end", flexShrink: 0 }}>
