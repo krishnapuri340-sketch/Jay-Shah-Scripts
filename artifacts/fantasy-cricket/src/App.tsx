@@ -2731,10 +2731,9 @@ export default function App() {
               <>
                 {/* === PLAYING XI HEADER === */}
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", boxShadow: "0 0 6px rgba(74,222,128,0.7)", flexShrink: 0 }} />
-                    <span style={{ fontSize: "0.58rem", fontWeight: 800, color: "var(--text-2)", letterSpacing: "0.14em", textTransform: "uppercase" as const }}>Playing XI</span>
-                    <span style={{ fontSize: "0.54rem", fontWeight: 700, color: "var(--text-3)", background: "rgba(74,222,128,0.08)", border: "1px solid rgba(74,222,128,0.15)", padding: "1px 6px", borderRadius: 6 }}>11</span>
+                  <div className="sec-title" style={{ marginBottom: 0 }}>
+                    Playing XI
+                    <span style={{ fontSize: "0.62rem", fontWeight: 700, color: "var(--text-3)", background: "rgba(74,222,128,0.08)", border: "1px solid rgba(74,222,128,0.15)", padding: "1px 7px", borderRadius: 6 }}>11</span>
                   </div>
                   {Object.keys(playerPoints).length > 0 && (
                     <span style={{ fontSize: "0.62rem", fontWeight: 800, color: t.color, opacity: 0.85 }}>{xiTotal} pts</span>
@@ -2753,12 +2752,11 @@ export default function App() {
                     background: "transparent", border: "none", cursor: "pointer",
                     padding: "0 2px", WebkitTapHighlightColor: "transparent",
                   }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--text-3)", flexShrink: 0 }} />
-                    <span style={{ fontSize: "0.58rem", fontWeight: 800, color: "var(--text-3)", letterSpacing: "0.14em", textTransform: "uppercase" as const }}>Bench</span>
-                    <span style={{ fontSize: "0.54rem", fontWeight: 700, color: "var(--text-3)", background: "rgba(255,255,255,0.05)", border: "1px solid var(--border)", padding: "1px 6px", borderRadius: 6 }}>{bench.length}</span>
+                  <div className="sec-title" style={{ marginBottom: 0 }}>
+                    Bench
+                    <span style={{ fontSize: "0.62rem", fontWeight: 700, color: "var(--text-3)", background: "rgba(255,255,255,0.05)", border: "1px solid var(--border)", padding: "1px 7px", borderRadius: 6 }}>{bench.length}</span>
                     {Object.keys(playerPoints).length > 0 && benchTotal > 0 && (
-                      <span style={{ fontSize: "0.54rem", color: "var(--text-3)", opacity: 0.65 }}>{benchTotal} pts sitting</span>
+                      <span style={{ fontSize: "0.62rem", color: "var(--text-3)", opacity: 0.65 }}>{benchTotal} pts</span>
                     )}
                   </div>
                   <span style={{ fontSize: "0.58rem", color: "var(--text-3)", display: "inline-block", transition: "transform 0.22s cubic-bezier(0.4,0,0.2,1)", transform: benchOpen ? "rotate(180deg)" : "none", marginBottom: benchOpen ? 0 : 28 }}>▼</span>
@@ -2817,10 +2815,9 @@ export default function App() {
                       <button
                         onClick={() => setMatchPtsOpen(o => !o)}
                         style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", marginBottom: matchPtsOpen ? 10 : 0, background: "transparent", border: "none", cursor: "pointer", padding: "0 2px", WebkitTapHighlightColor: "transparent" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                          <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--gold)", flexShrink: 0 }} />
-                          <span style={{ fontSize: "0.58rem", fontWeight: 800, color: "var(--text-3)", letterSpacing: "0.14em", textTransform: "uppercase" as const }}>Match Points</span>
-                          {grandTotal > 0 && <span style={{ fontSize: "0.6rem", color: "var(--gold)", fontWeight: 700, fontFamily: "'Oswald', sans-serif" }}>{grandTotal}</span>}
+                        <div className="sec-title" style={{ marginBottom: 0 }}>
+                          Match Points
+                          {grandTotal > 0 && <span style={{ fontSize: "0.68rem", color: "var(--gold)", fontWeight: 700, fontFamily: "'Oswald', sans-serif" }}>{grandTotal}</span>}
                         </div>
                         <span style={{ fontSize: "0.58rem", color: "var(--text-3)", display: "inline-block", transition: "transform 0.22s cubic-bezier(0.4,0,0.2,1)", transform: matchPtsOpen ? "rotate(180deg)" : "none" }}>▼</span>
                       </button>
