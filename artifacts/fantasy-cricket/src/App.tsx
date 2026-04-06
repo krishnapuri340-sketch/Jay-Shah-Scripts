@@ -1814,17 +1814,18 @@ export default function App() {
               {titleBoard.map(([team, count]) => {
                 const b = IPL_TEAM_BADGE[team] || { abbr: "?", bg: "#444", fg: "#fff" };
                 const barW = Math.round((count / titleBoard[0][1]) * 100);
+                const teamColor = b.bg === "#F5C518" ? "#a37e00" : b.bg;
                 return (
                   <div key={team} className="hist-cabinet-row">
-                    <TeamBadge name={team} size={28} />
+                    <TeamBadge name={team} size={40} />
                     <div className="hist-cabinet-info">
                       <div className="hist-cabinet-name">{team}</div>
                       <div className="hist-cabinet-bar-wrap">
-                        <div className="hist-cabinet-bar" style={{ width: `${barW}%`, background: b.bg }} />
+                        <div className="hist-cabinet-bar" style={{ width: `${barW}%`, background: teamColor, boxShadow: `0 0 6px ${teamColor}55` }} />
                       </div>
                     </div>
-                    <div className="hist-cabinet-count" style={{ color: b.bg === "#F5C518" ? "#a37e00" : b.bg }}>
-                      {count}
+                    <div className="hist-cabinet-count" style={{ color: teamColor, textShadow: `0 0 10px ${teamColor}44` }}>
+                      {count}x
                     </div>
                   </div>
                 );
@@ -1992,29 +1993,39 @@ export default function App() {
               position: "absolute", inset: 0, zIndex: 1,
               background: "linear-gradient(160deg, rgba(245,166,35,0.12) 0%, rgba(6,4,2,0.6) 60%, rgba(6,4,2,0.75) 100%)",
             }} />
-            <div style={{ position: "relative", zIndex: 2, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <div>
-                <div className="countdown-timer" style={{ textShadow: "0 0 20px rgba(245,166,35,0.5), 0 2px 8px rgba(0,0,0,1)" }}>{countdown.text}</div>
-                <div className="countdown-label" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>Next Match</div>
-              </div>
-              <div style={{ textAlign: "right" }}>
-                {(countdown.homeTeam && countdown.awayTeam) ? (
-                  <div className="countdown-match" style={{ display: "flex", alignItems: "center", gap: 6, justifyContent: "flex-end", textShadow: "0 1px 6px rgba(0,0,0,1)" }}>
-                    <img src={TEAM_LOGO_CDN[countdown.homeTeam]} alt={countdown.homeTeam} style={{ width: 22, height: 22, objectFit: "contain", filter: "drop-shadow(0 1px 4px rgba(0,0,0,0.8))" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                    <span>{countdown.homeTeam}</span>
-                    <span style={{ fontSize: "0.6rem", color: "rgba(245,166,35,0.55)", fontWeight: 400 }}>vs</span>
-                    <span>{countdown.awayTeam}</span>
-                    <img src={TEAM_LOGO_CDN[countdown.awayTeam]} alt={countdown.awayTeam} style={{ width: 22, height: 22, objectFit: "contain", filter: "drop-shadow(0 1px 4px rgba(0,0,0,0.8))" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+            <div style={{ position: "relative", zIndex: 2 }}>
+              {/* Matchup: large logos facing each other */}
+              {(countdown.homeTeam && countdown.awayTeam) ? (
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0, marginBottom: 10 }}>
+                  <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 5, flex: 1 }}>
+                    <img src={TEAM_LOGO_CDN[countdown.homeTeam]} alt={countdown.homeTeam}
+                      style={{ width: 58, height: 58, objectFit: "contain", filter: "drop-shadow(0 2px 10px rgba(0,0,0,0.9))" }}
+                      onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                    <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.78rem", fontWeight: 600, color: IPL_COLORS[countdown.homeTeam] || "var(--text)", letterSpacing: "0.04em", textShadow: "0 1px 6px rgba(0,0,0,1)" }}>{countdown.homeTeam}</span>
                   </div>
-                ) : (
-                  <div className="countdown-match" style={{ textShadow: "0 1px 6px rgba(0,0,0,1)" }}>{shortMatchLabel(countdown.matchName)}</div>
-                )}
-                {countdown.venue && (
-                  <div style={{ fontSize: "0.6rem", color: "var(--text-3)", marginTop: 3, textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>
-                    🏟 {countdown.venue}{countdown.homeTeam ? ` (${countdown.homeTeam})` : ""}
+                  <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 6, flexShrink: 0, padding: "0 8px" }}>
+                    <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "1.15rem", fontWeight: 700, color: "rgba(245,166,35,0.5)", letterSpacing: "0.12em" }}>VS</span>
                   </div>
-                )}
+                  <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 5, flex: 1 }}>
+                    <img src={TEAM_LOGO_CDN[countdown.awayTeam]} alt={countdown.awayTeam}
+                      style={{ width: 58, height: 58, objectFit: "contain", filter: "drop-shadow(0 2px 10px rgba(0,0,0,0.9))" }}
+                      onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                    <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "0.78rem", fontWeight: 600, color: IPL_COLORS[countdown.awayTeam] || "var(--text)", letterSpacing: "0.04em", textShadow: "0 1px 6px rgba(0,0,0,1)" }}>{countdown.awayTeam}</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="countdown-match" style={{ textAlign: "center" as const, marginBottom: 8, textShadow: "0 1px 6px rgba(0,0,0,1)" }}>{shortMatchLabel(countdown.matchName)}</div>
+              )}
+              {/* Countdown timer — centred, mono */}
+              <div style={{ textAlign: "center" as const, marginBottom: 4 }}>
+                <div className="countdown-timer" style={{ display: "inline-block", fontFamily: "monospace", textShadow: "0 0 24px rgba(245,166,35,0.55), 0 2px 8px rgba(0,0,0,1)" }}>{countdown.text}</div>
+                <div className="countdown-label" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>until kickoff</div>
               </div>
+              {countdown.venue && (
+                <div style={{ fontSize: "0.58rem", color: "var(--text-3)", textAlign: "center" as const, marginBottom: 2, textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>
+                  🏟 {countdown.venue}
+                </div>
+              )}
             </div>
             {(() => {
               const nextM = liveMatches.filter((m: any) => !m.matchStarted && m.dateTimeGMT)
@@ -2175,6 +2186,42 @@ export default function App() {
             </div>
           );
         })()}
+        {/* === PREDICTIONS SUMMARY STRIP === */}
+        {(() => {
+          const PRED_OWNERS = ["rajveer","mombasa","mumbai","ponygoat"] as const;
+          const ownerScores: Record<string, number> = Object.fromEntries(PRED_OWNERS.map(id => [id, 0]));
+          liveMatches.forEach((m: any) => {
+            const winner = getMatchWinner(m);
+            if (!winner || winner === "tie") return;
+            const preds = predictions[String(m.id)] || {};
+            PRED_OWNERS.forEach(id => { if (preds[id] === winner) ownerScores[id]++; });
+          });
+          const totalScorable = liveMatches.filter((m: any) => { const w = getMatchWinner(m); return w && w !== "tie"; }).length;
+          if (totalScorable === 0) return null;
+          const sorted = [...PRED_OWNERS].sort((a, b) => ownerScores[b] - ownerScores[a]);
+          return (
+            <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, padding: "10px 14px", marginBottom: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                <div style={{ fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.12em", color: "var(--text-3)" }}>PREDICTION ACCURACY</div>
+                <div style={{ fontSize: "0.52rem", color: "var(--text-3)" }}>{totalScorable} results</div>
+              </div>
+              <div style={{ display: "flex", gap: 6 }}>
+                {sorted.map((id, i) => {
+                  const ft = FANTASY_TEAMS[id];
+                  const score = ownerScores[id];
+                  const isLeader = i === 0 && score > 0;
+                  return (
+                    <div key={id} style={{ flex: 1, textAlign: "center" as const, background: isLeader ? ft.color + "14" : "transparent", border: `1px solid ${isLeader ? ft.color + "44" : "var(--border)"}`, borderRadius: 9, padding: "7px 4px" }}>
+                      <div style={{ fontFamily: "'Oswald', sans-serif", fontSize: "1.1rem", fontWeight: 700, color: isLeader ? ft.color : "var(--text-2)", lineHeight: 1 }}>{score}</div>
+                      <div style={{ fontSize: "0.46rem", color: "var(--text-3)", fontWeight: 700, letterSpacing: "0.06em", marginTop: 3 }}>{ft.owner.slice(0,3).toUpperCase()}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })()}
+
         {(() => {
           const liveNow = liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded);
           if (liveNow.length === 0) return null;
@@ -2706,6 +2753,18 @@ export default function App() {
                         {isLiveNow && <span style={{ fontSize: "0.48rem", fontWeight: 700, color: "#f87171", letterSpacing: "0.08em" }}>LIVE</span>}
                         {isUpcoming && !isLiveNow && <span style={{ fontSize: "0.48rem", fontWeight: 700, color: "#4ade80", letterSpacing: "0.08em" }}>NEXT</span>}
                         <Sparkline name={p.name} color={isBench ? "rgba(255,255,255,0.18)" : t.color} />
+                        {(() => {
+                          const ms = playerMatchPoints[p.name] || [];
+                          if (ms.length < 2) return null;
+                          const seasonAvg = ms.reduce((s: number, m: any) => s + m.pts, 0) / ms.length;
+                          const last3 = ms.slice(-3);
+                          const last3Avg = last3.reduce((s: number, m: any) => s + m.pts, 0) / last3.length;
+                          const diff = last3Avg - seasonAvg;
+                          if (Math.abs(diff) < 4) return <span style={{ fontSize: "0.6rem", color: "var(--text-3)", lineHeight: 1 }}>→</span>;
+                          return diff > 0
+                            ? <span style={{ fontSize: "0.65rem", color: "#4ade80", lineHeight: 1 }}>↑</span>
+                            : <span style={{ fontSize: "0.65rem", color: "#f87171", lineHeight: 1 }}>↓</span>;
+                        })()}
                       </div>
                     </div>
 
@@ -2741,7 +2800,7 @@ export default function App() {
                   {([
                     ["xi",       "Playing XI", xiTotal > 0 ? `${xiTotal} pts` : ""],
                     ["bench",    "Bench",       benchTotal > 0 ? `${benchTotal} pts` : ""],
-                    ["matchpts", "Match Pts",   (xiTotal + benchTotal) > 0 ? `${xiTotal + benchTotal} pts` : ""],
+                    ["matchpts", "By Match",    (xiTotal + benchTotal) > 0 ? `${xiTotal + benchTotal} pts` : ""],
                   ] as const).map(([id, label, badge]) => (
                     <button key={id} onClick={() => setTeamSection(id)}
                       style={{
@@ -2817,6 +2876,38 @@ export default function App() {
 
                   return (
                     <div>
+                      {/* Cumulative trajectory chart */}
+                      {matchData.length > 1 && (() => {
+                        let cumulative = 0;
+                        const cumulativePts = matchData.map(m => { cumulative += m.total; return cumulative; });
+                        const W = 200, H = 40;
+                        const ptPairs = cumulativePts.map((v, i) => {
+                          const x = (i / (cumulativePts.length - 1)) * W;
+                          const y = H - (v / (grandTotal || 1)) * H * 0.85;
+                          return `${x},${y.toFixed(1)}`;
+                        });
+                        const lastX = ptPairs[ptPairs.length - 1].split(",")[0];
+                        const lastY = ptPairs[ptPairs.length - 1].split(",")[1];
+                        return (
+                          <div style={{ display: "flex", alignItems: "center", gap: 12, background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12, padding: "10px 14px", marginBottom: 10 }}>
+                            <div style={{ flexShrink: 0 }}>
+                              <div style={{ fontSize: "0.5rem", color: "var(--text-3)", letterSpacing: "0.1em", fontWeight: 700 }}>SEASON TOTAL</div>
+                              <div style={{ fontFamily: "'Oswald', sans-serif", fontSize: "1.35rem", fontWeight: 700, color: t.color, lineHeight: 1, marginTop: 2 }}>{grandTotal}</div>
+                              <div style={{ fontSize: "0.46rem", color: "var(--text-3)", marginTop: 2 }}>{matchData.length} matches</div>
+                            </div>
+                            <svg viewBox={`0 0 ${W} ${H}`} style={{ flex: 1, height: 40 }} preserveAspectRatio="none">
+                              <defs>
+                                <linearGradient id={`traj-${t.id}`} x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="0%" stopColor={t.color} stopOpacity="0.18" />
+                                  <stop offset="100%" stopColor={t.color} stopOpacity="0" />
+                                </linearGradient>
+                              </defs>
+                              <polyline points={ptPairs.join(" ")} fill="none" stroke={t.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.85" />
+                              <circle cx={lastX} cy={lastY} r="3.5" fill={t.color} />
+                            </svg>
+                          </div>
+                        );
+                      })()}
                       <div style={{ display: "flex", flexDirection: "column" as const, gap: 4 }}>
                           {matchData.map(({ mn, label, players, total }) => {
                             const short = shortLabel(label);
@@ -3642,7 +3733,7 @@ export default function App() {
 
         {/* Segmented control — iOS pill style */}
         <div style={{ display: "flex", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 22, padding: 3, marginBottom: 12, gap: 2 }}>
-          {([["all", "All IPL"], ["fantasy", "Fantasy"], ["predictions", "Predictions"]] as [string, string][]).map(([f, label]) => (
+          {([["all", "All IPL"], ["fantasy", "Fantasy"]] as [string, string][]).map(([f, label]) => (
             <button key={f} onClick={() => { setStatsFilter(f as any); setStatsExpanded(false); if (f !== "fantasy" && statsCategory === "fantasyPts") setStatsCategory("orangeCap"); }}
               style={{
                 flex: 1, padding: "7px 0", borderRadius: 18, border: "none", cursor: "pointer", fontFamily: "inherit",

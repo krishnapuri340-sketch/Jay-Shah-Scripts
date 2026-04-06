@@ -338,12 +338,14 @@ body { background: var(--bg); }
 .lb-emoji { display: none; }
 .lb-rank {
   font-family: 'Oswald', sans-serif;
-  font-size: 0.95rem; font-weight: 600; color: var(--text-3);
-  min-width: 16px; text-align: center; flex-shrink: 0;
+  font-size: 3.8rem; font-weight: 800; letter-spacing: -0.05em; line-height: 1;
+  color: rgba(255,255,255,0.055);
+  min-width: 48px; text-align: center; flex-shrink: 0;
+  user-select: none; pointer-events: none;
 }
-.lb-rank.first  { color: var(--gold); font-size: 1.25rem; text-shadow: 0 0 10px rgba(245,166,35,0.38); }
-.lb-rank.second { color: #c8bfb0; }
-.lb-rank.third  { color: #b07840; }
+.lb-rank.first  { color: rgba(245,166,35,0.10); }
+.lb-rank.second { color: rgba(200,191,176,0.065); }
+.lb-rank.third  { color: rgba(176,120,64,0.065); }
 .lb-info { flex: 1; min-width: 0; }
 .lb-name { font-size: 1.02rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
 .lb-name.first { font-size: 1.02rem; color: #fff8f0; }
@@ -385,10 +387,10 @@ body { background: var(--bg); }
 
 /* === COUNTDOWN === */
 .countdown-card {
-  border-radius: var(--radius-md); padding: 18px 22px; margin-bottom: 18px;
+  border-radius: var(--radius-md); padding: 18px 18px 14px; margin-bottom: 18px;
   background: linear-gradient(145deg, var(--surface-2) 0%, var(--surface) 100%);
   border: 1px solid rgba(255,200,120,0.11); box-shadow: var(--shadow-surface);
-  display: flex; align-items: center; gap: 20px;
+  display: flex; flex-direction: column; gap: 0;
   position: relative; overflow: hidden;
 }
 .countdown-timer {
@@ -644,9 +646,14 @@ body { background: var(--bg); }
   overflow: visible; flex-shrink: 0;
   transition: border-color 0.22s var(--ease-out), box-shadow 0.22s var(--ease-out);
 }
+@keyframes avatarRingPulse {
+  0%, 100% { box-shadow: 0 0 6px var(--ta-color, rgba(245,166,35,0.3)), 0 0 0 0 transparent; }
+  50%       { box-shadow: 0 0 22px var(--ta-color, rgba(245,166,35,0.55)), 0 0 0 6px transparent; }
+}
 .team-avatar-btn.active .team-avatar-ring {
   border-color: var(--ta-color, var(--gold));
-  box-shadow: 0 0 18px var(--ta-color, rgba(245,166,35,0.4));
+  border-width: 3px;
+  animation: avatarRingPulse 2.4s ease-in-out infinite;
 }
 .team-avatar-img {
   width: 100%; height: 100%; border-radius: 50%;
