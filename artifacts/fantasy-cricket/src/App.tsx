@@ -4409,6 +4409,7 @@ export default function App() {
                     src={`${import.meta.env.BASE_URL}app-icon.png`}
                     alt="Logo"
                     className="header-logo"
+                    style={{ marginLeft: 3 }}
                   />
                 </div>
               </div>
