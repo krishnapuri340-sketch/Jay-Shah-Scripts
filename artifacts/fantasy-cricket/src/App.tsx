@@ -3090,13 +3090,13 @@ export default function App() {
                     position: "absolute", inset: -4, zIndex: 0,
                     backgroundImage: `url(${import.meta.env.BASE_URL}match-bg.jpeg)`,
                     backgroundSize: "cover", backgroundPosition: "center 35%",
-                    filter: `blur(3px) brightness(${isDone ? 0.24 : 0.32}) saturate(${isDone ? 0.7 : 1.1})`,
+                    filter: `blur(3px) brightness(${isLive ? 0.28 : 0.24}) saturate(${isLive ? 1.0 : 0.7})`,
                   }} />
                   <div style={{
                     position: "absolute", inset: 0, zIndex: 1,
-                    background: isDone
-                      ? "linear-gradient(160deg, rgba(6,4,3,0.68) 0%, rgba(4,3,2,0.76) 100%)"
-                      : "linear-gradient(160deg, rgba(10,7,5,0.52) 0%, rgba(6,4,3,0.62) 100%)",
+                    background: isLive
+                      ? "linear-gradient(160deg, rgba(6,4,3,0.64) 0%, rgba(4,3,2,0.72) 100%)"
+                      : "linear-gradient(160deg, rgba(6,4,3,0.68) 0%, rgba(4,3,2,0.76) 100%)",
                   }} />
                   <div style={{ position: "relative", zIndex: 2 }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
