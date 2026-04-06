@@ -242,19 +242,16 @@ body { background: var(--bg); }
 .nav {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
   display: flex; justify-content: center; align-items: flex-end;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  background: transparent; pointer-events: none;
+  background: rgba(11,9,7,0.96);
+  backdrop-filter: blur(32px) saturate(1.8); -webkit-backdrop-filter: blur(32px) saturate(1.8);
+  border-top: 1px solid rgba(245,166,35,0.09);
+  box-shadow: 0 -14px 38px rgba(0,0,0,0.58);
+  padding: 0 0 env(safe-area-inset-bottom, 0px);
 }
 .nav-inner {
   display: flex; align-items: center;
-  background: rgba(14,11,9,0.92);
-  backdrop-filter: blur(32px) saturate(1.8); -webkit-backdrop-filter: blur(32px) saturate(1.8);
-  border: 1px solid rgba(245,166,35,0.1);
-  border-radius: 24px 24px 0 0;
-  padding: 4px 8px 8px;
-  box-shadow: 0 -1px 0 rgba(245,166,35,0.06), 0 -20px 60px rgba(0,0,0,0.7);
   width: 100%; max-width: 580px;
-  pointer-events: auto;
+  padding: 2px 8px 6px;
 }
 .nav-btn {
   flex: 1; max-width: 120px;
