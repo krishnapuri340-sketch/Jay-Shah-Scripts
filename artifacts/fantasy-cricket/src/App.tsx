@@ -2717,11 +2717,11 @@ export default function App() {
                         {isLiveNow && <span style={{ fontSize: "0.42rem", fontWeight: 800, color: "#f87171", letterSpacing: "0.09em", background: "rgba(248,113,113,0.12)", border: "1px solid rgba(248,113,113,0.28)", borderRadius: 3, padding: "1px 4px", flexShrink: 0, lineHeight: 1 }}>LIVE</span>}
                         {isUpcoming && !isLiveNow && <span style={{ fontSize: "0.42rem", fontWeight: 800, color: "#4ade80", letterSpacing: "0.09em", background: "rgba(74,222,128,0.1)", border: "1px solid rgba(74,222,128,0.25)", borderRadius: 3, padding: "1px 4px", flexShrink: 0, lineHeight: 1 }}>NEXT</span>}
                       </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 2 }}>
-                        <span style={{ fontSize: "0.5rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" as const, color: isBench ? "var(--text-3)" : roleColor, flexShrink: 0, lineHeight: 1 }}>{p.role}</span>
+                      <div style={{ display: "flex", alignItems: "center", gap: 3, marginTop: 2, lineHeight: 1 }}>
+                        <span style={{ fontSize: "0.5rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" as const, color: isBench ? "var(--text-3)" : roleColor, flexShrink: 0, lineHeight: 1, verticalAlign: "middle" }}>{p.role}</span>
                         {p.price != null && <>
-                          <span style={{ fontSize: "0.44rem", color: "rgba(255,255,255,0.18)", lineHeight: 1 }}>·</span>
-                          <span style={{ fontSize: "0.5rem", fontWeight: 500, color: "var(--text-3)", letterSpacing: "0.01em", flexShrink: 0, lineHeight: 1 }}>{p.price}cr</span>
+                          <span style={{ fontSize: "0.5rem", fontWeight: 400, color: "rgba(255,255,255,0.2)", lineHeight: 1, verticalAlign: "middle" }}>·</span>
+                          <span style={{ fontSize: "0.5rem", fontWeight: 500, color: "var(--text-3)", letterSpacing: "0.01em", flexShrink: 0, lineHeight: 1, verticalAlign: "middle" }}>{p.price}cr</span>
                         </>}
                         <Sparkline name={p.name} color={isBench ? "rgba(255,255,255,0.18)" : t.color} />
                       </div>
