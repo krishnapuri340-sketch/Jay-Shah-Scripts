@@ -2698,6 +2698,11 @@ export default function App() {
                           border: `1px solid ${isBench ? "rgba(255,255,255,0.08)" : roleColor + "30"}`,
                           flexShrink: 0,
                         }}>{p.role}</span>
+                        {p.price != null && (
+                          <span style={{ fontSize: "0.48rem", fontWeight: 600, color: "var(--text-3)", letterSpacing: "0.02em", flexShrink: 0 }}>
+                            {p.price}cr
+                          </span>
+                        )}
                         {isLiveNow && <span style={{ fontSize: "0.48rem", fontWeight: 700, color: "#f87171", letterSpacing: "0.08em" }}>LIVE</span>}
                         {isUpcoming && !isLiveNow && <span style={{ fontSize: "0.48rem", fontWeight: 700, color: "#4ade80", letterSpacing: "0.08em" }}>NEXT</span>}
                         <Sparkline name={p.name} color={isBench ? "rgba(255,255,255,0.18)" : t.color} />
