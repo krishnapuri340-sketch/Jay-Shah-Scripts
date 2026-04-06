@@ -518,6 +518,7 @@ export default function App() {
   const [expandedMatchNums, setExpandedMatchNums] = useState<Set<number>>(new Set());
   const [expandedAdminPlayer, setExpandedAdminPlayer] = useState<string | null>(null);
   const [adminBreakdownOpen, setAdminBreakdownOpen] = useState(false);
+  const [adminLightMode, setAdminLightMode] = useState(() => localStorage.getItem("ipl-admin-light") === "1");
   const [liveMatches, setLiveMatches] = useState<any[]>([]);
   const [liveLoading, setLiveLoading] = useState(false);
   const [pointsLoading, setPointsLoading] = useState(false);
@@ -4243,7 +4244,7 @@ export default function App() {
     const totalPts = Object.values(playerPoints).reduce((s, v) => s + v, 0);
 
     return (
-      <div>
+      <div className={`admin-panel${adminLightMode ? " admin-light" : ""}`}>
         <div className="sec-title">Admin</div>
         <div className="stat-grid" style={{ marginBottom: 20 }}>
           <div className="stat-card">
@@ -4264,12 +4265,12 @@ export default function App() {
           </div>
         </div>
         {/* PIN Management */}
-        <div style={{ background: "rgba(15,21,32,0.9)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: 16, marginBottom: 16 }}>
+        <div style={{ background: "var(--admin-card-bg)", border: "1px solid var(--admin-card-border)", borderRadius: 14, padding: 16, marginBottom: 16 }}>
           <div style={{ marginBottom: 14 }}>
-            <div style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase" as const, color: "#94a3b8" }}>
+            <div style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase" as const, color: "var(--admin-label)" }}>
               Change Passcode
             </div>
-            <div style={{ fontSize: "0.65rem", color: "#475569", marginTop: 5 }}>
+            <div style={{ fontSize: "0.65rem", color: "var(--admin-text-secondary)", marginTop: 5 }}>
               Your passcode must be exactly 4 digits and is used to log in to your account.{currentUser === "rajveer" ? " As commissioner, you can manage all members." : ""}
             </div>
           </div>
@@ -4281,7 +4282,7 @@ export default function App() {
                 return (
                   <div key={ft.id}>
                     {/* divider between entries */}
-                    {idx > 0 && <div style={{ height: 1, background: "rgba(255,255,255,0.04)", margin: "10px 0" }} />}
+                    {idx > 0 && <div style={{ height: 1, background: "var(--admin-row-divider)", margin: "10px 0" }} />}
                     {isEditing ? (
                       /* ── Edit mode: two-step expanded card ── */
                       (<div style={{ padding: "4px 0 8px" }}>
@@ -4290,7 +4291,7 @@ export default function App() {
                           <span style={{ fontSize: "1.1rem" }}>{ft.emoji}</span>
                           <div>
                             <div style={{ fontSize: "0.72rem", fontWeight: 700, color: ft.color }}>{ft.owner}</div>
-                            <div style={{ fontSize: "0.6rem", color: "#475569" }}>{ft.name}</div>
+                            <div style={{ fontSize: "0.6rem", color: "var(--admin-text-secondary)" }}>{ft.name}</div>
                           </div>
                           {/* Step indicator */}
                           <div style={{ marginLeft: "auto", display: "flex", gap: 5 }}>
@@ -4470,27 +4471,27 @@ export default function App() {
               })}
           </div>
         </div>
-        {currentUser === "rajveer" && <div style={{ background: "rgba(15,21,32,0.9)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: 16, marginBottom: 16 }}>
-          <div style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase" as const, color: "#94a3b8", marginBottom: 12 }}>
+        {currentUser === "rajveer" && <div style={{ background: "var(--admin-card-bg)", border: "1px solid var(--admin-card-border)", borderRadius: 14, padding: 16, marginBottom: 16 }}>
+          <div style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase" as const, color: "var(--admin-label)", marginBottom: 12 }}>
             🤖 Auto-Points Engine
           </div>
           <div style={{ display: "flex", flexDirection: "column" as const, gap: 10 }}>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem" }}>
-              <span style={{ color: "#64748b" }}>IPL schedule</span>
-              <span style={{ color: dataSources?.iplOfficial ? "#34d399" : "#475569" }}>
+              <span style={{ color: "var(--admin-text-secondary)" }}>IPL schedule</span>
+              <span style={{ color: dataSources?.iplOfficial ? "#34d399" : "var(--admin-text-secondary)" }}>
                 {dataSources?.iplOfficial ? `✓ ${dataSources.iplOfficial} matches` : "Loading..."}
               </span>
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem" }}>
-              <span style={{ color: "#64748b" }}>Scorecards fetched</span>
-              <span style={{ color: processedMatches.length > 0 ? "#34d399" : "#475569" }}>
+              <span style={{ color: "var(--admin-text-secondary)" }}>Scorecards fetched</span>
+              <span style={{ color: processedMatches.length > 0 ? "#34d399" : "var(--admin-text-secondary)" }}>
                 {processedMatches.length > 0
                   ? `✓ ${processedMatches.length} of ${scorecardTotal}${liveCount > 0 ? ` (${liveCount} live)` : ""}`
                   : scorecardTotal === 0 ? "No matches yet" : "Pending..."}
               </span>
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem" }}>
-              <span style={{ color: "#64748b" }}>AuctionRoom points engine</span>
+              <span style={{ color: "var(--admin-text-secondary)" }}>AuctionRoom points engine</span>
               <span style={{ color: pointsUpdating ? "#f59e0b" : pointsError ? "#ef4444" : pendingMatches > 0 ? "#f59e0b" : "#34d399" }}>
                 {pointsUpdating ? "⏳ Processing..." : pointsError ? `⚠ ${pointsError.slice(0, 40)}` : pendingMatches > 0 ? `⏳ ${pendingMatches} pending` : "✓ Active"}
               </span>
@@ -4501,40 +4502,40 @@ export default function App() {
               return (
                 <div style={{ display: "flex", flexDirection: "column" as const, gap: 5 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem" }}>
-                    <span style={{ color: "#64748b" }}>CricAPI innings syncs today (UTC)</span>
+                    <span style={{ color: "var(--admin-text-secondary)" }}>CricAPI innings syncs today (UTC)</span>
                     <span style={{ color: barColor, fontWeight: 700 }}>{dailyHits.count} / {dailyHits.limit}</span>
                   </div>
-                  <div style={{ height: 4, borderRadius: 2, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
+                  <div style={{ height: 4, borderRadius: 2, background: "var(--admin-bar-bg)", overflow: "hidden" }}>
                     <div style={{ height: "100%", width: `${Math.min(pct * 100, 100)}%`, background: barColor, borderRadius: 2, transition: "width 0.4s" }} />
                   </div>
-                  <div style={{ fontSize: "0.6rem", color: "#334155" }}>Hard cap at {dailyHits.limit} · Resets midnight UTC (5:30 AM IST)</div>
+                  <div style={{ fontSize: "0.6rem", color: "var(--admin-text-3)" }}>Hard cap at {dailyHits.limit} · Resets midnight UTC (5:30 AM IST)</div>
                 </div>
               );
             })()}
             {nextAttempt && (
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem" }}>
-                <span style={{ color: "#475569" }}>Rate limit — next attempt</span>
+                <span style={{ color: "var(--admin-text-secondary)" }}>Rate limit — next attempt</span>
                 <span style={{ color: "#f59e0b" }}>{new Date(nextAttempt).toLocaleTimeString()}</span>
               </div>
             )}
             {pointsLastUpdated && (
-              <div style={{ fontSize: "0.65rem", color: "#334155" }}>
+              <div style={{ fontSize: "0.65rem", color: "var(--admin-text-3)" }}>
                 Points last updated: {pointsLastUpdated.toLocaleTimeString()} · Auto-refreshes every 5 min
               </div>
             )}
           </div>
         </div>}
-        <div style={{ background: "rgba(15,21,32,0.9)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: 16, marginBottom: 16 }}>
+        <div style={{ background: "var(--admin-card-bg)", border: "1px solid var(--admin-card-border)", borderRadius: 14, padding: 16, marginBottom: 16 }}>
           <div
             onClick={() => setAdminBreakdownOpen(o => !o)}
             style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", marginBottom: adminBreakdownOpen ? 12 : 0 }}>
-            <span style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase" as const, color: "#94a3b8" }}>
+            <span style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase" as const, color: "var(--admin-label)" }}>
               📊 Player Points Breakdown
             </span>
-            <span style={{ fontSize: "0.65rem", color: "#475569" }}>{adminBreakdownOpen ? "▲" : "▼"} {Object.keys(playerPoints).length} players</span>
+            <span style={{ fontSize: "0.65rem", color: "var(--admin-text-secondary)" }}>{adminBreakdownOpen ? "▲" : "▼"} {Object.keys(playerPoints).length} players</span>
           </div>
           {adminBreakdownOpen && Object.keys(playerPoints).length === 0 && (
-            <div style={{ color: "#334155", fontSize: "0.8rem", padding: "8px 0" }}>
+            <div style={{ color: "var(--admin-text-3)", fontSize: "0.8rem", padding: "8px 0" }}>
               {pointsLoading ? "⏳ Calculating points from scorecards..." : "Points will appear once matches complete and scorecards are processed."}
             </div>
           )}
@@ -4545,38 +4546,38 @@ export default function App() {
             const isCap = Object.values(FANTASY_TEAMS).some(t => t.captain === name);
             const isVC = Object.values(FANTASY_TEAMS).some(t => t.vc === name);
             return (
-              <div key={name} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+              <div key={name} style={{ borderBottom: "1px solid var(--admin-row-divider)" }}>
                 <div
                   onClick={() => setExpandedAdminPlayer(isExp ? null : name)}
                   style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 0", cursor: "pointer" }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                      <span style={{ fontSize: "0.78rem", color: "#cbd5e1" }}>{name}</span>
-                      {isCap && <span style={{ fontSize: "0.52rem", fontWeight: 700, color: "#d4a843", background: "rgba(212,168,67,0.12)", borderRadius: 3, padding: "1px 4px" }}>C</span>}
+                      <span style={{ fontSize: "0.78rem", color: "var(--admin-text)" }}>{name}</span>
+                      {isCap && <span style={{ fontSize: "0.52rem", fontWeight: 700, color: "var(--admin-gold)", background: "rgba(212,168,67,0.12)", borderRadius: 3, padding: "1px 4px" }}>C</span>}
                       {isVC && <span style={{ fontSize: "0.52rem", fontWeight: 700, color: "#a1a1aa", background: "rgba(161,161,170,0.1)", borderRadius: 3, padding: "1px 4px" }}>VC</span>}
                     </div>
-                    {team && <div style={{ fontSize: "0.6rem", color: "#475569", marginTop: 1 }}>{team.name} · {team.owner}</div>}
+                    {team && <div style={{ fontSize: "0.6rem", color: "var(--admin-text-secondary)", marginTop: 1 }}>{team.name} · {team.owner}</div>}
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <span style={{ fontFamily: "'Bebas Neue'", fontSize: "1.1rem", color: "#f97316", letterSpacing: "1px" }}>{pts}</span>
-                    {matches.length > 0 && <span style={{ fontSize: "0.6rem", color: "#475569" }}>{isExp ? "▲" : "▼"}</span>}
+                    <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: "1.1rem", color: "var(--admin-pts-color)", letterSpacing: "1px" }}>{pts}</span>
+                    {matches.length > 0 && <span style={{ fontSize: "0.6rem", color: "var(--admin-text-secondary)" }}>{isExp ? "▲" : "▼"}</span>}
                   </div>
                 </div>
                 {isExp && matches.length > 0 && (
-                  <div style={{ marginBottom: 8, padding: "8px 10px", background: "rgba(255,255,255,0.02)", borderRadius: 8, display: "flex", flexDirection: "column" as const, gap: 5 }}>
+                  <div style={{ marginBottom: 8, padding: "8px 10px", background: "var(--admin-inner-bg)", borderRadius: 8, display: "flex", flexDirection: "column" as const, gap: 5 }}>
                     {matches.map((m, i) => (
                       <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.72rem" }}>
                         <div>
-                          <span style={{ color: "var(--text-2)" }}>{m.label}</span>
+                          <span style={{ color: "var(--admin-text-secondary)" }}>{m.label}</span>
                           {m.source === "official" && <span style={{ marginLeft: 5, fontSize: "0.55rem", color: "#34d399", background: "rgba(52,211,153,0.1)", borderRadius: 3, padding: "1px 4px" }}>official</span>}
                           {(m.source || "").includes("live") && <span style={{ marginLeft: 5, fontSize: "0.55rem", color: "#fbbf24", background: "rgba(251,191,36,0.1)", borderRadius: 3, padding: "1px 4px" }}>live</span>}
                         </div>
-                        <span style={{ fontWeight: 700, color: m.pts > 0 ? "#f97316" : "var(--text-3)" }}>{m.pts > 0 ? "+" : ""}{m.pts}</span>
+                        <span style={{ fontWeight: 700, color: m.pts > 0 ? "var(--admin-pts-color)" : "var(--admin-text-3)" }}>{m.pts > 0 ? "+" : ""}{m.pts}</span>
                       </div>
                     ))}
-                    <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", marginTop: 2, paddingTop: 5, display: "flex", justifyContent: "space-between", fontSize: "0.72rem", fontWeight: 700 }}>
-                      <span style={{ color: "var(--text-3)" }}>Total (raw)</span>
-                      <span style={{ color: "#f97316" }}>{matches.reduce((s, m) => s + m.pts, 0)}</span>
+                    <div style={{ borderTop: "1px solid var(--admin-row-divider)", marginTop: 2, paddingTop: 5, display: "flex", justifyContent: "space-between", fontSize: "0.72rem", fontWeight: 700 }}>
+                      <span style={{ color: "var(--admin-text-secondary)" }}>Total (raw)</span>
+                      <span style={{ color: "var(--admin-pts-color)" }}>{matches.reduce((s, m) => s + m.pts, 0)}</span>
                     </div>
                   </div>
                 )}
@@ -4768,6 +4769,14 @@ export default function App() {
                         </svg>
                         League Control Centre
                         <svg className="settings-row-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                      </button>
+                      <button className="settings-row" onClick={() => { const next = !adminLightMode; setAdminLightMode(next); localStorage.setItem("ipl-admin-light", next ? "1" : "0"); }}>
+                        {adminLightMode
+                          ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                          : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                        }
+                        {adminLightMode ? "Dark admin" : "Light admin"}
+                        <span style={{ marginLeft: "auto", fontSize: "0.6rem", color: "var(--text-3)", opacity: 0.7 }}>{adminLightMode ? "ON" : "OFF"}</span>
                       </button>
                       <button className="settings-row settings-row-danger" onClick={() => { handleLogout(); setSettingsOpen(false); }}>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
