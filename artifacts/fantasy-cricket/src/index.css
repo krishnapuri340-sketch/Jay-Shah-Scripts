@@ -727,53 +727,7 @@ body { background: var(--bg); }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* === STAT CARDS & ADMIN PANEL === */
-/* --- Admin panel scoped CSS variables --- */
-.admin-panel {
-  --admin-card-bg: rgba(15,21,32,0.9);
-  --admin-card-border: rgba(255,255,255,0.06);
-  --admin-label: #94a3b8;
-  --admin-text: #cbd5e1;
-  --admin-text-secondary: #64748b;
-  --admin-text-3: #334155;
-  --admin-row-divider: rgba(255,255,255,0.04);
-  --admin-inner-bg: rgba(255,255,255,0.02);
-  --admin-bar-bg: rgba(255,255,255,0.06);
-  --admin-pts-color: #f97316;
-  --admin-gold: #d4a843;
-}
-.admin-panel.admin-light {
-  --admin-card-bg: #ffffff;
-  --admin-card-border: #e5e7eb;
-  --admin-label: #6b7280;
-  --admin-text: #111827;
-  --admin-text-secondary: #6b7280;
-  --admin-text-3: #9ca3af;
-  --admin-row-divider: #e5e7eb;
-  --admin-inner-bg: #f3f4f6;
-  --admin-bar-bg: #e5e7eb;
-  --admin-pts-color: #c2410c;
-  --admin-gold: #b8860b;
-  background: #f8f9fa;
-  border-radius: 16px;
-  padding: 12px;
-  margin: -12px;
-}
-.admin-panel.admin-light .stat-card {
-  background: #ffffff;
-  border-color: #e5e7eb;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-}
-.admin-panel.admin-light .stat-val { color: #111827; }
-.admin-panel.admin-light .stat-lbl { color: #6b7280; }
-.admin-panel.admin-light .btn-primary {
-  background: rgba(0,0,0,0.04);
-  border-color: rgba(0,0,0,0.12);
-  color: #374151;
-}
-.admin-panel.admin-light .btn-danger { border-color: rgba(239,68,68,0.3); }
-.admin-panel.admin-light .sec-title { color: #111827; }
-
+/* === STAT CARDS === */
 .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 22px; }
 .stat-card {
   border-radius: var(--radius-md); padding: 20px 22px;
