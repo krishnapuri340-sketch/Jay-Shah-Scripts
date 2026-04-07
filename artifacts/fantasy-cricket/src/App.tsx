@@ -3394,13 +3394,21 @@ export default function App() {
                   })()}
                   {/* Scorecard collapsible — live and completed matches only */}
                   {(isDone || isLive) && (
-                    <div style={{ marginTop: 10, borderTop: "1px solid var(--border)", paddingTop: 7 }}
+                    <div style={{ marginTop: 12, borderTop: "1px solid var(--border)" }}
                       onClick={e => e.stopPropagation()}>
                       {/* Toggle header */}
                       <div onClick={() => toggleMatch(matchIdStr, isDone, isLive)}
-                        style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", userSelect: "none" as const }}>
-                        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.62rem", color: "var(--text-3)", fontWeight: 400, letterSpacing: "0.14em" }}>SCORECARD</span>
-                        <span style={{ fontSize: "0.55rem", color: "var(--text-3)", display: "inline-block", transition: "transform 0.2s", transform: isExpanded ? "rotate(180deg)" : "none" }}>▼</span>
+                        style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", userSelect: "none" as const, padding: "11px 0 10px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                          </svg>
+                          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.72rem", color: isExpanded ? "var(--text-2)" : "var(--text-3)", fontWeight: 500, letterSpacing: "0.04em" }}>Scorecard</span>
+                        </div>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"
+                          style={{ transition: "transform 0.22s ease", transform: isExpanded ? "rotate(180deg)" : "none", flexShrink: 0 }}>
+                          <polyline points="6 9 12 15 18 9"/>
+                        </svg>
                       </div>
                       {isExpanded && (
                         <div style={{ marginTop: 10 }}>
@@ -3477,19 +3485,27 @@ export default function App() {
                         const tblStyle: React.CSSProperties = { width: "100%", borderCollapse: "collapse", fontSize: "0.68rem", tableLayout: "fixed" };
 
                         return (
-                          <div key={idx} style={{ marginBottom: idx < (sc?.innings?.length ?? 1) - 1 ? 10 : 0 }}>
+                          <div key={idx} style={{ marginBottom: idx < (sc?.innings?.length ?? 1) - 1 ? 12 : 0 }}>
                             {/* Collapsible innings header */}
                             <div onClick={toggleInn} className="inn-hdr" style={{
                               display: "flex", alignItems: "center", justifyContent: "space-between",
                               cursor: "pointer", userSelect: "none",
-                              padding: "6px 10px",
-                              borderRadius: isCollapsed ? 7 : "7px 7px 0 0",
+                              padding: "12px 14px",
+                              borderRadius: isCollapsed ? 10 : "10px 10px 0 0",
                               borderBottom: isCollapsed ? undefined : "none",
                             }}>
-                              <div style={{ fontSize: "0.63rem", fontWeight: 700, color: "var(--text)", letterSpacing: "0.06em", textTransform: "uppercase" as const }}>
-                                {inn.name} · <span style={{ color: "#f5a623" }}>{inn.total}</span>
+                              <div style={{ display: "flex", flexDirection: "column" as const, gap: 2 }}>
+                                <div style={{ fontSize: "0.68rem", fontWeight: 600, color: "var(--text-3)", letterSpacing: "0.07em", textTransform: "uppercase" as const }}>
+                                  {inn.name}
+                                </div>
+                                <div style={{ fontSize: "1.05rem", fontWeight: 700, color: "#f5a623", letterSpacing: "-0.01em", lineHeight: 1.1 }}>
+                                  {inn.total}
+                                </div>
                               </div>
-                              <span style={{ fontSize: "0.5rem", color: "var(--text-3)", display: "inline-block", transition: "transform 0.2s", transform: isCollapsed ? "none" : "rotate(180deg)" }}>▼</span>
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                                style={{ transition: "transform 0.22s ease", transform: isCollapsed ? "none" : "rotate(180deg)", flexShrink: 0 }}>
+                                <polyline points="6 9 12 15 18 9"/>
+                              </svg>
                             </div>
 
                             {!isCollapsed && (

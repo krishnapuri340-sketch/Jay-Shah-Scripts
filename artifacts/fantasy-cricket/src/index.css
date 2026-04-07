@@ -766,12 +766,12 @@ body { background: var(--bg); }
 }
 .scorecard-table { width: 100%; border-collapse: collapse; font-size: 0.74rem; }
 .scorecard-table th {
-  padding: 8px 10px; text-align: right; font-size: 0.56rem; font-weight: 600;
-  letter-spacing: 0.08em; color: var(--text-3); background: var(--surface-2);
+  padding: 9px 10px; text-align: right; font-size: 0.6rem; font-weight: 600;
+  letter-spacing: 0.07em; color: var(--text-3); background: var(--surface-2);
   border-bottom: 1px solid var(--border); text-transform: uppercase;
 }
 .scorecard-table th:first-child { text-align: left; }
-.scorecard-table td { padding: 11px 10px; border-bottom: 1px solid var(--border); color: var(--text-2); text-align: right; vertical-align: top; }
+.scorecard-table td { padding: 12px 10px; border-bottom: 1px solid var(--border); color: var(--text-2); text-align: right; vertical-align: top; }
 .scorecard-table td:first-child { text-align: left; color: var(--text); }
 .scorecard-table tr:last-child td { border-bottom: none; }
 
@@ -835,12 +835,14 @@ body { background: var(--bg); }
 .inn-hdr {
   background: var(--surface-2);
   border: 1px solid var(--border);
+  transition: background 0.15s ease;
 }
+.inn-hdr:active { background: var(--surface); }
 .inn-body {
   border: 1px solid var(--border);
   border-top: none;
-  border-radius: 0 0 7px 7px;
-  padding-bottom: 4px;
+  border-radius: 0 0 10px 10px;
+  padding-bottom: 6px;
   background: var(--surface);
 }
 
