@@ -3151,19 +3151,26 @@ export default function App() {
                   {(() => {
                     const cardWinner = isDone ? getMatchWinner(m) : null;
                     return (
-                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-                        {teams.length > 0 ? teams.map((ti: any, i: number) => {
-                          const isWinner = cardWinner && cardWinner !== "tie" && ti.shortname === cardWinner;
-                          const teamCol = IPL_COLORS[ti.shortname] || "var(--text)";
-                          return (
-                            <div key={i} style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                              {i === 1 && <span style={{ fontFamily: "'Inter', sans-serif", color: "var(--text-3)", fontSize: "0.62rem", letterSpacing: "0.1em", margin: "0 1px" }}>VS</span>}
-                              <img src={TEAM_LOGO_CDN[ti.shortname] || ti.img} alt={ti.shortname} style={{ width: 28, height: 28, objectFit: "contain", filter: `drop-shadow(0 1px 6px rgba(0,0,0,0.8))${isWinner ? ` drop-shadow(0 0 6px ${teamCol}88)` : ""}${isDone && cardWinner && cardWinner !== "tie" && !isWinner ? " grayscale(0.6) opacity(0.45)" : ""}`, transition: "filter 0.2s" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                              <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.08rem", fontWeight: isWinner ? 700 : 400, letterSpacing: "0.04em", color: isWinner ? "#fff" : isDone ? "var(--text-3)" : "var(--text)", textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>{ti.shortname}</span>
-                            </div>
-                          );
-                        }) : (
-                          <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "1rem", fontWeight: 500, letterSpacing: "0.04em", color: "var(--text)", textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>{(m.name || "").replace(/,\s*\d+(?:st|nd|rd|th) Match.*/i, "")}</div>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          {teams.length > 0 ? teams.map((ti: any, i: number) => {
+                            const isWinner = cardWinner && cardWinner !== "tie" && ti.shortname === cardWinner;
+                            const teamCol = IPL_COLORS[ti.shortname] || "var(--text)";
+                            return (
+                              <div key={i} style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                                {i === 1 && <span style={{ fontFamily: "'Inter', sans-serif", color: "var(--text-3)", fontSize: "0.62rem", letterSpacing: "0.1em", margin: "0 1px" }}>VS</span>}
+                                <img src={TEAM_LOGO_CDN[ti.shortname] || ti.img} alt={ti.shortname} style={{ width: 28, height: 28, objectFit: "contain", filter: `drop-shadow(0 1px 6px rgba(0,0,0,0.8))${isWinner ? ` drop-shadow(0 0 6px ${teamCol}88)` : ""}${isDone && cardWinner && cardWinner !== "tie" && !isWinner ? " grayscale(0.6) opacity(0.45)" : ""}`, transition: "filter 0.2s" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.08rem", fontWeight: isWinner ? 700 : 400, letterSpacing: "0.04em", color: isWinner ? "#fff" : isDone ? "var(--text-3)" : "var(--text)", textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>{ti.shortname}</span>
+                              </div>
+                            );
+                          }) : (
+                            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "1rem", fontWeight: 500, letterSpacing: "0.04em", color: "var(--text)", textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>{(m.name || "").replace(/,\s*\d+(?:st|nd|rd|th) Match.*/i, "")}</div>
+                          )}
+                        </div>
+                        {m.venue && (
+                          <div className="match-venue" style={{ textAlign: "right" as const, flexShrink: 0, maxWidth: 130 }}>
+                            🏟 {m.venue}{m.homeTeamCode ? ` (${m.homeTeamCode})` : ""}
+                          </div>
                         )}
                       </div>
                     );
@@ -3298,11 +3305,6 @@ export default function App() {
                   {isLive && m.toss && !sc?.overview?.toss && <div style={{ fontSize: "0.65rem", color: "var(--text-2)", marginTop: 5 }}>{m.toss}</div>}
                   {isDone && m.status && <div style={{ fontSize: "0.68rem", color: "var(--blue)", marginTop: 3 }}>{m.status}</div>}
                   {sc?.overview?.result && !m.status && <div style={{ fontSize: "0.68rem", color: "var(--text-2)", fontWeight: 500, marginTop: 3 }}>{sc.overview.result}</div>}
-                  {m.venue && (
-                    <div className="match-venue">
-                      🏟 {m.venue}{m.homeTeamCode ? ` (${m.homeTeamCode})` : ""}
-                    </div>
-                  )}
                   {/* Prediction section — collapsible */}
                   {m.homeTeamCode && m.awayTeamCode && (() => {
                     const PRED_OWNERS = ["rajveer","mombasa","mumbai","ponygoat"] as const;
