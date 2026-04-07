@@ -529,6 +529,7 @@ export default function App() {
   const [s3Prefetching, setS3Prefetching] = useState(false);
   const [s3PrefetchResult, setS3PrefetchResult] = useState<{ found: number; missing: number; foundIds: string[]; missingIds: string[] } | null>(null);
   const [collapsedInnings, setCollapsedInnings] = useState<Set<string>>(new Set());
+  const [openScoreRows, setOpenScoreRows] = useState<Set<string>>(new Set());
   const [pointsUpdating, setPointsUpdating] = useState(false);
   const [pendingMatches, setPendingMatches] = useState(0);
   const [nextAttempt, setNextAttempt] = useState<string | null>(null);
@@ -3170,12 +3171,126 @@ export default function App() {
                   {(m.score || []).map((s: any, i: number) => {
                     const inningTeamCode = (s.inning || "").split(" Inning")[0].split(" Innings")[0].trim();
                     const teamColorForScore = IPL_COLORS[inningTeamCode] || "var(--text-2)";
+                    const rowKey = `${matchIdStr}-score-${i}`;
+                    const isRowOpen = openScoreRows.has(rowKey);
+                    const inn = sc?.innings?.[i];
+                    const canExpand = isDone || isLive;
+                    const toggleRow = (e: React.MouseEvent) => {
+                      e.stopPropagation();
+                      if (!sc && canExpand) fetchScorecard(matchIdStr);
+                      setOpenScoreRows(prev => { const n = new Set(prev); n.has(rowKey) ? n.delete(rowKey) : n.add(rowKey); return n; });
+                    };
+                    // Innings table helpers
+                    const findFtSR = (name: string) => {
+                      const norm = (v: string) => v.replace(/\s*\(.*?\)\s*/g, "").trim().toLowerCase();
+                      const ALIASES: Record<string,string> = { "mohammad shami":"mohammed shami","md shami":"mohammed shami" };
+                      const sn = ALIASES[norm(name)] ?? norm(name);
+                      for (const ft of Object.values(FANTASY_TEAMS)) { if (ft.players.some(p => norm(p.name) === sn)) return ft; }
+                      return null;
+                    };
+                    const COL_WSR = ["auto", 36, 28, 30, 28, 54] as const;
+                    const colGrpSR = (<colgroup><col style={{ width: COL_WSR[0] }} />{COL_WSR.slice(1).map((w,ci) => <col key={ci} style={{ width: w }} />)}</colgroup>);
+                    const tdN = (extra?: React.CSSProperties): React.CSSProperties => ({ textAlign:"right", paddingTop:5, paddingBottom:5, paddingLeft:2, paddingRight:5, ...extra });
+                    const thN = (extra?: React.CSSProperties): React.CSSProperties => ({ textAlign:"right", paddingTop:4, paddingBottom:4, paddingLeft:2, paddingRight:5, fontWeight:600, ...extra });
+                    const tblSt: React.CSSProperties = { width:"100%", borderCollapse:"collapse", fontSize:"0.68rem", tableLayout:"fixed" };
                     return (
-                      <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.72rem", color: "var(--text-2)", padding: "3px 0", borderTop: i === 0 ? "1px solid var(--border)" : "none" }}>
-                        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.68rem", letterSpacing: "0.04em", color: "var(--text-3)" }}>{inningTeamCode || (s.inning || "").replace(" Innings", "").replace(" Inning", "")}</span>
-                        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.78rem", fontWeight: 600, letterSpacing: "0.03em", color: teamColorForScore }}>
-                          {s.summary || (s.r != null ? `${s.r}/${s.w} (${s.o}ov)` : "")}
-                        </span>
+                      <div key={i}>
+                        {/* Score row */}
+                        <div onClick={canExpand ? toggleRow : undefined} style={{
+                          display: "flex", justifyContent: "space-between", alignItems: "center",
+                          padding: "7px 0", borderTop: i === 0 ? "1px solid var(--border)" : "none",
+                          cursor: canExpand ? "pointer" : "default", userSelect: "none" as const,
+                        }}>
+                          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.04em", color: teamColorForScore }}>
+                            {inningTeamCode || (s.inning || "").replace(" Innings", "").replace(" Inning", "")}
+                          </span>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.95rem", fontWeight: 700, letterSpacing: "0.02em", color: teamColorForScore }}>
+                              {s.summary || (s.r != null ? `${s.r}/${s.w} (${s.o}ov)` : "")}
+                            </span>
+                            {canExpand && (
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={teamColorForScore} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"
+                                style={{ transition: "transform 0.22s ease", transform: isRowOpen ? "rotate(180deg)" : "none", flexShrink: 0, opacity: 0.7 }}>
+                                <polyline points="6 9 12 15 18 9"/>
+                              </svg>
+                            )}
+                          </div>
+                        </div>
+                        {/* Inline innings expansion */}
+                        {isRowOpen && (
+                          <div style={{ marginBottom: 10 }}>
+                            {isLoadingSc && !inn && <div style={{ color: "var(--text-3)", fontSize: "0.72rem", padding: "6px 0" }}>Loading…</div>}
+                            {inn && (
+                              <div className="inn-body" style={{ borderRadius: 10, border: "1px solid var(--border)" }}>
+                                {inn.batting?.length > 0 && (
+                                  <div style={{ overflowX: "auto" }}>
+                                    <table style={tblSt}>
+                                      {colGrpSR}
+                                      <thead><tr style={{ color: "var(--text-3)", borderBottom: "1px solid var(--border)" }}>
+                                        <th style={{ textAlign:"left", padding:"4px 6px", fontWeight:600 }}>Batter</th>
+                                        <th style={thN()}>R</th><th style={thN()}>B</th><th style={thN()}>4s</th><th style={thN()}>6s</th>
+                                        <th style={thN({ paddingRight:9 })}>SR</th>
+                                      </tr></thead>
+                                      <tbody>
+                                        {inn.batting.filter((b: any) => !b.dnb).map((b: any, bi: number) => {
+                                          const ft = findFtSR(b.name);
+                                          return (
+                                            <tr key={bi} style={{ borderBottom: "1px solid var(--border)" }}>
+                                              <td style={{ padding: "5px 0 5px 6px" }}>
+                                                <div style={{ display:"flex", alignItems:"center", gap:4 }}>
+                                                  <span style={{ color:"var(--text)", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", fontWeight: ft ? 600 : 400 }}>{b.name}{b.notOut ? "*" : ""}</span>
+                                                  {ft && <span style={{ fontSize:"0.5rem", fontWeight:800, color:"#22c55e", background:"#22c55e1a", borderRadius:3, padding:"0 3px", lineHeight:"1.5", flexShrink:0 }}>F</span>}
+                                                </div>
+                                                <div style={{ color:"var(--text-3)", fontSize:"0.58rem", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{b.dismissal}</div>
+                                              </td>
+                                              <td style={tdN({ color:"var(--text-2)" })}>{b.runs}</td>
+                                              <td style={tdN({ color:"var(--text-3)" })}>{b.balls}</td>
+                                              <td style={tdN({ color:"var(--text-3)" })}>{b.fours}</td>
+                                              <td style={tdN({ color:"var(--text-3)" })}>{b.sixes}</td>
+                                              <td style={tdN({ color:"var(--text-3)", fontSize:"0.62rem", paddingRight:9 })}>{parseFloat(b.sr).toFixed(1)}</td>
+                                            </tr>
+                                          );
+                                        })}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                )}
+                                {inn.bowling?.length > 0 && (
+                                  <div style={{ marginTop:6, overflowX:"auto" }}>
+                                    <table style={tblSt}>
+                                      {colGrpSR}
+                                      <thead><tr style={{ color:"var(--text-3)", borderBottom:"1px solid var(--border)" }}>
+                                        <th style={{ textAlign:"left", padding:"4px 6px", fontWeight:600 }}>Bowler</th>
+                                        <th style={thN()}>O</th><th style={thN()}>M</th><th style={thN()}>R</th><th style={thN()}>W</th>
+                                        <th style={thN({ paddingRight:9 })}>ECO</th>
+                                      </tr></thead>
+                                      <tbody>
+                                        {inn.bowling.map((b: any, bi: number) => {
+                                          const ft = findFtSR(b.name);
+                                          return (
+                                            <tr key={bi} style={{ borderBottom:"1px solid var(--border)" }}>
+                                              <td style={{ padding:"5px 0 5px 6px", overflow:"hidden" }}>
+                                                <div style={{ display:"flex", alignItems:"center", gap:4, overflow:"hidden" }}>
+                                                  <span style={{ color:"var(--text)", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", fontWeight: ft ? 600 : 400 }}>{b.name}</span>
+                                                  {ft && <span style={{ fontSize:"0.5rem", fontWeight:800, color:"#22c55e", background:"#22c55e1a", borderRadius:3, padding:"0 3px", lineHeight:"1.5", flexShrink:0 }}>F</span>}
+                                                </div>
+                                              </td>
+                                              <td style={tdN({ color:"var(--text-3)" })}>{b.overs}</td>
+                                              <td style={tdN({ color:"var(--text-3)" })}>{b.maidens}</td>
+                                              <td style={tdN({ color:"var(--text-3)" })}>{b.runs}</td>
+                                              <td style={tdN({ color:"var(--text-2)" })}>{b.wickets}</td>
+                                              <td style={tdN({ color:"var(--text-3)", fontSize:"0.62rem", paddingRight:9 })}>{parseFloat(b.eco).toFixed(2)}</td>
+                                            </tr>
+                                          );
+                                        })}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     );
                   })}
