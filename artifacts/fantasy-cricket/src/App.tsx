@@ -3122,8 +3122,15 @@ export default function App() {
                   }} />
                   <div style={{ position: "relative", zIndex: 2 }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                    <div className="match-status" style={{ color: statusColor }}>
-                      {statusLabel}
+                    <div style={{ display: "flex", flexDirection: "column" as const, gap: 2 }}>
+                      <div className="match-status" style={{ color: statusColor }}>
+                        {statusLabel}
+                      </div>
+                      {m.venue && (
+                        <div style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.02em", lineHeight: 1.3 }}>
+                          🏟 {m.venue}{m.homeTeamCode ? ` (${m.homeTeamCode})` : ""}
+                        </div>
+                      )}
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       {mNum && <div style={{ fontSize: "0.7rem", color: "var(--text-3)", fontWeight: 600 }}>{mNum}</div>}
@@ -3151,8 +3158,7 @@ export default function App() {
                   {(() => {
                     const cardWinner = isDone ? getMatchWinner(m) : null;
                     return (
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
                           {teams.length > 0 ? teams.map((ti: any, i: number) => {
                             const isWinner = cardWinner && cardWinner !== "tie" && ti.shortname === cardWinner;
                             const teamCol = IPL_COLORS[ti.shortname] || "var(--text)";
@@ -3166,12 +3172,6 @@ export default function App() {
                           }) : (
                             <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "1rem", fontWeight: 500, letterSpacing: "0.04em", color: "var(--text)", textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>{(m.name || "").replace(/,\s*\d+(?:st|nd|rd|th) Match.*/i, "")}</div>
                           )}
-                        </div>
-                        {m.venue && (
-                          <div className="match-venue" style={{ textAlign: "right" as const, flexShrink: 0, maxWidth: 130 }}>
-                            🏟 {m.venue}{m.homeTeamCode ? ` (${m.homeTeamCode})` : ""}
-                          </div>
-                        )}
                       </div>
                     );
                   })()}
