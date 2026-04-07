@@ -3173,6 +3173,12 @@ export default function App() {
                   })}
                   {isDone && m.status && <div style={{ fontSize: "0.68rem", color: "var(--blue)", marginTop: 5 }}>{m.status}</div>}
                   {isLive && m.toss && <div style={{ fontSize: "0.65rem", color: "var(--text-2)", marginTop: 5 }}>{m.toss}</div>}
+                  {sc?.overview && (
+                    <div style={{ display: "flex", flexDirection: "column" as const, gap: 2, marginTop: 5 }}>
+                      {sc.overview.toss && <div style={{ fontSize: "0.65rem", color: "var(--text-3)" }}>{sc.overview.toss}</div>}
+                      {sc.overview.result && !m.status && <div style={{ fontSize: "0.68rem", color: "var(--text-2)", fontWeight: 500 }}>{sc.overview.result}</div>}
+                    </div>
+                  )}
                   {m.venue && (
                     <div className="match-venue">
                       🏟 {m.venue}{m.homeTeamCode ? ` (${m.homeTeamCode})` : ""}
@@ -3391,12 +3397,6 @@ export default function App() {
                       {isExpanded && (
                         <div style={{ marginTop: 10 }}>
                           {isLoadingSc && <div style={{ color: "var(--text-3)", fontSize: "0.72rem", padding: "8px 0" }}>Loading scorecard...</div>}
-                          {sc?.overview && (
-                            <div style={{ display: "flex", flexDirection: "column" as const, gap: 4, marginBottom: 12 }}>
-                              {sc.overview.toss && <div style={{ fontSize: "0.65rem", color: "var(--text-3)" }}>{sc.overview.toss}</div>}
-                              {sc.overview.result && <div style={{ fontSize: "0.68rem", color: "var(--text-2)", fontWeight: 500 }}>{sc.overview.result}</div>}
-                            </div>
-                          )}
                           {sc && !sc.hasScorecard && (
                             <div style={{ color: "var(--text-3)", fontSize: "0.72rem", padding: "4px 0" }}>
                               Scorecard will appear once innings data is synced.
