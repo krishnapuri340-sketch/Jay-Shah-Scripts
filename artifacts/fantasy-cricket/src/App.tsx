@@ -3179,16 +3179,10 @@ export default function App() {
                     <div style={{ fontSize: "0.6rem", color: "var(--text-3)", lineHeight: 1.35, marginTop: 7 }}>{sc?.overview?.toss || m.toss}</div>
                   )}
                   {(isDone && m.status) && (
-                    <div style={{ display: "inline-flex", alignItems: "center", gap: 5, marginTop: 5, background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.22)", borderRadius: 6 }}>
-                      <svg width="9" height="9" viewBox="0 0 16 16" fill="none" style={{ marginLeft: 6 }}><path d="M3 8l3.5 3.5L13 4" stroke="#60a5fa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                      <span style={{ fontSize: "0.62rem", color: "var(--blue)", fontWeight: 500, letterSpacing: "0.01em", paddingRight: 6, paddingTop: 3, paddingBottom: 3 }}>{m.status}</span>
-                    </div>
+                    <div style={{ fontSize: "0.62rem", color: "var(--blue)", fontWeight: 500, marginTop: 4 }}>{m.status}</div>
                   )}
                   {sc?.overview?.result && !m.status && (
-                    <div style={{ display: "inline-flex", alignItems: "center", gap: 5, marginTop: 5, background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.18)", borderRadius: 6 }}>
-                      <svg width="9" height="9" viewBox="0 0 16 16" fill="none" style={{ marginLeft: 6 }}><path d="M3 8l3.5 3.5L13 4" stroke="#60a5fa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                      <span style={{ fontSize: "0.62rem", color: "var(--text-2)", fontWeight: 500, paddingRight: 6, paddingTop: 3, paddingBottom: 3 }}>{sc.overview.result}</span>
-                    </div>
+                    <div style={{ fontSize: "0.62rem", color: "var(--text-2)", fontWeight: 500, marginTop: 4 }}>{sc.overview.result}</div>
                   )}
                   {(m.score || []).map((s: any, i: number) => {
                     const inningTeamCode = (s.inning || "").split(" Inning")[0].split(" Innings")[0].trim();
