@@ -3179,14 +3179,10 @@ export default function App() {
                       </div>
                     );
                   })}
-                  {isDone && m.status && <div style={{ fontSize: "0.68rem", color: "var(--blue)", marginTop: 5 }}>{m.status}</div>}
-                  {isLive && m.toss && <div style={{ fontSize: "0.65rem", color: "var(--text-2)", marginTop: 5 }}>{m.toss}</div>}
-                  {sc?.overview && (
-                    <div style={{ display: "flex", flexDirection: "column" as const, gap: 2, marginTop: 5 }}>
-                      {sc.overview.toss && <div style={{ fontSize: "0.65rem", color: "var(--text-3)" }}>{sc.overview.toss}</div>}
-                      {sc.overview.result && !m.status && <div style={{ fontSize: "0.68rem", color: "var(--text-2)", fontWeight: 500 }}>{sc.overview.result}</div>}
-                    </div>
-                  )}
+                  {sc?.overview?.toss && <div style={{ fontSize: "0.65rem", color: "var(--text-3)", marginTop: 5 }}>{sc.overview.toss}</div>}
+                  {isLive && m.toss && !sc?.overview?.toss && <div style={{ fontSize: "0.65rem", color: "var(--text-2)", marginTop: 5 }}>{m.toss}</div>}
+                  {isDone && m.status && <div style={{ fontSize: "0.68rem", color: "var(--blue)", marginTop: 3 }}>{m.status}</div>}
+                  {sc?.overview?.result && !m.status && <div style={{ fontSize: "0.68rem", color: "var(--text-2)", fontWeight: 500, marginTop: 3 }}>{sc.overview.result}</div>}
                   {m.venue && (
                     <div className="match-venue">
                       🏟 {m.venue}{m.homeTeamCode ? ` (${m.homeTeamCode})` : ""}
