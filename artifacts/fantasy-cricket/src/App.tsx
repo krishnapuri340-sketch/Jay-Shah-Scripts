@@ -846,6 +846,14 @@ export default function App() {
       setExpandedMatchId(null);
     } else {
       setExpandedMatchId(matchId);
+      // Collapse all innings by default so the user taps to open each one
+      setCollapsedInnings(prev => {
+        const n = new Set(prev);
+        n.add(`${matchId}-0`);
+        n.add(`${matchId}-1`);
+        n.add(`${matchId}-2`);
+        return n;
+      });
       if (isCompleted || isLive) fetchScorecard(matchId);
     }
   };
