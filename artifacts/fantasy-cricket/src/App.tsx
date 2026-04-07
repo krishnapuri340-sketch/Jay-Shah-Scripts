@@ -3165,7 +3165,7 @@ export default function App() {
                             return (
                               <div key={i} style={{ display: "flex", alignItems: "center", gap: 7 }}>
                                 {i === 1 && <span style={{ fontFamily: "'Inter', sans-serif", color: "var(--text-3)", fontSize: "0.62rem", letterSpacing: "0.1em", margin: "0 1px" }}>VS</span>}
-                                <img src={TEAM_LOGO_CDN[ti.shortname] || ti.img} alt={ti.shortname} style={{ width: 28, height: 28, objectFit: "contain", filter: `drop-shadow(0 1px 6px rgba(0,0,0,0.8))${isWinner ? ` drop-shadow(0 0 6px ${teamCol}88)` : ""}${isDone && cardWinner && cardWinner !== "tie" && !isWinner ? " grayscale(0.6) opacity(0.45)" : ""}`, transition: "filter 0.2s" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                                <img src={TEAM_LOGO_CDN[ti.shortname] || ti.img} alt={ti.shortname} style={{ width: 32, height: 32, objectFit: "contain", filter: `drop-shadow(0 1px 6px rgba(0,0,0,0.8))${isWinner ? ` drop-shadow(0 0 8px ${teamCol}99)` : ""}${isDone && cardWinner && cardWinner !== "tie" && !isWinner ? " grayscale(0.65) opacity(0.4)" : ""}`, transition: "filter 0.2s" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                                 <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.08rem", fontWeight: isWinner ? 700 : 400, letterSpacing: "0.04em", color: isWinner ? "#fff" : isDone ? "var(--text-3)" : "var(--text)", textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>{ti.shortname}</span>
                               </div>
                             );
@@ -3175,10 +3175,24 @@ export default function App() {
                       </div>
                     );
                   })()}
-                  {sc?.overview?.toss && <div style={{ fontSize: "0.65rem", color: "var(--text-3)", marginTop: 5 }}>{sc.overview.toss}</div>}
-                  {m.toss && !sc?.overview?.toss && <div style={{ fontSize: "0.65rem", color: "var(--text-2)", marginTop: 5 }}>{m.toss}</div>}
-                  {isDone && m.status && <div style={{ fontSize: "0.68rem", color: "var(--blue)", marginTop: 3 }}>{m.status}</div>}
-                  {sc?.overview?.result && !m.status && <div style={{ fontSize: "0.68rem", color: "var(--text-2)", fontWeight: 500, marginTop: 3 }}>{sc.overview.result}</div>}
+                  {(sc?.overview?.toss || m.toss) && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 7 }}>
+                      <span style={{ fontSize: "0.6rem", flexShrink: 0 }}>🪙</span>
+                      <span style={{ fontSize: "0.6rem", color: "var(--text-3)", lineHeight: 1.35 }}>{sc?.overview?.toss || m.toss}</span>
+                    </div>
+                  )}
+                  {(isDone && m.status) && (
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: 5, marginTop: 5, background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.22)", borderRadius: 6, padding: "3px 8px" }}>
+                      <svg width="9" height="9" viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 4" stroke="#60a5fa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      <span style={{ fontSize: "0.62rem", color: "var(--blue)", fontWeight: 500, letterSpacing: "0.01em" }}>{m.status}</span>
+                    </div>
+                  )}
+                  {sc?.overview?.result && !m.status && (
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: 5, marginTop: 5, background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.18)", borderRadius: 6, padding: "3px 8px" }}>
+                      <svg width="9" height="9" viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 4" stroke="#60a5fa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      <span style={{ fontSize: "0.62rem", color: "var(--text-2)", fontWeight: 500 }}>{sc.overview.result}</span>
+                    </div>
+                  )}
                   {(m.score || []).map((s: any, i: number) => {
                     const inningTeamCode = (s.inning || "").split(" Inning")[0].split(" Innings")[0].trim();
                     const teamColorForScore = IPL_COLORS[inningTeamCode] || "var(--text-2)";
@@ -3209,7 +3223,11 @@ export default function App() {
                         {/* Score row */}
                         <div onClick={canExpand ? toggleRow : undefined} style={{
                           display: "flex", justifyContent: "space-between", alignItems: "center",
-                          padding: "7px 0", borderTop: i === 0 ? "1px solid var(--border)" : "none",
+                          padding: "8px 10px",
+                          marginTop: i === 0 ? 10 : 5,
+                          borderRadius: 8,
+                          borderLeft: `3px solid ${teamColorForScore}55`,
+                          background: teamColorForScore + "0d",
                           cursor: canExpand ? "pointer" : "default", userSelect: "none" as const,
                         }}>
                           <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.04em", color: teamColorForScore }}>
