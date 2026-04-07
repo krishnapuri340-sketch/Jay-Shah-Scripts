@@ -76,6 +76,13 @@ interface ProcessedMatchData {
 
 const DAILY_CALL_LIMIT = 1900; // hard cap below CricAPI's 2000/day paid tier
 
+// ── Abandoned / No-Result matches — zero points awarded ─────────────────────
+// Add the CricAPI internal iplId key (processedMatches key) for any abandoned match.
+// Add the Supabase matchNumber for any abandoned match entered there.
+// Points from these matches are excluded at aggregation time regardless of what is cached.
+const ABANDONED_MATCH_IPL_IDS = new Set<string>(["2428"]); // M12 (KKR vs PBKS, abandoned)
+const ABANDONED_MATCH_NUMBERS  = new Set<number>([12]);     // same match in Supabase
+
 // ── AuctionRoom / Supabase integration ─────────────────────────────────────
 const SUPABASE_URL = process.env.SUPABASE_URL ?? "https://ldwqrdlipzqsnpljqyhk.supabase.co/rest/v1";
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
@@ -799,6 +806,8 @@ router.get("/ipl/points", async (req, res) => {
     // 1. Official Supabase scores for completed matches
     for (const fixtureData of Object.values(pointsCache.supabaseScores || {})
         .sort((a, b) => a.matchNumber - b.matchNumber)) {
+      // Skip abandoned / no-result matches — no points awarded
+      if (ABANDONED_MATCH_NUMBERS.has(fixtureData.matchNumber)) continue;
       // Look up playerStats from the linked CricAPI match if available
       const linkedIplId = fixtureData.linkedIplId;
       const linkedMatchData = linkedIplId ? (pointsCache.processedMatches || {})[linkedIplId] : null;
@@ -813,6 +822,8 @@ router.get("/ipl/points", async (req, res) => {
     let liveMatchNum = 900; // high number so live matches sort after official ones
     for (const [iplId, matchData] of Object.entries(pointsCache.processedMatches || {})) {
       if (supabaseLinkedIds.has(iplId)) continue;
+      // Skip abandoned / no-result matches — no points awarded
+      if (ABANDONED_MATCH_IPL_IDS.has(iplId)) continue;
       const meta = (pointsCache.matchMetadata || {})[iplId];
       const label = meta ? `${meta.teamA} vs ${meta.teamB}` : `Match ${iplId}`;
       for (const [player, pts] of Object.entries(matchData.points || {})) {
