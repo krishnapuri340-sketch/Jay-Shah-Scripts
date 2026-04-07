@@ -3527,22 +3527,20 @@ export default function App() {
                                       <tbody>
                                         {inn.batting.filter((b: any) => !b.dnb).map((b: any, bi: number) => {
                                           const ft = findFt(b.name);
-                                          const rc = runsColor(b.runs, b.balls);
-                                          const src = srColor(parseFloat(b.sr), b.balls);
                                           return (
                                             <tr key={bi} style={{ borderBottom: "1px solid var(--border)", background: ft ? `${ft.color}09` : "transparent" }}>
                                               <td style={{ padding: "5px 0 5px 6px" }}>
                                                 <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                                                  <span style={{ color: b.notOut ? "#22c55e" : "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: ft ? 600 : 400 }}>{b.name}</span>
+                                                  <span style={{ color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: ft ? 600 : 400 }}>{b.name}{b.notOut ? "*" : ""}</span>
                                                   {ft && <span style={{ fontSize: "0.5rem", fontWeight: 800, color: ft.color, background: `${ft.color}1a`, borderRadius: 3, padding: "0 3px", lineHeight: "1.5", flexShrink: 0 }}>F</span>}
                                                 </div>
                                                 <div style={{ color: "var(--text-3)", fontSize: "0.58rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{b.dismissal}</div>
                                               </td>
-                                              <td style={tdNum({ color: rc, fontWeight: b.runs >= 30 ? 700 : 400 })}>{b.runs}</td>
+                                              <td style={tdNum({ color: "var(--text-2)" })}>{b.runs}</td>
                                               <td style={tdNum({ color: "var(--text-3)" })}>{b.balls}</td>
-                                              <td style={tdNum({ color: b.fours > 0 ? "var(--blue)" : "var(--text-3)" })}>{b.fours}</td>
-                                              <td style={tdNum({ color: b.sixes > 0 ? "#a855f7" : "var(--text-3)" })}>{b.sixes}</td>
-                                              <td style={tdNum({ color: src, fontSize: "0.62rem", paddingRight: 9 })}>{parseFloat(b.sr).toFixed(1)}</td>
+                                              <td style={tdNum({ color: "var(--text-3)" })}>{b.fours}</td>
+                                              <td style={tdNum({ color: "var(--text-3)" })}>{b.sixes}</td>
+                                              <td style={tdNum({ color: "var(--text-3)", fontSize: "0.62rem", paddingRight: 9 })}>{parseFloat(b.sr).toFixed(1)}</td>
                                             </tr>
                                           );
                                         })}
@@ -3567,8 +3565,6 @@ export default function App() {
                                       <tbody>
                                         {inn.bowling.map((b: any, bi: number) => {
                                           const ft = findFt(b.name);
-                                          const wc = wicketsColor(b.wickets);
-                                          const ec = ecoColor(parseFloat(b.eco));
                                           return (
                                             <tr key={bi} style={{ borderBottom: "1px solid var(--border)", background: ft ? `${ft.color}09` : "transparent" }}>
                                               <td style={{ padding: "5px 0 5px 6px", overflow: "hidden" }}>
@@ -3578,10 +3574,10 @@ export default function App() {
                                                 </div>
                                               </td>
                                               <td style={tdNum({ color: "var(--text-3)" })}>{b.overs}</td>
-                                              <td style={tdNum({ color: b.maidens > 0 ? "#f59e0b" : "var(--text-3)" })}>{b.maidens}</td>
+                                              <td style={tdNum({ color: "var(--text-3)" })}>{b.maidens}</td>
                                               <td style={tdNum({ color: "var(--text-3)" })}>{b.runs}</td>
-                                              <td style={tdNum({ color: wc, fontWeight: b.wickets > 0 ? 700 : 400 })}>{b.wickets}</td>
-                                              <td style={tdNum({ color: ec, fontSize: "0.62rem", paddingRight: 9 })}>{parseFloat(b.eco).toFixed(2)}</td>
+                                              <td style={tdNum({ color: "var(--text-2)" })}>{b.wickets}</td>
+                                              <td style={tdNum({ color: "var(--text-3)", fontSize: "0.62rem", paddingRight: 9 })}>{parseFloat(b.eco).toFixed(2)}</td>
                                             </tr>
                                           );
                                         })}
