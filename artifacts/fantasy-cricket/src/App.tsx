@@ -3175,6 +3175,10 @@ export default function App() {
                       </div>
                     );
                   })()}
+                  {sc?.overview?.toss && <div style={{ fontSize: "0.65rem", color: "var(--text-3)", marginTop: 5 }}>{sc.overview.toss}</div>}
+                  {isLive && m.toss && !sc?.overview?.toss && <div style={{ fontSize: "0.65rem", color: "var(--text-2)", marginTop: 5 }}>{m.toss}</div>}
+                  {isDone && m.status && <div style={{ fontSize: "0.68rem", color: "var(--blue)", marginTop: 3 }}>{m.status}</div>}
+                  {sc?.overview?.result && !m.status && <div style={{ fontSize: "0.68rem", color: "var(--text-2)", fontWeight: 500, marginTop: 3 }}>{sc.overview.result}</div>}
                   {(m.score || []).map((s: any, i: number) => {
                     const inningTeamCode = (s.inning || "").split(" Inning")[0].split(" Innings")[0].trim();
                     const teamColorForScore = IPL_COLORS[inningTeamCode] || "var(--text-2)";
@@ -3301,10 +3305,6 @@ export default function App() {
                       </div>
                     );
                   })}
-                  {sc?.overview?.toss && <div style={{ fontSize: "0.65rem", color: "var(--text-3)", marginTop: 5 }}>{sc.overview.toss}</div>}
-                  {isLive && m.toss && !sc?.overview?.toss && <div style={{ fontSize: "0.65rem", color: "var(--text-2)", marginTop: 5 }}>{m.toss}</div>}
-                  {isDone && m.status && <div style={{ fontSize: "0.68rem", color: "var(--blue)", marginTop: 3 }}>{m.status}</div>}
-                  {sc?.overview?.result && !m.status && <div style={{ fontSize: "0.68rem", color: "var(--text-2)", fontWeight: 500, marginTop: 3 }}>{sc.overview.result}</div>}
                   {/* Prediction section — collapsible */}
                   {m.homeTeamCode && m.awayTeamCode && (() => {
                     const PRED_OWNERS = ["rajveer","mombasa","mumbai","ponygoat"] as const;
