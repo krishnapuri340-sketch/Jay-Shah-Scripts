@@ -76,12 +76,11 @@ interface ProcessedMatchData {
 
 const DAILY_CALL_LIMIT = 1900; // hard cap below CricAPI's 2000/day paid tier
 
-// ── Abandoned / No-Result matches — zero points awarded ─────────────────────
+// ── Abandoned / No-Result matches — CricAPI phantom points excluded ──────────
 // Add the CricAPI internal iplId key (processedMatches key) for any abandoned match.
-// Add the Supabase matchNumber for any abandoned match entered there.
-// Points from these matches are excluded at aggregation time regardless of what is cached.
+// This only blocks auto-calculated CricAPI points; AuctionRoom (Supabase) entries
+// for these matches are still honoured as the official source of truth.
 const ABANDONED_MATCH_IPL_IDS = new Set<string>(["2428"]); // M12 (KKR vs PBKS, abandoned)
-const ABANDONED_MATCH_NUMBERS  = new Set<number>([12]);     // same match in Supabase
 
 // ── AuctionRoom / Supabase integration ─────────────────────────────────────
 const SUPABASE_URL = process.env.SUPABASE_URL ?? "https://ldwqrdlipzqsnpljqyhk.supabase.co/rest/v1";
@@ -806,8 +805,6 @@ router.get("/ipl/points", async (req, res) => {
     // 1. Official Supabase scores for completed matches
     for (const fixtureData of Object.values(pointsCache.supabaseScores || {})
         .sort((a, b) => a.matchNumber - b.matchNumber)) {
-      // Skip abandoned / no-result matches — no points awarded
-      if (ABANDONED_MATCH_NUMBERS.has(fixtureData.matchNumber)) continue;
       // Look up playerStats from the linked CricAPI match if available
       const linkedIplId = fixtureData.linkedIplId;
       const linkedMatchData = linkedIplId ? (pointsCache.processedMatches || {})[linkedIplId] : null;
