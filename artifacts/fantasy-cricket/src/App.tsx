@@ -3528,11 +3528,11 @@ export default function App() {
                                         {inn.batting.filter((b: any) => !b.dnb).map((b: any, bi: number) => {
                                           const ft = findFt(b.name);
                                           return (
-                                            <tr key={bi} style={{ borderBottom: "1px solid var(--border)", background: ft ? `${ft.color}09` : "transparent" }}>
+                                            <tr key={bi} style={{ borderBottom: "1px solid var(--border)" }}>
                                               <td style={{ padding: "5px 0 5px 6px" }}>
                                                 <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                                                   <span style={{ color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: ft ? 600 : 400 }}>{b.name}{b.notOut ? "*" : ""}</span>
-                                                  {ft && <span style={{ fontSize: "0.5rem", fontWeight: 800, color: ft.color, background: `${ft.color}1a`, borderRadius: 3, padding: "0 3px", lineHeight: "1.5", flexShrink: 0 }}>F</span>}
+                                                  {ft && <span style={{ fontSize: "0.5rem", fontWeight: 800, color: "#22c55e", background: "#22c55e1a", borderRadius: 3, padding: "0 3px", lineHeight: "1.5", flexShrink: 0 }}>F</span>}
                                                 </div>
                                                 <div style={{ color: "var(--text-3)", fontSize: "0.58rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{b.dismissal}</div>
                                               </td>
@@ -3566,11 +3566,11 @@ export default function App() {
                                         {inn.bowling.map((b: any, bi: number) => {
                                           const ft = findFt(b.name);
                                           return (
-                                            <tr key={bi} style={{ borderBottom: "1px solid var(--border)", background: ft ? `${ft.color}09` : "transparent" }}>
+                                            <tr key={bi} style={{ borderBottom: "1px solid var(--border)" }}>
                                               <td style={{ padding: "5px 0 5px 6px", overflow: "hidden" }}>
                                                 <div style={{ display: "flex", alignItems: "center", gap: 4, overflow: "hidden" }}>
                                                   <span style={{ color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: ft ? 600 : 400 }}>{b.name}</span>
-                                                  {ft && <span style={{ fontSize: "0.5rem", fontWeight: 800, color: ft.color, background: `${ft.color}1a`, borderRadius: 3, padding: "0 3px", lineHeight: "1.5", flexShrink: 0 }}>F</span>}
+                                                  {ft && <span style={{ fontSize: "0.5rem", fontWeight: 800, color: "#22c55e", background: "#22c55e1a", borderRadius: 3, padding: "0 3px", lineHeight: "1.5", flexShrink: 0 }}>F</span>}
                                                 </div>
                                               </td>
                                               <td style={tdNum({ color: "var(--text-3)" })}>{b.overs}</td>
