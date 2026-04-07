@@ -3177,9 +3177,6 @@ export default function App() {
                   {sc?.overview?.result && !m.status && (
                     <div style={{ fontSize: "0.62rem", color: "var(--text-2)", fontWeight: 500, marginTop: 4 }}>{sc.overview.result}</div>
                   )}
-                  {m.venue && (
-                    <div style={{ fontSize: "0.58rem", color: "var(--text-3)", marginTop: 5, letterSpacing: "0.01em" }}>{m.venue}{m.homeTeamCode ? ` · ${m.homeTeamCode}` : ""}</div>
-                  )}
                   {(m.score || []).map((s: any, i: number) => {
                     const inningTeamCode = (s.inning || "").split(" Inning")[0].split(" Innings")[0].trim();
                     const teamColorForScore = IPL_COLORS[inningTeamCode] || "var(--text-2)";
@@ -3310,6 +3307,9 @@ export default function App() {
                       </div>
                     );
                   })}
+                  {m.venue && (
+                    <div style={{ fontSize: "0.58rem", color: "var(--text-3)", marginTop: 7, letterSpacing: "0.01em" }}>🏟 {m.venue}{m.homeTeamCode ? ` · ${m.homeTeamCode}` : ""}</div>
+                  )}
                   {/* Prediction section — collapsible */}
                   {m.homeTeamCode && m.awayTeamCode && (() => {
                     const PRED_OWNERS = ["rajveer","mombasa","mumbai","ponygoat"] as const;
