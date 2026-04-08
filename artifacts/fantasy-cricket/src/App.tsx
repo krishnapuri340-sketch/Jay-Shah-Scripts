@@ -2138,20 +2138,78 @@ export default function App() {
         {(() => {
           const liveNow = liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded);
           if (liveNow.length === 0) return null;
-          const m = liveNow[0];
-          const firstScore = (m.score || [])[0];
-          const scoreStr = firstScore
-            ? (firstScore.summary || (firstScore.r != null ? `${firstScore.r}/${firstScore.w} (${firstScore.o} ov)` : ""))
-            : "";
-          const matchTitle = shortMatchLabel(m.name || "");
           return (
-            <div className="live-banner" onClick={() => { setTab("fixtures"); setMatchFilter("live"); }}>
-              <div className="live-banner-dot" />
-              <span className="live-banner-text">
-                {matchTitle}{liveNow.length > 1 ? ` +${liveNow.length - 1} more` : ""}
-              </span>
-              {scoreStr ? <span className="live-banner-score">{scoreStr}</span> : null}
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--text-3)", flexShrink: 0 }}><polyline points="9 18 15 12 9 6"/></svg>
+            <div style={{ marginBottom: 16 }}>
+              <div className="sec-title" style={{ marginBottom: 8 }}>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--live)", display: "inline-block", boxShadow: "0 0 6px var(--live)", animation: "pulse 1.4s ease-in-out infinite" }} />
+                  Live
+                </span>
+              </div>
+              {liveNow.map((m: any) => {
+                const matchIdStr = String(m.id);
+                const sc = scorecards[matchIdStr];
+                const teams = m.teamInfo || [];
+                const mNum = getMatchNum(m.name);
+                const cardWinner = getMatchWinner(m);
+                return (
+                  <div key={m.id} className="match-card" style={{ marginBottom: 8, cursor: "pointer" }}
+                    onClick={() => { setTab("fixtures"); setMatchFilter("live"); }}>
+                    {/* Stadium backdrop */}
+                    <div style={{ position: "absolute", inset: -4, zIndex: 0, backgroundImage: `url(${import.meta.env.BASE_URL}match-bg.jpeg)`, backgroundSize: "cover", backgroundPosition: "center 35%", filter: "blur(3px) brightness(0.28) saturate(1.0)" }} />
+                    <div style={{ position: "absolute", inset: 0, zIndex: 1, background: "linear-gradient(160deg, rgba(6,4,3,0.64) 0%, rgba(4,3,2,0.72) 100%)" }} />
+                    <div style={{ position: "relative", zIndex: 2 }}>
+                      {/* Header row */}
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                        <div className="match-status" style={{ color: "var(--live)" }}>Live</div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          {mNum && <div style={{ fontSize: "0.7rem", color: "var(--text-3)", fontWeight: 600 }}>{mNum}</div>}
+                          <div style={{ fontSize: "0.58rem", color: "var(--text-3)", display: "flex", alignItems: "center", gap: 3 }}>
+                            <span>Full scorecard</span>
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                          </div>
+                        </div>
+                      </div>
+                      {/* Teams row */}
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                        {teams.length > 0 ? teams.map((ti: any, i: number) => {
+                          const teamCol = IPL_COLORS[ti.shortname] || "var(--text)";
+                          return (
+                            <div key={i} style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                              {i === 1 && <span style={{ color: "var(--text-3)", fontSize: "0.62rem", letterSpacing: "0.1em", margin: "0 1px" }}>VS</span>}
+                              <img src={TEAM_LOGO_CDN[ti.shortname] || ti.img} alt={ti.shortname} style={{ width: 32, height: 32, objectFit: "contain", filter: `drop-shadow(0 1px 6px rgba(0,0,0,0.8)) drop-shadow(0 0 8px ${teamCol}55)` }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                              <span style={{ fontSize: "1.08rem", fontWeight: 500, letterSpacing: "0.04em", color: "var(--text)", textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>{ti.shortname}</span>
+                            </div>
+                          );
+                        }) : (
+                          <div style={{ fontSize: "1rem", fontWeight: 500, color: "var(--text)" }}>{(m.name || "").replace(/,\s*\d+(?:st|nd|rd|th) Match.*/i, "")}</div>
+                        )}
+                      </div>
+                      {/* Toss */}
+                      {(sc?.overview?.toss || m.toss) && (
+                        <div style={{ fontSize: "0.6rem", color: "var(--text-3)", lineHeight: 1.35, marginTop: 7 }}>{sc?.overview?.toss || m.toss}</div>
+                      )}
+                      {/* Score rows */}
+                      {(m.score || []).map((s: any, i: number) => {
+                        const inningTeamCode = (s.inning || "").split(" Inning")[0].split(" Innings")[0].trim();
+                        const teamColorForScore = IPL_COLORS[inningTeamCode] || "var(--text-2)";
+                        return (
+                          <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 10px", marginTop: i === 0 ? 10 : 5, borderRadius: 8, borderLeft: `3px solid ${teamColorForScore}55`, background: teamColorForScore + "0d" }}>
+                            <span style={{ fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.04em", color: teamColorForScore }}>
+                              {inningTeamCode || (s.inning || "").replace(" Innings", "").replace(" Inning", "")}
+                            </span>
+                            <span style={{ fontSize: "0.95rem", fontWeight: 700, letterSpacing: "0.02em", color: teamColorForScore }}>
+                              {s.summary || (s.r != null ? `${s.r}/${s.w} (${s.o}ov)` : "")}
+                            </span>
+                          </div>
+                        );
+                      })}
+                      {/* Venue */}
+                      {m.venue && <div style={{ fontSize: "0.58rem", color: "var(--text-3)", marginTop: 7 }}>🏟 {m.venue}{m.homeTeamCode ? ` · ${m.homeTeamCode}` : ""}</div>}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           );
         })()}
