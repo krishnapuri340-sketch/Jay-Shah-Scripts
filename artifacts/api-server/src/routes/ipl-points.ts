@@ -1563,11 +1563,19 @@ function buildStatsResponse() {
       playerFantasyPts[name] = (playerFantasyPts[name] || 0) + calcPoints(stats);
     }
 
-    // Accumulate catches from the pre-processed playerStats (CricAPI-sourced, most accurate)
-    if (processed?.playerStats) {
-      for (const [name, ps] of Object.entries(processed.playerStats)) {
-        if ((ps.catches || 0) > 0) {
-          catchesStats[name] = (catchesStats[name] || 0) + ps.catches;
+    // Accumulate catches from dismissal strings in innings data (covers all IPL players)
+    for (const inning of inningsToUse) {
+      for (const bat of inning.batting || []) {
+        const d: string = bat.dismissal || "";
+        // "c Phil Salt b Jacob Duffy" — caught by fielder before " b "
+        if (d.startsWith("c ") && d.includes(" b ")) {
+          const fielder = d.slice(2, d.indexOf(" b ")).trim();
+          if (fielder) catchesStats[fielder] = (catchesStats[fielder] || 0) + 1;
+        }
+        // "c & b Jacob Duffy" — caught-and-bowled, credit to bowler
+        if (d.startsWith("c & b ")) {
+          const bowler = d.slice(6).trim();
+          if (bowler) catchesStats[bowler] = (catchesStats[bowler] || 0) + 1;
         }
       }
     }

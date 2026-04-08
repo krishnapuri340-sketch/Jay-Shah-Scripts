@@ -3592,7 +3592,7 @@ export default function App() {
     { id: "purpleCap", label: "Purple Cap", sub: "Most Wickets" },
     { id: "sixesLeader", label: "Sixes", sub: "Most Sixes" },
     { id: "foursLeader", label: "Fours", sub: "Most Fours" },
-    { id: "catchesLeader", label: "Catches", sub: "Most Catches (Fantasy)" },
+    { id: "catchesLeader", label: "Catches", sub: "Most Catches" },
     { id: "srLeader", label: "Strike Rate", sub: "Min 10 balls" },
     { id: "ecoLeader", label: "Economy", sub: "Min 2 overs" },
   ] as const;
