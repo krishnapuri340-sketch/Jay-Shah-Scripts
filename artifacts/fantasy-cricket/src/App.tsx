@@ -947,10 +947,18 @@ export default function App() {
     fetchStats();
   }, [tab, currentUser]);
 
+  // Poll predictions on all tabs so picks from any user/device stay in sync
+  useEffect(() => {
+    if (!currentUser) return;
+    fetchPredictions(); // immediate fetch on login / tab change
+    const id = setInterval(fetchPredictions, 30_000);
+    return () => clearInterval(id);
+  }, [currentUser]);
+
   // Fast-poll predictions when the Predictions view is open (picks can change up until match starts)
   useEffect(() => {
     if (!currentUser || !(tab === "stats" && statsFilter === "predictions")) return;
-    const id = setInterval(fetchPredictions, 30_000);
+    const id = setInterval(fetchPredictions, 15_000);
     return () => clearInterval(id);
   }, [tab, statsFilter, currentUser]);
 

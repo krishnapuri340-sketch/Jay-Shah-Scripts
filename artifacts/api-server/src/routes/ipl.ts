@@ -38,42 +38,95 @@ function saveServerPins(data: PinStore) {
 }
 let pinsCache: PinStore = loadServerPins();
 
-// ── Replit KV PIN persistence ────────────────────────────────────────────────
+// ── Replit KV persistence (PINs + Predictions) ───────────────────────────────
 // REPLIT_DB_URL is automatically available in both dev and deployed environments.
 // Data written here survives restarts, new deployments, and server restarts.
 const REPLIT_DB_URL = process.env.REPLIT_DB_URL;
 const PIN_KEY_PREFIX = "pin_";
+const PRED_KV_KEY = "ipl_predictions_2026";
+
+// ── KV helpers ──────────────────────────────────────────────────────────────
+
+async function kvGet(key: string): Promise<string | null> {
+  if (!REPLIT_DB_URL) return null;
+  try {
+    const res = await fetch(`${REPLIT_DB_URL}/${encodeURIComponent(key)}`, { signal: AbortSignal.timeout(6000) });
+    if (!res.ok) return null;
+    return await res.text();
+  } catch { return null; }
+}
+
+async function kvSet(key: string, value: string): Promise<boolean> {
+  if (!REPLIT_DB_URL) return false;
+  try {
+    const res = await fetch(REPLIT_DB_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
+      signal: AbortSignal.timeout(6000),
+    });
+    return res.ok;
+  } catch { return false; }
+}
+
+async function kvList(prefix: string): Promise<string[]> {
+  if (!REPLIT_DB_URL) return [];
+  try {
+    const res = await fetch(`${REPLIT_DB_URL}?prefix=${encodeURIComponent(prefix)}`, { signal: AbortSignal.timeout(6000) });
+    if (!res.ok) return [];
+    const text = await res.text();
+    return text.split("\n").map(k => k.trim()).filter(Boolean);
+  } catch { return []; }
+}
+
+// ── Predictions KV ───────────────────────────────────────────────────────────
+
+async function loadPredsFromKV(): Promise<PredStore | null> {
+  const raw = await kvGet(PRED_KV_KEY);
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch { return null; }
+}
+
+async function savePredsToKV(data: PredStore): Promise<boolean> {
+  return kvSet(PRED_KV_KEY, JSON.stringify(data));
+}
+
+// Warm up predsCache from KV on startup — survives deployments.
+loadPredsFromKV().then(async kv => {
+  if (kv) {
+    // Merge: KV is authoritative, local file fills any gaps (e.g. manual edits in git)
+    predsCache = { ...predsCache, ...kv };
+    savePreds(predsCache);
+    console.log("[preds] Loaded from Replit KV:", Object.keys(predsCache).length, "matches");
+  } else if (REPLIT_DB_URL) {
+    // KV available but empty — seed it with local file so it persists future deploys
+    console.log("[preds] Seeding Replit KV with local predictions...");
+    const ok = await savePredsToKV(predsCache);
+    console.log("[preds] Seeded Replit KV:", ok ? "ok" : "failed");
+  } else {
+    console.log("[preds] Replit KV unavailable — using local file fallback");
+  }
+}).catch(() => {});
+
+// ── PIN KV ───────────────────────────────────────────────────────────────────
 
 async function loadAllPinsFromKV(): Promise<PinStore | null> {
   if (!REPLIT_DB_URL) return null;
   try {
-    // List all keys that start with "pin_"
-    const listRes = await fetch(`${REPLIT_DB_URL}?prefix=${PIN_KEY_PREFIX}`, { signal: AbortSignal.timeout(6000) });
-    if (!listRes.ok) return null;
-    const text = await listRes.text();
-    const keys = text.split("\n").map(k => k.trim()).filter(Boolean);
+    const keys = await kvList(PIN_KEY_PREFIX);
     if (!keys.length) return null;
     const store: PinStore = { ...DEFAULT_PINS };
     await Promise.all(keys.map(async key => {
       const userId = key.slice(PIN_KEY_PREFIX.length);
-      const valRes = await fetch(`${REPLIT_DB_URL}/${encodeURIComponent(key)}`, { signal: AbortSignal.timeout(6000) });
-      if (valRes.ok) store[userId] = await valRes.text();
+      const val = await kvGet(key);
+      if (val !== null) store[userId] = val;
     }));
     return store;
   } catch { return null; }
 }
 
 async function savePinToKV(userId: string, pin: string): Promise<boolean> {
-  if (!REPLIT_DB_URL) return false;
-  try {
-    const res = await fetch(REPLIT_DB_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `${PIN_KEY_PREFIX}${encodeURIComponent(userId)}=${encodeURIComponent(pin)}`,
-      signal: AbortSignal.timeout(6000),
-    });
-    return res.ok;
-  } catch { return false; }
+  return kvSet(`${PIN_KEY_PREFIX}${userId}`, pin);
 }
 
 // Warm up pinsCache from Replit KV on startup (non-blocking).
@@ -415,7 +468,8 @@ router.post("/ipl/predictions/:matchId", (req, res) => {
   }
   if (!predsCache[matchId]) predsCache[matchId] = {};
   predsCache[matchId][ownerId] = pick ?? null;
-  savePreds(predsCache);
+  savePreds(predsCache);                    // local file backup
+  savePredsToKV(predsCache).catch(() => {}); // KV (cloud-persistent, non-blocking)
   return res.json({ ok: true, predictions: predsCache });
 });
 
