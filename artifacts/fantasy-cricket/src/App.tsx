@@ -3400,7 +3400,7 @@ export default function App() {
                                             fetch(`/api/ipl/predictions/${encodeURIComponent(matchIdStr)}`, {
                                               method: "POST",
                                               headers: { "Content-Type": "application/json" },
-                                              body: JSON.stringify({ ownerId, pick: newPick }),
+                                              body: JSON.stringify({ ownerId, pick: newPick, requesterId: currentUser }),
                                             }).then(r => r.json()).then(d => {
                                               if (d.predictions) {
                                                 lastPredSaveRef.current = Date.now();

@@ -392,9 +392,9 @@ router.get("/ipl/predictions", (_req, res) => {
 // POST /api/ipl/predictions/:matchId → { ownerId, pick }
 router.post("/ipl/predictions/:matchId", (req, res) => {
   const { matchId } = req.params;
-  const { ownerId, pick } = req.body as { ownerId?: string; pick?: string | null };
+  const { ownerId, pick, requesterId } = req.body as { ownerId?: string; pick?: string | null; requesterId?: string };
   if (!matchId || !ownerId) return res.status(400).json({ error: "matchId and ownerId required" });
-  const isAdmin = ownerId === "rajveer";
+  const isAdmin = requesterId === "rajveer" || ownerId === "rajveer";
   // Block prediction changes for completed matches (admin bypass allowed)
   if (!isAdmin && completedMatchIds.has(matchId)) {
     return res.status(403).json({ error: "Match already completed — predictions are locked" });
