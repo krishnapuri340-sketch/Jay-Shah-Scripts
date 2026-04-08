@@ -1567,15 +1567,14 @@ function buildStatsResponse() {
     for (const inning of inningsToUse) {
       for (const bat of inning.batting || []) {
         const d: string = bat.dismissal || "";
-        // "c Phil Salt b Jacob Duffy" — caught by fielder before " b "
-        if (d.startsWith("c ") && d.includes(" b ")) {
-          const fielder = d.slice(2, d.indexOf(" b ")).trim();
-          if (fielder) catchesStats[fielder] = (catchesStats[fielder] || 0) + 1;
-        }
         // "c & b Jacob Duffy" — caught-and-bowled, credit to bowler
         if (d.startsWith("c & b ")) {
           const bowler = d.slice(6).trim();
           if (bowler) catchesStats[bowler] = (catchesStats[bowler] || 0) + 1;
+        // "c Phil Salt b Jacob Duffy" — regular catch, fielder is between "c " and " b "
+        } else if (d.startsWith("c ") && d.includes(" b ")) {
+          const fielder = d.slice(2, d.indexOf(" b ")).trim();
+          if (fielder) catchesStats[fielder] = (catchesStats[fielder] || 0) + 1;
         }
       }
     }
