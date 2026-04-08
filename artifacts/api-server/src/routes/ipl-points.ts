@@ -1489,6 +1489,7 @@ function buildStatsResponse() {
   const ALL_FANTASY_NAMES = Object.values(FANTASY_TEAMS_EXPORT).flatMap(t => t);
   const battingStats: Record<string, { runs: number; fours: number; sixes: number; balls: number; innings: number; notOuts: number; hs: number; team: string }> = {};
   const bowlingStats: Record<string, { wickets: number; balls: number; runs: number; innings: number; bestW: number; bestR: number }> = {};
+  const catchesStats: Record<string, number> = {};
   // Per-player accumulated fantasy points computed from per-match batting+bowling
   const playerFantasyPts: Record<string, number> = {};
 
@@ -1561,6 +1562,15 @@ function buildStatsResponse() {
     for (const [name, stats] of Object.entries(matchStats)) {
       playerFantasyPts[name] = (playerFantasyPts[name] || 0) + calcPoints(stats);
     }
+
+    // Accumulate catches from the pre-processed playerStats (CricAPI-sourced, most accurate)
+    if (processed?.playerStats) {
+      for (const [name, ps] of Object.entries(processed.playerStats)) {
+        if ((ps.catches || 0) > 0) {
+          catchesStats[name] = (catchesStats[name] || 0) + ps.catches;
+        }
+      }
+    }
   }
 
   const isFantasy = (name: string) => ALL_FANTASY_NAMES.some(n => namesMatch(n, name));
@@ -1585,11 +1595,18 @@ function buildStatsResponse() {
     fantasyPts: playerFantasyPts[name] ?? 0,
   }));
 
+  const catchesLeader = Object.entries(catchesStats)
+    .filter(([name]) => isFantasy(name))
+    .map(([name, catches]) => ({ name, catches, isFantasy: true, fantasyPts: playerFantasyPts[name] ?? 0 }))
+    .sort((a, b) => b.catches - a.catches)
+    .filter(e => e.catches > 0);
+
   return {
     orangeCap: [...batters].sort((a, b) => b.runs - a.runs || b.sr - a.sr),
     purpleCap: [...bowlers].sort((a, b) => b.wickets - a.wickets || a.eco - b.eco),
     sixesLeader: [...batters].sort((a, b) => b.sixes - a.sixes),
     foursLeader: [...batters].sort((a, b) => b.fours - a.fours),
+    catchesLeader,
     srLeader: [...batters].filter(b => b.balls >= 10).sort((a, b) => b.sr - a.sr),
     ecoLeader: [...bowlers].filter(b => b.balls >= 12).sort((a, b) => a.eco - b.eco),
     matchesProcessed: allStatsInningsCache.size,

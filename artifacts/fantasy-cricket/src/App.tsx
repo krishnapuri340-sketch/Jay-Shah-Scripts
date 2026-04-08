@@ -548,7 +548,7 @@ export default function App() {
   const [iplStats, setIplStats] = useState<any | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
   const [statsFilter, setStatsFilter] = useState<"all" | "fantasy" | "predictions">("all");
-  const [statsCategory, setStatsCategory] = useState<"fantasyPts" | "orangeCap" | "purpleCap" | "sixesLeader" | "foursLeader" | "srLeader" | "ecoLeader">("fantasyPts");
+  const [statsCategory, setStatsCategory] = useState<"fantasyPts" | "orangeCap" | "purpleCap" | "sixesLeader" | "foursLeader" | "catchesLeader" | "srLeader" | "ecoLeader">("fantasyPts");
   const [statsExpanded, setStatsExpanded] = useState(false);
   const [predArchiveOpen, setPredArchiveOpen] = useState(false);
   const [fantasyPtsOpen, setFantasyPtsOpen] = useState(false);
@@ -3592,6 +3592,7 @@ export default function App() {
     { id: "purpleCap", label: "Purple Cap", sub: "Most Wickets" },
     { id: "sixesLeader", label: "Sixes", sub: "Most Sixes" },
     { id: "foursLeader", label: "Fours", sub: "Most Fours" },
+    { id: "catchesLeader", label: "Catches", sub: "Most Catches (Fantasy)" },
     { id: "srLeader", label: "Strike Rate", sub: "Min 10 balls" },
     { id: "ecoLeader", label: "Economy", sub: "Min 2 overs" },
   ] as const;
@@ -3609,7 +3610,11 @@ export default function App() {
             {entry.name}
             {entry.isFantasy && <span style={{ marginLeft: 5, fontSize: "0.58rem", fontWeight: 800, color: "#22c55e", verticalAlign: "middle" }}>F</span>}
           </div>
-          {isBat ? (
+          {cat === "catchesLeader" ? (
+            <div style={{ fontSize: "0.62rem", color: "var(--text-3)", marginTop: 1 }}>
+              Fantasy Pts: {entry.fantasyPts ?? 0}
+            </div>
+          ) : isBat ? (
             <div style={{ fontSize: "0.62rem", color: "var(--text-3)", marginTop: 1 }}>
               {cat === "orangeCap" && `HS: ${entry.hs} · SR: ${entry.sr} · ${entry.innings} inn`}
               {cat === "sixesLeader" && `Runs: ${entry.runs} · SR: ${entry.sr}`}
@@ -3629,6 +3634,7 @@ export default function App() {
             {cat === "purpleCap" && entry.wickets}
             {cat === "sixesLeader" && entry.sixes}
             {cat === "foursLeader" && entry.fours}
+            {cat === "catchesLeader" && entry.catches}
             {cat === "srLeader" && entry.sr}
             {cat === "ecoLeader" && entry.eco}
           </div>
@@ -3637,6 +3643,7 @@ export default function App() {
             {cat === "purpleCap" && "wkts"}
             {cat === "sixesLeader" && "sixes"}
             {cat === "foursLeader" && "fours"}
+            {cat === "catchesLeader" && "catches"}
             {cat === "srLeader" && "sr"}
             {cat === "ecoLeader" && "eco"}
           </div>
