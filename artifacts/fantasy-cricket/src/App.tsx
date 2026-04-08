@@ -3369,7 +3369,7 @@ export default function App() {
                               const pick = preds[ownerId] || null;
                               const isCorrect = !!winner && winner !== "tie" && pick === winner;
                               const isWrong = !!winner && winner !== "tie" && pick !== null && pick !== winner;
-                              const canEdit = !isLocked && (ownerId === currentUser || currentUser === "rajveer");
+                              const canEdit = currentUser === "rajveer" || (!isLocked && ownerId === currentUser);
                               return canEdit ? (
                                 /* Big team pick cards */
                                 (<div key={ownerId} style={{ display: "flex", flexDirection: "column", gap: 5 }}>
