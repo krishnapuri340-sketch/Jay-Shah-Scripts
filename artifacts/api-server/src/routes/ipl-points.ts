@@ -1596,8 +1596,7 @@ function buildStatsResponse() {
   }));
 
   const catchesLeader = Object.entries(catchesStats)
-    .filter(([name]) => isFantasy(name))
-    .map(([name, catches]) => ({ name, catches, isFantasy: true, fantasyPts: playerFantasyPts[name] ?? 0 }))
+    .map(([name, catches]) => ({ name, catches, isFantasy: isFantasy(name), fantasyPts: playerFantasyPts[name] ?? 0 }))
     .sort((a, b) => b.catches - a.catches)
     .filter(e => e.catches > 0);
 
