@@ -2,7 +2,8 @@
   "seriesId": "87c62aac-bc3c-4738-ab93-19da0690488f",
   "cricapiMatchIds": {
     "2427": "e92727d0-61fc-4c6f-82ed-cde4789745a2",
-    "2428": "adeebb28-bc39-439b-99ed-2daef5106232"
+    "2428": "adeebb28-bc39-439b-99ed-2daef5106232",
+    "2430": "5945bbf4-b6b5-45b6-abac-db03e8a39130"
   },
   "processedMatches": {
     "2417": {
@@ -7947,6 +7948,42 @@
           "stumpings": 0
         }
       }
+    },
+    "2430": {
+      "points": {},
+      "innings": [
+        {
+          "name": "0 Inning 1",
+          "total": "0",
+          "batting": [
+            {
+              "name": "0",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "0",
+              "dismissal": "0",
+              "notOut": false,
+              "dnb": false
+            }
+          ],
+          "bowling": [
+            {
+              "name": "0",
+              "overs": "0",
+              "maidens": 0,
+              "runs": 0,
+              "wickets": 0,
+              "eco": "0",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 0
+            }
+          ]
+        }
+      ],
+      "playerStats": {}
     }
   },
   "supabaseScores": {
@@ -8806,6 +8843,6 @@
   "lastUpdated": "2026-04-08T08:57:49.097Z",
   "dailyHits": {
     "date": "2026-04-08",
-    "count": 4
+    "count": 8
   }
 }
