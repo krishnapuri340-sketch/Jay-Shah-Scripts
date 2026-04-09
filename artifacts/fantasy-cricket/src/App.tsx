@@ -569,6 +569,7 @@ export default function App() {
   const [predictions, setPredictions] = useState<Record<string, Record<string, string | null>>>({});
   const lastPredSaveRef = useRef<number>(0);
   const [predFlash, setPredFlash] = useState<string | null>(null);
+  const [predSaveState, setPredSaveState] = useState<Record<string, "saving" | "saved" | "error">>({});
 
   const [sparkTip, setSparkTip] = useState<{ label: string; pts: number } | null>(null);
   const [pullY, setPullY] = useState(0);
@@ -3456,16 +3457,14 @@ export default function App() {
                                           onClick={e => {
                                             e.stopPropagation();
                                             const newPick = pick === code ? null : code;
-                                            if (newPick) {
-                                              setPredFlash(flashKey);
-                                              setTimeout(() => setPredFlash(k => k === flashKey ? null : k), 700);
-                                            }
+                                            const saveKey = `${matchIdStr}-${ownerId}`;
                                             lastPredSaveRef.current = Date.now();
                                             setPredictions(prev => {
                                               const updated = { ...prev, [matchIdStr]: { ...(prev[matchIdStr] || {}), [ownerId]: newPick } };
                                               saveLocalPreds(updated);
                                               return updated;
                                             });
+                                            setPredSaveState(s => ({ ...s, [saveKey]: "saving" }));
                                             fetch(`/api/ipl/predictions/${encodeURIComponent(matchIdStr)}`, {
                                               method: "POST",
                                               headers: { "Content-Type": "application/json" },
@@ -3475,6 +3474,8 @@ export default function App() {
                                                 lastPredSaveRef.current = Date.now();
                                                 saveLocalPreds(d.predictions);
                                                 setPredictions(d.predictions);
+                                                setPredSaveState(s => ({ ...s, [saveKey]: "saved" }));
+                                                setTimeout(() => setPredSaveState(s => { const n = { ...s }; delete n[saveKey]; return n; }), 2000);
                                               } else {
                                                 lastPredSaveRef.current = Date.now();
                                                 setPredictions(prev => {
@@ -3482,6 +3483,8 @@ export default function App() {
                                                   saveLocalPreds(reverted);
                                                   return reverted;
                                                 });
+                                                setPredSaveState(s => ({ ...s, [saveKey]: "error" }));
+                                                setTimeout(() => setPredSaveState(s => { const n = { ...s }; delete n[saveKey]; return n; }), 2500);
                                               }
                                             }).catch(() => {
                                               lastPredSaveRef.current = Date.now();
@@ -3490,6 +3493,8 @@ export default function App() {
                                                 saveLocalPreds(reverted);
                                                 return reverted;
                                               });
+                                              setPredSaveState(s => ({ ...s, [saveKey]: "error" }));
+                                              setTimeout(() => setPredSaveState(s => { const n = { ...s }; delete n[saveKey]; return n; }), 2500);
                                             });
                                           }}>
                                           <img src={TEAM_LOGO_CDN[code]} alt={code} style={{ width: 24, height: 24, objectFit: "contain", filter: isSelected ? "none" : "grayscale(0.3) opacity(0.7)", transition: "filter 0.2s" }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
@@ -3503,6 +3508,34 @@ export default function App() {
                                       );
                                     })}
                                   </div>
+                                  {/* Save status indicator */}
+                                  {(() => {
+                                    const saveKey = `${matchIdStr}-${ownerId}`;
+                                    const ss = predSaveState[saveKey];
+                                    if (!ss) return null;
+                                    return (
+                                      <div style={{ display: "flex", alignItems: "center", gap: 5, height: 16 }}>
+                                        {ss === "saving" && (
+                                          <>
+                                            <svg style={{ animation: "spin 0.8s linear infinite" }} width="10" height="10" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="var(--text-3)" strokeWidth="2.5" strokeDasharray="40 20"/></svg>
+                                            <span style={{ fontSize: "0.55rem", color: "var(--text-3)", letterSpacing: "0.04em" }}>Saving…</span>
+                                          </>
+                                        )}
+                                        {ss === "saved" && (
+                                          <>
+                                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5L8.5 2" stroke="#22c55e" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                            <span style={{ fontSize: "0.55rem", color: "#22c55e", letterSpacing: "0.04em" }}>Saved</span>
+                                          </>
+                                        )}
+                                        {ss === "error" && (
+                                          <>
+                                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 2l6 6M8 2l-6 6" stroke="#ef4444" strokeWidth="1.6" strokeLinecap="round"/></svg>
+                                            <span style={{ fontSize: "0.55rem", color: "#ef4444", letterSpacing: "0.04em" }}>Failed — reverted</span>
+                                          </>
+                                        )}
+                                      </div>
+                                    );
+                                  })()}
                                 </div>)
                               ) : (
                                 /* Compact read-only row */
