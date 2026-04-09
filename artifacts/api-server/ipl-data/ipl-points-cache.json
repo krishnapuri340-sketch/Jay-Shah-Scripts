@@ -3,7 +3,8 @@
   "cricapiMatchIds": {
     "2427": "e92727d0-61fc-4c6f-82ed-cde4789745a2",
     "2428": "adeebb28-bc39-439b-99ed-2daef5106232",
-    "2430": "5945bbf4-b6b5-45b6-abac-db03e8a39130"
+    "2430": "5945bbf4-b6b5-45b6-abac-db03e8a39130",
+    "2431": "2d6c0b86-76c0-4795-96a4-e252f575d2d9"
   },
   "processedMatches": {
     "2417": {
@@ -7953,37 +7954,921 @@
       "points": {},
       "innings": [
         {
-          "name": "0 Inning 1",
-          "total": "0",
+          "name": "Gujarat Titans Inning 1",
+          "total": "210/4 (20.0 ov)",
           "batting": [
             {
-              "name": "0",
+              "name": "Sai Sudharsan",
+              "runs": 12,
+              "balls": 7,
+              "fours": 2,
+              "sixes": 0,
+              "sr": "171.43",
+              "dismissal": "b Mukesh Kumar",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Shubman Gill",
+              "runs": 70,
+              "balls": 45,
+              "fours": 4,
+              "sixes": 5,
+              "sr": "155.56",
+              "dismissal": "c Nitish Rana b Lungisani Ngidi",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Jos Buttler",
+              "runs": 52,
+              "balls": 27,
+              "fours": 3,
+              "sixes": 5,
+              "sr": "192.59",
+              "dismissal": "b Kuldeep Yadav",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Washington Sundar",
+              "runs": 55,
+              "balls": 32,
+              "fours": 6,
+              "sixes": 2,
+              "sr": "171.88",
+              "dismissal": "c Nitish Rana b Mukesh Kumar",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Glenn Phillips",
+              "runs": 14,
+              "balls": 9,
+              "fours": 1,
+              "sixes": 1,
+              "sr": "155.56",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Rahul Tewatia",
+              "runs": 1,
+              "balls": 1,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "100.00",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Prasidh Krishna",
               "runs": 0,
               "balls": 0,
               "fours": 0,
               "sixes": 0,
-              "sr": "0",
-              "dismissal": "0",
+              "sr": "-",
+              "dismissal": "",
               "notOut": false,
-              "dnb": false
+              "dnb": true
+            },
+            {
+              "name": "Rashid Khan",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Kagiso Rabada",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Mohammed Siraj",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Shahrukh Khan",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Ashok Sharma",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
             }
           ],
           "bowling": [
             {
-              "name": "0",
-              "overs": "0",
+              "name": "Mukesh Kumar",
+              "overs": "4",
               "maidens": 0,
-              "runs": 0,
+              "runs": 55,
+              "wickets": 2,
+              "eco": "13.75",
+              "wides": 2,
+              "noBalls": 0,
+              "dots": 8
+            },
+            {
+              "name": "Lungisani Ngidi",
+              "overs": "4",
+              "maidens": 0,
+              "runs": 24,
+              "wickets": 1,
+              "eco": "6",
+              "wides": 2,
+              "noBalls": 0,
+              "dots": 11
+            },
+            {
+              "name": "Axar Patel",
+              "overs": "3",
+              "maidens": 0,
+              "runs": 32,
               "wickets": 0,
-              "eco": "0",
+              "eco": "10.67",
+              "wides": 1,
+              "noBalls": 0,
+              "dots": 2
+            },
+            {
+              "name": "Kuldeep Yadav",
+              "overs": "4",
+              "maidens": 0,
+              "runs": 42,
+              "wickets": 1,
+              "eco": "10.5",
               "wides": 0,
               "noBalls": 0,
-              "dots": 0
+              "dots": 5
+            },
+            {
+              "name": "T Natarajan",
+              "overs": "4",
+              "maidens": 0,
+              "runs": 34,
+              "wickets": 0,
+              "eco": "8.5",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 4
+            },
+            {
+              "name": "Vipraj Nigam",
+              "overs": "1",
+              "maidens": 0,
+              "runs": 23,
+              "wickets": 0,
+              "eco": "23",
+              "wides": 0,
+              "noBalls": 1,
+              "dots": 1
+            }
+          ]
+        },
+        {
+          "name": "Delhi Capitals Inning 2",
+          "total": "209/8 (20.0 ov)",
+          "batting": [
+            {
+              "name": "Pathum Nissanka",
+              "runs": 41,
+              "balls": 24,
+              "fours": 6,
+              "sixes": 1,
+              "sr": "170.83",
+              "dismissal": "c Rahul Tewatia b Prasidh Krishna",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "K L Rahul",
+              "runs": 92,
+              "balls": 52,
+              "fours": 11,
+              "sixes": 4,
+              "sr": "176.92",
+              "dismissal": "c Jos Buttler b Mohammed Siraj",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Nitish Rana",
+              "runs": 5,
+              "balls": 6,
+              "fours": 1,
+              "sixes": 0,
+              "sr": "83.33",
+              "dismissal": "c Sai Sudharsan b Rashid Khan",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Sameer Rizvi",
+              "runs": 0,
+              "balls": 1,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "0.00",
+              "dismissal": "b Rashid Khan",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "David Miller",
+              "runs": 41,
+              "balls": 20,
+              "fours": 3,
+              "sixes": 3,
+              "sr": "205.00",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Axar Patel",
+              "runs": 2,
+              "balls": 3,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "66.67",
+              "dismissal": "c Glenn Phillips b Rashid Khan",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Tristan Stubbs",
+              "runs": 7,
+              "balls": 6,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "116.67",
+              "dismissal": "run out (Sai Sudharsan)",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Vipraj Nigam",
+              "runs": 12,
+              "balls": 7,
+              "fours": 2,
+              "sixes": 0,
+              "sr": "171.43",
+              "dismissal": "c Shubman Gill b Prasidh Krishna",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Kuldeep Yadav",
+              "runs": 1,
+              "balls": 1,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "100.00",
+              "dismissal": "run out (Jos Buttler)",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Lungisani Ngidi",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "T Natarajan",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Mukesh Kumar",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            }
+          ],
+          "bowling": [
+            {
+              "name": "Mohammed Siraj",
+              "overs": "4",
+              "maidens": 0,
+              "runs": 52,
+              "wickets": 1,
+              "eco": "13",
+              "wides": 4,
+              "noBalls": 0,
+              "dots": 8
+            },
+            {
+              "name": "Kagiso Rabada",
+              "overs": "4",
+              "maidens": 0,
+              "runs": 32,
+              "wickets": 0,
+              "eco": "8",
+              "wides": 2,
+              "noBalls": 0,
+              "dots": 9
+            },
+            {
+              "name": "Rashid Khan",
+              "overs": "4",
+              "maidens": 0,
+              "runs": 17,
+              "wickets": 3,
+              "eco": "4.25",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 10
+            },
+            {
+              "name": "Ashok Sharma",
+              "overs": "3",
+              "maidens": 0,
+              "runs": 45,
+              "wickets": 0,
+              "eco": "15",
+              "wides": 2,
+              "noBalls": 0,
+              "dots": 2
+            },
+            {
+              "name": "Prasidh Krishna",
+              "overs": "4",
+              "maidens": 0,
+              "runs": 52,
+              "wickets": 2,
+              "eco": "13",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 7
+            },
+            {
+              "name": "Washington Sundar",
+              "overs": "1",
+              "maidens": 0,
+              "runs": 11,
+              "wickets": 0,
+              "eco": "11",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 1
             }
           ]
         }
       ],
-      "playerStats": {}
+      "playerStats": {
+        "Axar Patel": {
+          "played": true,
+          "runs": 2,
+          "balls": 3,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 2,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 18,
+          "runsConceded": 32,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Shubman Gill": {
+          "played": true,
+          "runs": 70,
+          "balls": 45,
+          "fours": 4,
+          "sixes": 5,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 1,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Jos Buttler": {
+          "played": true,
+          "runs": 52,
+          "balls": 27,
+          "fours": 3,
+          "sixes": 5,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 1,
+          "runOuts": 1,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Sai Sudharsan": {
+          "played": true,
+          "runs": 12,
+          "balls": 7,
+          "fours": 2,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 1,
+          "runOuts": 1,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Prasidh Krishna": {
+          "played": true,
+          "runs": 0,
+          "balls": 0,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 2,
+          "dots": 7,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 24,
+          "runsConceded": 52,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Rashid Khan": {
+          "played": true,
+          "runs": 0,
+          "balls": 0,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 3,
+          "dots": 10,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 24,
+          "runsConceded": 17,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Nitish Rana": {
+          "played": true,
+          "runs": 5,
+          "balls": 6,
+          "fours": 1,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 2,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Lungi Ngidi": {
+          "played": true,
+          "runs": 0,
+          "balls": 0,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 1,
+          "dots": 11,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 24,
+          "runsConceded": 24,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Mohammed Siraj": {
+          "played": true,
+          "runs": 0,
+          "balls": 0,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 1,
+          "dots": 8,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 24,
+          "runsConceded": 52,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Tristan Stubbs": {
+          "played": true,
+          "runs": 7,
+          "balls": 6,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "KL Rahul": {
+          "played": true,
+          "runs": 92,
+          "balls": 52,
+          "fours": 11,
+          "sixes": 4,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Kuldeep Yadav": {
+          "played": true,
+          "runs": 1,
+          "balls": 1,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 1,
+          "dots": 5,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 24,
+          "runsConceded": 42,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Washington Sundar": {
+          "played": true,
+          "runs": 55,
+          "balls": 32,
+          "fours": 6,
+          "sixes": 2,
+          "duck": false,
+          "wickets": 0,
+          "dots": 1,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 6,
+          "runsConceded": 11,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "T Natarajan": {
+          "played": true,
+          "runs": 0,
+          "balls": 0,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 4,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 24,
+          "runsConceded": 34,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        }
+      }
+    },
+    "2431": {
+      "points": {
+        "Mohammed Shami": 24,
+        "Ajinkya Rahane": 83,
+        "Finn Allen": 21
+      },
+      "innings": [
+        {
+          "name": "Kolkata Knight Riders Inning 1",
+          "total": "93/1 (9.4 ov)",
+          "batting": [
+            {
+              "name": "Ajinkya Rahane",
+              "runs": 41,
+              "balls": 23,
+              "fours": 4,
+              "sixes": 2,
+              "sr": "178.26",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Finn Allen",
+              "runs": 9,
+              "balls": 8,
+              "fours": 2,
+              "sixes": 0,
+              "sr": "112.50",
+              "dismissal": "c Digvesh Singh b Prince Yadav",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Angkrish Raghuvanshi",
+              "runs": 37,
+              "balls": 27,
+              "fours": 4,
+              "sixes": 2,
+              "sr": "137.04",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Cameron Green",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Rinku Singh",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Ramandeep Singh",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Anukul Roy",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Rovman Powell",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Sunil Narine",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Navdeep Saini",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Kartik Tyagi",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            }
+          ],
+          "bowling": [
+            {
+              "name": "Mohammad Shami",
+              "overs": "2",
+              "maidens": 0,
+              "runs": 11,
+              "wickets": 0,
+              "eco": "5.5",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 7
+            },
+            {
+              "name": "Prince Yadav",
+              "overs": "1.4",
+              "maidens": 0,
+              "runs": 14,
+              "wickets": 1,
+              "eco": "8.4",
+              "wides": 2,
+              "noBalls": 0,
+              "dots": 4
+            },
+            {
+              "name": "M Siddharth",
+              "overs": "2",
+              "maidens": 0,
+              "runs": 18,
+              "wickets": 0,
+              "eco": "9",
+              "wides": 1,
+              "noBalls": 0,
+              "dots": 5
+            },
+            {
+              "name": "Digvesh Singh",
+              "overs": "2",
+              "maidens": 0,
+              "runs": 18,
+              "wickets": 0,
+              "eco": "9",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 4
+            },
+            {
+              "name": "Avesh Khan",
+              "overs": "2",
+              "maidens": 0,
+              "runs": 30,
+              "wickets": 0,
+              "eco": "15",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 4
+            }
+          ]
+        }
+      ],
+      "playerStats": {
+        "Mohammed Shami": {
+          "played": true,
+          "runs": 0,
+          "balls": 0,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 7,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 12,
+          "runsConceded": 11,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Ajinkya Rahane": {
+          "played": true,
+          "runs": 41,
+          "balls": 23,
+          "fours": 4,
+          "sixes": 2,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Finn Allen": {
+          "played": true,
+          "runs": 9,
+          "balls": 8,
+          "fours": 2,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        }
+      }
     }
   },
   "supabaseScores": {
@@ -8233,6 +9118,28 @@
       "matchDate": "2026-04-07",
       "matchNumber": 13,
       "linkedIplId": "2429"
+    },
+    "0272c5e8-9a50-41f9-8c3f-1101039eae92": {
+      "points": {
+        "Prasidh Krishna": 72,
+        "Sai Sudharsan": 42,
+        "Axar Patel": 8,
+        "Mohammed Siraj": 44,
+        "Kuldeep Yadav": 51,
+        "Rashid Khan": 138,
+        "Nitish Rana": 29,
+        "Tristan Stubbs": 11,
+        "Jos Buttler": 132,
+        "Shubman Gill": 140,
+        "T Natarajan": 12,
+        "Washington Sundar": 111,
+        "KL Rahul": 182,
+        "Lungi Ngidi": 60
+      },
+      "matchLabel": "Delhi Capitals vs Gujarat Titans",
+      "matchDate": "2026-04-08",
+      "matchNumber": 14,
+      "linkedIplId": "2430"
     }
   },
   "playerIdMap": {
@@ -8839,9 +9746,9 @@
       "teamB": "Delhi Capitals"
     }
   },
-  "lastUpdated": "2026-04-08T13:49:00.153Z",
+  "lastUpdated": "2026-04-09T10:49:51.735Z",
   "dailyHits": {
-    "date": "2026-04-08",
-    "count": 18
+    "date": "2026-04-09",
+    "count": 5
   }
 }
