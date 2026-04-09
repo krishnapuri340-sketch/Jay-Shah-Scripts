@@ -1,0 +1,71 @@
+Now I have a thorough understanding of your codebase. Let me give you a precise diagnosis and actionable fix guide.​​​​​​​​​​​​​​​​
+
+Now I have the full picture. Here’s a precise diagnosis and fix plan:
+
+Root Cause: Race condition between polling and saving
+Your app has a 30-second polling loop (fetchPredictions runs every 30s) that fetches the server’s prediction state and overwrites the local state. The bug is a race condition:
+	1.	User A picks a team → optimistic UI update + POST to server
+	2.	Before the POST response returns, the 30s poll fires → fetches the old server state → overwrites the pick
+	3.	The lastPredSaveRef guard (4s window) is supposed to prevent this, but it only checks on the start of fetchPredictions, not at the point where setPredictions is called
+There are 3 concrete issues to fix in Replit:
+
+Fix 1: The guard window is too short and checked too early
+In App.tsx, the fetchPredictions function checks lastPredSaveRef at the start of the fetch, but the fetch itself takes 1–3 seconds. By the time setPredictions(server) runs, the guard has already passed.
+In Replit, find this block (~line 812):
+
+const fetchPredictions = async () => {
+  if (Date.now() - lastPredSaveRef.current < 4000) return;
+
+
+Change it to:
+
+const fetchPredictions = async () => {
+  if (Date.now() - lastPredSaveRef.current < 8000) return;
+  const fetchStartedAt = Date.now();
+
+
+Then find the setPredictions(server) call inside that same function and change it to:
+
+// Re-check the guard AFTER the async fetch completes
+if (Date.now() - lastPredSaveRef.current < 8000) return;
+if (fetchStartedAt < lastPredSaveRef.current) return; // save happened mid-flight
+saveLocalPreds(server);
+setPredictions(server);
+
+
+Fix 2: lastPredSaveRef isn’t reset on error (reverts silently)
+When the POST fails (~line 3480), the code reverts the pick and resets the guard to 0, which means the very next poll will fetch stale server state and could overwrite a valid pick from another user.
+Find this in the .catch(() => {}) block:
+
+lastPredSaveRef.current = 0;
+setPredictions(prev => {
+  const reverted = ...
+
+
+Change lastPredSaveRef.current = 0 to lastPredSaveRef.current = Date.now() in both the .catch and the error branch of .then. This keeps the guard alive even after a failed save, so the revert isn’t immediately overwritten by a poll.
+
+Fix 3: Replit KV is the real persistence layer — confirm it’s working
+Your server already has excellent persistence via Replit KV (REPLIT_DB_URL). The issue is almost certainly on the frontend side (Fix 1 & 2), but you should verify KV is actually connected:
+In your Replit server logs, you should see on startup:
+
+[preds] Loaded from Replit KV: 13 matches
+[pins] Loaded from Replit KV: rajveer, mombasa, mumbai, ponygoat
+
+
+If instead you see “Replit KV unavailable — using local file fallback”, then REPLIT_DB_URL is missing. In Replit, go to Tools → Secrets and check that REPLIT_DB_URL is auto-populated. If it’s not, you may need to enable the Replit Database add-on for your project (it should be free for Hacker plan and above).
+
+Fix 4 (bonus): Add a visual save indicator
+Since the bug is silent, add a quick UI indicator so users know their pick was saved. After the successful .then(d => { if (d.predictions) {... block, you already have the predFlash animation — that’s good. But consider adding a small toast or changing the button border colour for 2 seconds on success so users don’t double-tap thinking nothing happened.
+
+Summary table
+
+
+
+|#|Location                      |Problem                                                   |Fix                                         |
+|-|------------------------------|----------------------------------------------------------|--------------------------------------------|
+|1|`fetchPredictions` in App.tsx |Guard checked before async fetch, too short               |Extend to 8s, re-check after fetch completes|
+|2|`.catch` in pick click handler|Guard reset to 0 on error, allows immediate poll overwrite|Set to `Date.now()` instead of 0            |
+|3|Replit server                 |KV may not be connected                                   |Verify startup logs show KV loaded          |
+|4|Pick button UI                |No clear save confirmation                                |Already have flash animation, keep it       |
+
+Fixes 1 and 2 are the critical ones — they’re both in App.tsx around lines 812–830 and 3476–3490. Let me know if you want me to write out the exact full corrected code blocks for either!​​​​​​​​​​​​​​​​

@@ -810,14 +810,17 @@ export default function App() {
   };
 
   const fetchPredictions = async () => {
-    // Don't overwrite a just-saved prediction — wait 4 s for the POST to settle
-    if (Date.now() - lastPredSaveRef.current < 4000) return;
+    // Don't overwrite a just-saved prediction — wait 8 s for the POST to settle
+    if (Date.now() - lastPredSaveRef.current < 8000) return;
+    const fetchStartedAt = Date.now();
     try {
       const res = await fetch("/api/ipl/predictions");
       if (res.ok) {
         const server: Record<string, Record<string, string | null>> = await res.json();
-        // Guard again: the GET was in-flight; another save may have happened
-        if (Date.now() - lastPredSaveRef.current < 4000) return;
+        // Re-check guard AFTER the async fetch completes (fetch takes 1-3s)
+        if (Date.now() - lastPredSaveRef.current < 8000) return;
+        // If a save happened while the fetch was in-flight, abort
+        if (fetchStartedAt < lastPredSaveRef.current) return;
         // Server is the source of truth — always use it directly.
         // Local cache is only a fallback for offline use.
         saveLocalPreds(server);
@@ -3473,7 +3476,7 @@ export default function App() {
                                                 saveLocalPreds(d.predictions);
                                                 setPredictions(d.predictions);
                                               } else {
-                                                lastPredSaveRef.current = 0;
+                                                lastPredSaveRef.current = Date.now();
                                                 setPredictions(prev => {
                                                   const reverted = { ...prev, [matchIdStr]: { ...(prev[matchIdStr] || {}), [ownerId]: pick } };
                                                   saveLocalPreds(reverted);
@@ -3481,7 +3484,7 @@ export default function App() {
                                                 });
                                               }
                                             }).catch(() => {
-                                              lastPredSaveRef.current = 0;
+                                              lastPredSaveRef.current = Date.now();
                                               setPredictions(prev => {
                                                 const reverted = { ...prev, [matchIdStr]: { ...(prev[matchIdStr] || {}), [ownerId]: pick } };
                                                 saveLocalPreds(reverted);
