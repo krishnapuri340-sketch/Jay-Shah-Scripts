@@ -951,7 +951,23 @@ export default function App() {
     fetchStats();
   }, [tab, currentUser]);
 
-  // Poll predictions on all tabs so picks from any user/device stay in sync
+  // SSE: server pushes predictions to all open sessions instantly on any save
+  useEffect(() => {
+    if (!currentUser) return;
+    const es = new EventSource("/api/ipl/predictions/stream");
+    es.onmessage = (e) => {
+      try {
+        const data = JSON.parse(e.data) as Record<string, Record<string, string | null>>;
+        // Update lastPredSaveRef so the 30s poll fallback doesn't overwrite this fresh push
+        lastPredSaveRef.current = Date.now();
+        saveLocalPreds(data);
+        setPredictions(data);
+      } catch {}
+    };
+    return () => es.close();
+  }, [currentUser]);
+
+  // Poll predictions on all tabs as fallback (SSE covers normal operation)
   useEffect(() => {
     if (!currentUser) return;
     fetchPredictions(); // immediate fetch on login / tab change

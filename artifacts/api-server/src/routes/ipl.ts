@@ -26,6 +26,15 @@ function savePreds(data: PredStore) {
 }
 let predsCache: PredStore = loadPreds();
 
+// ── SSE push ───────────────────────────────────────────────────────────────────
+const sseClients = new Set<any>();
+function broadcastPredictions() {
+  const payload = `data: ${JSON.stringify(predsCache)}\n\n`;
+  for (const res of sseClients) {
+    try { res.write(payload); } catch { sseClients.delete(res); }
+  }
+}
+
 const PINS_FILE = join(_dataDir, "ipl-pins.json");
 const DEFAULT_PINS: Record<string, string> = { rajveer: "1111", mombasa: "2222", mumbai: "3333", ponygoat: "4444" };
 type PinStore = Record<string, string>;
@@ -442,6 +451,25 @@ router.get("/ipl/predictions", (_req, res) => {
   res.json(predsCache);
 });
 
+// GET /api/ipl/predictions/stream → SSE push channel
+router.get("/ipl/predictions/stream", (req, res) => {
+  res.set({
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+    "Connection": "keep-alive",
+    "X-Accel-Buffering": "no",
+  });
+  res.flushHeaders();
+  // Send current state immediately so client is up-to-date on connect
+  res.write(`data: ${JSON.stringify(predsCache)}\n\n`);
+  sseClients.add(res);
+  // Keepalive ping every 25 s so proxies don't drop the connection
+  const hb = setInterval(() => {
+    try { res.write(": ping\n\n"); } catch { clearInterval(hb); sseClients.delete(res); }
+  }, 25_000);
+  req.on("close", () => { clearInterval(hb); sseClients.delete(res); });
+});
+
 // POST /api/ipl/predictions/:matchId → { ownerId, pick }
 router.post("/ipl/predictions/:matchId", (req, res) => {
   const { matchId } = req.params;
@@ -470,6 +498,7 @@ router.post("/ipl/predictions/:matchId", (req, res) => {
   predsCache[matchId][ownerId] = pick ?? null;
   savePreds(predsCache);                    // local file backup
   savePredsToKV(predsCache).catch(() => {}); // KV (cloud-persistent, non-blocking)
+  broadcastPredictions();                   // push to all open SSE sessions instantly
   return res.json({ ok: true, predictions: predsCache });
 });
 
