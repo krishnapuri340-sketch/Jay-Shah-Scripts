@@ -10184,6 +10184,27 @@
       "matchDate": "2026-04-09",
       "matchNumber": 15,
       "linkedIplId": "2431"
+    },
+    "89a84f95-ee2f-4a1d-a6a6-8e340f0bb720": {
+      "points": {
+        "Jitesh Sharma": 17,
+        "Virat Kohli": 84,
+        "Dhruv Jurel": 161,
+        "Shimron Hetmyer": 30,
+        "Riyan Parag": 7,
+        "Rajat Patidar": 119,
+        "Ravindra Jadeja": 68,
+        "Krunal Pandya": 89,
+        "Phil Salt": 2,
+        "Vaibhav Suryavanshi": 176,
+        "Tim David": 27,
+        "Yashasvi Jaiswal": 29,
+        "Bhuvneshwar Kumar": 35,
+        "Venkatesh Iyer": 61
+      },
+      "matchLabel": "Rajasthan Royals vs Royal Challengers Bengaluru",
+      "matchDate": "2026-04-10",
+      "matchNumber": 16
     }
   },
   "playerIdMap": {
@@ -10860,7 +10881,7 @@
       "matchNumber": 70
     }
   },
-  "lastUpdated": "2026-04-10T21:51:37.873Z",
+  "lastUpdated": "2026-04-10T22:09:55.822Z",
   "dailyHits": {
     "date": "2026-04-10",
     "count": 13

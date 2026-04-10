@@ -2418,7 +2418,6 @@ export default function App() {
           const awards: Array<{ emoji: string; label: string; teamId: string; sub: string }> = [
             { emoji: "👑", label: "League Leader",      teamId: leader.id,   sub: `${leader.total} pts` },
             ...(clutchTeamId  ? [{ emoji: "💥", label: "Best Single Match",  teamId: clutchTeamId,  sub: `${bestMatch[clutchTeamId]} pts` }] : []),
-            ...(hotTeamId     ? [{ emoji: "🔥", label: "Hottest Last Match", teamId: hotTeamId,     sub: `+${lastMatchScores[hotTeamId]} pts` }] : []),
             { emoji: "💀",      label: "Wooden Spoon",   teamId: lastPlace.id, sub: `${lastPlace.total} pts` },
             ...(sixesTeamId   ? [{ emoji: "💣", label: "Six Appeal",         teamId: sixesTeamId,   sub: `${teamAgg[sixesTeamId].sixes} sixes` }] : []),
             ...(runsTeamId    ? [{ emoji: "🏏", label: "Run Machine",        teamId: runsTeamId,    sub: `${teamAgg[runsTeamId].runs} runs` }] : []),
