@@ -4707,25 +4707,27 @@ export default function App() {
 
           const hasData = Object.keys(playerPoints).length > 0;
 
-          const TeamPicker = ({ selected, onSelect, exclude }: { selected: string; onSelect: (id: string) => void; exclude: string }) => (
-            <div style={{ display: "flex", gap: 5, flex: 1 }}>
-              {OWNER_IDS.filter(id => id !== exclude).map(id => {
-                const ft = FANTASY_TEAMS[id];
-                const isActive = id === selected;
-                return (
-                  <button key={id} onClick={() => { onSelect(id); setXferPlayersA([]); setXferPlayersB([]); }}
-                    style={{
-                      flex: 1, padding: "8px 4px", borderRadius: 10, border: `1.5px solid ${isActive ? ft.color : "rgba(255,255,255,0.08)"}`,
-                      background: isActive ? ft.color + "22" : "var(--surface-2)",
-                      color: isActive ? ft.color : "var(--text-3)", fontSize: "0.72rem", fontWeight: 700,
-                      cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s",
-                    }}>
+          const TeamPicker = ({ selected, onSelect, exclude }: { selected: string; onSelect: (id: string) => void; exclude: string }) => {
+            const ft = FANTASY_TEAMS[selected];
+            return (
+              <select
+                value={selected}
+                onChange={e => { onSelect(e.target.value); setXferPlayersA([]); setXferPlayersB([]); }}
+                style={{
+                  flex: 1, background: ft.color + "18", border: `1.5px solid ${ft.color}55`,
+                  borderRadius: 10, color: ft.color, fontSize: "0.8rem", fontWeight: 700,
+                  padding: "9px 12px", cursor: "pointer", outline: "none", fontFamily: "inherit",
+                  WebkitAppearance: "none", appearance: "none",
+                }}
+              >
+                {OWNER_IDS.filter(id => id !== exclude).map(id => (
+                  <option key={id} value={id} style={{ background: "#111113", color: FANTASY_TEAMS[id].color, fontWeight: 700 }}>
                     {ownerShortName(id)}
-                  </button>
-                );
-              })}
-            </div>
-          );
+                  </option>
+                ))}
+              </select>
+            );
+          };
 
           const PlayerList = ({ team, selectedPlayers, onToggle }: {
             team: typeof FANTASY_TEAMS[string];
