@@ -4247,33 +4247,24 @@ export default function App() {
           return (
             <div>
               {/* ── Team selectors ── */}
-              <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden", marginBottom: 10 }}>
-                {(["from", "to"] as const).map((side, si) => {
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 10 }}>
+                {(["from", "to"] as const).map(side => {
                   const activeId = side === "from" ? txFromTeam : txToTeam;
                   const setActive = side === "from"
                     ? (id: string) => { setTxFromTeam(id); setTxPickingFor(null); setTxPendingPlayer(null); if (txToTeam === id) setTxToTeam(PRED_OWNERS.find(o => o !== id) || "mombasa"); }
                     : (id: string) => { setTxToTeam(id); setTxPickingFor(null); setTxPendingPlayer(null); };
-                  const label = side === "from" ? "FROM" : "TO";
+                  const ft = FANTASY_TEAMS[activeId as typeof PRED_OWNERS[number]];
                   return (
-                    <div key={side} style={{ borderBottom: si === 0 ? "1px solid var(--border)" : "none" }}>
-                      <div style={{ display: "flex", alignItems: "center" }}>
-                        <div style={{ fontSize: "0.5rem", color: "var(--text-3)", fontWeight: 700, letterSpacing: "0.1em", width: 36, textAlign: "center" as const, flexShrink: 0 }}>{label}</div>
-                        <div style={{ flex: 1, display: "flex" }}>
-                          {PRED_OWNERS.map(oid => {
-                            const ft = FANTASY_TEAMS[oid];
-                            const sel = activeId === oid;
-                            const disabled = side === "to" && oid === txFromTeam;
-                            return (
-                              <button key={oid} onClick={() => !disabled && setActive(oid)} disabled={disabled}
-                                style={{ flex: 1, background: sel ? ft.color + "18" : "transparent", border: "none", borderLeft: "1px solid var(--border)", padding: "10px 4px", cursor: disabled ? "default" : "pointer", display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 3, opacity: disabled ? 0.25 : 1, transition: "background 0.15s" }}>
-                                <div style={{ width: 26, height: 26, borderRadius: "50%", border: `2px solid ${sel ? ft.color : "rgba(255,255,255,0.12)"}`, overflow: "hidden", transition: "border-color 0.15s" }}>
-                                  <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: ft.avatarPosition || "center center" }} />
-                                </div>
-                                <div style={{ fontSize: "0.48rem", fontWeight: 700, color: sel ? ft.color : "var(--text-3)" }}>{ft.owner.toUpperCase()}</div>
-                              </button>
-                            );
-                          })}
-                        </div>
+                    <div key={side}>
+                      <div style={{ fontSize: "0.5rem", color: "var(--text-3)", fontWeight: 700, letterSpacing: "0.1em", marginBottom: 5 }}>{side === "from" ? "FROM" : "TO"}</div>
+                      <div style={{ position: "relative" as const }}>
+                        <select value={activeId} onChange={e => setActive(e.target.value)}
+                          style={{ width: "100%", appearance: "none" as any, WebkitAppearance: "none" as any, background: ft.color + "18", border: `1px solid ${ft.color}60`, borderRadius: 10, padding: "9px 28px 9px 12px", color: ft.color, fontFamily: "inherit", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer", outline: "none" }}>
+                          {PRED_OWNERS.filter(oid => side === "to" ? oid !== txFromTeam : true).map(oid => (
+                            <option key={oid} value={oid} style={{ background: "#18181b", color: "var(--text)" }}>{FANTASY_TEAMS[oid].owner}</option>
+                          ))}
+                        </select>
+                        <div style={{ position: "absolute" as const, right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" as const, color: ft.color, fontSize: "0.6rem" }}>▾</div>
                       </div>
                     </div>
                   );
