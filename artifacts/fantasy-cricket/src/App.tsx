@@ -2442,7 +2442,7 @@ export default function App() {
             ...(topBy("fours")   ? [{ emoji: "🔵", label: "Four Machine",        teamId: topBy("fours"),   sub: `${teamAgg[topBy("fours")].fours} fours` }] : []),
             ...(runsTeamId    ? [{ emoji: "🏏", label: "Run Machine",        teamId: runsTeamId,    sub: `${teamAgg[runsTeamId].runs} runs` }] : []),
             ...(wicketsTeamId ? [{ emoji: "🎳", label: "Wicket Machine",     teamId: wicketsTeamId, sub: `${teamAgg[wicketsTeamId].wickets} wickets` }] : []),
-            ...(catchesTeamId ? [{ emoji: "🤲", label: "Safe Hands",         teamId: catchesTeamId, sub: `${teamAgg[catchesTeamId].catches} dismissals` }] : []),
+            ...(catchesTeamId ? [{ emoji: "🤲", label: "Safe Hands",         teamId: catchesTeamId, sub: `${teamAgg[catchesTeamId].catches} catches` }] : []),
             ...(capTeamId     ? [{ emoji: "👔", label: "Captain Clutch",     teamId: capTeamId,     sub: `${FANTASY_TEAMS[capTeamId]?.captain.split(" ").slice(-1)[0]} · ${teamAgg[capTeamId].captainPts} pts` }] : []),
             ...(vcTeamId      ? [{ emoji: "🥈", label: "VC Value",           teamId: vcTeamId,      sub: `${FANTASY_TEAMS[vcTeamId]?.vc.split(" ").slice(-1)[0]} · ${teamAgg[vcTeamId].vcPts} pts` }] : []),
             ...(ducksTeamId   ? [{ emoji: "🦆", label: "Duck Brigade",       teamId: ducksTeamId,   sub: `${teamAgg[ducksTeamId].ducks} ducks` }] : []),
