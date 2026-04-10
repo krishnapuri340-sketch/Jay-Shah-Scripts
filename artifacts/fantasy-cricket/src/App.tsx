@@ -4761,7 +4761,7 @@ export default function App() {
               <span style={{ color: "#64748b" }}>Scorecards fetched</span>
               <span style={{ color: processedMatches.length > 0 ? "#34d399" : "#475569" }}>
                 {processedMatches.length > 0
-                  ? `✓ ${processedMatches.length} of ${scorecardTotal}${liveCount > 0 ? ` (${liveCount} live)` : ""}`
+                  ? `✓ ${processedMatches.length} fetched${abandonedMatchIds.length > 0 ? `, ${abandonedMatchIds.length} abandoned` : ""}${liveCount > 0 ? ` (${liveCount} live)` : ""}`
                   : scorecardTotal === 0 ? "No matches yet" : "Pending..."}
               </span>
             </div>
