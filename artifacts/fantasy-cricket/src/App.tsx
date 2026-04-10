@@ -2679,7 +2679,10 @@ export default function App() {
               </div>
 
               {/* Award badges */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginTop: 8 }}>
+              <div style={{ marginTop: 22, marginBottom: 10 }}>
+                <div className="sec-title" style={{ marginBottom: 0 }}>Awards</div>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
                 {awards.map(award => {
                   const team = FANTASY_TEAMS[award.teamId];
                   return (
