@@ -501,10 +501,8 @@ export default function App() {
   const [wiSection, setWiSection] = useState<"swap" | "permatch" | "intel" | "transfer">("swap");
   const [wiTeamId, setWiTeamId] = useState("rajveer");
   type XferScenario = { id: number; teamA: string; teamB: string; playersA: string[]; playersB: string[]; afterMatch: number | null };
-  const [xferScenarios, setXferScenarios] = useState<XferScenario[]>([
-    { id: 1, teamA: "rajveer", teamB: "mombasa", playersA: [], playersB: [], afterMatch: null },
-  ]);
-  const [xferActiveId, setXferActiveId] = useState(1);
+  const [xferScenarios, setXferScenarios] = useState<XferScenario[]>([]);
+  const [xferActiveId, setXferActiveId] = useState<number | null>(null);
   const [altCap, setAltCap] = useState("");
   const [altVC, setAltVC] = useState("");
   const [perMatchCaps, setPerMatchCaps] = useState<Record<string, Record<number, { cap: string; vc: string }>>>({});
@@ -4592,6 +4590,26 @@ export default function App() {
           const OWNER_IDS = ["rajveer", "mombasa", "mumbai", "ponygoat"] as const;
 
           // Active scenario aliases — all existing logic below reads these unchanged
+          const ownerShortName = (id: string) => ({ rajveer: "Raj", mombasa: "Rahul", mumbai: "Smeet", ponygoat: "Deb" }[id] || id);
+
+          const addScenarioFn = () => {
+            const newId = xferScenarios.length === 0 ? 1 : Math.max(...xferScenarios.map(s => s.id)) + 1;
+            setXferScenarios(prev => [...prev, { id: newId, teamA: "rajveer", teamB: "mombasa", playersA: [], playersB: [], afterMatch: null }]);
+            setXferActiveId(newId);
+          };
+
+          if (xferScenarios.length === 0 || xferActiveId === null) {
+            return (
+              <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", gap: 14, padding: "48px 0" }}>
+                <div style={{ fontSize: "0.75rem", color: "var(--text-3)" }}>No trade scenarios yet</div>
+                <button onClick={addScenarioFn}
+                  style={{ background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10, padding: "10px 22px", cursor: "pointer", color: "var(--text)", fontSize: "0.75rem", fontFamily: "inherit", fontWeight: 600 }}>
+                  + New Trade
+                </button>
+              </div>
+            );
+          }
+
           const sc = xferScenarios.find(s => s.id === xferActiveId) ?? xferScenarios[0];
           const updateSc = (patch: Partial<typeof sc>) =>
             setXferScenarios(prev => prev.map(s => s.id === sc.id ? { ...s, ...patch } : s));
@@ -4689,8 +4707,6 @@ export default function App() {
 
           const hasData = Object.keys(playerPoints).length > 0;
 
-          const ownerShortName = (id: string) => ({ rajveer: "Raj", mombasa: "Rahul", mumbai: "Smeet", ponygoat: "Deb" }[id] || id);
-
           const TeamPicker = ({ selected, onSelect, exclude }: { selected: string; onSelect: (id: string) => void; exclude: string }) => {
             const ft = FANTASY_TEAMS[selected];
             return (
@@ -4779,15 +4795,10 @@ export default function App() {
             );
           };
 
-          const addScenario = () => {
-            const newId = Math.max(...xferScenarios.map(s => s.id)) + 1;
-            setXferScenarios(prev => [...prev, { id: newId, teamA: "rajveer", teamB: "mombasa", playersA: [], playersB: [], afterMatch: null }]);
-            setXferActiveId(newId);
-          };
           const deleteScenario = (id: number) => {
             const remaining = xferScenarios.filter(s => s.id !== id);
             setXferScenarios(remaining);
-            setXferActiveId(remaining[remaining.length - 1]?.id ?? remaining[0]?.id);
+            setXferActiveId(remaining.length > 0 ? (remaining[remaining.length - 1]?.id ?? null) : null);
           };
 
           return (
@@ -4815,7 +4826,7 @@ export default function App() {
                     </div>
                   );
                 })}
-                <button onClick={addScenario}
+                <button onClick={addScenarioFn}
                   style={{ flexShrink: 0, background: "transparent", border: "1px dashed rgba(255,255,255,0.12)", borderRadius: 9, padding: "6px 12px", cursor: "pointer", color: "var(--text-3)", fontSize: "0.65rem", fontFamily: "inherit", fontWeight: 600 }}>
                   + Add
                 </button>
