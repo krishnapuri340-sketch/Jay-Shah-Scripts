@@ -3759,14 +3759,15 @@ export default function App() {
         <div className="sec-title">What If?</div>
 
         {/* Sub-tabs */}
-        <div data-no-swipe="true" style={{ display: "flex", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 22, padding: 3, marginBottom: 14, gap: 2, overflowX: "auto", scrollbarWidth: "none" }}>
+        <div data-no-swipe="true" style={{ display: "flex", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 22, padding: 3, marginBottom: 14, gap: 2 }}>
           {([["swap", "C/VC Swap"], ["permatch", "Per Match"], ["intel", "Intel"], ["transfer", "Transfers"]] as const).map(([id, label]) => (
             <button key={id} onClick={() => setWiSection(id as "swap" | "permatch" | "intel" | "transfer")}
               style={{
-                flexShrink: 0, padding: "7px 14px", borderRadius: 18, border: "none", cursor: "pointer",
-                fontFamily: "inherit", fontSize: "0.68rem", fontWeight: 600, transition: "all 0.18s",
+                flex: 1, padding: "7px 0", borderRadius: 18, border: "none", cursor: "pointer",
+                fontFamily: "inherit", fontSize: "0.6rem", fontWeight: 600, transition: "all 0.18s ease",
                 background: wiSection === id ? "var(--surface-3)" : "transparent",
                 color: wiSection === id ? (id === "transfer" ? "#a78bfa" : "var(--gold)") : "var(--text-3)",
+                boxShadow: wiSection === id ? "0 1px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)" : "none",
               }}>{label}</button>
           ))}
         </div>
