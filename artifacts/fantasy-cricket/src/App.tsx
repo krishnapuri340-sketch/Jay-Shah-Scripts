@@ -502,7 +502,12 @@ export default function App() {
   const [wiTeamId, setWiTeamId] = useState("rajveer");
   type XferScenario = { id: number; teamA: string; teamB: string; playersA: string[]; playersB: string[]; afterMatch: number | null };
   const [xferScenarios, setXferScenarios] = useState<XferScenario[]>([
-    { id: 1, teamA: "rajveer", teamB: "mombasa", playersA: [], playersB: [], afterMatch: null },
+    { id: 1, teamA: "rajveer",  teamB: "mombasa",  playersA: [], playersB: [], afterMatch: null },
+    { id: 2, teamA: "rajveer",  teamB: "mumbai",   playersA: [], playersB: [], afterMatch: null },
+    { id: 3, teamA: "rajveer",  teamB: "ponygoat", playersA: [], playersB: [], afterMatch: null },
+    { id: 4, teamA: "mombasa",  teamB: "mumbai",   playersA: [], playersB: [], afterMatch: null },
+    { id: 5, teamA: "mombasa",  teamB: "ponygoat", playersA: [], playersB: [], afterMatch: null },
+    { id: 6, teamA: "mumbai",   teamB: "ponygoat", playersA: [], playersB: [], afterMatch: null },
   ]);
   const [xferActiveId, setXferActiveId] = useState(1);
   const [altCap, setAltCap] = useState("");
