@@ -498,19 +498,12 @@ const buildMatchPreviews = (matches: any[]) =>
 
 export default function App() {
   const [tab, setTab] = useState("home");
-  const [wiSection, setWiSection] = useState<"swap" | "permatch" | "intel" | "transfer">("swap");
+  const [wiSection, setWiSection] = useState<"swap" | "permatch" | "intel">("swap");
   const [wiTeamId, setWiTeamId] = useState("rajveer");
   const [altCap, setAltCap] = useState("");
   const [altVC, setAltVC] = useState("");
   const [perMatchCaps, setPerMatchCaps] = useState<Record<string, Record<number, { cap: string; vc: string }>>>({});
   const [expandedWiMatch, setExpandedWiMatch] = useState<number | null>(null);
-  // Transfer simulator state
-  type Transfer = { fromTeam: string; toTeam: string; playerName: string; fromMatch: number };
-  const [simTransfers, setSimTransfers] = useState<Transfer[]>([]);
-  const [txFromTeam, setTxFromTeam] = useState("rajveer");
-  const [txToTeam, setTxToTeam] = useState("mombasa");
-  const [txPickingFor, setTxPickingFor] = useState<"from" | "to" | null>(null);
-  const [txPendingPlayer, setTxPendingPlayer] = useState<{ name: string; fromTeam: string; toTeam: string } | null>(null);
   const [historyYear, setHistoryYear] = useState<number | null>(null);
   const [histTop10Tab, setHistTop10Tab] = useState<"bat" | "bwl">("bat");
   const [selectedTeam, setSelectedTeam] = useState("rajveer");
@@ -3760,15 +3753,14 @@ export default function App() {
         <div className="sec-title">What If?</div>
 
         {/* Sub-tabs */}
-        <div data-no-swipe="true" style={{ display: "flex", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 22, padding: 3, marginBottom: 14, gap: 2 }}>
-          {([["swap", "C/VC Swap"], ["permatch", "Per Match"], ["intel", "Intel"], ["transfer", "Transfers"]] as const).map(([id, label]) => (
-            <button key={id} onClick={() => setWiSection(id as "swap" | "permatch" | "intel" | "transfer")}
+        <div style={{ display: "flex", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 22, padding: 3, marginBottom: 14, gap: 2 }}>
+          {([["swap", "Season Swap"], ["permatch", "Per Match"], ["intel", "Match Intel"]] as const).map(([id, label]) => (
+            <button key={id} onClick={() => setWiSection(id as "swap" | "permatch" | "intel")}
               style={{
                 flex: 1, padding: "7px 0", borderRadius: 18, border: "none", cursor: "pointer",
-                fontFamily: "inherit", fontSize: "0.6rem", fontWeight: 600, transition: "all 0.18s ease",
+                fontFamily: "inherit", fontSize: "0.7rem", fontWeight: 600, transition: "all 0.18s",
                 background: wiSection === id ? "var(--surface-3)" : "transparent",
-                color: wiSection === id ? (id === "transfer" ? "#a78bfa" : "var(--gold)") : "var(--text-3)",
-                boxShadow: wiSection === id ? "0 1px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)" : "none",
+                color: wiSection === id ? "var(--gold)" : "var(--text-3)",
               }}>{label}</button>
           ))}
         </div>
@@ -4187,240 +4179,6 @@ export default function App() {
             )}
           </div>
         )}
-
-        {/* ============ TRANSFER SIMULATOR ============ */}
-        {wiSection === "transfer" && (() => {
-          const PRED_OWNERS = ["rajveer", "mombasa", "mumbai", "ponygoat"] as const;
-          type OwnerId = typeof PRED_OWNERS[number];
-
-          // All played match numbers across every player, sorted
-          const allMatchNums = [...new Set(
-            Object.values(playerMatchPoints).flat().filter((e: any) => e.matchNum < 900).map((e: any) => e.matchNum as number)
-          )].sort((a, b) => a - b);
-
-          // Build a matchNum → label map
-          const matchLabelMap: Record<number, string> = {};
-          for (const entries of Object.values(playerMatchPoints)) {
-            for (const e of entries as any[]) {
-              if (e.matchNum < 900 && e.label && !matchLabelMap[e.matchNum]) matchLabelMap[e.matchNum] = e.label;
-            }
-          }
-
-          // Build sim rosters
-          const simRoster: Record<string, string[]> = {};
-          for (const oid of PRED_OWNERS) simRoster[oid] = FANTASY_TEAMS[oid].players.map(p => p.name);
-          for (const tx of simTransfers) {
-            simRoster[tx.fromTeam] = simRoster[tx.fromTeam].filter(n => n !== tx.playerName);
-            if (!simRoster[tx.toTeam].includes(tx.playerName)) simRoster[tx.toTeam].push(tx.playerName);
-          }
-
-          // Compute sim totals respecting fromMatch
-          const computeSimTotal = (oid: string) => {
-            const withPts = simRoster[oid].map(name => {
-              const txIn  = simTransfers.find(tx => tx.toTeam === oid && tx.playerName === name);
-              const txOut = simTransfers.find(tx => tx.fromTeam === oid && tx.playerName === name);
-              const allEntries = (playerMatchPoints[name] || []).filter((e: any) => e.matchNum < 900);
-              let basePts: number;
-              if (txIn) {
-                // Receiving team: only count pts from fromMatch onwards
-                basePts = allEntries.filter((e: any) => e.matchNum >= txIn.fromMatch).reduce((s: number, e: any) => s + e.pts, 0);
-              } else if (txOut) {
-                // Sending team: only count pts before fromMatch
-                basePts = allEntries.filter((e: any) => e.matchNum < txOut.fromMatch).reduce((s: number, e: any) => s + e.pts, 0);
-              } else {
-                basePts = allEntries.reduce((s: number, e: any) => s + e.pts, 0);
-              }
-              const teamObj = FANTASY_TEAMS[oid as OwnerId];
-              return { name, basePts, adj: applyMultiplier(basePts, name === teamObj.captain, name === teamObj.vc) };
-            }).sort((a, b) => b.adj - a.adj);
-            return { total: Math.round(withPts.slice(0, 11).reduce((s, p) => s + p.adj, 0)) };
-          };
-
-          const actualTotals: Record<string, number> = {};
-          for (const oid of PRED_OWNERS) actualTotals[oid] = getTeamData(oid, playerPoints).total;
-          const simResults = Object.fromEntries(PRED_OWNERS.map(oid => [oid, computeSimTotal(oid)]));
-
-          const rankColors = ["#d4a843", "#94a3b8", "#cd7c3a", "var(--text-3)"];
-          const actualRanked = [...PRED_OWNERS].sort((a, b) => actualTotals[b] - actualTotals[a]);
-          const simRanked   = [...PRED_OWNERS].sort((a, b) => simResults[b].total - simResults[a].total);
-
-          return (
-            <div>
-              {/* ── Team selectors ── */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 10 }}>
-                {(["from", "to"] as const).map(side => {
-                  const activeId = side === "from" ? txFromTeam : txToTeam;
-                  const setActive = side === "from"
-                    ? (id: string) => { setTxFromTeam(id); setTxPickingFor(null); setTxPendingPlayer(null); if (txToTeam === id) setTxToTeam(PRED_OWNERS.find(o => o !== id) || "mombasa"); }
-                    : (id: string) => { setTxToTeam(id); setTxPickingFor(null); setTxPendingPlayer(null); };
-                  const ft = FANTASY_TEAMS[activeId as typeof PRED_OWNERS[number]];
-                  return (
-                    <div key={side}>
-                      <div style={{ fontSize: "0.5rem", color: "var(--text-3)", fontWeight: 700, letterSpacing: "0.1em", marginBottom: 5 }}>{side === "from" ? "FROM" : "TO"}</div>
-                      <div style={{ position: "relative" as const }}>
-                        <select value={activeId} onChange={e => setActive(e.target.value)}
-                          style={{ width: "100%", appearance: "none" as any, WebkitAppearance: "none" as any, background: ft.color + "18", border: `1px solid ${ft.color}60`, borderRadius: 10, padding: "9px 28px 9px 12px", color: ft.color, fontFamily: "inherit", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer", outline: "none" }}>
-                          {PRED_OWNERS.filter(oid => side === "to" ? oid !== txFromTeam : true).map(oid => (
-                            <option key={oid} value={oid} style={{ background: "#18181b", color: "var(--text)" }}>{FANTASY_TEAMS[oid].owner}</option>
-                          ))}
-                        </select>
-                        <div style={{ position: "absolute" as const, right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" as const, color: ft.color, fontSize: "0.6rem" }}>▾</div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* ── Player picker ── */}
-              <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden", marginBottom: 10 }}>
-                <div style={{ padding: "10px 12px", borderBottom: txPickingFor || txPendingPlayer ? "1px solid var(--border)" : "none" }}>
-                  {(() => {
-                    const fromFt = FANTASY_TEAMS[txFromTeam];
-                    const toFt   = FANTASY_TEAMS[txToTeam];
-                    const activeSide = txPickingFor;
-                    const col = activeSide === "from" ? fromFt.color : activeSide === "to" ? toFt.color : "var(--text-3)";
-                    return (
-                      <div style={{ position: "relative" as const }}>
-                        <select value={txPickingFor || ""} onChange={e => { setTxPickingFor(e.target.value as any || null); setTxPendingPlayer(null); }}
-                          style={{ width: "100%", appearance: "none" as any, WebkitAppearance: "none" as any, background: activeSide ? col + "15" : "var(--surface-2)", border: `1px solid ${activeSide ? col + "60" : "var(--border)"}`, borderRadius: 10, padding: "9px 28px 9px 12px", color: activeSide ? col : "var(--text-3)", fontFamily: "inherit", fontSize: "0.75rem", fontWeight: 600, cursor: "pointer", outline: "none" }}>
-                          <option value="" style={{ background: "#18181b", color: "var(--text)" }}>Select direction…</option>
-                          <option value="from" style={{ background: "#18181b", color: "var(--text)" }}>{fromFt.owner} → {toFt.owner}</option>
-                          <option value="to" style={{ background: "#18181b", color: "var(--text)" }}>{toFt.owner} → {fromFt.owner}</option>
-                        </select>
-                        <div style={{ position: "absolute" as const, right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" as const, color: col, fontSize: "0.6rem" }}>▾</div>
-                      </div>
-                    );
-                  })()}
-                </div>
-
-                {/* Step 1: pick player */}
-                {txPickingFor && !txPendingPlayer && (() => {
-                  const fromSide = txPickingFor === "from";
-                  const listTeam = fromSide ? txFromTeam : txToTeam;
-                  const destTeam = fromSide ? txToTeam : txFromTeam;
-                  const players = [...simRoster[listTeam]].sort((a, b) =>
-                    (playerMatchPoints[b] || []).filter((e: any) => e.matchNum < 900).reduce((s: number, e: any) => s + e.pts, 0) -
-                    (playerMatchPoints[a] || []).filter((e: any) => e.matchNum < 900).reduce((s: number, e: any) => s + e.pts, 0)
-                  );
-                  return (
-                    <div style={{ maxHeight: 200, overflowY: "auto" as const }}>
-                      {players.map((name, ni) => {
-                        const pts = (playerMatchPoints[name] || []).filter((e: any) => e.matchNum < 900).reduce((s: number, e: any) => s + e.pts, 0);
-                        const already = simTransfers.some(tx => tx.fromTeam === listTeam && tx.toTeam === destTeam && tx.playerName === name);
-                        return (
-                          <button key={name} disabled={already} onClick={() => { setTxPendingPlayer({ name, fromTeam: listTeam, toTeam: destTeam }); }}
-                            style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "9px 14px", background: "transparent", border: "none", borderBottom: ni < players.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none", cursor: already ? "default" : "pointer", fontFamily: "inherit", opacity: already ? 0.3 : 1 }}>
-                            <span style={{ fontSize: "0.75rem", color: "var(--text)", fontWeight: 500 }}>{name}</span>
-                            <span style={{ fontSize: "0.62rem", color: "var(--text-3)", fontVariantNumeric: "tabular-nums" }}>{pts} pts</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  );
-                })()}
-
-                {/* Step 2: pick from-match */}
-                {txPendingPlayer && (() => {
-                  const { name, fromTeam, toTeam } = txPendingPlayer;
-                  const toFt = FANTASY_TEAMS[toTeam as OwnerId];
-                  return (
-                    <div>
-                      <div style={{ padding: "10px 14px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 8 }}>
-                        <div style={{ flex: 1, fontSize: "0.72rem", fontWeight: 600, color: "var(--text)" }}>{name}</div>
-                        <div style={{ fontSize: "0.55rem", color: "var(--text-3)" }}>effective from match…</div>
-                        <button onClick={() => setTxPendingPlayer(null)} style={{ background: "transparent", border: "none", cursor: "pointer", fontSize: "0.7rem", color: "var(--text-3)", fontFamily: "inherit", padding: 0 }}>✕</button>
-                      </div>
-                      <div style={{ padding: "10px 12px", display: "flex", flexWrap: "wrap" as const, gap: 6 }}>
-                        {allMatchNums.map(mn => {
-                          const lbl = matchLabelMap[mn] || `M${mn}`;
-                          const teams = lbl.match(/([A-Z]{2,4})\s+vs\s+([A-Z]{2,4})/);
-                          const short = teams ? `${teams[1]}v${teams[2]}` : `M${mn}`;
-                          return (
-                            <button key={mn} onClick={() => {
-                              setSimTransfers(prev => [...prev, { fromTeam, toTeam, playerName: name, fromMatch: mn }]);
-                              setTxPendingPlayer(null);
-                              setTxPickingFor(null);
-                            }} style={{ background: toFt.color + "15", border: `1px solid ${toFt.color}40`, borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontFamily: "inherit", fontSize: "0.6rem", color: "var(--text)", fontWeight: 600, display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 1 }}>
-                              <span style={{ fontSize: "0.55rem", color: "var(--text-3)", fontWeight: 500 }}>M{mn}</span>
-                              <span style={{ fontSize: "0.52rem", color: toFt.color }}>{short}</span>
-                            </button>
-                          );
-                        })}
-                        {allMatchNums.length === 0 && (
-                          <div style={{ fontSize: "0.65rem", color: "var(--text-3)", padding: "6px 0" }}>No match data yet</div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })()}
-              </div>
-
-              {/* ── Active transfers ── */}
-              {simTransfers.length > 0 && (
-                <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden", marginBottom: 10 }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 12px", borderBottom: "1px solid var(--border)" }}>
-                    <div style={{ fontSize: "0.65rem", fontWeight: 600, color: "var(--text)" }}>{simTransfers.length} transfer{simTransfers.length !== 1 ? "s" : ""}</div>
-                    <button onClick={() => setSimTransfers([])} style={{ background: "transparent", border: "none", cursor: "pointer", fontSize: "0.6rem", color: "var(--text-3)", fontFamily: "inherit", padding: "2px 6px" }}>Clear all</button>
-                  </div>
-                  {simTransfers.map((tx, i) => {
-                    const fromFt = FANTASY_TEAMS[tx.fromTeam as OwnerId];
-                    const toFt   = FANTASY_TEAMS[tx.toTeam as OwnerId];
-                    return (
-                      <div key={i} style={{ display: "flex", alignItems: "center", padding: "8px 12px", borderBottom: i < simTransfers.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none", gap: 8 }}>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: "0.72rem", color: "var(--text)", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{tx.playerName}</div>
-                          <div style={{ fontSize: "0.54rem", color: "var(--text-3)", marginTop: 1 }}>
-                            <span style={{ color: fromFt.color }}>{fromFt.owner}</span>
-                            <span style={{ margin: "0 3px" }}>→</span>
-                            <span style={{ color: toFt.color }}>{toFt.owner}</span>
-                            <span style={{ marginLeft: 6, color: "rgba(167,139,250,0.7)", fontWeight: 600 }}>from M{tx.fromMatch}</span>
-                          </div>
-                        </div>
-                        <button onClick={() => setSimTransfers(prev => prev.filter((_, idx) => idx !== i))}
-                          style={{ background: "transparent", border: "none", cursor: "pointer", fontSize: "0.7rem", color: "var(--text-3)", fontFamily: "inherit", padding: "0 2px", flexShrink: 0 }}>✕</button>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* ── Standings ── */}
-              <div style={{ background: "var(--surface)", border: "1px solid rgba(167,139,250,0.25)", borderRadius: 12, overflow: "hidden" }}>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 56px 64px 44px", padding: "7px 12px", background: "rgba(255,255,255,0.02)", borderBottom: "1px solid var(--border)" }}>
-                  {[["TEAM", "left"], ["NOW", "center"], ["SIM", "center"], ["±", "center"]].map(([h, a]) => (
-                    <div key={h} style={{ fontSize: "0.5rem", color: h === "SIM" ? "rgba(167,139,250,0.7)" : "var(--text-3)", fontWeight: 700, letterSpacing: "0.08em", textAlign: a as any }}>{h}</div>
-                  ))}
-                </div>
-                {simRanked.map((oid, simIdx) => {
-                  const ft = FANTASY_TEAMS[oid as OwnerId];
-                  const actual = actualTotals[oid];
-                  const sim = simResults[oid].total;
-                  const delta = sim - actual;
-                  const rankDelta = actualRanked.indexOf(oid) - simIdx;
-                  return (
-                    <div key={oid} style={{ display: "grid", gridTemplateColumns: "1fr 56px 64px 44px", padding: "11px 12px", borderBottom: simIdx < 3 ? "1px solid var(--border)" : "none", alignItems: "center" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                        <div style={{ fontSize: "0.65rem", fontWeight: 800, color: rankColors[simIdx], width: 14, flexShrink: 0 }}>#{simIdx + 1}</div>
-                        <div style={{ width: 22, height: 22, borderRadius: "50%", border: `1.5px solid ${ft.color}50`, overflow: "hidden", flexShrink: 0 }}>
-                          <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: ft.avatarPosition || "center center" }} />
-                        </div>
-                        <div style={{ fontSize: "0.7rem", fontWeight: 600, color: ft.color }}>{ft.owner}</div>
-                      </div>
-                      <div style={{ textAlign: "center" as const, fontSize: "0.78rem", fontWeight: 600, color: "var(--text-2)", fontVariantNumeric: "tabular-nums" }}>{actual}</div>
-                      <div style={{ textAlign: "center" as const }}>
-                        <div style={{ fontSize: "0.78rem", fontWeight: 700, fontVariantNumeric: "tabular-nums", color: simTransfers.length > 0 ? (delta > 0 ? "#2ecc8f" : delta < 0 ? "#f05050" : "var(--text-2)") : "var(--text-2)" }}>{sim}</div>
-                        {simTransfers.length > 0 && delta !== 0 && <div style={{ fontSize: "0.48rem", color: delta > 0 ? "#2ecc8f" : "#f05050" }}>{delta > 0 ? `+${delta}` : delta}</div>}
-                      </div>
-                      <div style={{ textAlign: "center" as const, fontSize: "0.65rem", fontWeight: 700, color: rankDelta > 0 ? "#2ecc8f" : rankDelta < 0 ? "#f05050" : "var(--text-3)" }}>
-                        {simTransfers.length === 0 ? "—" : rankDelta > 0 ? `↑${rankDelta}` : rankDelta < 0 ? `↓${Math.abs(rankDelta)}` : "="}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })()}
       </div>
     );
   };
