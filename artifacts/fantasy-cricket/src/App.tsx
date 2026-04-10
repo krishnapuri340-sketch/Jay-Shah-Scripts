@@ -2720,20 +2720,22 @@ export default function App() {
                 const maxVal = Math.max(...(award?.rows.map(r => r.value) ?? [1]), 1);
                 return (
                   <div style={{ marginTop: 22 }}>
-                    {/* Section title + stepper nav */}
+                    {/* Section title + dropdown */}
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
                       <div className="sec-title" style={{ marginBottom: 0 }}>Awards</div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                        <button onClick={() => setSelectedAwardIdx(i => (i - 1 + awardsV2.length) % awardsV2.length)}
-                          style={{ background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 7, width: 26, height: 26, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--text-3)" }}>
-                          <svg width="8" height="12" viewBox="0 0 8 12" fill="none"><path d="M7 1L1 6l6 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                        </button>
-                        <span style={{ fontSize: "0.55rem", color: "var(--text-3)", fontVariantNumeric: "tabular-nums", minWidth: 28, textAlign: "center" as const }}>{safeIdx + 1} / {awardsV2.length}</span>
-                        <button onClick={() => setSelectedAwardIdx(i => (i + 1) % awardsV2.length)}
-                          style={{ background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 7, width: 26, height: 26, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--text-3)" }}>
-                          <svg width="8" height="12" viewBox="0 0 8 12" fill="none"><path d="M1 1l6 5-6 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                        </button>
-                      </div>
+                      <select
+                        value={safeIdx}
+                        onChange={e => setSelectedAwardIdx(Number(e.target.value))}
+                        style={{
+                          background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.10)",
+                          borderRadius: 8, color: "var(--text-2)", fontSize: "0.65rem", fontWeight: 600,
+                          padding: "5px 8px", cursor: "pointer", outline: "none", maxWidth: 160,
+                        }}
+                      >
+                        {awardsV2.map((a, i) => (
+                          <option key={a.label} value={i}>{a.label}</option>
+                        ))}
+                      </select>
                     </div>
 
                     {/* Single award card */}
