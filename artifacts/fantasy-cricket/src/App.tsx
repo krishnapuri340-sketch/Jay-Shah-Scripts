@@ -2442,10 +2442,6 @@ export default function App() {
               rows: tids.map(tid => ({ teamId: tid, value: bestMatch[tid] ?? 0, display: `${bestMatch[tid] ?? 0} pts` })).sort((a, b) => b.value - a.value),
             },
             {
-              emoji: "💀", label: "Wooden Spoon",
-              rows: tids.map(tid => { const tot = teamScores.find(s => s.id === tid)?.total ?? 0; return { teamId: tid, value: tot, display: `${tot} pts` }; }).sort((a, b) => a.value - b.value),
-            },
-            {
               emoji: "🏏", label: "Run Machine",
               rows: tids.map(tid => ({ teamId: tid, value: teamAgg[tid].runs, display: `${teamAgg[tid].runs} runs` })).sort((a, b) => b.value - a.value),
             },
