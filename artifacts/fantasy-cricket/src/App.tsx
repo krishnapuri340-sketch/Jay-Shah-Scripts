@@ -2453,9 +2453,8 @@ export default function App() {
 
           return (
             <div style={{ marginTop: 22 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 10 }}>
+              <div style={{ marginBottom: 10 }}>
                 <div className="sec-title" style={{ marginBottom: 0 }}>Season Race</div>
-                <div style={{ fontSize: "0.58rem", color: "var(--text-3)", background: "var(--surface-2)", borderRadius: 4, padding: "2px 6px", letterSpacing: "0.04em" }}>match by match</div>
               </div>
 
               {/* Line chart */}
