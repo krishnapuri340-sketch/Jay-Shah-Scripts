@@ -2679,13 +2679,6 @@ export default function App() {
                 })()}
               </div>
 
-              {/* Banter */}
-              {banter && (
-                <div style={{ marginTop: 8, background: "var(--surface)", borderRadius: 10, padding: "10px 13px", border: "1px solid rgba(255,255,255,0.06)", fontSize: "0.69rem", color: "rgba(255,255,255,0.58)", lineHeight: 1.55 }}>
-                  💬 {banter}
-                </div>
-              )}
-
               {/* Award badges */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginTop: 8 }}>
                 {awards.map(award => {
