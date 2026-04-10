@@ -113,7 +113,7 @@ interface PointsCache {
   processedMatches: Record<string, ProcessedMatchData>; // CricAPI: points (live/fallback) + innings
   supabaseScores: Record<string, SupabaseFixtureScore>; // fixtureId → official scores (override)
   playerIdMap: Record<string, string>; // supabase player_id → player name
-  matchMetadata: Record<string, { matchDate: string; teamA: string; teamB: string }>; // iplId → meta
+  matchMetadata: Record<string, { matchDate: string; teamA: string; teamB: string; matchNumber?: number }>; // iplId → meta
   lastUpdated: string;
   dailyHits: { date: string; count: number };
 }
@@ -814,22 +814,25 @@ router.get("/ipl/points", async (req, res) => {
       }
     }
 
-    // 2. CricAPI points for live/recent matches NOT yet covered by Supabase
+    // 2. S3/CricAPI points for matches NOT yet covered by Supabase
+    // Uses the real match number from the schedule when available so points sort correctly.
     const cricapiLiveLabels: string[] = [];
-    let liveMatchNum = 900; // high number so live matches sort after official ones
+    let liveMatchNumFallback = 900; // placeholder only if schedule match number unknown
     for (const [iplId, matchData] of Object.entries(pointsCache.processedMatches || {})) {
       if (supabaseLinkedIds.has(iplId)) continue;
       // Skip abandoned / no-result matches — no points awarded
       if (ABANDONED_MATCH_IPL_IDS.has(iplId)) continue;
       const meta = (pointsCache.matchMetadata || {})[iplId];
       const label = meta ? `${meta.teamA} vs ${meta.teamB}` : `Match ${iplId}`;
+      // Use real match number from schedule; fall back to high placeholder if not yet available
+      const matchNum = meta?.matchNumber ?? liveMatchNumFallback;
       for (const [player, pts] of Object.entries(matchData.points || {})) {
         const stats = (matchData.playerStats || {})[player];
-        addMatchPoint(player, liveMatchNum, label, pts, "live", stats);
+        addMatchPoint(player, matchNum, label, pts, "live", stats);
       }
       if (Object.keys(matchData.points || {}).length > 0) {
         cricapiLiveLabels.push(`${label} ★live`);
-        liveMatchNum++;
+        if (!meta?.matchNumber) liveMatchNumFallback++;
       }
     }
 
@@ -847,12 +850,19 @@ router.get("/ipl/points", async (req, res) => {
 
     const dailyHitsInfo = { count: pointsCache.dailyHits.count, limit: DAILY_CALL_LIMIT, date: pointsCache.dailyHits.date };
 
-    // Build iplId (CricAPI match ID string) → matchNumber map so the frontend can look up
-    // match numbers directly from fixture m.id without relying on match name parsing.
+    // Build iplId → matchNumber map. Supabase-linked matches first (authoritative),
+    // then S3-fallback matches using schedule match numbers stored in matchMetadata.
     const iplIdToMatchNum: Record<string, number> = {};
     for (const fixture of Object.values(pointsCache.supabaseScores || {})) {
       if (fixture.linkedIplId && fixture.matchNumber) {
         iplIdToMatchNum[fixture.linkedIplId] = fixture.matchNumber;
+      }
+    }
+    // Add S3-fallback matches (not yet in Supabase) using their real match number
+    for (const [iplId, meta] of Object.entries(pointsCache.matchMetadata || {})) {
+      if (iplIdToMatchNum[iplId]) continue; // already covered by Supabase
+      if (meta.matchNumber && (pointsCache.processedMatches || {})[iplId]) {
+        iplIdToMatchNum[iplId] = meta.matchNumber;
       }
     }
 
@@ -886,15 +896,23 @@ router.get("/ipl/points", async (req, res) => {
               const allMatches: any[] = schedule.Matchsummary || [];
 
               // 2a. Populate matchMetadata for all matches (needed for linking + live labels)
+              // Sort by MatchID so array-index → match number is always correct
+              const sortedMatches = [...allMatches].sort((a: any, b: any) => a.MatchID - b.MatchID);
               if (!pointsCache.matchMetadata) pointsCache.matchMetadata = {};
-              for (const m of allMatches) {
+              for (let i = 0; i < sortedMatches.length; i++) {
+                const m = sortedMatches[i];
                 const iplId = String(m.MatchID);
+                const matchNumber = i + 1; // position in schedule = match number
                 if (!pointsCache.matchMetadata[iplId]) {
                   pointsCache.matchMetadata[iplId] = {
                     matchDate: m.GMTMatchDate || m.MatchDate || "",
                     teamA: m.HomeTeamName || "",
                     teamB: m.AwayTeamName || "",
+                    matchNumber,
                   };
+                } else {
+                  // Always keep matchNumber up to date
+                  pointsCache.matchMetadata[iplId].matchNumber = matchNumber;
                 }
               }
 

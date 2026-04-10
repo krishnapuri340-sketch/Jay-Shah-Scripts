@@ -10423,357 +10423,427 @@
     "2417": {
       "matchDate": "2026-03-28",
       "teamA": "Royal Challengers Bengaluru",
-      "teamB": "Sunrisers Hyderabad"
+      "teamB": "Sunrisers Hyderabad",
+      "matchNumber": 1
     },
     "2418": {
       "matchDate": "2026-03-29",
       "teamA": "Mumbai Indians",
-      "teamB": "Kolkata Knight Riders"
+      "teamB": "Kolkata Knight Riders",
+      "matchNumber": 2
     },
     "2419": {
       "matchDate": "2026-03-30",
       "teamA": "Rajasthan Royals",
-      "teamB": "Chennai Super Kings"
+      "teamB": "Chennai Super Kings",
+      "matchNumber": 3
     },
     "2420": {
       "matchDate": "2026-03-31",
       "teamA": "Punjab Kings",
-      "teamB": "Gujarat Titans"
+      "teamB": "Gujarat Titans",
+      "matchNumber": 4
     },
     "2421": {
       "matchDate": "2026-04-01",
       "teamA": "Lucknow Super Giants",
-      "teamB": "Delhi Capitals"
+      "teamB": "Delhi Capitals",
+      "matchNumber": 5
     },
     "2422": {
       "matchDate": "2026-04-02",
       "teamA": "Kolkata Knight Riders",
-      "teamB": "Sunrisers Hyderabad"
+      "teamB": "Sunrisers Hyderabad",
+      "matchNumber": 6
     },
     "2423": {
       "matchDate": "2026-04-03",
       "teamA": "Chennai Super Kings",
-      "teamB": "Punjab Kings"
+      "teamB": "Punjab Kings",
+      "matchNumber": 7
     },
     "2424": {
       "matchDate": "2026-04-04",
       "teamA": "Delhi Capitals",
-      "teamB": "Mumbai Indians"
+      "teamB": "Mumbai Indians",
+      "matchNumber": 8
     },
     "2425": {
       "matchDate": "2026-04-04",
       "teamA": "Gujarat Titans",
-      "teamB": "Rajasthan Royals"
+      "teamB": "Rajasthan Royals",
+      "matchNumber": 9
     },
     "2426": {
       "matchDate": "2026-04-05",
       "teamA": "Sunrisers Hyderabad",
-      "teamB": "Lucknow Super Giants"
+      "teamB": "Lucknow Super Giants",
+      "matchNumber": 10
     },
     "2427": {
       "matchDate": "2026-04-05",
       "teamA": "Royal Challengers Bengaluru",
-      "teamB": "Chennai Super Kings"
+      "teamB": "Chennai Super Kings",
+      "matchNumber": 11
     },
     "2428": {
       "matchDate": "2026-04-06",
       "teamA": "Kolkata Knight Riders",
-      "teamB": "Punjab Kings"
+      "teamB": "Punjab Kings",
+      "matchNumber": 12
     },
     "2429": {
       "matchDate": "2026-04-07",
       "teamA": "Rajasthan Royals",
-      "teamB": "Mumbai Indians"
+      "teamB": "Mumbai Indians",
+      "matchNumber": 13
     },
     "2430": {
       "matchDate": "2026-04-08",
       "teamA": "Delhi Capitals",
-      "teamB": "Gujarat Titans"
+      "teamB": "Gujarat Titans",
+      "matchNumber": 14
     },
     "2431": {
       "matchDate": "2026-04-09",
       "teamA": "Kolkata Knight Riders",
-      "teamB": "Lucknow Super Giants"
+      "teamB": "Lucknow Super Giants",
+      "matchNumber": 15
     },
     "2432": {
       "matchDate": "2026-04-10",
       "teamA": "Rajasthan Royals",
-      "teamB": "Royal Challengers Bengaluru"
+      "teamB": "Royal Challengers Bengaluru",
+      "matchNumber": 16
     },
     "2433": {
       "matchDate": "2026-04-11",
       "teamA": "Punjab Kings",
-      "teamB": "Sunrisers Hyderabad"
+      "teamB": "Sunrisers Hyderabad",
+      "matchNumber": 17
     },
     "2434": {
       "matchDate": "2026-04-11",
       "teamA": "Chennai Super Kings",
-      "teamB": "Delhi Capitals"
+      "teamB": "Delhi Capitals",
+      "matchNumber": 18
     },
     "2435": {
       "matchDate": "2026-04-12",
       "teamA": "Lucknow Super Giants",
-      "teamB": "Gujarat Titans"
+      "teamB": "Gujarat Titans",
+      "matchNumber": 19
     },
     "2436": {
       "matchDate": "2026-04-12",
       "teamA": "Mumbai Indians",
-      "teamB": "Royal Challengers Bengaluru"
+      "teamB": "Royal Challengers Bengaluru",
+      "matchNumber": 20
     },
     "2461": {
       "matchDate": "2026-04-13",
       "teamA": "Sunrisers Hyderabad",
-      "teamB": "Rajasthan Royals"
+      "teamB": "Rajasthan Royals",
+      "matchNumber": 21
     },
     "2462": {
       "matchDate": "2026-04-14",
       "teamA": "Chennai Super Kings",
-      "teamB": "Kolkata Knight Riders"
+      "teamB": "Kolkata Knight Riders",
+      "matchNumber": 22
     },
     "2463": {
       "matchDate": "2026-04-15",
       "teamA": "Royal Challengers Bengaluru",
-      "teamB": "Lucknow Super Giants"
+      "teamB": "Lucknow Super Giants",
+      "matchNumber": 23
     },
     "2464": {
       "matchDate": "2026-04-16",
       "teamA": "Mumbai Indians",
-      "teamB": "Punjab Kings"
+      "teamB": "Punjab Kings",
+      "matchNumber": 24
     },
     "2465": {
       "matchDate": "2026-04-17",
       "teamA": "Gujarat Titans",
-      "teamB": "Kolkata Knight Riders"
+      "teamB": "Kolkata Knight Riders",
+      "matchNumber": 25
     },
     "2466": {
       "matchDate": "2026-04-18",
       "teamA": "Royal Challengers Bengaluru",
-      "teamB": "Delhi Capitals"
+      "teamB": "Delhi Capitals",
+      "matchNumber": 26
     },
     "2467": {
       "matchDate": "2026-04-18",
       "teamA": "Sunrisers Hyderabad",
-      "teamB": "Chennai Super Kings"
+      "teamB": "Chennai Super Kings",
+      "matchNumber": 27
     },
     "2468": {
       "matchDate": "2026-04-19",
       "teamA": "Kolkata Knight Riders",
-      "teamB": "Rajasthan Royals"
+      "teamB": "Rajasthan Royals",
+      "matchNumber": 28
     },
     "2469": {
       "matchDate": "2026-04-19",
       "teamA": "Punjab Kings",
-      "teamB": "Lucknow Super Giants"
+      "teamB": "Lucknow Super Giants",
+      "matchNumber": 29
     },
     "2470": {
       "matchDate": "2026-04-20",
       "teamA": "Gujarat Titans",
-      "teamB": "Mumbai Indians"
+      "teamB": "Mumbai Indians",
+      "matchNumber": 30
     },
     "2471": {
       "matchDate": "2026-04-21",
       "teamA": "Sunrisers Hyderabad",
-      "teamB": "Delhi Capitals"
+      "teamB": "Delhi Capitals",
+      "matchNumber": 31
     },
     "2472": {
       "matchDate": "2026-04-22",
       "teamA": "Lucknow Super Giants",
-      "teamB": "Rajasthan Royals"
+      "teamB": "Rajasthan Royals",
+      "matchNumber": 32
     },
     "2473": {
       "matchDate": "2026-04-23",
       "teamA": "Mumbai Indians",
-      "teamB": "Chennai Super Kings"
+      "teamB": "Chennai Super Kings",
+      "matchNumber": 33
     },
     "2474": {
       "matchDate": "2026-04-24",
       "teamA": "Royal Challengers Bengaluru",
-      "teamB": "Gujarat Titans"
+      "teamB": "Gujarat Titans",
+      "matchNumber": 34
     },
     "2475": {
       "matchDate": "2026-04-25",
       "teamA": "Delhi Capitals",
-      "teamB": "Punjab Kings"
+      "teamB": "Punjab Kings",
+      "matchNumber": 35
     },
     "2476": {
       "matchDate": "2026-04-25",
       "teamA": "Rajasthan Royals",
-      "teamB": "Sunrisers Hyderabad"
+      "teamB": "Sunrisers Hyderabad",
+      "matchNumber": 36
     },
     "2477": {
       "matchDate": "2026-04-26",
       "teamA": "Gujarat Titans",
-      "teamB": "Chennai Super Kings"
+      "teamB": "Chennai Super Kings",
+      "matchNumber": 37
     },
     "2478": {
       "matchDate": "2026-04-26",
       "teamA": "Lucknow Super Giants",
-      "teamB": "Kolkata Knight Riders"
+      "teamB": "Kolkata Knight Riders",
+      "matchNumber": 38
     },
     "2479": {
       "matchDate": "2026-04-27",
       "teamA": "Delhi Capitals",
-      "teamB": "Royal Challengers Bengaluru"
+      "teamB": "Royal Challengers Bengaluru",
+      "matchNumber": 39
     },
     "2480": {
       "matchDate": "2026-04-28",
       "teamA": "Punjab Kings",
-      "teamB": "Rajasthan Royals"
+      "teamB": "Rajasthan Royals",
+      "matchNumber": 40
     },
     "2481": {
       "matchDate": "2026-04-29",
       "teamA": "Mumbai Indians",
-      "teamB": "Sunrisers Hyderabad"
+      "teamB": "Sunrisers Hyderabad",
+      "matchNumber": 41
     },
     "2482": {
       "matchDate": "2026-04-30",
       "teamA": "Gujarat Titans",
-      "teamB": "Royal Challengers Bengaluru"
+      "teamB": "Royal Challengers Bengaluru",
+      "matchNumber": 42
     },
     "2483": {
       "matchDate": "2026-05-01",
       "teamA": "Rajasthan Royals",
-      "teamB": "Delhi Capitals"
+      "teamB": "Delhi Capitals",
+      "matchNumber": 43
     },
     "2484": {
       "matchDate": "2026-05-02",
       "teamA": "Chennai Super Kings",
-      "teamB": "Mumbai Indians"
+      "teamB": "Mumbai Indians",
+      "matchNumber": 44
     },
     "2485": {
       "matchDate": "2026-05-03",
       "teamA": "Sunrisers Hyderabad",
-      "teamB": "Kolkata Knight Riders"
+      "teamB": "Kolkata Knight Riders",
+      "matchNumber": 45
     },
     "2486": {
       "matchDate": "2026-05-03",
       "teamA": "Gujarat Titans",
-      "teamB": "Punjab Kings"
+      "teamB": "Punjab Kings",
+      "matchNumber": 46
     },
     "2487": {
       "matchDate": "2026-05-04",
       "teamA": "Mumbai Indians",
-      "teamB": "Lucknow Super Giants"
+      "teamB": "Lucknow Super Giants",
+      "matchNumber": 47
     },
     "2488": {
       "matchDate": "2026-05-05",
       "teamA": "Delhi Capitals",
-      "teamB": "Chennai Super Kings"
+      "teamB": "Chennai Super Kings",
+      "matchNumber": 48
     },
     "2489": {
       "matchDate": "2026-05-06",
       "teamA": "Sunrisers Hyderabad",
-      "teamB": "Punjab Kings"
+      "teamB": "Punjab Kings",
+      "matchNumber": 49
     },
     "2490": {
       "matchDate": "2026-05-07",
       "teamA": "Lucknow Super Giants",
-      "teamB": "Royal Challengers Bengaluru"
+      "teamB": "Royal Challengers Bengaluru",
+      "matchNumber": 50
     },
     "2491": {
       "matchDate": "2026-05-08",
       "teamA": "Delhi Capitals",
-      "teamB": "Kolkata Knight Riders"
+      "teamB": "Kolkata Knight Riders",
+      "matchNumber": 51
     },
     "2492": {
       "matchDate": "2026-05-09",
       "teamA": "Rajasthan Royals",
-      "teamB": "Gujarat Titans"
+      "teamB": "Gujarat Titans",
+      "matchNumber": 52
     },
     "2493": {
       "matchDate": "2026-05-10",
       "teamA": "Chennai Super Kings",
-      "teamB": "Lucknow Super Giants"
+      "teamB": "Lucknow Super Giants",
+      "matchNumber": 53
     },
     "2494": {
       "matchDate": "2026-05-10",
       "teamA": "Royal Challengers Bengaluru",
-      "teamB": "Mumbai Indians"
+      "teamB": "Mumbai Indians",
+      "matchNumber": 54
     },
     "2495": {
       "matchDate": "2026-05-11",
       "teamA": "Punjab Kings",
-      "teamB": "Delhi Capitals"
+      "teamB": "Delhi Capitals",
+      "matchNumber": 55
     },
     "2496": {
       "matchDate": "2026-05-12",
       "teamA": "Gujarat Titans",
-      "teamB": "Sunrisers Hyderabad"
+      "teamB": "Sunrisers Hyderabad",
+      "matchNumber": 56
     },
     "2497": {
       "matchDate": "2026-05-13",
       "teamA": "Royal Challengers Bengaluru",
-      "teamB": "Kolkata Knight Riders"
+      "teamB": "Kolkata Knight Riders",
+      "matchNumber": 57
     },
     "2498": {
       "matchDate": "2026-05-14",
       "teamA": "Punjab Kings",
-      "teamB": "Mumbai Indians"
+      "teamB": "Mumbai Indians",
+      "matchNumber": 58
     },
     "2499": {
       "matchDate": "2026-05-15",
       "teamA": "Lucknow Super Giants",
-      "teamB": "Chennai Super Kings"
+      "teamB": "Chennai Super Kings",
+      "matchNumber": 59
     },
     "2500": {
       "matchDate": "2026-05-16",
       "teamA": "Kolkata Knight Riders",
-      "teamB": "Gujarat Titans"
+      "teamB": "Gujarat Titans",
+      "matchNumber": 60
     },
     "2501": {
       "matchDate": "2026-05-17",
       "teamA": "Punjab Kings",
-      "teamB": "Royal Challengers Bengaluru"
+      "teamB": "Royal Challengers Bengaluru",
+      "matchNumber": 61
     },
     "2502": {
       "matchDate": "2026-05-17",
       "teamA": "Delhi Capitals",
-      "teamB": "Rajasthan Royals"
+      "teamB": "Rajasthan Royals",
+      "matchNumber": 62
     },
     "2503": {
       "matchDate": "2026-05-18",
       "teamA": "Chennai Super Kings",
-      "teamB": "Sunrisers Hyderabad"
+      "teamB": "Sunrisers Hyderabad",
+      "matchNumber": 63
     },
     "2504": {
       "matchDate": "2026-05-19",
       "teamA": "Rajasthan Royals",
-      "teamB": "Lucknow Super Giants"
+      "teamB": "Lucknow Super Giants",
+      "matchNumber": 64
     },
     "2505": {
       "matchDate": "2026-05-20",
       "teamA": "Kolkata Knight Riders",
-      "teamB": "Mumbai Indians"
+      "teamB": "Mumbai Indians",
+      "matchNumber": 65
     },
     "2506": {
       "matchDate": "2026-05-21",
       "teamA": "Chennai Super Kings",
-      "teamB": "Gujarat Titans"
+      "teamB": "Gujarat Titans",
+      "matchNumber": 66
     },
     "2507": {
       "matchDate": "2026-05-22",
       "teamA": "Sunrisers Hyderabad",
-      "teamB": "Royal Challengers Bengaluru"
+      "teamB": "Royal Challengers Bengaluru",
+      "matchNumber": 67
     },
     "2508": {
       "matchDate": "2026-05-23",
       "teamA": "Lucknow Super Giants",
-      "teamB": "Punjab Kings"
+      "teamB": "Punjab Kings",
+      "matchNumber": 68
     },
     "2509": {
       "matchDate": "2026-05-24",
       "teamA": "Mumbai Indians",
-      "teamB": "Rajasthan Royals"
+      "teamB": "Rajasthan Royals",
+      "matchNumber": 69
     },
     "2510": {
       "matchDate": "2026-05-24",
       "teamA": "Kolkata Knight Riders",
-      "teamB": "Delhi Capitals"
+      "teamB": "Delhi Capitals",
+      "matchNumber": 70
     }
   },
   "lastUpdated": "2026-04-10T21:36:13.808Z",
   "dailyHits": {
     "date": "2026-04-10",
-    "count": 8
+    "count": 9
   }
 }
