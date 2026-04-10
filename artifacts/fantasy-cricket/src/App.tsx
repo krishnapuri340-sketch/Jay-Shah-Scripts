@@ -4707,24 +4707,25 @@ export default function App() {
 
           const hasData = Object.keys(playerPoints).length > 0;
 
-          const TeamPicker = ({ selected, onSelect, exclude }: { selected: string; onSelect: (id: string) => void; exclude: string }) => {
-            const ft = FANTASY_TEAMS[selected];
-            return (
-              <select
-                value={selected}
-                onChange={e => { onSelect(e.target.value); setXferPlayersA([]); setXferPlayersB([]); }}
-                style={{
-                  flex: 1, background: ft.color + "18", border: `1px solid ${ft.color}55`,
-                  borderRadius: 10, color: ft.color, fontSize: "0.8rem", fontWeight: 700,
-                  padding: "9px 10px", cursor: "pointer", outline: "none", textAlign: "center",
-                }}
-              >
-                {OWNER_IDS.filter(id => id !== exclude).map(id => (
-                  <option key={id} value={id}>{ownerShortName(id)}</option>
-                ))}
-              </select>
-            );
-          };
+          const TeamPicker = ({ selected, onSelect, exclude }: { selected: string; onSelect: (id: string) => void; exclude: string }) => (
+            <div style={{ display: "flex", gap: 5, flex: 1 }}>
+              {OWNER_IDS.filter(id => id !== exclude).map(id => {
+                const ft = FANTASY_TEAMS[id];
+                const isActive = id === selected;
+                return (
+                  <button key={id} onClick={() => { onSelect(id); setXferPlayersA([]); setXferPlayersB([]); }}
+                    style={{
+                      flex: 1, padding: "8px 4px", borderRadius: 10, border: `1.5px solid ${isActive ? ft.color : "rgba(255,255,255,0.08)"}`,
+                      background: isActive ? ft.color + "22" : "var(--surface-2)",
+                      color: isActive ? ft.color : "var(--text-3)", fontSize: "0.72rem", fontWeight: 700,
+                      cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s",
+                    }}>
+                    {ownerShortName(id)}
+                  </button>
+                );
+              })}
+            </div>
+          );
 
           const PlayerList = ({ team, selectedPlayers, onToggle }: {
             team: typeof FANTASY_TEAMS[string];
@@ -4833,12 +4834,15 @@ export default function App() {
               </div>
 
               {/* Team pickers */}
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-                <TeamPicker selected={xferTeamA} onSelect={setXferTeamA} exclude={xferTeamB} />
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                  <path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/>
-                </svg>
-                <TeamPicker selected={xferTeamB} onSelect={setXferTeamB} exclude={xferTeamA} />
+              <div style={{ display: "flex", flexDirection: "column" as const, gap: 6, marginBottom: 12 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: "0.45rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.1em", width: 28, flexShrink: 0 }}>SIDE 1</span>
+                  <TeamPicker selected={xferTeamA} onSelect={setXferTeamA} exclude={xferTeamB} />
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: "0.45rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.1em", width: 28, flexShrink: 0 }}>SIDE 2</span>
+                  <TeamPicker selected={xferTeamB} onSelect={setXferTeamB} exclude={xferTeamA} />
+                </div>
               </div>
 
               {/* Transfer timing */}
