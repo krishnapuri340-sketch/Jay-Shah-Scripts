@@ -529,6 +529,7 @@ export default function App() {
   const [s3Prefetching, setS3Prefetching] = useState(false);
   const [s3PrefetchResult, setS3PrefetchResult] = useState<{ found: number; missing: number; foundIds: string[]; missingIds: string[] } | null>(null);
   const [chartHover, setChartHover] = useState<number | null>(null);
+  const [selectedAwardIdx, setSelectedAwardIdx] = useState(0);
   const [collapsedInnings, setCollapsedInnings] = useState<Set<string>>(new Set());
   const [openScoreRows, setOpenScoreRows] = useState<Set<string>>(new Set());
   const [pointsUpdating, setPointsUpdating] = useState(false);
@@ -2710,58 +2711,73 @@ export default function App() {
                 })()}
               </div>
 
-              {/* Award cards */}
-              <div style={{ marginTop: 22, marginBottom: 10 }}>
-                <div className="sec-title" style={{ marginBottom: 0 }}>Awards</div>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {awardsV2.map(award => {
-                  const winner = award.rows[0];
-                  const winnerFt = FANTASY_TEAMS[winner?.teamId];
-                  const maxVal = Math.max(...award.rows.map(r => r.value), 1);
-                  if (!winnerFt) return null;
-                  return (
-                    <div key={award.label} style={{ background: "var(--surface)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.07)", overflow: "hidden" }}>
-                      {/* Header */}
-                      <div style={{ padding: "9px 12px 8px", borderBottom: "1px solid rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <span style={{ fontSize: "0.58rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.07em", textTransform: "uppercase" as const }}>{award.label}</span>
-                        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                          <div style={{ width: 16, height: 16, borderRadius: "50%", overflow: "hidden", border: `1.5px solid ${winnerFt.color}`, flexShrink: 0 }}>
-                            <img src={`${import.meta.env.BASE_URL}avatars/${winnerFt.avatar}`} alt={winnerFt.owner}
-                              style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: winnerFt.avatarPosition || "center" }} />
-                          </div>
-                          <span style={{ fontSize: "0.63rem", fontWeight: 700, color: winnerFt.color }}>{winnerFt.owner}</span>
-                        </div>
-                      </div>
-                      {/* All 4 ranked rows */}
-                      <div style={{ padding: "7px 12px 9px", display: "flex", flexDirection: "column", gap: 6 }}>
-                        {award.rows.map((row, ri) => {
-                          const ft = FANTASY_TEAMS[row.teamId];
-                          if (!ft) return null;
-                          const isWinner = ri === 0;
-                          const pct = maxVal > 0 ? (row.value / maxVal) * 100 : 0;
-                          return (
-                            <div key={row.teamId} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                              <span style={{ fontSize: "0.52rem", fontWeight: 700, color: isWinner ? "var(--gold)" : "var(--text-3)", width: 10, textAlign: "center" as const, flexShrink: 0 }}>{ri + 1}</span>
-                              <div style={{ width: 20, height: 20, borderRadius: "50%", overflow: "hidden", border: `1.5px solid ${ft.color}${isWinner ? "" : "66"}`, flexShrink: 0 }}>
-                                <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner}
-                                  style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: ft.avatarPosition || "center" }} />
-                              </div>
-                              <span style={{ fontSize: "0.68rem", fontWeight: isWinner ? 700 : 400, color: isWinner ? ft.color : "var(--text-2)", width: 42, flexShrink: 0 }}>{ft.owner}</span>
-                              <div style={{ flex: 1, height: 3, background: "rgba(255,255,255,0.05)", borderRadius: 2, overflow: "hidden" }}>
-                                <div style={{ width: `${pct}%`, height: "100%", background: ft.color, borderRadius: 2, opacity: isWinner ? 1 : 0.4 }} />
-                              </div>
-                              <span style={{ fontSize: "0.63rem", fontWeight: isWinner ? 700 : 400, color: isWinner ? ft.color : "var(--text-3)", minWidth: 58, textAlign: "right" as const, fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>
-                                {row.display}
-                              </span>
-                            </div>
-                          );
-                        })}
+              {/* Award stepper */}
+              {(() => {
+                const safeIdx = Math.min(selectedAwardIdx, awardsV2.length - 1);
+                const award = awardsV2[safeIdx];
+                const winner = award?.rows[0];
+                const winnerFt = FANTASY_TEAMS[winner?.teamId];
+                const maxVal = Math.max(...(award?.rows.map(r => r.value) ?? [1]), 1);
+                return (
+                  <div style={{ marginTop: 22 }}>
+                    {/* Section title + stepper nav */}
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                      <div className="sec-title" style={{ marginBottom: 0 }}>Awards</div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <button onClick={() => setSelectedAwardIdx(i => (i - 1 + awardsV2.length) % awardsV2.length)}
+                          style={{ background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 7, width: 26, height: 26, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--text-3)" }}>
+                          <svg width="8" height="12" viewBox="0 0 8 12" fill="none"><path d="M7 1L1 6l6 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        </button>
+                        <span style={{ fontSize: "0.55rem", color: "var(--text-3)", fontVariantNumeric: "tabular-nums", minWidth: 28, textAlign: "center" as const }}>{safeIdx + 1} / {awardsV2.length}</span>
+                        <button onClick={() => setSelectedAwardIdx(i => (i + 1) % awardsV2.length)}
+                          style={{ background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 7, width: 26, height: 26, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--text-3)" }}>
+                          <svg width="8" height="12" viewBox="0 0 8 12" fill="none"><path d="M1 1l6 5-6 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        </button>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
+
+                    {/* Single award card */}
+                    {award && winnerFt && (
+                      <div style={{ background: "var(--surface)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.07)", overflow: "hidden" }}>
+                        <div style={{ padding: "9px 12px 8px", borderBottom: "1px solid rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                          <span style={{ fontSize: "0.58rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.07em", textTransform: "uppercase" as const }}>{award.label}</span>
+                          <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                            <div style={{ width: 16, height: 16, borderRadius: "50%", overflow: "hidden", border: `1.5px solid ${winnerFt.color}`, flexShrink: 0 }}>
+                              <img src={`${import.meta.env.BASE_URL}avatars/${winnerFt.avatar}`} alt={winnerFt.owner}
+                                style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: winnerFt.avatarPosition || "center" }} />
+                            </div>
+                            <span style={{ fontSize: "0.63rem", fontWeight: 700, color: winnerFt.color }}>{winnerFt.owner}</span>
+                          </div>
+                        </div>
+                        <div style={{ padding: "7px 12px 9px", display: "flex", flexDirection: "column", gap: 6 }}>
+                          {award.rows.map((row, ri) => {
+                            const ft = FANTASY_TEAMS[row.teamId];
+                            if (!ft) return null;
+                            const isWinner = ri === 0;
+                            const pct = maxVal > 0 ? (row.value / maxVal) * 100 : 0;
+                            return (
+                              <div key={row.teamId} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                <span style={{ fontSize: "0.52rem", fontWeight: 700, color: isWinner ? "var(--gold)" : "var(--text-3)", width: 10, textAlign: "center" as const, flexShrink: 0 }}>{ri + 1}</span>
+                                <div style={{ width: 20, height: 20, borderRadius: "50%", overflow: "hidden", border: `1.5px solid ${ft.color}${isWinner ? "" : "66"}`, flexShrink: 0 }}>
+                                  <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner}
+                                    style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: ft.avatarPosition || "center" }} />
+                                </div>
+                                <span style={{ fontSize: "0.68rem", fontWeight: isWinner ? 700 : 400, color: isWinner ? ft.color : "var(--text-2)", width: 42, flexShrink: 0 }}>{ft.owner}</span>
+                                <div style={{ flex: 1, height: 3, background: "rgba(255,255,255,0.05)", borderRadius: 2, overflow: "hidden" }}>
+                                  <div style={{ width: `${pct}%`, height: "100%", background: ft.color, borderRadius: 2, opacity: isWinner ? 1 : 0.4 }} />
+                                </div>
+                                <span style={{ fontSize: "0.63rem", fontWeight: isWinner ? 700 : 400, color: isWinner ? ft.color : "var(--text-3)", minWidth: 58, textAlign: "right" as const, fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>
+                                  {row.display}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           );
         })()}
