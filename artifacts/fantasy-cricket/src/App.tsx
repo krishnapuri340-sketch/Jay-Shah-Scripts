@@ -2416,7 +2416,6 @@ export default function App() {
           const consistentTeamId = Object.entries(rawScores).sort((a, b) => stdDev(a[1]) - stdDev(b[1]))[0]?.[0];
 
           const awards: Array<{ emoji: string; label: string; teamId: string; sub: string }> = [
-            { emoji: "👑", label: "League Leader",      teamId: leader.id,   sub: `${leader.total} pts` },
             ...(clutchTeamId  ? [{ emoji: "💥", label: "Best Single Match",  teamId: clutchTeamId,  sub: `${bestMatch[clutchTeamId]} pts` }] : []),
             { emoji: "💀",      label: "Wooden Spoon",   teamId: lastPlace.id, sub: `${lastPlace.total} pts` },
             ...(sixesTeamId   ? [{ emoji: "💣", label: "Six Appeal",         teamId: sixesTeamId,   sub: `${teamAgg[sixesTeamId].sixes} sixes` }] : []),

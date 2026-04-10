@@ -9211,22 +9211,7 @@
       }
     },
     "2432": {
-      "points": {
-        "Rajat Patidar": 119,
-        "Bhuvneshwar Kumar": 35,
-        "Phil Salt": 2,
-        "Krunal Pandya": 89,
-        "Vaibhav Suryavanshi": 176,
-        "Dhruv Jurel": 161,
-        "Tim David": 27,
-        "Jitesh Sharma": 17,
-        "Riyan Parag": 7,
-        "Shimron Hetmyer": 30,
-        "Venkatesh Iyer": 61,
-        "Yashasvi Jaiswal": 29,
-        "Virat Kohli": 84,
-        "Ravindra Jadeja": 68
-      },
+      "points": {},
       "innings": [
         {
           "name": "Royal Challengers Bengaluru Inning 1",
@@ -10204,7 +10189,8 @@
       },
       "matchLabel": "Rajasthan Royals vs Royal Challengers Bengaluru",
       "matchDate": "2026-04-10",
-      "matchNumber": 16
+      "matchNumber": 16,
+      "linkedIplId": "2432"
     }
   },
   "playerIdMap": {
@@ -10884,6 +10870,6 @@
   "lastUpdated": "2026-04-10T22:09:55.822Z",
   "dailyHits": {
     "date": "2026-04-10",
-    "count": 13
+    "count": 14
   }
 }
