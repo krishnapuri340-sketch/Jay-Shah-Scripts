@@ -2725,81 +2725,47 @@ export default function App() {
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {awardsV2.map(award => {
                   const winner = award.rows[0];
-                  const others = award.rows.slice(1);
                   const winnerFt = FANTASY_TEAMS[winner?.teamId];
                   const maxVal = Math.max(...award.rows.map(r => r.value), 1);
                   if (!winnerFt) return null;
-                  const MEDALS = ["2", "3", "4"];
                   return (
-                    <div key={award.label} style={{
-                      borderRadius: 16,
-                      border: `1px solid ${winnerFt.color}30`,
-                      overflow: "hidden",
-                      background: `linear-gradient(135deg, ${winnerFt.color}14 0%, var(--surface) 55%)`,
-                      position: "relative",
-                    }}>
-                      {/* Ambient glow blob */}
-                      <div style={{ position: "absolute", top: -24, left: -24, width: 90, height: 90, borderRadius: "50%", background: winnerFt.color, opacity: 0.09, filter: "blur(28px)", pointerEvents: "none" }} />
-
-                      {/* Top bar: award name + winner label */}
-                      <div style={{ padding: "8px 12px 0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <span style={{ fontSize: "0.5rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: winnerFt.color, opacity: 0.75 }}>
-                          {award.label}
-                        </span>
-                        <span style={{ fontSize: "0.5rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.08em" }}>WINNER</span>
-                      </div>
-
-                      {/* Winner feature row */}
-                      <div style={{ padding: "7px 12px 8px", display: "flex", alignItems: "center", gap: 9 }}>
-                        <div style={{
-                          width: 34, height: 34, borderRadius: "50%", overflow: "hidden", flexShrink: 0,
-                          border: `2px solid ${winnerFt.color}`,
-                          boxShadow: `0 0 10px ${winnerFt.color}44`,
-                        }}>
-                          <img src={`${import.meta.env.BASE_URL}avatars/${winnerFt.avatar}`} alt={winnerFt.owner}
-                            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: winnerFt.avatarPosition || "center" }} />
+                    <div key={award.label} style={{ background: "var(--surface)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.07)", overflow: "hidden" }}>
+                      {/* Header */}
+                      <div style={{ padding: "9px 12px 8px", borderBottom: "1px solid rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <span style={{ fontSize: "0.58rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.07em", textTransform: "uppercase" as const }}>{award.label}</span>
+                        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                          <div style={{ width: 16, height: 16, borderRadius: "50%", overflow: "hidden", border: `1.5px solid ${winnerFt.color}`, flexShrink: 0 }}>
+                            <img src={`${import.meta.env.BASE_URL}avatars/${winnerFt.avatar}`} alt={winnerFt.owner}
+                              style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: winnerFt.avatarPosition || "center" }} />
+                          </div>
+                          <span style={{ fontSize: "0.63rem", fontWeight: 700, color: winnerFt.color }}>{winnerFt.owner}</span>
                         </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: "0.78rem", fontWeight: 800, color: winnerFt.color, lineHeight: 1.2 }}>{winnerFt.owner}</div>
-                          <div style={{ fontSize: "0.55rem", color: "var(--text-3)", marginTop: 1, fontVariantNumeric: "tabular-nums" }}>{winner.display}</div>
-                        </div>
-                        <div style={{
-                          background: `${winnerFt.color}1a`, border: `1px solid ${winnerFt.color}44`,
-                          borderRadius: 20, padding: "2px 7px",
-                          fontSize: "0.48rem", fontWeight: 800, color: winnerFt.color, letterSpacing: "0.04em", flexShrink: 0,
-                        }}>1st</div>
                       </div>
-
-                      {/* Divider */}
-                      <div style={{ height: 1, background: `${winnerFt.color}1a`, marginLeft: 12, marginRight: 12 }} />
-
-                      {/* Runner-up rows */}
-                      <div style={{ padding: "6px 12px 8px", display: "flex", flexDirection: "column", gap: 5 }}>
-                        {others.map((row, ri) => {
+                      {/* All 4 ranked rows */}
+                      <div style={{ padding: "7px 12px 9px", display: "flex", flexDirection: "column", gap: 6 }}>
+                        {award.rows.map((row, ri) => {
                           const ft = FANTASY_TEAMS[row.teamId];
                           if (!ft) return null;
+                          const isWinner = ri === 0;
                           const pct = maxVal > 0 ? (row.value / maxVal) * 100 : 0;
                           return (
-                            <div key={row.teamId} style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                              <span style={{ fontSize: "0.52rem", fontWeight: 600, width: 12, textAlign: "center" as const, flexShrink: 0, color: "var(--text-3)" }}>{MEDALS[ri]}</span>
-                              <div style={{ width: 20, height: 20, borderRadius: "50%", overflow: "hidden", border: `1.5px solid ${ft.color}55`, flexShrink: 0 }}>
+                            <div key={row.teamId} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                              <span style={{ fontSize: "0.52rem", fontWeight: 700, color: isWinner ? "var(--gold)" : "var(--text-3)", width: 10, textAlign: "center" as const, flexShrink: 0 }}>{ri + 1}</span>
+                              <div style={{ width: 20, height: 20, borderRadius: "50%", overflow: "hidden", border: `1.5px solid ${ft.color}${isWinner ? "" : "66"}`, flexShrink: 0 }}>
                                 <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner}
                                   style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: ft.avatarPosition || "center" }} />
                               </div>
-                              <span style={{ fontSize: "0.62rem", color: "var(--text-2)", width: 38, flexShrink: 0 }}>{ft.owner}</span>
-                              <div style={{ flex: 1, height: 2.5, background: "rgba(255,255,255,0.05)", borderRadius: 2, overflow: "hidden" }}>
-                                <div style={{ width: `${pct}%`, height: "100%", background: ft.color, borderRadius: 2, opacity: 0.45 }} />
+                              <span style={{ fontSize: "0.68rem", fontWeight: isWinner ? 700 : 400, color: isWinner ? ft.color : "var(--text-2)", width: 42, flexShrink: 0 }}>{ft.owner}</span>
+                              <div style={{ flex: 1, height: 3, background: "rgba(255,255,255,0.05)", borderRadius: 2, overflow: "hidden" }}>
+                                <div style={{ width: `${pct}%`, height: "100%", background: ft.color, borderRadius: 2, opacity: isWinner ? 1 : 0.4 }} />
                               </div>
-                              <span style={{ fontSize: "0.58rem", color: "var(--text-3)", minWidth: 55, textAlign: "right" as const, fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>
+                              <span style={{ fontSize: "0.63rem", fontWeight: isWinner ? 700 : 400, color: isWinner ? ft.color : "var(--text-3)", minWidth: 58, textAlign: "right" as const, fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>
                                 {row.display}
                               </span>
                             </div>
                           );
                         })}
                       </div>
-
-                      {/* Bottom accent stripe */}
-                      <div style={{ height: 2, background: `linear-gradient(90deg, ${winnerFt.color}55 0%, transparent 100%)` }} />
                     </div>
                   );
                 })}
