@@ -504,6 +504,7 @@ export default function App() {
   const [xferTeamB, setXferTeamB] = useState("mombasa");
   const [xferPlayersA, setXferPlayersA] = useState<string[]>([]);
   const [xferPlayersB, setXferPlayersB] = useState<string[]>([]);
+  const [xferAfterMatch, setXferAfterMatch] = useState<number | null>(null);
   const [altCap, setAltCap] = useState("");
   const [altVC, setAltVC] = useState("");
   const [perMatchCaps, setPerMatchCaps] = useState<Record<string, Record<number, { cap: string; vc: string }>>>({});
@@ -4590,19 +4591,31 @@ export default function App() {
         {wiSection === "transfer" && (() => {
           const OWNER_IDS = ["rajveer", "mombasa", "mumbai", "ponygoat"] as const;
 
-          // Helper: simulate a team's total with a custom player list
-          const simTeamTotal = (players: typeof FANTASY_TEAMS[string]["players"], cap: string, vc: string) => {
+          const teamA = FANTASY_TEAMS[xferTeamA];
+          const teamB = FANTASY_TEAMS[xferTeamB];
+
+          // Collect all match numbers across both teams
+          const allMatchNums = Array.from(new Set([
+            ...teamA.players.flatMap(p => (playerMatchPoints[p.name] || []).map((e: any) => e.matchNum)),
+            ...teamB.players.flatMap(p => (playerMatchPoints[p.name] || []).map((e: any) => e.matchNum)),
+          ].filter((n: number) => n < 900))).sort((a: number, b: number) => a - b) as number[];
+
+          // Partial point helpers
+          const getPtsUpTo = (name: string, upTo: number) =>
+            (playerMatchPoints[name] || []).filter((e: any) => e.matchNum <= upTo).reduce((s: number, e: any) => s + e.pts, 0);
+          const getPtsAfter = (name: string, after: number) =>
+            (playerMatchPoints[name] || []).filter((e: any) => e.matchNum > after).reduce((s: number, e: any) => s + e.pts, 0);
+
+          // Simulate team total with custom per-player point overrides
+          const simTeamTotal = (players: typeof FANTASY_TEAMS[string]["players"], cap: string, vc: string, overridePts: Record<string, number>) => {
             const withPts = players.map(p => {
-              const raw = playerPoints[p.name] || 0;
+              const raw = p.name in overridePts ? overridePts[p.name] : (playerPoints[p.name] || 0);
               const adj = applyMultiplier(raw, p.name === cap, p.name === vc);
               return { ...p, raw, adj };
             }).sort((a, b) => b.adj - a.adj);
             const top11 = new Set(withPts.slice(0, 11).map(p => p.name));
             return Math.round(withPts.filter(p => top11.has(p.name)).reduce((s, p) => s + p.adj, 0));
           };
-
-          const teamA = FANTASY_TEAMS[xferTeamA];
-          const teamB = FANTASY_TEAMS[xferTeamB];
 
           // Toggle selection helpers
           const toggleA = (name: string) => setXferPlayersA(prev => prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name]);
@@ -4627,10 +4640,24 @@ export default function App() {
           const simCapB = xferPlayersB.includes(teamB.captain) ? (simPlayersB[0]?.name || "") : teamB.captain;
           const simVCB  = xferPlayersB.includes(teamB.vc) && simCapB !== teamB.vc ? (simPlayersB[1]?.name || "") : xferPlayersB.includes(teamB.vc) ? (simPlayersB[0]?.name || "") : teamB.vc;
 
+          // Build point overrides based on game-week cutoff
+          const overrideA: Record<string, number> = {};
+          const overrideB: Record<string, number> = {};
+          if (xferAfterMatch !== null) {
+            // Outgoing from A: only M1..transferMatch
+            xferPlayersA.forEach(name => { overrideA[name] = getPtsUpTo(name, xferAfterMatch); });
+            // Incoming to A (from B): only M(transferMatch+1)..end
+            xferPlayersB.forEach(name => { overrideA[name] = getPtsAfter(name, xferAfterMatch); });
+            // Outgoing from B: only M1..transferMatch
+            xferPlayersB.forEach(name => { overrideB[name] = getPtsUpTo(name, xferAfterMatch); });
+            // Incoming to B (from A): only M(transferMatch+1)..end
+            xferPlayersA.forEach(name => { overrideB[name] = getPtsAfter(name, xferAfterMatch); });
+          }
+
           const actualA = teamScores.find(s => s.id === xferTeamA)?.total ?? 0;
           const actualB = teamScores.find(s => s.id === xferTeamB)?.total ?? 0;
-          const simA = countMatch ? simTeamTotal(simPlayersA, simCapA, simVCA) : actualA;
-          const simB = countMatch ? simTeamTotal(simPlayersB, simCapB, simVCB) : actualB;
+          const simA = countMatch ? simTeamTotal(simPlayersA, simCapA, simVCA, overrideA) : actualA;
+          const simB = countMatch ? simTeamTotal(simPlayersB, simCapB, simVCB, overrideB) : actualB;
           const deltaA = simA - actualA;
           const deltaB = simB - actualB;
 
@@ -4679,21 +4706,23 @@ export default function App() {
             </div>
           );
 
-          const PlayerList = ({ team, selectedPlayers, onToggle, incoming }: {
+          const PlayerList = ({ team, selectedPlayers, onToggle }: {
             team: typeof FANTASY_TEAMS[string];
             selectedPlayers: string[];
             onToggle: (name: string) => void;
-            incoming: string[];
           }) => {
             const sorted = [...team.players].sort((a, b) => (playerPoints[b.name] || 0) - (playerPoints[a.name] || 0));
             return (
               <div style={{ display: "flex", flexDirection: "column" as const, gap: 1 }}>
                 {sorted.map(p => {
                   const isSelected = selectedPlayers.includes(p.name);
-                  const pts = playerPoints[p.name] || 0;
+                  const fullPts = playerPoints[p.name] || 0;
                   const roleColor = ROLE_COLORS[p.role] || "var(--text-3)";
                   const isCap = p.name === team.captain;
                   const isVC = p.name === team.vc;
+                  // Game-week split points (shown when timing is set and player is selected)
+                  const retainedPts = xferAfterMatch !== null ? getPtsUpTo(p.name, xferAfterMatch) : null;
+                  const contributedPts = xferAfterMatch !== null ? getPtsAfter(p.name, xferAfterMatch) : null;
                   return (
                     <button key={p.name} onClick={() => onToggle(p.name)}
                       style={{
@@ -4716,13 +4745,29 @@ export default function App() {
                           {isCap && <span style={{ fontSize: "0.43rem", fontWeight: 800, color: "#d4a843", background: "#d4a84322", borderRadius: 3, padding: "1px 4px", flexShrink: 0 }}>C</span>}
                           {isVC  && <span style={{ fontSize: "0.43rem", fontWeight: 800, color: "var(--text-3)", background: "rgba(255,255,255,0.07)", borderRadius: 3, padding: "1px 4px", flexShrink: 0 }}>VC</span>}
                         </div>
-                        <div style={{ display: "flex", gap: 5, marginTop: 2, alignItems: "center" }}>
+                        <div style={{ display: "flex", gap: 5, marginTop: 2, alignItems: "center", flexWrap: "wrap" as const }}>
                           <span style={{ fontSize: "0.45rem", color: roleColor, background: roleColor + "18", border: `1px solid ${roleColor}30`, borderRadius: 3, padding: "1px 4px" }}>{p.role}</span>
                           <span style={{ fontSize: "0.48rem", color: "var(--text-3)" }}>{p.ipl}</span>
                           {p.price != null && <span style={{ fontSize: "0.45rem", color: "var(--text-3)" }}>{p.price}cr</span>}
+                          {/* Game-week split — shown when timing is set and player is selected */}
+                          {isSelected && retainedPts !== null && (
+                            <>
+                              <span style={{ fontSize: "0.43rem", color: "#fbbf24", background: "rgba(251,191,36,0.12)", borderRadius: 3, padding: "1px 4px", fontVariantNumeric: "tabular-nums" }}>
+                                ≤M{xferAfterMatch}: {retainedPts}
+                              </span>
+                              <span style={{ fontSize: "0.43rem", color: "#60a5fa", background: "rgba(96,165,250,0.12)", borderRadius: 3, padding: "1px 4px", fontVariantNumeric: "tabular-nums" }}>
+                                M{xferAfterMatch!+1}+: {contributedPts}
+                              </span>
+                            </>
+                          )}
                         </div>
                       </div>
-                      <span style={{ fontSize: "0.72rem", fontWeight: 700, color: isSelected ? team.color : "var(--text-3)", fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>{pts}</span>
+                      <div style={{ textAlign: "right" as const, flexShrink: 0 }}>
+                        <div style={{ fontSize: "0.72rem", fontWeight: 700, color: isSelected ? team.color : "var(--text-3)", fontVariantNumeric: "tabular-nums" }}>{fullPts}</div>
+                        {isSelected && retainedPts !== null && (
+                          <div style={{ fontSize: "0.48rem", color: "#fbbf24", fontVariantNumeric: "tabular-nums" }}>keeps {retainedPts}</div>
+                        )}
+                      </div>
                     </button>
                   );
                 })}
@@ -4733,9 +4778,38 @@ export default function App() {
           return (
             <div>
               {/* Team pickers */}
-              <div style={{ display: "flex", flexDirection: "column" as const, gap: 10, marginBottom: 14 }}>
+              <div style={{ display: "flex", flexDirection: "column" as const, gap: 10, marginBottom: 12 }}>
                 <TeamPicker label="TEAM A" selected={xferTeamA} onSelect={setXferTeamA} exclude={xferTeamB} />
                 <TeamPicker label="TEAM B" selected={xferTeamB} onSelect={setXferTeamB} exclude={xferTeamA} />
+              </div>
+
+              {/* Transfer timing */}
+              <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12, padding: "10px 12px", marginBottom: 14 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+                  <div>
+                    <div style={{ fontSize: "0.48rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.1em", marginBottom: 3 }}>TRANSFER TIMING</div>
+                    <div style={{ fontSize: "0.6rem", color: xferAfterMatch !== null ? "var(--text-2)" : "var(--text-3)" }}>
+                      {xferAfterMatch !== null
+                        ? `After M${xferAfterMatch} — each side keeps pre-trade points, gains post-trade only`
+                        : "Full season — no timing restriction"}
+                    </div>
+                  </div>
+                  <select
+                    value={xferAfterMatch ?? ""}
+                    onChange={e => setXferAfterMatch(e.target.value === "" ? null : Number(e.target.value))}
+                    style={{
+                      background: "var(--surface-2)", border: `1px solid ${xferAfterMatch !== null ? "rgba(255,255,255,0.18)" : "var(--border)"}`,
+                      borderRadius: 8, color: xferAfterMatch !== null ? "var(--text)" : "var(--text-3)",
+                      fontSize: "0.65rem", fontWeight: 600, padding: "5px 8px", cursor: "pointer",
+                      outline: "none", flexShrink: 0,
+                    }}
+                  >
+                    <option value="">Full season</option>
+                    {allMatchNums.map(m => (
+                      <option key={m} value={m}>After M{m}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               {/* Summary / impact card */}
@@ -4812,22 +4886,61 @@ export default function App() {
 
                       {/* Trade pairs */}
                       <div style={{ background: "var(--surface-2)", borderRadius: 9, padding: "8px 10px" }}>
-                        <div style={{ fontSize: "0.45rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.1em", marginBottom: 6 }}>TRADE PAIRS</div>
+                        <div style={{ fontSize: "0.45rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.1em", marginBottom: 6 }}>
+                          TRADE PAIRS{xferAfterMatch !== null ? ` · After M${xferAfterMatch}` : ""}
+                        </div>
                         {xferPlayersA.map((pA, i) => {
                           const pB = xferPlayersB[i];
-                          const ptsA = playerPoints[pA] || 0;
-                          const ptsB = pB ? playerPoints[pB] || 0 : 0;
+                          const ptsAFull = playerPoints[pA] || 0;
+                          const ptsBFull = pB ? playerPoints[pB] || 0 : 0;
+                          // Timing-split points
+                          const pARetained = xferAfterMatch !== null ? getPtsUpTo(pA, xferAfterMatch) : null;
+                          const pAContrib = xferAfterMatch !== null && pB ? getPtsAfter(pB, xferAfterMatch) : null;
+                          const pBRetained = xferAfterMatch !== null && pB ? getPtsUpTo(pB, xferAfterMatch) : null;
+                          const pBContrib = xferAfterMatch !== null ? getPtsAfter(pA, xferAfterMatch) : null;
                           return (
-                            <div key={pA} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: i < xferPlayersA.length - 1 ? 5 : 0, paddingBottom: i < xferPlayersA.length - 1 ? 5 : 0, borderBottom: i < xferPlayersA.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none" }}>
-                              <div style={{ flex: 1, textAlign: "right" as const }}>
-                                <div style={{ fontSize: "0.65rem", fontWeight: 600, color: teamA.color }}>{pA.split(" ").slice(-1)[0]}</div>
-                                <div style={{ fontSize: "0.48rem", color: "var(--text-3)" }}>{ptsA} pts → {teamB.owner}</div>
+                            <div key={pA} style={{ marginBottom: i < xferPlayersA.length - 1 ? 7 : 0, paddingBottom: i < xferPlayersA.length - 1 ? 7 : 0, borderBottom: i < xferPlayersA.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                                <div style={{ flex: 1, textAlign: "right" as const }}>
+                                  <div style={{ fontSize: "0.65rem", fontWeight: 600, color: teamA.color }}>{pA.split(" ").slice(-1)[0]}</div>
+                                  {xferAfterMatch !== null ? (
+                                    <div style={{ fontSize: "0.45rem", color: "var(--text-3)", lineHeight: 1.5 }}>
+                                      <span style={{ color: "#fbbf24" }}>≤M{xferAfterMatch}: {pARetained}</span>
+                                      {" · "}full: {ptsAFull}
+                                    </div>
+                                  ) : (
+                                    <div style={{ fontSize: "0.45rem", color: "var(--text-3)" }}>{ptsAFull} pts → {teamB.owner}</div>
+                                  )}
+                                </div>
+                                <svg width="14" height="10" viewBox="0 0 14 10" fill="none" stroke="var(--text-3)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"><path d="M1 3h12M10 1l2 2-2 2"/><path d="M13 7H1M4 5l-2 2 2 2"/></svg>
+                                <div style={{ flex: 1 }}>
+                                  <div style={{ fontSize: "0.65rem", fontWeight: 600, color: teamB.color }}>{pB ? pB.split(" ").slice(-1)[0] : "—"}</div>
+                                  {pB && (xferAfterMatch !== null ? (
+                                    <div style={{ fontSize: "0.45rem", color: "var(--text-3)", lineHeight: 1.5 }}>
+                                      <span style={{ color: "#fbbf24" }}>≤M{xferAfterMatch}: {pBRetained}</span>
+                                      {" · "}full: {ptsBFull}
+                                    </div>
+                                  ) : (
+                                    <div style={{ fontSize: "0.45rem", color: "var(--text-3)" }}>{ptsBFull} pts → {teamA.owner}</div>
+                                  ))}
+                                </div>
                               </div>
-                              <svg width="14" height="10" viewBox="0 0 14 10" fill="none" stroke="var(--text-3)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"><path d="M1 3h12M10 1l2 2-2 2"/><path d="M13 7H1M4 5l-2 2 2 2"/></svg>
-                              <div style={{ flex: 1 }}>
-                                <div style={{ fontSize: "0.65rem", fontWeight: 600, color: teamB.color }}>{pB ? pB.split(" ").slice(-1)[0] : "—"}</div>
-                                {pB && <div style={{ fontSize: "0.48rem", color: "var(--text-3)" }}>{ptsB} pts → {teamA.owner}</div>}
-                              </div>
+                              {/* What each team gains */}
+                              {xferAfterMatch !== null && pB && (
+                                <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
+                                  <div style={{ flex: 1, textAlign: "right" as const, fontSize: "0.45rem" }}>
+                                    <span style={{ color: teamA.color }}>{teamA.owner}</span>
+                                    <span style={{ color: "var(--text-3)" }}>: keeps {pARetained} + gets </span>
+                                    <span style={{ color: "#60a5fa" }}>M{xferAfterMatch!+1}+: {pAContrib}</span>
+                                  </div>
+                                  <div style={{ width: 14, flexShrink: 0 }} />
+                                  <div style={{ flex: 1, fontSize: "0.45rem" }}>
+                                    <span style={{ color: teamB.color }}>{teamB.owner}</span>
+                                    <span style={{ color: "var(--text-3)" }}>: keeps {pBRetained} + gets </span>
+                                    <span style={{ color: "#60a5fa" }}>M{xferAfterMatch!+1}+: {pBContrib}</span>
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           );
                         })}
@@ -4878,7 +4991,7 @@ export default function App() {
                     )}
                   </div>
                   <div style={{ padding: "6px 8px" }}>
-                    <PlayerList team={teamA} selectedPlayers={xferPlayersA} onToggle={toggleA} incoming={xferPlayersB} />
+                    <PlayerList team={teamA} selectedPlayers={xferPlayersA} onToggle={toggleA} />
                   </div>
                 </div>
 
@@ -4899,7 +5012,7 @@ export default function App() {
                     )}
                   </div>
                   <div style={{ padding: "6px 8px" }}>
-                    <PlayerList team={teamB} selectedPlayers={xferPlayersB} onToggle={toggleB} incoming={xferPlayersA} />
+                    <PlayerList team={teamB} selectedPlayers={xferPlayersB} onToggle={toggleB} />
                   </div>
                 </div>
               </div>
