@@ -528,6 +528,7 @@ export default function App() {
   const [supabaseSyncMsg, setSupabaseSyncMsg] = useState<string | null>(null);
   const [s3Prefetching, setS3Prefetching] = useState(false);
   const [s3PrefetchResult, setS3PrefetchResult] = useState<{ found: number; missing: number; foundIds: string[]; missingIds: string[] } | null>(null);
+  const [chartHover, setChartHover] = useState<number | null>(null);
   const [collapsedInnings, setCollapsedInnings] = useState<Set<string>>(new Set());
   const [openScoreRows, setOpenScoreRows] = useState<Set<string>>(new Set());
   const [pointsUpdating, setPointsUpdating] = useState(false);
@@ -2465,7 +2466,7 @@ export default function App() {
                     const lastPt = team.points[team.points.length - 1];
                     return { team, rawY: lastPt ? yOf(lastPt.cum) : 0, cum: lastPt?.cum ?? 0 };
                   }).sort((a, b) => a.rawY - b.rawY);
-                  const MIN_GAP = 14;
+                  const MIN_GAP = 17;
                   const adjY = rawLabels.map(l => l.rawY);
                   for (let i = 1; i < adjY.length; i++) {
                     if (adjY[i] - adjY[i - 1] < MIN_GAP) adjY[i] = adjY[i - 1] + MIN_GAP;
@@ -2473,101 +2474,207 @@ export default function App() {
                   const labelMap: Record<string, number> = {};
                   rawLabels.forEach((l, i) => { labelMap[l.team.teamId] = adjY[i]; });
 
+                  const getMatchPts = (team: typeof sortedByFinal[0], idx: number) => {
+                    const pts = team.points;
+                    if (!pts[idx]) return 0;
+                    return idx === 0 ? pts[0].cum : pts[idx].cum - pts[idx - 1].cum;
+                  };
+
+                  const handleSvgInteract = (e: React.TouchEvent<SVGSVGElement> | React.MouseEvent<SVGSVGElement>) => {
+                    const svgEl = e.currentTarget;
+                    const rect = svgEl.getBoundingClientRect();
+                    const clientX = 'touches' in e
+                      ? (e as React.TouchEvent<SVGSVGElement>).touches[0]?.clientX ?? 0
+                      : (e as React.MouseEvent<SVGSVGElement>).clientX;
+                    const relX = ((clientX - rect.left) / rect.width) * W;
+                    const rawIdx = Math.round(((relX - PL) / CW) * (n - 1));
+                    setChartHover(Math.max(0, Math.min(n - 1, rawIdx)));
+                  };
+
+                  const hovMatchNum = chartHover !== null ? allMatchNums[chartHover] : null;
+                  const hoverData = chartHover !== null && hovMatchNum !== null
+                    ? sortedByFinal.map(team => ({
+                        team,
+                        matchPts: getMatchPts(team, chartHover),
+                        cum: team.points[chartHover]?.cum ?? 0,
+                      })).sort((a, b) => b.matchPts - a.matchPts)
+                    : null;
+
+                  const AVT_R = 8;
+
                   return (
-                    <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{ overflow: "visible" }}>
-                      <defs>
-                        {sortedByFinal.map(team => (
-                          <linearGradient key={team.teamId + "-grad"} id={`area-${team.teamId}`} x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor={team.color} stopOpacity="0.18" />
-                            <stop offset="100%" stopColor={team.color} stopOpacity="0" />
-                          </linearGradient>
-                        ))}
-                        <filter id="leader-glow" x="-20%" y="-20%" width="140%" height="140%">
-                          <feGaussianBlur stdDeviation="2" result="blur" />
-                          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-                        </filter>
-                      </defs>
+                    <div style={{ position: "relative" }}>
+                      {/* Tooltip overlay */}
+                      {hoverData && hovMatchNum !== null && (
+                        <div style={{
+                          position: "absolute", top: 4, left: "50%", transform: "translateX(-50%)",
+                          background: "rgba(12,12,16,0.97)", border: "1px solid rgba(255,255,255,0.1)",
+                          borderRadius: 12, padding: "8px 12px", zIndex: 10,
+                          display: "flex", alignItems: "center", gap: 10,
+                          backdropFilter: "blur(10px)", pointerEvents: "none",
+                          boxShadow: "0 6px 24px rgba(0,0,0,0.6)",
+                        }}>
+                          <span style={{ fontSize: "0.55rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.05em" }}>M{hovMatchNum}</span>
+                          <div style={{ display: "flex", gap: 9 }}>
+                            {hoverData.map(({ team, matchPts, cum }) => {
+                              const ft = FANTASY_TEAMS[team.teamId];
+                              return (
+                                <div key={team.teamId} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+                                  <div style={{ width: 24, height: 24, borderRadius: "50%", overflow: "hidden", border: `2px solid ${team.color}`, flexShrink: 0 }}>
+                                    <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner}
+                                      style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: ft.avatarPosition || "center center" }} />
+                                  </div>
+                                  <span style={{ fontSize: "0.68rem", fontWeight: 700, color: team.color, fontVariantNumeric: "tabular-nums", lineHeight: 1 }}>+{matchPts}</span>
+                                  <span style={{ fontSize: "0.5rem", color: "var(--text-3)", fontVariantNumeric: "tabular-nums", lineHeight: 1 }}>{cum}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
 
-                      {/* Baseline */}
-                      <line x1={PL} y1={bottom} x2={W - PR} y2={bottom}
-                        stroke="rgba(255,255,255,0.08)" strokeWidth={0.8} />
+                      <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{ overflow: "visible", touchAction: "none", display: "block" }}
+                        onTouchStart={handleSvgInteract}
+                        onTouchMove={handleSvgInteract}
+                        onTouchEnd={() => setChartHover(null)}
+                        onMouseMove={handleSvgInteract}
+                        onMouseLeave={() => setChartHover(null)}
+                      >
+                        <defs>
+                          {sortedByFinal.map(team => (
+                            <linearGradient key={team.teamId + "-grad"} id={`area-${team.teamId}`} x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor={team.color} stopOpacity="0.18" />
+                              <stop offset="100%" stopColor={team.color} stopOpacity="0" />
+                            </linearGradient>
+                          ))}
+                          {sortedByFinal.map(team => {
+                            const lastI = team.points.length - 1;
+                            const cx = xOf(lastI) + 6 + AVT_R;
+                            const cy = labelMap[team.teamId] ?? yOf(team.points[lastI]?.cum ?? 0);
+                            return (
+                              <clipPath key={`clip-${team.teamId}`} id={`clip-avatar-${team.teamId}`} clipPathUnits="userSpaceOnUse">
+                                <circle cx={cx} cy={cy} r={AVT_R} />
+                              </clipPath>
+                            );
+                          })}
+                          <filter id="leader-glow" x="-20%" y="-20%" width="140%" height="140%">
+                            <feGaussianBlur stdDeviation="2" result="blur" />
+                            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                          </filter>
+                        </defs>
 
-                      {/* Grid lines + Y labels */}
-                      {[0.25, 0.5, 0.75, 1].map(v => {
-                        const yv = yOf(maxCum * v);
-                        const val = Math.round(maxCum * v);
-                        return (
-                          <g key={v}>
-                            <line x1={PL} y1={yv} x2={W - PR} y2={yv}
-                              stroke="rgba(255,255,255,0.04)" strokeWidth={0.7} strokeDasharray="3,5" />
-                            <text x={PL - 3} y={yv + 2.5} textAnchor="end"
-                              fontSize={5.5} fill="rgba(255,255,255,0.18)" style={{ fontFamily: "Inter, sans-serif" }}>{val}</text>
-                          </g>
-                        );
-                      })}
+                        {/* Baseline */}
+                        <line x1={PL} y1={bottom} x2={W - PR} y2={bottom}
+                          stroke="rgba(255,255,255,0.08)" strokeWidth={0.8} />
 
-                      {/* Area fills (back to front — last place first) */}
-                      {[...sortedByFinal].reverse().map(team => {
-                        const pts = team.points.map((p, i) => ({ x: xOf(i), y: yOf(p.cum) }));
-                        if (pts.length < 2) return null;
-                        const linePath = smoothPath(pts);
-                        const lastPt = pts[pts.length - 1];
-                        const firstPt = pts[0];
-                        const areaPath = `${linePath} L ${lastPt.x.toFixed(1)},${bottom.toFixed(1)} L ${firstPt.x.toFixed(1)},${bottom.toFixed(1)} Z`;
-                        return (
-                          <path key={team.teamId + "-area"} d={areaPath}
-                            fill={`url(#area-${team.teamId})`} />
-                        );
-                      })}
+                        {/* Grid lines + Y labels */}
+                        {[0.25, 0.5, 0.75, 1].map(v => {
+                          const yv = yOf(maxCum * v);
+                          const val = Math.round(maxCum * v);
+                          return (
+                            <g key={v}>
+                              <line x1={PL} y1={yv} x2={W - PR} y2={yv}
+                                stroke="rgba(255,255,255,0.04)" strokeWidth={0.7} strokeDasharray="3,5" />
+                              <text x={PL - 3} y={yv + 2.5} textAnchor="end"
+                                fontSize={5.5} fill="rgba(255,255,255,0.18)" style={{ fontFamily: "Inter, sans-serif" }}>{val}</text>
+                            </g>
+                          );
+                        })}
 
-                      {/* Team lines */}
-                      {sortedByFinal.map(team => {
-                        const pts = team.points.map((p, i) => ({ x: xOf(i), y: yOf(p.cum) }));
-                        if (pts.length < 2) return null;
-                        const isLeader = team.teamId === leader.id;
-                        const linePath = smoothPath(pts);
-                        const lastPt = pts[pts.length - 1];
-                        return (
-                          <g key={team.teamId} filter={isLeader ? "url(#leader-glow)" : undefined}>
-                            <path d={linePath} fill="none" stroke={team.color}
-                              strokeWidth={isLeader ? 2.4 : 1.7}
-                              strokeLinecap="round" strokeLinejoin="round"
-                              opacity={isLeader ? 1 : 0.85} />
-                            {/* Endpoint dot */}
-                            <circle cx={lastPt.x} cy={lastPt.y} r={isLeader ? 4 : 3}
-                              fill="var(--surface)" stroke={team.color} strokeWidth={isLeader ? 2 : 1.5} />
-                          </g>
-                        );
-                      })}
+                        {/* Area fills */}
+                        {[...sortedByFinal].reverse().map(team => {
+                          const pts = team.points.map((p, i) => ({ x: xOf(i), y: yOf(p.cum) }));
+                          if (pts.length < 2) return null;
+                          const linePath = smoothPath(pts);
+                          const lastPt = pts[pts.length - 1];
+                          const firstPt = pts[0];
+                          const areaPath = `${linePath} L ${lastPt.x.toFixed(1)},${bottom.toFixed(1)} L ${firstPt.x.toFixed(1)},${bottom.toFixed(1)} Z`;
+                          return <path key={team.teamId + "-area"} d={areaPath} fill={`url(#area-${team.teamId})`} />;
+                        })}
 
-                      {/* End labels — collision-adjusted */}
-                      {sortedByFinal.map(team => {
-                        const lastPt = team.points[team.points.length - 1];
-                        if (!lastPt) return null;
-                        const lx = xOf(team.points.length - 1) + 8;
-                        const ly = labelMap[team.teamId] ?? yOf(lastPt.cum);
-                        const isLeader = team.teamId === leader.id;
-                        return (
-                          <g key={team.teamId + "-lbl"}>
-                            <text x={lx} y={ly + 1} fontSize={isLeader ? 9.5 : 8.5} fill={team.color}
-                              fontWeight="700" style={{ fontFamily: "Inter, sans-serif" }}>{team.emoji}</text>
-                            <text x={lx + 11} y={ly + 1} fontSize={6} fill={team.color}
-                              fontWeight="600" style={{ fontFamily: "Inter, sans-serif" }}>{lastPt.cum}</text>
-                          </g>
-                        );
-                      })}
+                        {/* Team lines */}
+                        {sortedByFinal.map(team => {
+                          const pts = team.points.map((p, i) => ({ x: xOf(i), y: yOf(p.cum) }));
+                          if (pts.length < 2) return null;
+                          const isLeader = team.teamId === leader.id;
+                          const linePath = smoothPath(pts);
+                          const lastPt = pts[pts.length - 1];
+                          return (
+                            <g key={team.teamId} filter={isLeader ? "url(#leader-glow)" : undefined}>
+                              <path d={linePath} fill="none" stroke={team.color}
+                                strokeWidth={isLeader ? 2.4 : 1.7}
+                                strokeLinecap="round" strokeLinejoin="round"
+                                opacity={chartHover !== null ? 0.45 : (isLeader ? 1 : 0.85)} />
+                              <circle cx={lastPt.x} cy={lastPt.y} r={isLeader ? 3.5 : 2.5}
+                                fill="var(--surface)" stroke={team.color} strokeWidth={isLeader ? 2 : 1.5}
+                                opacity={chartHover !== null ? 0.3 : 1} />
+                            </g>
+                          );
+                        })}
 
-                      {/* X labels */}
-                      {allMatchNums.filter((_, i) =>
-                        i === 0 || i === n - 1 || (n > 4 && i % Math.ceil(n / 5) === 0)
-                      ).map(mn => {
-                        const i = allMatchNums.indexOf(mn);
-                        return (
-                          <text key={mn} x={xOf(i)} y={H - 4} textAnchor="middle"
-                            fontSize={6} fill="rgba(255,255,255,0.2)" style={{ fontFamily: "Inter, sans-serif" }}>M{mn}</text>
-                        );
-                      })}
-                    </svg>
+                        {/* Interactive hairline + hover dots */}
+                        {chartHover !== null && (() => {
+                          const hx = xOf(chartHover);
+                          return (
+                            <g>
+                              <line x1={hx} y1={PT} x2={hx} y2={bottom}
+                                stroke="rgba(255,255,255,0.3)" strokeWidth={1} strokeDasharray="2,3" />
+                              {sortedByFinal.map(team => {
+                                const pt = team.points[chartHover];
+                                if (!pt) return null;
+                                const isLeader = team.teamId === leader.id;
+                                return (
+                                  <g key={team.teamId + "-hdot"}>
+                                    <circle cx={hx} cy={yOf(pt.cum)} r={isLeader ? 5.5 : 4.5}
+                                      fill={team.color} stroke="var(--surface)" strokeWidth={1.5} />
+                                  </g>
+                                );
+                              })}
+                            </g>
+                          );
+                        })()}
+
+                        {/* End labels — avatar circles */}
+                        {sortedByFinal.map(team => {
+                          const lastPt = team.points[team.points.length - 1];
+                          if (!lastPt) return null;
+                          const lastI = team.points.length - 1;
+                          const lx = xOf(lastI) + 6;
+                          const ly = labelMap[team.teamId] ?? yOf(lastPt.cum);
+                          const ft = FANTASY_TEAMS[team.teamId];
+                          const isLeader = team.teamId === leader.id;
+                          return (
+                            <g key={team.teamId + "-lbl"} opacity={chartHover !== null ? 0.25 : 1}>
+                              <circle cx={lx + AVT_R} cy={ly} r={AVT_R + 2} fill={team.color} opacity={0.22} />
+                              <image href={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`}
+                                x={lx} y={ly - AVT_R} width={AVT_R * 2} height={AVT_R * 2}
+                                clipPath={`url(#clip-avatar-${team.teamId})`}
+                                preserveAspectRatio="xMidYMid slice" />
+                              <circle cx={lx + AVT_R} cy={ly} r={AVT_R} fill="none" stroke={team.color}
+                                strokeWidth={isLeader ? 2 : 1.5} />
+                              <text x={lx + AVT_R * 2 + 3} y={ly + 2.5} fontSize={6} fill={team.color}
+                                fontWeight="600" style={{ fontFamily: "Inter, sans-serif" }}>{lastPt.cum}</text>
+                            </g>
+                          );
+                        })}
+
+                        {/* X labels */}
+                        {allMatchNums.filter((_, i) =>
+                          i === 0 || i === n - 1 || (n > 4 && i % Math.ceil(n / 5) === 0)
+                        ).map(mn => {
+                          const i = allMatchNums.indexOf(mn);
+                          return (
+                            <text key={mn} x={xOf(i)} y={H - 4} textAnchor="middle"
+                              fontSize={6} fill={chartHover !== null && allMatchNums[chartHover] === mn ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.2)"}
+                              fontWeight={chartHover !== null && allMatchNums[chartHover] === mn ? "700" : "400"}
+                              style={{ fontFamily: "Inter, sans-serif" }}>M{mn}</text>
+                          );
+                        })}
+
+                        {/* Full transparent hit area */}
+                        <rect x={PL} y={PT} width={CW} height={CH} fill="transparent" />
+                      </svg>
+                    </div>
                   );
                 })()}
               </div>
