@@ -9208,6 +9208,380 @@
           "stumpings": 0
         }
       }
+    },
+    "2432": {
+      "points": {
+        "Rajat Patidar": 42,
+        "Phil Salt": 2,
+        "Krunal Pandya": 5,
+        "Dhruv Jurel": 12,
+        "Tim David": 25,
+        "Jitesh Sharma": 9,
+        "Shimron Hetmyer": 32,
+        "Virat Kohli": 76,
+        "Ravindra Jadeja": 6
+      },
+      "innings": [
+        {
+          "name": "Royal Challengers Bengaluru Inning 1",
+          "total": "124/6 (13.4 ov)",
+          "batting": [
+            {
+              "name": "Phil Salt",
+              "runs": 0,
+              "balls": 1,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "0.00",
+              "dismissal": "c Dhruv Jurel b Jofra Archer",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Virat Kohli",
+              "runs": 32,
+              "balls": 16,
+              "fours": 7,
+              "sixes": 0,
+              "sr": "200.00",
+              "dismissal": "b Ravi Bishnoi",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Devdutt Padikkal",
+              "runs": 14,
+              "balls": 7,
+              "fours": 3,
+              "sixes": 0,
+              "sr": "200.00",
+              "dismissal": "c Shimron Hetmyer b Jofra Archer",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Rajat Patidar",
+              "runs": 26,
+              "balls": 25,
+              "fours": 2,
+              "sixes": 0,
+              "sr": "104.00",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Krunal Pandya",
+              "runs": 1,
+              "balls": 6,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "16.67",
+              "dismissal": "c Shimron Hetmyer b Ravi Bishnoi",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Jitesh Sharma",
+              "runs": 5,
+              "balls": 8,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "62.50",
+              "dismissal": "lbw Brijesh Sharma",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Tim David",
+              "runs": 13,
+              "balls": 9,
+              "fours": 2,
+              "sixes": 0,
+              "sr": "144.44",
+              "dismissal": "c Shimron Hetmyer b Brijesh Sharma",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Romario Shepherd",
+              "runs": 22,
+              "balls": 10,
+              "fours": 2,
+              "sixes": 1,
+              "sr": "220.00",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Bhuvneshwar Kumar",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Abhinandan Singh",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Josh Hazlewood",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            }
+          ],
+          "bowling": [
+            {
+              "name": "Jofra Archer",
+              "overs": "3",
+              "maidens": 0,
+              "runs": 33,
+              "wickets": 2,
+              "eco": "11",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 6
+            },
+            {
+              "name": "Nandre Burger",
+              "overs": "2",
+              "maidens": 0,
+              "runs": 18,
+              "wickets": 0,
+              "eco": "9",
+              "wides": 1,
+              "noBalls": 0,
+              "dots": 5
+            },
+            {
+              "name": "Sandeep Sharma",
+              "overs": "1",
+              "maidens": 0,
+              "runs": 10,
+              "wickets": 0,
+              "eco": "10",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 2
+            },
+            {
+              "name": "Ravi Bishnoi",
+              "overs": "3",
+              "maidens": 0,
+              "runs": 16,
+              "wickets": 2,
+              "eco": "5.33",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 7
+            },
+            {
+              "name": "Ravindra Jadeja",
+              "overs": "1.4",
+              "maidens": 0,
+              "runs": 13,
+              "wickets": 0,
+              "eco": "7.8",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 1
+            },
+            {
+              "name": "Brijesh Sharma",
+              "overs": "3",
+              "maidens": 0,
+              "runs": 28,
+              "wickets": 2,
+              "eco": "9.33",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 3
+            }
+          ]
+        }
+      ],
+      "playerStats": {
+        "Rajat Patidar": {
+          "played": true,
+          "runs": 26,
+          "balls": 25,
+          "fours": 2,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Phil Salt": {
+          "played": true,
+          "runs": 0,
+          "balls": 1,
+          "fours": 0,
+          "sixes": 0,
+          "duck": true,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Krunal Pandya": {
+          "played": true,
+          "runs": 1,
+          "balls": 6,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Dhruv Jurel": {
+          "played": true,
+          "runs": 0,
+          "balls": 0,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 1,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Tim David": {
+          "played": true,
+          "runs": 13,
+          "balls": 9,
+          "fours": 2,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Jitesh Sharma": {
+          "played": true,
+          "runs": 5,
+          "balls": 8,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Shimron Hetmyer": {
+          "played": true,
+          "runs": 0,
+          "balls": 0,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 3,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Virat Kohli": {
+          "played": true,
+          "runs": 32,
+          "balls": 16,
+          "fours": 7,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Ravindra Jadeja": {
+          "played": true,
+          "runs": 0,
+          "balls": 0,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 1,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 10,
+          "runsConceded": 13,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        }
+      }
     }
   },
   "supabaseScores": {
@@ -10105,7 +10479,7 @@
   },
   "lastUpdated": "2026-04-09T18:52:15.070Z",
   "dailyHits": {
-    "date": "2026-04-09",
-    "count": 8
+    "date": "2026-04-10",
+    "count": 0
   }
 }
