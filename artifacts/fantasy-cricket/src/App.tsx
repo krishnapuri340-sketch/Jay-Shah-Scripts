@@ -534,6 +534,7 @@ export default function App() {
   const [pendingMatches, setPendingMatches] = useState(0);
   const [nextAttempt, setNextAttempt] = useState<string | null>(null);
   const [processedMatches, setProcessedMatches] = useState<string[]>([]);
+  const [abandonedMatchIds, setAbandonedMatchIds] = useState<string[]>([]);
   const [dailyHits, setDailyHits] = useState<{ count: number; limit: number; date: string } | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [pointsLastUpdated, setPointsLastUpdated] = useState<Date | null>(null);
@@ -663,6 +664,7 @@ export default function App() {
         setPlayerMatchPoints(data.playerMatchPoints || {});
         setIplIdToMatchNum(data.iplIdToMatchNum || {});
         setProcessedMatches(data.processedMatches || []);
+        setAbandonedMatchIds(data.abandonedMatchIds || []);
         setPointsUpdating(data.updating || false);
         setPendingMatches(data.pendingMatches || 0);
         setNextAttempt(data.nextAttempt || null);
@@ -4509,7 +4511,8 @@ export default function App() {
 
 
   const renderAdmin = () => {
-    const completedCount = liveMatches.filter((m: any) => m.matchEnded).length;
+    const abandonedSet = new Set(abandonedMatchIds);
+    const completedCount = liveMatches.filter((m: any) => m.matchEnded && !abandonedSet.has(String(m.id))).length;
     const liveCount = liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded).length;
     const scorecardTotal = completedCount + liveCount;
     const scoredPlayerCount = Object.keys(playerPoints).length;

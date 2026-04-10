@@ -9899,18 +9899,18 @@
     },
     "d741d6a3-31a1-4ad6-bbe9-69f07f1c3ee1": {
       "points": {
+        "Harshal Patel": 2,
         "Jitesh Sharma": 10,
-        "Abhishek Sharma": 17,
         "Virat Kohli": 145,
-        "Phil Salt": 48,
-        "Rajat Patidar": 73,
-        "Tim David": 34,
-        "Krunal Pandya": 0,
-        "Bhuvneshwar Kumar": 54,
-        "Travis Head": 23,
-        "Ishan Kishan": 166,
         "Heinrich Klaasen": 71,
-        "Harshal Patel": 2
+        "Rajat Patidar": 73,
+        "Krunal Pandya": 0,
+        "Phil Salt": 48,
+        "Tim David": 34,
+        "Bhuvneshwar Kumar": 54,
+        "Ishan Kishan": 166,
+        "Abhishek Sharma": 17,
+        "Travis Head": 23
       },
       "matchLabel": "Royal Challengers Bengaluru vs Sunrisers Hyderabad",
       "matchDate": "2026-03-28",
@@ -10150,16 +10150,16 @@
     },
     "cfbe0107-9d42-40cd-a74a-6137ac8e258a": {
       "points": {
-        "Cameron Green": 92,
-        "Rishabh Pant": 18,
-        "Sunil Narine": 70,
-        "Finn Allen": 21,
         "Ajinkya Rahane": 83,
+        "Finn Allen": 21,
+        "Cameron Green": 92,
         "Rinku Singh": 16,
-        "Mohammed Shami": 35,
+        "Sunil Narine": 70,
         "Mitchell Marsh": 31,
         "Aiden Markram": 50,
-        "Nicholas Pooran": 21
+        "Rishabh Pant": 18,
+        "Nicholas Pooran": 21,
+        "Mohammed Shami": 35
       },
       "matchLabel": "Kolkata Knight Riders vs Lucknow Super Giants",
       "matchDate": "2026-04-09",
@@ -10841,9 +10841,9 @@
       "matchNumber": 70
     }
   },
-  "lastUpdated": "2026-04-10T21:36:13.808Z",
+  "lastUpdated": "2026-04-10T21:43:00.930Z",
   "dailyHits": {
     "date": "2026-04-10",
-    "count": 9
+    "count": 11
   }
 }

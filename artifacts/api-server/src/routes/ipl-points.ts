@@ -870,6 +870,7 @@ router.get("/ipl/points", async (req, res) => {
       return res.json({
         playerPoints: aggregated, playerMatchPoints, processedMatches: supabaseMatchLabels,
         iplIdToMatchNum, updating: true, timestamp: new Date().toISOString(), dailyHits: dailyHitsInfo,
+        abandonedMatchIds: [...ABANDONED_MATCH_IPL_IDS],
       });
     }
 
@@ -1053,6 +1054,7 @@ router.get("/ipl/points", async (req, res) => {
     return res.json({
       playerPoints: aggregated, playerMatchPoints, processedMatches: supabaseMatchLabels,
       iplIdToMatchNum, updating: pointsUpdateInProgress, timestamp: new Date().toISOString(), dailyHits: dailyHitsInfo,
+      abandonedMatchIds: [...ABANDONED_MATCH_IPL_IDS],
     });
   } catch (err: any) {
     req.log.error({ err }, "Failed to calculate IPL points");
