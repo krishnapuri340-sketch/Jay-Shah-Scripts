@@ -964,6 +964,10 @@ export default function App() {
         setPredictions(data);
       } catch {}
     };
+    es.onerror = () => {
+      // Browser auto-reconnects on error — this is just observability
+      console.warn("[SSE] prediction stream error — browser will reconnect automatically");
+    };
     return () => es.close();
   }, [currentUser]);
 

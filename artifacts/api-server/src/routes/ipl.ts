@@ -97,7 +97,15 @@ async function loadPredsFromKV(): Promise<PredStore | null> {
 }
 
 async function savePredsToKV(data: PredStore): Promise<boolean> {
-  return kvSet(PRED_KV_KEY, JSON.stringify(data));
+  const ok = await kvSet(PRED_KV_KEY, JSON.stringify(data));
+  if (!ok) {
+    // Retry once after 3 s — handles transient KV unavailability
+    await new Promise(r => setTimeout(r, 3000));
+    const retry = await kvSet(PRED_KV_KEY, JSON.stringify(data));
+    if (!retry) console.warn("[preds] KV save failed after retry — pick is in memory+disk but not KV");
+    return retry;
+  }
+  return ok;
 }
 
 // Warm up predsCache from KV on startup — survives deployments.
@@ -116,6 +124,13 @@ loadPredsFromKV().then(async kv => {
     console.log("[preds] Replit KV unavailable — using local file fallback");
   }
 }).catch(() => {});
+
+// Periodic KV re-sync every 5 min — self-heals any drift between memory and KV
+setInterval(async () => {
+  if (!REPLIT_DB_URL) return;
+  const ok = await kvSet(PRED_KV_KEY, JSON.stringify(predsCache));
+  if (!ok) console.warn("[preds] Periodic KV re-sync failed");
+}, 5 * 60_000);
 
 // ── PIN KV ───────────────────────────────────────────────────────────────────
 
@@ -470,11 +485,14 @@ router.get("/ipl/predictions/stream", (req, res) => {
   req.on("close", () => { clearInterval(hb); sseClients.delete(res); });
 });
 
+const VALID_OWNER_IDS = new Set(["rajveer", "mombasa", "mumbai", "ponygoat"]);
+
 // POST /api/ipl/predictions/:matchId → { ownerId, pick }
 router.post("/ipl/predictions/:matchId", (req, res) => {
   const { matchId } = req.params;
   const { ownerId, pick, requesterId } = req.body as { ownerId?: string; pick?: string | null; requesterId?: string };
   if (!matchId || !ownerId) return res.status(400).json({ error: "matchId and ownerId required" });
+  if (!VALID_OWNER_IDS.has(ownerId)) return res.status(400).json({ error: "Invalid ownerId" });
   const isAdmin = requesterId === "rajveer" || ownerId === "rajveer";
   // Block prediction changes for completed matches (admin bypass allowed)
   if (!isAdmin && completedMatchIds.has(matchId)) {
