@@ -2419,6 +2419,7 @@ export default function App() {
             ...(clutchTeamId  ? [{ emoji: "💥", label: "Best Single Match",  teamId: clutchTeamId,  sub: `${bestMatch[clutchTeamId]} pts` }] : []),
             { emoji: "💀",      label: "Wooden Spoon",   teamId: lastPlace.id, sub: `${lastPlace.total} pts` },
             ...(sixesTeamId   ? [{ emoji: "💣", label: "Six Appeal",         teamId: sixesTeamId,   sub: `${teamAgg[sixesTeamId].sixes} sixes` }] : []),
+            ...(topBy("fours")   ? [{ emoji: "🔵", label: "Four Machine",        teamId: topBy("fours"),   sub: `${teamAgg[topBy("fours")].fours} fours` }] : []),
             ...(runsTeamId    ? [{ emoji: "🏏", label: "Run Machine",        teamId: runsTeamId,    sub: `${teamAgg[runsTeamId].runs} runs` }] : []),
             ...(wicketsTeamId ? [{ emoji: "🎳", label: "Wicket Machine",     teamId: wicketsTeamId, sub: `${teamAgg[wicketsTeamId].wickets} wickets` }] : []),
             ...(catchesTeamId ? [{ emoji: "🤲", label: "Safe Hands",         teamId: catchesTeamId, sub: `${teamAgg[catchesTeamId].catches} dismissals` }] : []),
