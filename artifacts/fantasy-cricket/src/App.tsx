@@ -4627,11 +4627,13 @@ export default function App() {
           const teamA = FANTASY_TEAMS[xferTeamA];
           const teamB = FANTASY_TEAMS[xferTeamB];
 
-          // Collect all match numbers across both teams
-          const allMatchNums = Array.from(new Set([
+          // Collect played match numbers, then fill forward to M74 (full season)
+          const playedMatchNums = Array.from(new Set([
             ...teamA.players.flatMap(p => (playerMatchPoints[p.name] || []).map((e: any) => e.matchNum)),
             ...teamB.players.flatMap(p => (playerMatchPoints[p.name] || []).map((e: any) => e.matchNum)),
-          ].filter((n: number) => n < 900))).sort((a: number, b: number) => a - b) as number[];
+          ].filter((n: number) => n < 900))) as number[];
+          const lastPlayed = playedMatchNums.length > 0 ? Math.max(...playedMatchNums) : 0;
+          const allMatchNums: number[] = Array.from({ length: 74 }, (_, i) => i + 1);
 
           // Partial point helpers
           const getPtsUpTo = (name: string, upTo: number) =>
@@ -4906,7 +4908,14 @@ export default function App() {
                                 <select value={xferAfterMatch ?? ""} onChange={e => setXferAfterMatch(e.target.value === "" ? null : Number(e.target.value))}
                                   style={{ background: "var(--surface)", border: `1px solid ${xferAfterMatch !== null ? "rgba(255,255,255,0.18)" : "var(--border)"}`, borderRadius: 8, color: xferAfterMatch !== null ? "var(--text)" : "var(--text-3)", fontSize: "0.65rem", fontWeight: 600, padding: "5px 8px", cursor: "pointer", outline: "none", flexShrink: 0 }}>
                                   <option value="">Full season</option>
-                                  {allMatchNums.map(m => <option key={m} value={m}>After M{m}</option>)}
+                                  {lastPlayed > 0 && (
+                                    <optgroup label="— Played —">
+                                      {allMatchNums.filter(m => m <= lastPlayed).map(m => <option key={m} value={m}>After M{m}</option>)}
+                                    </optgroup>
+                                  )}
+                                  <optgroup label="— Upcoming —">
+                                    {allMatchNums.filter(m => m > lastPlayed).map(m => <option key={m} value={m}>After M{m}</option>)}
+                                  </optgroup>
                                 </select>
                               </div>
                             </div>
