@@ -4674,37 +4674,29 @@ export default function App() {
 
           const hasData = Object.keys(playerPoints).length > 0;
 
-          const TeamPicker = ({ label, selected, onSelect, exclude }: { label: string; selected: string; onSelect: (id: string) => void; exclude: string }) => (
-            <div>
-              <div style={{ fontSize: "0.48rem", color: "var(--text-3)", fontWeight: 700, letterSpacing: "0.1em", marginBottom: 6 }}>{label}</div>
-              <div style={{ display: "flex", gap: 5 }}>
-                {OWNER_IDS.map(id => {
-                  const ft = FANTASY_TEAMS[id];
-                  const isSelected = selected === id;
-                  const isExcluded = id === exclude;
-                  return (
-                    <button key={id} onClick={() => { if (!isExcluded) { onSelect(id); setXferPlayersA([]); setXferPlayersB([]); } }}
-                      disabled={isExcluded}
-                      style={{
-                        flex: 1, background: isSelected ? ft.color + "22" : "var(--surface)",
-                        border: `1px solid ${isSelected ? ft.color + "88" : "var(--border)"}`,
-                        borderRadius: 10, padding: "7px 3px", cursor: isExcluded ? "not-allowed" : "pointer",
-                        display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 4,
-                        opacity: isExcluded ? 0.3 : 1,
-                      }}>
-                      <div style={{ width: 28, height: 28, borderRadius: "50%", border: `2px solid ${isSelected ? ft.color : "rgba(255,255,255,0.1)"}`, overflow: "hidden" }}>
-                        <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner}
-                          style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: ft.avatarPosition || "center" }} />
-                      </div>
-                      <div style={{ fontSize: "0.48rem", fontWeight: 700, color: isSelected ? ft.color : "var(--text-3)", letterSpacing: "0.05em" }}>
-                        {ft.owner === "Rajveer" ? "Raj" : ft.owner === "Rahul" ? "Rahul" : ft.owner === "Smeet" ? "Smeet" : "Deb"}
-                      </div>
-                    </button>
-                  );
-                })}
+          const ownerShortName = (id: string) => ({ rajveer: "Raj", mombasa: "Rahul", mumbai: "Smeet", ponygoat: "Deb" }[id] || id);
+
+          const TeamPicker = ({ label, selected, onSelect, exclude }: { label: string; selected: string; onSelect: (id: string) => void; exclude: string }) => {
+            const ft = FANTASY_TEAMS[selected];
+            return (
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+                <span style={{ fontSize: "0.48rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.1em", flexShrink: 0 }}>{label}</span>
+                <select
+                  value={selected}
+                  onChange={e => { onSelect(e.target.value); setXferPlayersA([]); setXferPlayersB([]); }}
+                  style={{
+                    flex: 1, background: ft.color + "18", border: `1px solid ${ft.color}55`,
+                    borderRadius: 8, color: ft.color, fontSize: "0.7rem", fontWeight: 700,
+                    padding: "7px 10px", cursor: "pointer", outline: "none",
+                  }}
+                >
+                  {OWNER_IDS.filter(id => id !== exclude).map(id => (
+                    <option key={id} value={id}>{ownerShortName(id)}</option>
+                  ))}
+                </select>
               </div>
-            </div>
-          );
+            );
+          };
 
           const PlayerList = ({ team, selectedPlayers, onToggle }: {
             team: typeof FANTASY_TEAMS[string];
