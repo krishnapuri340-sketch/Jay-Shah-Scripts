@@ -4717,7 +4717,6 @@ export default function App() {
                   flex: 1, background: ft.color + "18", border: `1.5px solid ${ft.color}55`,
                   borderRadius: 10, color: ft.color, fontSize: "0.8rem", fontWeight: 700,
                   padding: "9px 12px", cursor: "pointer", outline: "none", fontFamily: "inherit",
-                  WebkitAppearance: "none", appearance: "none",
                 }}
               >
                 {OWNER_IDS.filter(id => id !== exclude).map(id => (
