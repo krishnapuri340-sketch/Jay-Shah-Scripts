@@ -500,11 +500,9 @@ export default function App() {
   const [tab, setTab] = useState("home");
   const [wiSection, setWiSection] = useState<"swap" | "permatch" | "intel" | "transfer">("swap");
   const [wiTeamId, setWiTeamId] = useState("rajveer");
-  const [xferTeamA, setXferTeamA] = useState("rajveer");
-  const [xferTeamB, setXferTeamB] = useState("mombasa");
-  const [xferPlayersA, setXferPlayersA] = useState<string[]>([]);
-  const [xferPlayersB, setXferPlayersB] = useState<string[]>([]);
-  const [xferAfterMatch, setXferAfterMatch] = useState<number | null>(null);
+  type XferScenario = { id: number; teamA: string; teamB: string; playersA: string[]; playersB: string[]; afterMatch: number | null };
+  const [xferScenarios, setXferScenarios] = useState<XferScenario[]>([{ id: 1, teamA: "rajveer", teamB: "mombasa", playersA: [], playersB: [], afterMatch: null }]);
+  const [xferActiveId, setXferActiveId] = useState(1);
   const [altCap, setAltCap] = useState("");
   const [altVC, setAltVC] = useState("");
   const [perMatchCaps, setPerMatchCaps] = useState<Record<string, Record<number, { cap: string; vc: string }>>>({});
@@ -4591,6 +4589,21 @@ export default function App() {
         {wiSection === "transfer" && (() => {
           const OWNER_IDS = ["rajveer", "mombasa", "mumbai", "ponygoat"] as const;
 
+          // Active scenario aliases — all existing logic below reads these unchanged
+          const sc = xferScenarios.find(s => s.id === xferActiveId) ?? xferScenarios[0];
+          const updateSc = (patch: Partial<typeof sc>) =>
+            setXferScenarios(prev => prev.map(s => s.id === sc.id ? { ...s, ...patch } : s));
+          const xferTeamA = sc.teamA;
+          const xferTeamB = sc.teamB;
+          const xferPlayersA = sc.playersA;
+          const xferPlayersB = sc.playersB;
+          const xferAfterMatch = sc.afterMatch;
+          const setXferTeamA = (v: string) => updateSc({ teamA: v, playersA: [], playersB: [] });
+          const setXferTeamB = (v: string) => updateSc({ teamB: v, playersA: [], playersB: [] });
+          const setXferPlayersA = (v: string[] | ((p: string[]) => string[])) => updateSc({ playersA: typeof v === "function" ? v(sc.playersA) : v });
+          const setXferPlayersB = (v: string[] | ((p: string[]) => string[])) => updateSc({ playersB: typeof v === "function" ? v(sc.playersB) : v });
+          const setXferAfterMatch = (v: number | null) => updateSc({ afterMatch: v });
+
           const teamA = FANTASY_TEAMS[xferTeamA];
           const teamB = FANTASY_TEAMS[xferTeamB];
 
@@ -4764,8 +4777,48 @@ export default function App() {
             );
           };
 
+          const addScenario = () => {
+            const newId = Math.max(...xferScenarios.map(s => s.id)) + 1;
+            setXferScenarios(prev => [...prev, { id: newId, teamA: "rajveer", teamB: "mombasa", playersA: [], playersB: [], afterMatch: null }]);
+            setXferActiveId(newId);
+          };
+          const deleteScenario = (id: number) => {
+            const remaining = xferScenarios.filter(s => s.id !== id);
+            setXferScenarios(remaining);
+            setXferActiveId(remaining[remaining.length - 1]?.id ?? remaining[0]?.id);
+          };
+
           return (
             <div>
+              {/* Scenario tabs */}
+              <div style={{ display: "flex", gap: 5, marginBottom: 12, overflowX: "auto", paddingBottom: 2 }}>
+                {xferScenarios.map((s, i) => {
+                  const tA = FANTASY_TEAMS[s.teamA];
+                  const tB = FANTASY_TEAMS[s.teamB];
+                  const isActive = s.id === xferActiveId;
+                  const hasPlayers = s.playersA.length > 0 || s.playersB.length > 0;
+                  return (
+                    <div key={s.id} style={{ display: "flex", alignItems: "center", flexShrink: 0, background: isActive ? "var(--surface-2)" : "transparent", border: `1px solid ${isActive ? "rgba(255,255,255,0.14)" : "var(--border)"}`, borderRadius: 9, overflow: "hidden" }}>
+                      <button onClick={() => setXferActiveId(s.id)}
+                        style={{ background: "transparent", border: "none", cursor: "pointer", padding: "6px 10px", fontFamily: "inherit" }}>
+                        <span style={{ fontSize: "0.62rem", fontWeight: 700, color: tA.color }}>{ownerShortName(s.teamA)}</span>
+                        <span style={{ fontSize: "0.55rem", color: "var(--text-3)" }}> ↔ </span>
+                        <span style={{ fontSize: "0.62rem", fontWeight: 700, color: tB.color }}>{ownerShortName(s.teamB)}</span>
+                        {hasPlayers && <span style={{ marginLeft: 5, fontSize: "0.42rem", color: isActive ? "var(--gold)" : "var(--text-3)", fontWeight: 700 }}>●</span>}
+                      </button>
+                      {xferScenarios.length > 1 && (
+                        <button onClick={() => deleteScenario(s.id)}
+                          style={{ background: "transparent", border: "none", borderLeft: "1px solid rgba(255,255,255,0.06)", cursor: "pointer", padding: "6px 7px", color: "var(--text-3)", fontSize: "0.55rem", lineHeight: 1 }}>✕</button>
+                      )}
+                    </div>
+                  );
+                })}
+                <button onClick={addScenario}
+                  style={{ flexShrink: 0, background: "transparent", border: "1px dashed rgba(255,255,255,0.12)", borderRadius: 9, padding: "6px 12px", cursor: "pointer", color: "var(--text-3)", fontSize: "0.65rem", fontFamily: "inherit", fontWeight: 600 }}>
+                  + Add
+                </button>
+              </div>
+
               {/* Team pickers */}
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
                 <TeamPicker selected={xferTeamA} onSelect={setXferTeamA} exclude={xferTeamB} />
