@@ -2478,10 +2478,6 @@ export default function App() {
               rows: tids.map(tid => { const tot = teamScores.find(s => s.id === tid)?.total ?? 0; const v = teamAgg[tid].price > 0 ? tot / teamAgg[tid].price : 0; return { teamId: tid, value: v, display: `${v.toFixed(1)} pts/cr` }; }).sort((a, b) => b.value - a.value),
             },
             {
-              emoji: "⚡", label: "Strike Rate King",
-              rows: tids.map(tid => { const sr = teamAgg[tid].balls > 0 ? (teamAgg[tid].runs / teamAgg[tid].balls) * 100 : 0; return { teamId: tid, value: sr, display: `SR ${sr.toFixed(0)}` }; }).sort((a, b) => b.value - a.value),
-            },
-            {
               emoji: "📊", label: "Most Consistent",
               rows: tids.map(tid => { const sd = stdDev(rawScores[tid] || []); return { teamId: tid, value: sd, display: `σ ${sd.toFixed(0)}` }; }).sort((a, b) => a.value - b.value),
             },
