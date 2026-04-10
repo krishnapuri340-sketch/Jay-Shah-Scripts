@@ -4817,7 +4817,7 @@ export default function App() {
               {/* Team pickers */}
               <div style={{ display: "flex", flexDirection: "column" as const, gap: 6, marginBottom: 12 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontSize: "0.45rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.1em", width: 28, flexShrink: 0 }}>SIDE 1</span>
+                  <span style={{ fontSize: "0.45rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.1em", width: 28, flexShrink: 0 }}>PARTY A</span>
                   <select
                     value={xferTeamA}
                     onChange={e => { setXferTeamA(e.target.value); setXferPlayersA([]); setXferPlayersB([]); }}
@@ -4833,7 +4833,7 @@ export default function App() {
                   </select>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontSize: "0.45rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.1em", width: 28, flexShrink: 0 }}>SIDE 2</span>
+                  <span style={{ fontSize: "0.45rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.1em", width: 28, flexShrink: 0 }}>PARTY B</span>
                   <select
                     value={xferTeamB}
                     onChange={e => { setXferTeamB(e.target.value); setXferPlayersA([]); setXferPlayersB([]); }}
