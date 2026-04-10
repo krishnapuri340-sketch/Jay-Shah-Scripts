@@ -3759,13 +3759,13 @@ export default function App() {
         <div className="sec-title">What If?</div>
 
         {/* Sub-tabs */}
-        <div data-no-swipe="true" style={{ display: "flex", borderBottom: "1px solid var(--border)", marginBottom: 16, gap: 0, overflowX: "auto", scrollbarWidth: "none" }}>
-          {([["swap", "C/VC"], ["permatch", "Per Match"], ["intel", "Intel"], ["transfer", "Transfers"]] as const).map(([id, label]) => (
+        <div data-no-swipe="true" style={{ display: "flex", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 22, padding: 3, marginBottom: 14, gap: 2, overflowX: "auto", scrollbarWidth: "none" }}>
+          {([["swap", "C/VC Swap"], ["permatch", "Per Match"], ["intel", "Intel"], ["transfer", "Transfers"]] as const).map(([id, label]) => (
             <button key={id} onClick={() => setWiSection(id as "swap" | "permatch" | "intel" | "transfer")}
               style={{
-                flexShrink: 0, padding: "8px 14px", border: "none", borderBottom: `2px solid ${wiSection === id ? (id === "transfer" ? "#a78bfa" : "var(--gold)") : "transparent"}`,
-                cursor: "pointer", fontFamily: "inherit", fontSize: "0.7rem", fontWeight: 600, transition: "all 0.15s",
-                background: "transparent", marginBottom: -1,
+                flexShrink: 0, padding: "7px 14px", borderRadius: 18, border: "none", cursor: "pointer",
+                fontFamily: "inherit", fontSize: "0.68rem", fontWeight: 600, transition: "all 0.18s",
+                background: wiSection === id ? "var(--surface-3)" : "transparent",
                 color: wiSection === id ? (id === "transfer" ? "#a78bfa" : "var(--gold)") : "var(--text-3)",
               }}>{label}</button>
           ))}
