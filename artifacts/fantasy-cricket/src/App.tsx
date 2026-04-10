@@ -2729,7 +2729,7 @@ export default function App() {
                   const winnerFt = FANTASY_TEAMS[winner?.teamId];
                   const maxVal = Math.max(...award.rows.map(r => r.value), 1);
                   if (!winnerFt) return null;
-                  const MEDALS = ["🥈", "🥉", "4️⃣"];
+                  const MEDALS = ["2", "3", "4"];
                   return (
                     <div key={award.label} style={{
                       borderRadius: 16,
@@ -2746,7 +2746,7 @@ export default function App() {
                         <span style={{ fontSize: "0.52rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: winnerFt.color, opacity: 0.75 }}>
                           {award.label}
                         </span>
-                        <span style={{ fontSize: "1.05rem", lineHeight: 1 }}>{award.emoji}</span>
+                        <span style={{ fontSize: "0.52rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.08em" }}>WINNER</span>
                       </div>
 
                       {/* Winner feature row */}
@@ -2767,7 +2767,7 @@ export default function App() {
                           background: `${winnerFt.color}1a`, border: `1px solid ${winnerFt.color}44`,
                           borderRadius: 20, padding: "3px 9px",
                           fontSize: "0.52rem", fontWeight: 800, color: winnerFt.color, letterSpacing: "0.04em", flexShrink: 0,
-                        }}>🥇 1st</div>
+                        }}>1st</div>
                       </div>
 
                       {/* Divider */}
