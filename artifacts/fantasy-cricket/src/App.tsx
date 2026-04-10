@@ -2370,11 +2370,66 @@ export default function App() {
             (b.points[b.points.length - 1]?.cum ?? 0) - (a.points[a.points.length - 1]?.cum ?? 0)
           );
 
-          const awards: Array<{ emoji: string; label: string; teamId: string; pts: number }> = [
-            { emoji: "👑", label: "League Leader", teamId: leader.id, pts: leader.total },
-            ...(clutchTeamId ? [{ emoji: "💥", label: "Best Match", teamId: clutchTeamId, pts: bestMatch[clutchTeamId] }] : []),
-            ...(hotTeamId ? [{ emoji: "🔥", label: "Last Match", teamId: hotTeamId, pts: lastMatchScores[hotTeamId] }] : []),
-            { emoji: "💀", label: "Wooden Spoon", teamId: lastPlace.id, pts: lastPlace.total },
+          // ─ Per-team aggregated batting/bowling/fielding stats ─
+          const teamAgg: Record<string, { runs: number; balls: number; sixes: number; fours: number; wickets: number; catches: number; ducks: number; price: number; captainPts: number; vcPts: number }> = {};
+          for (const [tid, ft] of Object.entries(FANTASY_TEAMS)) {
+            let runs = 0, balls = 0, sixes = 0, fours = 0, wickets = 0, catches = 0, ducks = 0, price = 0, captainPts = 0, vcPts = 0;
+            for (const player of ft.players) {
+              price += player.price ?? 0;
+              const entries = playerMatchPoints[player.name] || [];
+              const playerTotalPts = entries.reduce((s: number, e: any) => s + e.pts, 0);
+              if (player.name === ft.captain) captainPts = playerTotalPts;
+              if (player.name === ft.vc) vcPts = playerTotalPts;
+              for (const e of entries) {
+                if (!e.stats) continue;
+                runs += e.stats.runs ?? 0;
+                balls += e.stats.balls ?? 0;
+                sixes += e.stats.sixes ?? 0;
+                fours += e.stats.fours ?? 0;
+                wickets += e.stats.wickets ?? 0;
+                catches += (e.stats.catches ?? 0) + (e.stats.runOuts ?? 0) + (e.stats.stumpings ?? 0);
+                if (e.stats.duck) ducks++;
+              }
+            }
+            teamAgg[tid] = { runs, balls, sixes, fours, wickets, catches, ducks, price, captainPts, vcPts };
+          }
+          const topBy = (key: keyof (typeof teamAgg)[string], hi = true) =>
+            Object.entries(teamAgg).sort((a, b) => hi ? (b[1][key] as number) - (a[1][key] as number) : (a[1][key] as number) - (b[1][key] as number))[0]?.[0];
+          const sixesTeamId    = topBy("sixes");
+          const runsTeamId     = topBy("runs");
+          const wicketsTeamId  = topBy("wickets");
+          const catchesTeamId  = topBy("catches");
+          const ducksTeamId    = topBy("ducks");
+          const capTeamId      = topBy("captainPts");
+          const vcTeamId       = topBy("vcPts");
+          const valueTeamId    = Object.entries(teamAgg).sort((a, b) => {
+            const aV = a[1].price > 0 ? (teamScores.find(t => t.id === a[0])?.total ?? 0) / a[1].price : 0;
+            const bV = b[1].price > 0 ? (teamScores.find(t => t.id === b[0])?.total ?? 0) / b[1].price : 0;
+            return bV - aV;
+          })[0]?.[0];
+          const srTeamId       = Object.entries(teamAgg).sort((a, b) => {
+            const aSR = a[1].balls > 0 ? a[1].runs / a[1].balls : 0;
+            const bSR = b[1].balls > 0 ? b[1].runs / b[1].balls : 0;
+            return bSR - aSR;
+          })[0]?.[0];
+          const stdDev = (arr: number[]) => { if (arr.length < 2) return 999; const m = arr.reduce((s, v) => s + v, 0) / arr.length; return Math.sqrt(arr.reduce((s, v) => s + (v - m) ** 2, 0) / arr.length); };
+          const consistentTeamId = Object.entries(rawScores).sort((a, b) => stdDev(a[1]) - stdDev(b[1]))[0]?.[0];
+
+          const awards: Array<{ emoji: string; label: string; teamId: string; sub: string }> = [
+            { emoji: "👑", label: "League Leader",      teamId: leader.id,   sub: `${leader.total} pts` },
+            ...(clutchTeamId  ? [{ emoji: "💥", label: "Best Single Match",  teamId: clutchTeamId,  sub: `${bestMatch[clutchTeamId]} pts` }] : []),
+            ...(hotTeamId     ? [{ emoji: "🔥", label: "Hottest Last Match", teamId: hotTeamId,     sub: `+${lastMatchScores[hotTeamId]} pts` }] : []),
+            { emoji: "💀",      label: "Wooden Spoon",   teamId: lastPlace.id, sub: `${lastPlace.total} pts` },
+            ...(sixesTeamId   ? [{ emoji: "💣", label: "Six Appeal",         teamId: sixesTeamId,   sub: `${teamAgg[sixesTeamId].sixes} sixes` }] : []),
+            ...(runsTeamId    ? [{ emoji: "🏏", label: "Run Machine",        teamId: runsTeamId,    sub: `${teamAgg[runsTeamId].runs} runs` }] : []),
+            ...(wicketsTeamId ? [{ emoji: "🎳", label: "Wicket Machine",     teamId: wicketsTeamId, sub: `${teamAgg[wicketsTeamId].wickets} wickets` }] : []),
+            ...(catchesTeamId ? [{ emoji: "🤲", label: "Safe Hands",         teamId: catchesTeamId, sub: `${teamAgg[catchesTeamId].catches} dismissals` }] : []),
+            ...(capTeamId     ? [{ emoji: "👔", label: "Captain Clutch",     teamId: capTeamId,     sub: `${FANTASY_TEAMS[capTeamId]?.captain.split(" ").slice(-1)[0]} · ${teamAgg[capTeamId].captainPts} pts` }] : []),
+            ...(vcTeamId      ? [{ emoji: "🥈", label: "VC Value",           teamId: vcTeamId,      sub: `${FANTASY_TEAMS[vcTeamId]?.vc.split(" ").slice(-1)[0]} · ${teamAgg[vcTeamId].vcPts} pts` }] : []),
+            ...(ducksTeamId   ? [{ emoji: "🦆", label: "Duck Brigade",       teamId: ducksTeamId,   sub: `${teamAgg[ducksTeamId].ducks} ducks` }] : []),
+            ...(valueTeamId   ? [{ emoji: "💎", label: "Best Value",         teamId: valueTeamId,   sub: `${((teamScores.find(t => t.id === valueTeamId)?.total ?? 0) / (teamAgg[valueTeamId].price || 1)).toFixed(1)} pts/cr` }] : []),
+            ...(srTeamId      ? [{ emoji: "⚡", label: "Strike Rate King",   teamId: srTeamId,      sub: `SR ${((teamAgg[srTeamId].runs / (teamAgg[srTeamId].balls || 1)) * 100).toFixed(0)}` }] : []),
+            ...(consistentTeamId ? [{ emoji: "📊", label: "Most Consistent", teamId: consistentTeamId, sub: `σ ${stdDev(rawScores[consistentTeamId]).toFixed(0)} pts` }] : []),
           ];
 
           return (
@@ -2453,7 +2508,7 @@ export default function App() {
                     <div key={award.label} style={{ background: "var(--surface)", borderRadius: 10, padding: "9px 11px", border: "1px solid rgba(255,255,255,0.06)" }}>
                       <div style={{ fontSize: "0.57rem", color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 3 }}>{award.emoji} {award.label}</div>
                       <div style={{ fontSize: "0.8rem", fontWeight: 700, color: team?.color }}>{team?.owner}</div>
-                      <div style={{ fontSize: "0.62rem", color: "var(--text-3)", marginTop: 1 }}>{award.pts} pts</div>
+                      <div style={{ fontSize: "0.62rem", color: "var(--text-3)", marginTop: 1 }}>{award.sub}</div>
                     </div>
                   );
                 })}
