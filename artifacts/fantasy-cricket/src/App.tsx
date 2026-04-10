@@ -2435,20 +2435,60 @@ export default function App() {
           const stdDev = (arr: number[]) => { if (arr.length < 2) return 999; const m = arr.reduce((s, v) => s + v, 0) / arr.length; return Math.sqrt(arr.reduce((s, v) => s + (v - m) ** 2, 0) / arr.length); };
           const consistentTeamId = Object.entries(rawScores).sort((a, b) => stdDev(a[1]) - stdDev(b[1]))[0]?.[0];
 
-          const awards: Array<{ emoji: string; label: string; teamId: string; sub: string }> = [
-            ...(clutchTeamId  ? [{ emoji: "💥", label: "Best Single Match",  teamId: clutchTeamId,  sub: `${bestMatch[clutchTeamId]} pts` }] : []),
-            { emoji: "💀",      label: "Wooden Spoon",   teamId: lastPlace.id, sub: `${lastPlace.total} pts` },
-            ...(sixesTeamId   ? [{ emoji: "💣", label: "Six Appeal",         teamId: sixesTeamId,   sub: `${teamAgg[sixesTeamId].sixes} sixes` }] : []),
-            ...(topBy("fours")   ? [{ emoji: "🔵", label: "Four Machine",        teamId: topBy("fours"),   sub: `${teamAgg[topBy("fours")].fours} fours` }] : []),
-            ...(runsTeamId    ? [{ emoji: "🏏", label: "Run Machine",        teamId: runsTeamId,    sub: `${teamAgg[runsTeamId].runs} runs` }] : []),
-            ...(wicketsTeamId ? [{ emoji: "🎳", label: "Wicket Machine",     teamId: wicketsTeamId, sub: `${teamAgg[wicketsTeamId].wickets} wickets` }] : []),
-            ...(catchesTeamId ? [{ emoji: "🤲", label: "Safe Hands",         teamId: catchesTeamId, sub: `${teamAgg[catchesTeamId].catches} catches` }] : []),
-            ...(capTeamId     ? [{ emoji: "👔", label: "Captain Clutch",     teamId: capTeamId,     sub: `${FANTASY_TEAMS[capTeamId]?.captain.split(" ").slice(-1)[0]} · ${teamAgg[capTeamId].captainPts} pts` }] : []),
-            ...(vcTeamId      ? [{ emoji: "🥈", label: "VC Value",           teamId: vcTeamId,      sub: `${FANTASY_TEAMS[vcTeamId]?.vc.split(" ").slice(-1)[0]} · ${teamAgg[vcTeamId].vcPts} pts` }] : []),
-            ...(ducksTeamId   ? [{ emoji: "🦆", label: "Duck Brigade",       teamId: ducksTeamId,   sub: `${teamAgg[ducksTeamId].ducks} ducks` }] : []),
-            ...(valueTeamId   ? [{ emoji: "💎", label: "Best Value",         teamId: valueTeamId,   sub: `${((teamScores.find(t => t.id === valueTeamId)?.total ?? 0) / (teamAgg[valueTeamId].price || 1)).toFixed(1)} pts/cr` }] : []),
-            ...(srTeamId      ? [{ emoji: "⚡", label: "Strike Rate King",   teamId: srTeamId,      sub: `SR ${((teamAgg[srTeamId].runs / (teamAgg[srTeamId].balls || 1)) * 100).toFixed(0)}` }] : []),
-            ...(consistentTeamId ? [{ emoji: "📊", label: "Most Consistent", teamId: consistentTeamId, sub: `σ ${stdDev(rawScores[consistentTeamId]).toFixed(0)} pts` }] : []),
+          const tids = Object.keys(FANTASY_TEAMS);
+          const awardsV2: Array<{ emoji: string; label: string; rows: Array<{ teamId: string; value: number; display: string }> }> = [
+            {
+              emoji: "💥", label: "Best Single Match",
+              rows: tids.map(tid => ({ teamId: tid, value: bestMatch[tid] ?? 0, display: `${bestMatch[tid] ?? 0} pts` })).sort((a, b) => b.value - a.value),
+            },
+            {
+              emoji: "💀", label: "Wooden Spoon",
+              rows: tids.map(tid => { const tot = teamScores.find(s => s.id === tid)?.total ?? 0; return { teamId: tid, value: tot, display: `${tot} pts` }; }).sort((a, b) => a.value - b.value),
+            },
+            {
+              emoji: "🏏", label: "Run Machine",
+              rows: tids.map(tid => ({ teamId: tid, value: teamAgg[tid].runs, display: `${teamAgg[tid].runs} runs` })).sort((a, b) => b.value - a.value),
+            },
+            {
+              emoji: "🎳", label: "Wicket Machine",
+              rows: tids.map(tid => ({ teamId: tid, value: teamAgg[tid].wickets, display: `${teamAgg[tid].wickets} wkts` })).sort((a, b) => b.value - a.value),
+            },
+            {
+              emoji: "💣", label: "Six Appeal",
+              rows: tids.map(tid => ({ teamId: tid, value: teamAgg[tid].sixes, display: `${teamAgg[tid].sixes} sixes` })).sort((a, b) => b.value - a.value),
+            },
+            {
+              emoji: "🔵", label: "Four Machine",
+              rows: tids.map(tid => ({ teamId: tid, value: teamAgg[tid].fours, display: `${teamAgg[tid].fours} fours` })).sort((a, b) => b.value - a.value),
+            },
+            {
+              emoji: "🤲", label: "Safe Hands",
+              rows: tids.map(tid => ({ teamId: tid, value: teamAgg[tid].catches, display: `${teamAgg[tid].catches} catches` })).sort((a, b) => b.value - a.value),
+            },
+            {
+              emoji: "👔", label: "Captain Clutch",
+              rows: tids.map(tid => ({ teamId: tid, value: teamAgg[tid].captainPts, display: `${FANTASY_TEAMS[tid]?.captain.split(" ").slice(-1)[0]} · ${teamAgg[tid].captainPts} pts` })).sort((a, b) => b.value - a.value),
+            },
+            {
+              emoji: "🥈", label: "VC Value",
+              rows: tids.map(tid => ({ teamId: tid, value: teamAgg[tid].vcPts, display: `${FANTASY_TEAMS[tid]?.vc.split(" ").slice(-1)[0]} · ${teamAgg[tid].vcPts} pts` })).sort((a, b) => b.value - a.value),
+            },
+            {
+              emoji: "🦆", label: "Duck Brigade",
+              rows: tids.map(tid => ({ teamId: tid, value: teamAgg[tid].ducks, display: `${teamAgg[tid].ducks} ducks` })).sort((a, b) => b.value - a.value),
+            },
+            {
+              emoji: "💎", label: "Best Value",
+              rows: tids.map(tid => { const tot = teamScores.find(s => s.id === tid)?.total ?? 0; const v = teamAgg[tid].price > 0 ? tot / teamAgg[tid].price : 0; return { teamId: tid, value: v, display: `${v.toFixed(1)} pts/cr` }; }).sort((a, b) => b.value - a.value),
+            },
+            {
+              emoji: "⚡", label: "Strike Rate King",
+              rows: tids.map(tid => { const sr = teamAgg[tid].balls > 0 ? (teamAgg[tid].runs / teamAgg[tid].balls) * 100 : 0; return { teamId: tid, value: sr, display: `SR ${sr.toFixed(0)}` }; }).sort((a, b) => b.value - a.value),
+            },
+            {
+              emoji: "📊", label: "Most Consistent",
+              rows: tids.map(tid => { const sd = stdDev(rawScores[tid] || []); return { teamId: tid, value: sd, display: `σ ${sd.toFixed(0)}` }; }).sort((a, b) => a.value - b.value),
+            },
           ];
 
           return (
@@ -2678,18 +2718,62 @@ export default function App() {
                 })()}
               </div>
 
-              {/* Award badges */}
+              {/* Award cards */}
               <div style={{ marginTop: 22, marginBottom: 10 }}>
                 <div className="sec-title" style={{ marginBottom: 0 }}>Awards</div>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
-                {awards.map(award => {
-                  const team = FANTASY_TEAMS[award.teamId];
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {awardsV2.map(award => {
+                  const winner = award.rows[0];
+                  const winnerFt = FANTASY_TEAMS[winner?.teamId];
+                  const maxVal = Math.max(...award.rows.map(r => r.value), 1);
                   return (
-                    <div key={award.label} style={{ background: "var(--surface)", borderRadius: 10, padding: "9px 11px", border: "1px solid rgba(255,255,255,0.06)" }}>
-                      <div style={{ fontSize: "0.57rem", color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 3 }}>{award.emoji} {award.label}</div>
-                      <div style={{ fontSize: "0.8rem", fontWeight: 700, color: team?.color }}>{team?.owner}</div>
-                      <div style={{ fontSize: "0.62rem", color: "var(--text-3)", marginTop: 1 }}>{award.sub}</div>
+                    <div key={award.label} style={{ background: "var(--surface)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.07)", overflow: "hidden" }}>
+                      {/* Card header */}
+                      <div style={{ padding: "9px 12px 8px", borderBottom: "1px solid rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <span style={{ fontSize: "0.6rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.07em", textTransform: "uppercase" as const }}>
+                          {award.emoji} {award.label}
+                        </span>
+                        {winnerFt && (
+                          <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                            <div style={{ width: 16, height: 16, borderRadius: "50%", overflow: "hidden", border: `1.5px solid ${winnerFt.color}`, flexShrink: 0 }}>
+                              <img src={`${import.meta.env.BASE_URL}avatars/${winnerFt.avatar}`} alt={winnerFt.owner}
+                                style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: winnerFt.avatarPosition || "center" }} />
+                            </div>
+                            <span style={{ fontSize: "0.65rem", fontWeight: 700, color: winnerFt.color }}>{winnerFt.owner}</span>
+                          </div>
+                        )}
+                      </div>
+                      {/* Ranked rows */}
+                      <div style={{ padding: "7px 12px 9px", display: "flex", flexDirection: "column", gap: 6 }}>
+                        {award.rows.map((row, ri) => {
+                          const ft = FANTASY_TEAMS[row.teamId];
+                          if (!ft) return null;
+                          const isWinner = ri === 0;
+                          const pct = maxVal > 0 ? (row.value / maxVal) * 100 : 0;
+                          const rankLabel = ri === 0 ? "1" : ri === 1 ? "2" : ri === 2 ? "3" : "4";
+                          return (
+                            <div key={row.teamId} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                              <span style={{ fontSize: "0.55rem", fontWeight: 700, color: isWinner ? "var(--gold)" : "var(--text-3)", width: 10, textAlign: "center" as const, flexShrink: 0 }}>
+                                {rankLabel}
+                              </span>
+                              <div style={{ width: 20, height: 20, borderRadius: "50%", overflow: "hidden", border: `1.5px solid ${ft.color}`, flexShrink: 0 }}>
+                                <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner}
+                                  style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: ft.avatarPosition || "center" }} />
+                              </div>
+                              <span style={{ fontSize: "0.7rem", fontWeight: isWinner ? 700 : 400, color: isWinner ? ft.color : "var(--text-2)", width: 44, flexShrink: 0 }}>
+                                {ft.owner}
+                              </span>
+                              <div style={{ flex: 1, height: 4, background: "rgba(255,255,255,0.05)", borderRadius: 2, overflow: "hidden" }}>
+                                <div style={{ width: `${pct}%`, height: "100%", background: ft.color, borderRadius: 2, opacity: isWinner ? 1 : 0.4, transition: "width 0.3s" }} />
+                              </div>
+                              <span style={{ fontSize: "0.65rem", fontWeight: isWinner ? 700 : 400, color: isWinner ? ft.color : "var(--text-3)", minWidth: 60, textAlign: "right" as const, fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>
+                                {row.display}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   );
                 })}
