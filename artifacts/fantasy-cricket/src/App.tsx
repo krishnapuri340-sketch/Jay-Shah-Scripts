@@ -2360,11 +2360,30 @@ export default function App() {
           const banter = pool.length > 0 ? pool[Math.floor(Date.now() / 60000) % pool.length] : "";
 
           // Chart dimensions
-          const W = 320, H = 110, PL = 14, PR = 46, PT = 12, PB = 18;
+          const W = 320, H = 148, PL = 14, PR = 54, PT = 14, PB = 20;
           const CW = W - PL - PR, CH = H - PT - PB;
           const maxCum = Math.max(...matchHistory.flatMap(t => t.points.map(p => p.cum)), 1);
           const xOf = (i: number) => PL + (n <= 1 ? CW / 2 : (i / (n - 1)) * CW);
           const yOf = (v: number) => PT + CH - (v / maxCum) * CH;
+          const bottom = PT + CH;
+
+          // Smooth catmull-rom cubic bezier path
+          const smoothPath = (pts: {x: number; y: number}[]) => {
+            if (pts.length < 2) return `M ${pts[0]?.x ?? 0} ${pts[0]?.y ?? 0}`;
+            let d = `M ${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
+            for (let i = 0; i < pts.length - 1; i++) {
+              const p0 = pts[Math.max(0, i - 1)];
+              const p1 = pts[i];
+              const p2 = pts[i + 1];
+              const p3 = pts[Math.min(pts.length - 1, i + 2)];
+              const cp1x = p1.x + (p2.x - p0.x) / 6;
+              const cp1y = p1.y + (p2.y - p0.y) / 6;
+              const cp2x = p2.x - (p3.x - p1.x) / 6;
+              const cp2y = p2.y - (p3.y - p1.y) / 6;
+              d += ` C ${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`;
+            }
+            return d;
+          };
 
           const sortedByFinal = [...matchHistory].sort((a, b) =>
             (b.points[b.points.length - 1]?.cum ?? 0) - (a.points[a.points.length - 1]?.cum ?? 0)
@@ -2440,56 +2459,117 @@ export default function App() {
 
               {/* Line chart */}
               <div style={{ background: "var(--surface)", borderRadius: 14, padding: "14px 10px 8px", border: "1px solid rgba(255,255,255,0.07)" }}>
-                <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{ overflow: "visible" }}>
-                  {/* Grid */}
-                  {[0.25, 0.5, 0.75].map(v => (
-                    <line key={v} x1={PL} y1={yOf(maxCum * v)} x2={W - PR} y2={yOf(maxCum * v)}
-                      stroke="rgba(255,255,255,0.045)" strokeWidth={0.8} strokeDasharray="3,4" />
-                  ))}
-                  {/* Team lines */}
-                  {sortedByFinal.map(team => {
-                    const pts = team.points;
-                    if (pts.length < 2) return null;
-                    const d = pts.map((p, i) => `${i === 0 ? "M" : "L"} ${xOf(i).toFixed(1)} ${yOf(p.cum).toFixed(1)}`).join(" ");
-                    const isLeader = team.teamId === leader.id;
-                    return (
-                      <g key={team.teamId}>
-                        <path d={d} fill="none" stroke={team.color} strokeWidth={isLeader ? 2.2 : 1.6}
-                          strokeLinecap="round" strokeLinejoin="round" opacity={0.92} />
-                        {pts.map((p, i) => (
-                          <circle key={i} cx={xOf(i)} cy={yOf(p.cum)}
-                            r={i === pts.length - 1 ? 3.5 : 1.6}
-                            fill={team.color} opacity={i === pts.length - 1 ? 1 : 0.55} />
-                        ))}
-                      </g>
-                    );
-                  })}
-                  {/* End labels */}
-                  {sortedByFinal.map(team => {
+                {(() => {
+                  // Anti-collision for end labels
+                  const rawLabels = sortedByFinal.map(team => {
                     const lastPt = team.points[team.points.length - 1];
-                    if (!lastPt) return null;
-                    const lx = xOf(team.points.length - 1) + 7;
-                    const ly = yOf(lastPt.cum);
-                    return (
-                      <g key={team.teamId + "-lbl"}>
-                        <text x={lx} y={ly - 0.5} fontSize={9} fill={team.color} fontWeight="700"
-                          style={{ fontFamily: "Inter, sans-serif" }}>{team.emoji}</text>
-                        <text x={lx} y={ly + 9} fontSize={6.5} fill={team.color}
-                          style={{ fontFamily: "Inter, sans-serif" }}>{lastPt.cum}</text>
-                      </g>
-                    );
-                  })}
-                  {/* X labels */}
-                  {allMatchNums.filter((_, i) =>
-                    i === 0 || i === n - 1 || (n > 4 && i % Math.ceil(n / 5) === 0)
-                  ).map(mn => {
-                    const i = allMatchNums.indexOf(mn);
-                    return (
-                      <text key={mn} x={xOf(i)} y={H - 2} textAnchor="middle"
-                        fontSize={6.5} fill="rgba(255,255,255,0.22)">M{mn}</text>
-                    );
-                  })}
-                </svg>
+                    return { team, rawY: lastPt ? yOf(lastPt.cum) : 0, cum: lastPt?.cum ?? 0 };
+                  }).sort((a, b) => a.rawY - b.rawY);
+                  const MIN_GAP = 14;
+                  const adjY = rawLabels.map(l => l.rawY);
+                  for (let i = 1; i < adjY.length; i++) {
+                    if (adjY[i] - adjY[i - 1] < MIN_GAP) adjY[i] = adjY[i - 1] + MIN_GAP;
+                  }
+                  const labelMap: Record<string, number> = {};
+                  rawLabels.forEach((l, i) => { labelMap[l.team.teamId] = adjY[i]; });
+
+                  return (
+                    <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{ overflow: "visible" }}>
+                      <defs>
+                        {sortedByFinal.map(team => (
+                          <linearGradient key={team.teamId + "-grad"} id={`area-${team.teamId}`} x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor={team.color} stopOpacity="0.18" />
+                            <stop offset="100%" stopColor={team.color} stopOpacity="0" />
+                          </linearGradient>
+                        ))}
+                        <filter id="leader-glow" x="-20%" y="-20%" width="140%" height="140%">
+                          <feGaussianBlur stdDeviation="2" result="blur" />
+                          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                        </filter>
+                      </defs>
+
+                      {/* Baseline */}
+                      <line x1={PL} y1={bottom} x2={W - PR} y2={bottom}
+                        stroke="rgba(255,255,255,0.08)" strokeWidth={0.8} />
+
+                      {/* Grid lines + Y labels */}
+                      {[0.25, 0.5, 0.75, 1].map(v => {
+                        const yv = yOf(maxCum * v);
+                        const val = Math.round(maxCum * v);
+                        return (
+                          <g key={v}>
+                            <line x1={PL} y1={yv} x2={W - PR} y2={yv}
+                              stroke="rgba(255,255,255,0.04)" strokeWidth={0.7} strokeDasharray="3,5" />
+                            <text x={PL - 3} y={yv + 2.5} textAnchor="end"
+                              fontSize={5.5} fill="rgba(255,255,255,0.18)" style={{ fontFamily: "Inter, sans-serif" }}>{val}</text>
+                          </g>
+                        );
+                      })}
+
+                      {/* Area fills (back to front — last place first) */}
+                      {[...sortedByFinal].reverse().map(team => {
+                        const pts = team.points.map((p, i) => ({ x: xOf(i), y: yOf(p.cum) }));
+                        if (pts.length < 2) return null;
+                        const linePath = smoothPath(pts);
+                        const lastPt = pts[pts.length - 1];
+                        const firstPt = pts[0];
+                        const areaPath = `${linePath} L ${lastPt.x.toFixed(1)},${bottom.toFixed(1)} L ${firstPt.x.toFixed(1)},${bottom.toFixed(1)} Z`;
+                        return (
+                          <path key={team.teamId + "-area"} d={areaPath}
+                            fill={`url(#area-${team.teamId})`} />
+                        );
+                      })}
+
+                      {/* Team lines */}
+                      {sortedByFinal.map(team => {
+                        const pts = team.points.map((p, i) => ({ x: xOf(i), y: yOf(p.cum) }));
+                        if (pts.length < 2) return null;
+                        const isLeader = team.teamId === leader.id;
+                        const linePath = smoothPath(pts);
+                        const lastPt = pts[pts.length - 1];
+                        return (
+                          <g key={team.teamId} filter={isLeader ? "url(#leader-glow)" : undefined}>
+                            <path d={linePath} fill="none" stroke={team.color}
+                              strokeWidth={isLeader ? 2.4 : 1.7}
+                              strokeLinecap="round" strokeLinejoin="round"
+                              opacity={isLeader ? 1 : 0.85} />
+                            {/* Endpoint dot */}
+                            <circle cx={lastPt.x} cy={lastPt.y} r={isLeader ? 4 : 3}
+                              fill="var(--surface)" stroke={team.color} strokeWidth={isLeader ? 2 : 1.5} />
+                          </g>
+                        );
+                      })}
+
+                      {/* End labels — collision-adjusted */}
+                      {sortedByFinal.map(team => {
+                        const lastPt = team.points[team.points.length - 1];
+                        if (!lastPt) return null;
+                        const lx = xOf(team.points.length - 1) + 8;
+                        const ly = labelMap[team.teamId] ?? yOf(lastPt.cum);
+                        const isLeader = team.teamId === leader.id;
+                        return (
+                          <g key={team.teamId + "-lbl"}>
+                            <text x={lx} y={ly + 1} fontSize={isLeader ? 9.5 : 8.5} fill={team.color}
+                              fontWeight="700" style={{ fontFamily: "Inter, sans-serif" }}>{team.emoji}</text>
+                            <text x={lx + 11} y={ly + 1} fontSize={6} fill={team.color}
+                              fontWeight="600" style={{ fontFamily: "Inter, sans-serif" }}>{lastPt.cum}</text>
+                          </g>
+                        );
+                      })}
+
+                      {/* X labels */}
+                      {allMatchNums.filter((_, i) =>
+                        i === 0 || i === n - 1 || (n > 4 && i % Math.ceil(n / 5) === 0)
+                      ).map(mn => {
+                        const i = allMatchNums.indexOf(mn);
+                        return (
+                          <text key={mn} x={xOf(i)} y={H - 4} textAnchor="middle"
+                            fontSize={6} fill="rgba(255,255,255,0.2)" style={{ fontFamily: "Inter, sans-serif" }}>M{mn}</text>
+                        );
+                      })}
+                    </svg>
+                  );
+                })()}
               </div>
 
               {/* Banter */}
