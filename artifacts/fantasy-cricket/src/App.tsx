@@ -2318,6 +2318,150 @@ export default function App() {
           );
         })()}
 
+        {/* ─── Season Race ─── */}
+        {matchHistory.length > 0 && matchHistory[0].points.length >= 2 && (() => {
+          const allMatchNums = matchHistory[0].points.map(p => p.matchNum);
+          const n = allMatchNums.length;
+
+          // Per-match raw scores (cum[i] - cum[i-1])
+          const rawScores: Record<string, number[]> = {};
+          for (const t of matchHistory) {
+            rawScores[t.teamId] = t.points.map((p, i) => i === 0 ? p.cum : p.cum - t.points[i - 1].cum);
+          }
+          const lastMatchScores: Record<string, number> = {};
+          for (const [tid, scores] of Object.entries(rawScores)) lastMatchScores[tid] = scores[scores.length - 1] ?? 0;
+          const hotTeamId = Object.entries(lastMatchScores).sort((a, b) => b[1] - a[1])[0]?.[0];
+          const coldTeamId = Object.entries(lastMatchScores).sort((a, b) => a[1] - b[1])[0]?.[0];
+
+          // Best single match
+          const bestMatch: Record<string, number> = {};
+          for (const [tid, scores] of Object.entries(rawScores)) bestMatch[tid] = Math.max(...scores, 0);
+          const clutchTeamId = Object.entries(bestMatch).sort((a, b) => b[1] - a[1])[0]?.[0];
+
+          const leader = teamScores[0];
+          const lastPlace = teamScores[teamScores.length - 1];
+          const gap = leader.total - lastPlace.total;
+          const secondGap = teamScores.length >= 2 ? leader.total - teamScores[1].total : 999;
+
+          // Banter pool
+          const pool: string[] = [];
+          if (gap > 200) pool.push(`${leader.team.owner}'s on a different planet 🛸 — ${gap} pts clear`);
+          else if (gap > 100) pool.push(`${lastPlace.team.owner}'s ${gap} pts behind. Respectfully, it's not looking good 😬`);
+          else if (gap < 40) pool.push(`Only ${gap} pts separate 1st and last. Title race is ALIVE 👀`);
+          if (secondGap < 20 && teamScores.length >= 2) pool.push(`${leader.team.owner} and ${teamScores[1].team.owner} are separated by just ${secondGap} pts. 🏏`);
+          if (hotTeamId && coldTeamId && hotTeamId !== coldTeamId) {
+            const hot = FANTASY_TEAMS[hotTeamId]; const cold = FANTASY_TEAMS[coldTeamId];
+            pool.push(`${hot?.owner} lit up last match (+${lastMatchScores[hotTeamId]}) 🔥 while ${cold?.owner} barely showed (+${lastMatchScores[coldTeamId]}) ❄️`);
+          }
+          if (clutchTeamId) {
+            const ct = FANTASY_TEAMS[clutchTeamId];
+            pool.push(`${ct?.owner} dropped a ${bestMatch[clutchTeamId]}-pt bomb in a single match — still elite 💥`);
+          }
+          const banter = pool.length > 0 ? pool[Math.floor(Date.now() / 60000) % pool.length] : "";
+
+          // Chart dimensions
+          const W = 320, H = 110, PL = 14, PR = 46, PT = 12, PB = 18;
+          const CW = W - PL - PR, CH = H - PT - PB;
+          const maxCum = Math.max(...matchHistory.flatMap(t => t.points.map(p => p.cum)), 1);
+          const xOf = (i: number) => PL + (n <= 1 ? CW / 2 : (i / (n - 1)) * CW);
+          const yOf = (v: number) => PT + CH - (v / maxCum) * CH;
+
+          const sortedByFinal = [...matchHistory].sort((a, b) =>
+            (b.points[b.points.length - 1]?.cum ?? 0) - (a.points[a.points.length - 1]?.cum ?? 0)
+          );
+
+          const awards: Array<{ emoji: string; label: string; teamId: string; pts: number }> = [
+            { emoji: "👑", label: "League Leader", teamId: leader.id, pts: leader.total },
+            ...(clutchTeamId ? [{ emoji: "💥", label: "Best Match", teamId: clutchTeamId, pts: bestMatch[clutchTeamId] }] : []),
+            ...(hotTeamId ? [{ emoji: "🔥", label: "Last Match", teamId: hotTeamId, pts: lastMatchScores[hotTeamId] }] : []),
+            { emoji: "💀", label: "Wooden Spoon", teamId: lastPlace.id, pts: lastPlace.total },
+          ];
+
+          return (
+            <div style={{ marginTop: 22 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 10 }}>
+                <div className="sec-title" style={{ marginBottom: 0 }}>Season Race</div>
+                <div style={{ fontSize: "0.58rem", color: "var(--text-3)", background: "var(--surface-2)", borderRadius: 4, padding: "2px 6px", letterSpacing: "0.04em" }}>match by match</div>
+              </div>
+
+              {/* Line chart */}
+              <div style={{ background: "var(--surface)", borderRadius: 14, padding: "14px 10px 8px", border: "1px solid rgba(255,255,255,0.07)" }}>
+                <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{ overflow: "visible" }}>
+                  {/* Grid */}
+                  {[0.25, 0.5, 0.75].map(v => (
+                    <line key={v} x1={PL} y1={yOf(maxCum * v)} x2={W - PR} y2={yOf(maxCum * v)}
+                      stroke="rgba(255,255,255,0.045)" strokeWidth={0.8} strokeDasharray="3,4" />
+                  ))}
+                  {/* Team lines */}
+                  {sortedByFinal.map(team => {
+                    const pts = team.points;
+                    if (pts.length < 2) return null;
+                    const d = pts.map((p, i) => `${i === 0 ? "M" : "L"} ${xOf(i).toFixed(1)} ${yOf(p.cum).toFixed(1)}`).join(" ");
+                    const isLeader = team.teamId === leader.id;
+                    return (
+                      <g key={team.teamId}>
+                        <path d={d} fill="none" stroke={team.color} strokeWidth={isLeader ? 2.2 : 1.6}
+                          strokeLinecap="round" strokeLinejoin="round" opacity={0.92} />
+                        {pts.map((p, i) => (
+                          <circle key={i} cx={xOf(i)} cy={yOf(p.cum)}
+                            r={i === pts.length - 1 ? 3.5 : 1.6}
+                            fill={team.color} opacity={i === pts.length - 1 ? 1 : 0.55} />
+                        ))}
+                      </g>
+                    );
+                  })}
+                  {/* End labels */}
+                  {sortedByFinal.map(team => {
+                    const lastPt = team.points[team.points.length - 1];
+                    if (!lastPt) return null;
+                    const lx = xOf(team.points.length - 1) + 7;
+                    const ly = yOf(lastPt.cum);
+                    return (
+                      <g key={team.teamId + "-lbl"}>
+                        <text x={lx} y={ly - 0.5} fontSize={9} fill={team.color} fontWeight="700"
+                          style={{ fontFamily: "Inter, sans-serif" }}>{team.emoji}</text>
+                        <text x={lx} y={ly + 9} fontSize={6.5} fill={team.color}
+                          style={{ fontFamily: "Inter, sans-serif" }}>{lastPt.cum}</text>
+                      </g>
+                    );
+                  })}
+                  {/* X labels */}
+                  {allMatchNums.filter((_, i) =>
+                    i === 0 || i === n - 1 || (n > 4 && i % Math.ceil(n / 5) === 0)
+                  ).map(mn => {
+                    const i = allMatchNums.indexOf(mn);
+                    return (
+                      <text key={mn} x={xOf(i)} y={H - 2} textAnchor="middle"
+                        fontSize={6.5} fill="rgba(255,255,255,0.22)">M{mn}</text>
+                    );
+                  })}
+                </svg>
+              </div>
+
+              {/* Banter */}
+              {banter && (
+                <div style={{ marginTop: 8, background: "var(--surface)", borderRadius: 10, padding: "10px 13px", border: "1px solid rgba(255,255,255,0.06)", fontSize: "0.69rem", color: "rgba(255,255,255,0.58)", lineHeight: 1.55 }}>
+                  💬 {banter}
+                </div>
+              )}
+
+              {/* Award badges */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginTop: 8 }}>
+                {awards.map(award => {
+                  const team = FANTASY_TEAMS[award.teamId];
+                  return (
+                    <div key={award.label} style={{ background: "var(--surface)", borderRadius: 10, padding: "9px 11px", border: "1px solid rgba(255,255,255,0.06)" }}>
+                      <div style={{ fontSize: "0.57rem", color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 3 }}>{award.emoji} {award.label}</div>
+                      <div style={{ fontSize: "0.8rem", fontWeight: 700, color: team?.color }}>{team?.owner}</div>
+                      <div style={{ fontSize: "0.62rem", color: "var(--text-3)", marginTop: 1 }}>{award.pts} pts</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })()}
+
       </div>
     );
   };
