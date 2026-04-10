@@ -4676,25 +4676,22 @@ export default function App() {
 
           const ownerShortName = (id: string) => ({ rajveer: "Raj", mombasa: "Rahul", mumbai: "Smeet", ponygoat: "Deb" }[id] || id);
 
-          const TeamPicker = ({ label, selected, onSelect, exclude }: { label: string; selected: string; onSelect: (id: string) => void; exclude: string }) => {
+          const TeamPicker = ({ selected, onSelect, exclude }: { selected: string; onSelect: (id: string) => void; exclude: string }) => {
             const ft = FANTASY_TEAMS[selected];
             return (
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-                <span style={{ fontSize: "0.48rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.1em", flexShrink: 0 }}>{label}</span>
-                <select
-                  value={selected}
-                  onChange={e => { onSelect(e.target.value); setXferPlayersA([]); setXferPlayersB([]); }}
-                  style={{
-                    flex: 1, background: ft.color + "18", border: `1px solid ${ft.color}55`,
-                    borderRadius: 8, color: ft.color, fontSize: "0.7rem", fontWeight: 700,
-                    padding: "7px 10px", cursor: "pointer", outline: "none",
-                  }}
-                >
-                  {OWNER_IDS.filter(id => id !== exclude).map(id => (
-                    <option key={id} value={id}>{ownerShortName(id)}</option>
-                  ))}
-                </select>
-              </div>
+              <select
+                value={selected}
+                onChange={e => { onSelect(e.target.value); setXferPlayersA([]); setXferPlayersB([]); }}
+                style={{
+                  flex: 1, background: ft.color + "18", border: `1px solid ${ft.color}55`,
+                  borderRadius: 10, color: ft.color, fontSize: "0.8rem", fontWeight: 700,
+                  padding: "9px 10px", cursor: "pointer", outline: "none", textAlign: "center",
+                }}
+              >
+                {OWNER_IDS.filter(id => id !== exclude).map(id => (
+                  <option key={id} value={id}>{ownerShortName(id)}</option>
+                ))}
+              </select>
             );
           };
 
@@ -4770,9 +4767,12 @@ export default function App() {
           return (
             <div>
               {/* Team pickers */}
-              <div style={{ display: "flex", flexDirection: "column" as const, gap: 10, marginBottom: 12 }}>
-                <TeamPicker label="TEAM A" selected={xferTeamA} onSelect={setXferTeamA} exclude={xferTeamB} />
-                <TeamPicker label="TEAM B" selected={xferTeamB} onSelect={setXferTeamB} exclude={xferTeamA} />
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                <TeamPicker selected={xferTeamA} onSelect={setXferTeamA} exclude={xferTeamB} />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                  <path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/>
+                </svg>
+                <TeamPicker selected={xferTeamB} onSelect={setXferTeamB} exclude={xferTeamA} />
               </div>
 
               {/* Transfer timing */}
