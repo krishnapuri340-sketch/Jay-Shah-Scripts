@@ -4273,19 +4273,24 @@ export default function App() {
 
               {/* ── Player picker ── */}
               <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden", marginBottom: 10 }}>
-                <div style={{ display: "flex", borderBottom: "1px solid var(--border)" }}>
-                  {([["from", FANTASY_TEAMS[txFromTeam].color], ["to", FANTASY_TEAMS[txToTeam].color]] as [string, string][]).map(([side, col]) => {
+                <div style={{ padding: "10px 12px", borderBottom: txPickingFor || txPendingPlayer ? "1px solid var(--border)" : "none" }}>
+                  {(() => {
                     const fromFt = FANTASY_TEAMS[txFromTeam];
                     const toFt   = FANTASY_TEAMS[txToTeam];
-                    const lbl = side === "from" ? `${fromFt.owner} → ${toFt.owner}` : `${toFt.owner} → ${fromFt.owner}`;
-                    const open = txPickingFor === side && !txPendingPlayer;
+                    const activeSide = txPickingFor;
+                    const col = activeSide === "from" ? fromFt.color : activeSide === "to" ? toFt.color : "var(--text-3)";
                     return (
-                      <button key={side} onClick={() => { setTxPickingFor(v => v === side ? null : side as any); setTxPendingPlayer(null); }}
-                        style={{ flex: 1, padding: "9px 6px", background: open ? col + "12" : "transparent", border: "none", borderBottom: `2px solid ${open ? col : "transparent"}`, cursor: "pointer", fontFamily: "inherit", fontSize: "0.62rem", fontWeight: 600, color: open ? col : "var(--text-3)", transition: "all 0.15s" }}>
-                        {lbl}
-                      </button>
+                      <div style={{ position: "relative" as const }}>
+                        <select value={txPickingFor || ""} onChange={e => { setTxPickingFor(e.target.value as any || null); setTxPendingPlayer(null); }}
+                          style={{ width: "100%", appearance: "none" as any, WebkitAppearance: "none" as any, background: activeSide ? col + "15" : "var(--surface-2)", border: `1px solid ${activeSide ? col + "60" : "var(--border)"}`, borderRadius: 10, padding: "9px 28px 9px 12px", color: activeSide ? col : "var(--text-3)", fontFamily: "inherit", fontSize: "0.75rem", fontWeight: 600, cursor: "pointer", outline: "none" }}>
+                          <option value="" style={{ background: "#18181b", color: "var(--text)" }}>Select direction…</option>
+                          <option value="from" style={{ background: "#18181b", color: "var(--text)" }}>{fromFt.owner} → {toFt.owner}</option>
+                          <option value="to" style={{ background: "#18181b", color: "var(--text)" }}>{toFt.owner} → {fromFt.owner}</option>
+                        </select>
+                        <div style={{ position: "absolute" as const, right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" as const, color: col, fontSize: "0.6rem" }}>▾</div>
+                      </div>
                     );
-                  })}
+                  })()}
                 </div>
 
                 {/* Step 1: pick player */}
