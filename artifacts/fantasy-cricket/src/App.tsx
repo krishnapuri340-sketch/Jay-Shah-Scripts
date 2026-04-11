@@ -498,7 +498,8 @@ const buildMatchPreviews = (matches: any[]) =>
 
 export default function App() {
   const [tab, setTab] = useState("home");
-  const [wiSection, setWiSection] = useState<"swap" | "permatch" | "intel" | "transfer">("swap");
+  const [wiSection, setWiSection] = useState<"permatch" | "intel" | "transfer">("transfer");
+  const [wiSwapOpen, setWiSwapOpen] = useState(false);
   const [wiTeamId, setWiTeamId] = useState("rajveer");
   type XferScenario = { id: number; teamA: string; teamB: string; playersA: string[]; playersB: string[]; afterMatch: number | null };
   const [xferScenarios, setXferScenarios] = useState<XferScenario[]>([]);
@@ -4229,8 +4230,8 @@ export default function App() {
 
         {/* Sub-tabs */}
         <div style={{ display: "flex", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 22, padding: 3, marginBottom: 14, gap: 2 }}>
-          {([["swap", "Season Swap"], ["permatch", "Per Match"], ["intel", "Match Intel"], ["transfer", "Transfers"]] as const).map(([id, label]) => (
-            <button key={id} onClick={() => setWiSection(id as "swap" | "permatch" | "intel" | "transfer")}
+          {([["transfer", "Trades"], ["permatch", "Per Match"], ["intel", "Match Intel"]] as const).map(([id, label]) => (
+            <button key={id} onClick={() => setWiSection(id as "permatch" | "intel" | "transfer")}
               style={{
                 flex: 1, padding: "7px 0", borderRadius: 18, border: "none", cursor: "pointer",
                 fontFamily: "inherit", fontSize: "0.7rem", fontWeight: 600, transition: "all 0.18s",
@@ -4239,123 +4240,6 @@ export default function App() {
               }}>{label}</button>
           ))}
         </div>
-
-        {/* ============ CAPTAIN SWAP ============ */}
-        {wiSection === "swap" && (
-          <div>
-            {/* Owner selector */}
-            <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
-              {PRED_OWNERS.map(id => {
-                const ft = FANTASY_TEAMS[id];
-                const sel = wiTeamId === id;
-                return (
-                  <button key={id} onClick={() => { setWiTeamId(id); setAltCap(""); setAltVC(""); }}
-                    style={{
-                      flex: 1, background: sel ? ft.color + "22" : "var(--surface)",
-                      border: `1px solid ${sel ? ft.color + "88" : "var(--border)"}`,
-                      borderRadius: 10, padding: "9px 4px", cursor: "pointer",
-                      display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 5,
-                    }}>
-                    <div style={{ width: 32, height: 32, borderRadius: "50%", border: `2px solid ${sel ? ft.color : "rgba(255,255,255,0.1)"}`, overflow: "hidden", flexShrink: 0, transition: "border-color 0.18s" }}>
-                      <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner}
-                        style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: ft.avatarPosition || "center center", display: "block" }} />
-                    </div>
-                    <div style={{ fontSize: "0.55rem", fontWeight: 700, color: sel ? ft.color : "var(--text-3)", letterSpacing: "0.06em", textAlign: "center" as const }}>{ft.owner.toUpperCase()}</div>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Delta bar */}
-            {hasMatchData ? (
-              <div style={{ background: "var(--surface)", border: `1px solid ${changed ? wiTeam.color + "55" : "var(--border)"}`, borderRadius: 14, padding: "14px 16px", marginBottom: 14 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
-                  <div style={{ textAlign: "center" as const, flex: 1 }}>
-                    <div style={{ fontSize: "0.48rem", color: "var(--text-3)", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 4 }}>CURRENT</div>
-                    <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.6rem", fontWeight: 700, color: wiTeam.color, lineHeight: 1 }}>{currentSim}</div>
-                    <div style={{ fontSize: "0.5rem", color: "var(--text-3)", marginTop: 3 }}>C: {wiTeam.captain.split(" ").pop()} · VC: {wiTeam.vc.split(" ").pop()}</div>
-                  </div>
-                  <div style={{ textAlign: "center" as const, flexShrink: 0, padding: "0 14px" }}>
-                    {changed ? (
-                      <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.3rem", fontWeight: 800, color: delta > 0 ? "#2ecc8f" : delta < 0 ? "#f05050" : "var(--text-3)" }}>
-                        {delta > 0 ? `+${delta}` : delta}
-                      </div>
-                    ) : (
-                      <div style={{ fontSize: "0.62rem", color: "var(--text-3)", maxWidth: 70 }}>tap C / VC below</div>
-                    )}
-                  </div>
-                  <div style={{ textAlign: "center" as const, flex: 1 }}>
-                    <div style={{ fontSize: "0.48rem", color: "var(--text-3)", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 4 }}>SIMULATED</div>
-                    <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.6rem", fontWeight: 700, color: changed ? (delta >= 0 ? "#2ecc8f" : "#f05050") : "var(--text-3)", lineHeight: 1 }}>{altSim}</div>
-                    <div style={{ fontSize: "0.5rem", color: "var(--text-3)", marginTop: 3 }}>{changed ? `C: ${effectiveCap.split(" ").pop()} · VC: ${effectiveVC.split(" ").pop()}` : "—"}</div>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, padding: 16, marginBottom: 14, textAlign: "center" as const }}>
-                <div style={{ fontSize: "0.72rem", color: "var(--text-3)" }}>Match data loading…</div>
-              </div>
-            )}
-
-            {/* Player list — same card style as Teams tab */}
-            <div className="players-grid" style={{ borderTop: `2px solid ${wiTeam.color}70`, borderRadius: "var(--radius-md)", boxShadow: `0 -3px 14px ${wiTeam.color}33` }}>
-              {[...wiTeam.players].sort((a, b) => (rawPts[b.name] || 0) - (rawPts[a.name] || 0)).map(p => {
-                const raw = rawPts[p.name] || 0;
-                const isCurCap = p.name === wiTeam.captain;
-                const isCurVC  = p.name === wiTeam.vc;
-                const isAltCap = p.name === effectiveCap && changed;
-                const isAltVC  = p.name === effectiveVC && changed;
-                const iplColor = IPL_COLORS[p.ipl] || "rgba(255,255,255,0.15)";
-                const roleColor = ROLE_COLORS[p.role] || "var(--text-3)";
-                return (
-                  <div key={p.name} className="player-card"
-                    style={{ background: `linear-gradient(90deg, ${iplColor}08 0%, transparent 45%)` }}>
-                    <img src={TEAM_LOGO_CDN[p.ipl]} alt={p.ipl}
-                      style={{ width: 32, height: 32, objectFit: "contain", flexShrink: 0 }}
-                      onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                        <div className="player-name" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, fontSize: "0.88rem" }}>
-                          {p.name}
-                        </div>
-                        {isCurCap && <span style={{ fontSize: "0.5rem", fontWeight: 800, background: "#d4a84322", color: "#d4a843", borderRadius: 4, padding: "1px 5px", flexShrink: 0 }}>C</span>}
-                        {isCurVC  && <span style={{ fontSize: "0.5rem", fontWeight: 800, background: "rgba(255,255,255,0.07)", color: "var(--text-3)", borderRadius: 4, padding: "1px 5px", flexShrink: 0 }}>VC</span>}
-                      </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 3 }}>
-                        <span style={{
-                          fontSize: "0.5rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase" as const,
-                          padding: "1px 5px", borderRadius: 4,
-                          color: roleColor, background: roleColor + "18", border: `1px solid ${roleColor}30`, flexShrink: 0,
-                        }}>{p.role}</span>
-                        {p.price != null && <span style={{ fontSize: "0.48rem", fontWeight: 600, color: "var(--text-2)" }}>{p.price}cr</span>}
-                        <span style={{ fontSize: "0.48rem", color: "var(--text-3)" }}>{raw} pts</span>
-                      </div>
-                    </div>
-                    {/* C / VC toggle buttons */}
-                    <div style={{ display: "flex", gap: 5, flexShrink: 0 }}>
-                      <button onClick={e => { e.stopPropagation(); if (altCap === p.name) { setAltCap(""); } else { setAltCap(p.name); if (altVC === p.name) setAltVC(""); } }}
-                        style={{
-                          background: isAltCap ? "#d4a843" : "var(--surface-2)",
-                          color: isAltCap ? "#000" : "var(--text-3)",
-                          border: `1px solid ${isAltCap ? "#d4a843" : "var(--border)"}`,
-                          borderRadius: 6, padding: "5px 10px", cursor: "pointer", fontFamily: "inherit",
-                          fontSize: "0.62rem", fontWeight: 800, transition: "all 0.15s", lineHeight: 1,
-                        }}>C</button>
-                      <button onClick={e => { e.stopPropagation(); if (altVC === p.name) { setAltVC(""); } else { setAltVC(p.name); if (altCap === p.name) setAltCap(""); } }}
-                        style={{
-                          background: isAltVC ? "rgba(255,255,255,0.18)" : "var(--surface-2)",
-                          color: isAltVC ? "var(--text)" : "var(--text-3)",
-                          border: `1px solid ${isAltVC ? "rgba(255,255,255,0.28)" : "var(--border)"}`,
-                          borderRadius: 6, padding: "5px 10px", cursor: "pointer", fontFamily: "inherit",
-                          fontSize: "0.62rem", fontWeight: 800, transition: "all 0.15s", lineHeight: 1,
-                        }}>VC</button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
 
         {/* ============ PER MATCH ============ */}
         {wiSection === "permatch" && (() => {
@@ -4600,12 +4484,111 @@ export default function App() {
 
           if (xferScenarios.length === 0 || xferActiveId === null) {
             return (
-              <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", gap: 14, padding: "48px 0" }}>
-                <div style={{ fontSize: "0.75rem", color: "var(--text-3)" }}>No trade scenarios yet</div>
-                <button onClick={addScenarioFn}
-                  style={{ background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10, padding: "10px 22px", cursor: "pointer", color: "var(--text)", fontSize: "0.75rem", fontFamily: "inherit", fontWeight: 600 }}>
-                  + New Trade
-                </button>
+              <div>
+                {/* C/VC swap card always shown */}
+                <div style={{ background: "var(--surface)", border: `1px solid ${wiSwapOpen && changed ? wiTeam.color + "55" : "var(--border)"}`, borderRadius: 14, marginBottom: 14, overflow: "hidden" }}>
+                  <button onClick={() => setWiSwapOpen(o => !o)}
+                    style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", background: "none", border: "none", cursor: "pointer", padding: "12px 14px", fontFamily: "inherit" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ fontSize: "0.6rem", fontWeight: 800, color: "var(--text-3)", letterSpacing: "0.1em" }}>C/VC SWAP</span>
+                      {changed && (
+                        <span style={{ fontSize: "0.58rem", fontWeight: 700, color: delta > 0 ? "#2ecc8f" : "#f05050", background: (delta > 0 ? "#2ecc8f" : "#f05050") + "18", borderRadius: 5, padding: "2px 6px" }}>
+                          {delta > 0 ? `+${delta}` : delta} pts
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      {!wiSwapOpen && <span style={{ fontSize: "0.55rem", color: "var(--text-3)" }}>{wiTeam.owner} · C: {(altCap || wiTeam.captain).split(" ").pop()} · VC: {(altVC || wiTeam.vc).split(" ").pop()}</span>}
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: wiSwapOpen ? "rotate(180deg)" : "none", transition: "transform 0.18s" }}>
+                        <polyline points="6 9 12 15 18 9" />
+                      </svg>
+                    </div>
+                  </button>
+                  {wiSwapOpen && (
+                    <div style={{ padding: "0 14px 14px" }}>
+                      <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
+                        {PRED_OWNERS.map(id => {
+                          const ft = FANTASY_TEAMS[id];
+                          const sel = wiTeamId === id;
+                          return (
+                            <button key={id} onClick={() => { setWiTeamId(id); setAltCap(""); setAltVC(""); }}
+                              style={{ flex: 1, background: sel ? ft.color + "22" : "var(--surface-2)", border: `1px solid ${sel ? ft.color + "88" : "var(--border)"}`, borderRadius: 10, padding: "8px 4px", cursor: "pointer", display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 4 }}>
+                              <div style={{ width: 28, height: 28, borderRadius: "50%", border: `2px solid ${sel ? ft.color : "rgba(255,255,255,0.1)"}`, overflow: "hidden", flexShrink: 0 }}>
+                                <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: ft.avatarPosition || "center center", display: "block" }} />
+                              </div>
+                              <div style={{ fontSize: "0.5rem", fontWeight: 700, color: sel ? ft.color : "var(--text-3)", letterSpacing: "0.06em" }}>{ft.owner.toUpperCase()}</div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {hasMatchData ? (
+                        <div style={{ background: "var(--surface-2)", borderRadius: 12, padding: "12px 14px", marginBottom: 12 }}>
+                          <div style={{ display: "flex", alignItems: "center" }}>
+                            <div style={{ textAlign: "center" as const, flex: 1 }}>
+                              <div style={{ fontSize: "0.45rem", color: "var(--text-3)", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 3 }}>CURRENT</div>
+                              <div style={{ fontSize: "1.4rem", fontWeight: 700, color: wiTeam.color, lineHeight: 1 }}>{currentSim}</div>
+                              <div style={{ fontSize: "0.45rem", color: "var(--text-3)", marginTop: 2 }}>C: {wiTeam.captain.split(" ").pop()} · VC: {wiTeam.vc.split(" ").pop()}</div>
+                            </div>
+                            <div style={{ textAlign: "center" as const, flexShrink: 0, padding: "0 12px" }}>
+                              {changed ? <div style={{ fontSize: "1.2rem", fontWeight: 800, color: delta > 0 ? "#2ecc8f" : delta < 0 ? "#f05050" : "var(--text-3)" }}>{delta > 0 ? `+${delta}` : delta}</div>
+                                : <div style={{ fontSize: "0.58rem", color: "var(--text-3)", maxWidth: 60 }}>tap C / VC</div>}
+                            </div>
+                            <div style={{ textAlign: "center" as const, flex: 1 }}>
+                              <div style={{ fontSize: "0.45rem", color: "var(--text-3)", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 3 }}>SIMULATED</div>
+                              <div style={{ fontSize: "1.4rem", fontWeight: 700, color: changed ? (delta >= 0 ? "#2ecc8f" : "#f05050") : "var(--text-3)", lineHeight: 1 }}>{altSim}</div>
+                              <div style={{ fontSize: "0.45rem", color: "var(--text-3)", marginTop: 2 }}>{changed ? `C: ${effectiveCap.split(" ").pop()} · VC: ${effectiveVC.split(" ").pop()}` : "—"}</div>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div style={{ background: "var(--surface-2)", borderRadius: 12, padding: 14, marginBottom: 12, textAlign: "center" as const }}>
+                          <div style={{ fontSize: "0.68rem", color: "var(--text-3)" }}>Match data loading…</div>
+                        </div>
+                      )}
+                      <div className="players-grid" style={{ borderTop: `2px solid ${wiTeam.color}70`, borderRadius: "var(--radius-md)", boxShadow: `0 -3px 14px ${wiTeam.color}33` }}>
+                        {[...wiTeam.players].sort((a, b) => (rawPts[b.name] || 0) - (rawPts[a.name] || 0)).map(p => {
+                          const raw = rawPts[p.name] || 0;
+                          const isCurCap = p.name === wiTeam.captain;
+                          const isCurVC  = p.name === wiTeam.vc;
+                          const isAltCap = p.name === effectiveCap && changed;
+                          const isAltVC  = p.name === effectiveVC && changed;
+                          const iplColor = IPL_COLORS[p.ipl] || "rgba(255,255,255,0.15)";
+                          const roleColor = ROLE_COLORS[p.role] || "var(--text-3)";
+                          return (
+                            <div key={p.name} className="player-card" style={{ background: `linear-gradient(90deg, ${iplColor}08 0%, transparent 45%)` }}>
+                              <img src={TEAM_LOGO_CDN[p.ipl]} alt={p.ipl} style={{ width: 30, height: 30, objectFit: "contain", flexShrink: 0 }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                  <div className="player-name" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, fontSize: "0.84rem" }}>{p.name}</div>
+                                  {isCurCap && <span style={{ fontSize: "0.48rem", fontWeight: 800, background: "#d4a84322", color: "#d4a843", borderRadius: 4, padding: "1px 5px", flexShrink: 0 }}>C</span>}
+                                  {isCurVC  && <span style={{ fontSize: "0.48rem", fontWeight: 800, background: "rgba(255,255,255,0.07)", color: "var(--text-3)", borderRadius: 4, padding: "1px 5px", flexShrink: 0 }}>VC</span>}
+                                </div>
+                                <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 2 }}>
+                                  <span style={{ fontSize: "0.48rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase" as const, padding: "1px 4px", borderRadius: 4, color: roleColor, background: roleColor + "18", border: `1px solid ${roleColor}30`, flexShrink: 0 }}>{p.role}</span>
+                                  <span style={{ fontSize: "0.46rem", color: "var(--text-3)" }}>{raw} pts</span>
+                                </div>
+                              </div>
+                              <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
+                                <button onClick={e => { e.stopPropagation(); if (altCap === p.name) setAltCap(""); else { setAltCap(p.name); if (altVC === p.name) setAltVC(""); } }}
+                                  style={{ background: isAltCap ? "#d4a843" : "var(--surface-2)", color: isAltCap ? "#000" : "var(--text-3)", border: `1px solid ${isAltCap ? "#d4a843" : "var(--border)"}`, borderRadius: 6, padding: "5px 9px", cursor: "pointer", fontFamily: "inherit", fontSize: "0.6rem", fontWeight: 800, lineHeight: 1 }}>C</button>
+                                <button onClick={e => { e.stopPropagation(); if (altVC === p.name) setAltVC(""); else { setAltVC(p.name); if (altCap === p.name) setAltCap(""); } }}
+                                  style={{ background: isAltVC ? "rgba(255,255,255,0.18)" : "var(--surface-2)", color: isAltVC ? "var(--text)" : "var(--text-3)", border: `1px solid ${isAltVC ? "rgba(255,255,255,0.28)" : "var(--border)"}`, borderRadius: 6, padding: "5px 9px", cursor: "pointer", fontFamily: "inherit", fontSize: "0.6rem", fontWeight: 800, lineHeight: 1 }}>VC</button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {/* Empty trades state */}
+                <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", gap: 14, padding: "36px 0" }}>
+                  <div style={{ fontSize: "0.75rem", color: "var(--text-3)" }}>No trade scenarios yet</div>
+                  <button onClick={addScenarioFn}
+                    style={{ background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10, padding: "10px 22px", cursor: "pointer", color: "var(--text)", fontSize: "0.75rem", fontFamily: "inherit", fontWeight: 600 }}>
+                    + New Trade
+                  </button>
+                </div>
               </div>
             );
           }
@@ -4797,8 +4780,125 @@ export default function App() {
 
           return (
             <div>
+
+              {/* ── C/VC SWAP (collapsible) ── */}
+              <div style={{ background: "var(--surface)", border: `1px solid ${wiSwapOpen && changed ? wiTeam.color + "55" : "var(--border)"}`, borderRadius: 14, marginBottom: 14, overflow: "hidden" }}>
+                {/* Header */}
+                <button onClick={() => setWiSwapOpen(o => !o)}
+                  style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", background: "none", border: "none", cursor: "pointer", padding: "12px 14px", fontFamily: "inherit" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: "0.6rem", fontWeight: 800, color: "var(--text-3)", letterSpacing: "0.1em" }}>C/VC SWAP</span>
+                    {changed && (
+                      <span style={{ fontSize: "0.58rem", fontWeight: 700, color: delta > 0 ? "#2ecc8f" : "#f05050", background: (delta > 0 ? "#2ecc8f" : "#f05050") + "18", borderRadius: 5, padding: "2px 6px" }}>
+                        {delta > 0 ? `+${delta}` : delta} pts
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    {!wiSwapOpen && (
+                      <span style={{ fontSize: "0.55rem", color: "var(--text-3)" }}>
+                        {wiTeam.owner} · C: {(altCap || wiTeam.captain).split(" ").pop()} · VC: {(altVC || wiTeam.vc).split(" ").pop()}
+                      </span>
+                    )}
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                      style={{ transform: wiSwapOpen ? "rotate(180deg)" : "none", transition: "transform 0.18s" }}>
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </div>
+                </button>
+
+                {/* Expanded body */}
+                {wiSwapOpen && (
+                  <div style={{ padding: "0 14px 14px" }}>
+                    {/* Owner selector */}
+                    <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
+                      {PRED_OWNERS.map(id => {
+                        const ft = FANTASY_TEAMS[id];
+                        const sel = wiTeamId === id;
+                        return (
+                          <button key={id} onClick={() => { setWiTeamId(id); setAltCap(""); setAltVC(""); }}
+                            style={{ flex: 1, background: sel ? ft.color + "22" : "var(--surface-2)", border: `1px solid ${sel ? ft.color + "88" : "var(--border)"}`, borderRadius: 10, padding: "8px 4px", cursor: "pointer", display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 4 }}>
+                            <div style={{ width: 28, height: 28, borderRadius: "50%", border: `2px solid ${sel ? ft.color : "rgba(255,255,255,0.1)"}`, overflow: "hidden", flexShrink: 0 }}>
+                              <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: ft.avatarPosition || "center center", display: "block" }} />
+                            </div>
+                            <div style={{ fontSize: "0.5rem", fontWeight: 700, color: sel ? ft.color : "var(--text-3)", letterSpacing: "0.06em" }}>{ft.owner.toUpperCase()}</div>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Delta bar */}
+                    {hasMatchData ? (
+                      <div style={{ background: "var(--surface-2)", borderRadius: 12, padding: "12px 14px", marginBottom: 12 }}>
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                          <div style={{ textAlign: "center" as const, flex: 1 }}>
+                            <div style={{ fontSize: "0.45rem", color: "var(--text-3)", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 3 }}>CURRENT</div>
+                            <div style={{ fontSize: "1.4rem", fontWeight: 700, color: wiTeam.color, lineHeight: 1 }}>{currentSim}</div>
+                            <div style={{ fontSize: "0.45rem", color: "var(--text-3)", marginTop: 2 }}>C: {wiTeam.captain.split(" ").pop()} · VC: {wiTeam.vc.split(" ").pop()}</div>
+                          </div>
+                          <div style={{ textAlign: "center" as const, flexShrink: 0, padding: "0 12px" }}>
+                            {changed ? (
+                              <div style={{ fontSize: "1.2rem", fontWeight: 800, color: delta > 0 ? "#2ecc8f" : delta < 0 ? "#f05050" : "var(--text-3)" }}>
+                                {delta > 0 ? `+${delta}` : delta}
+                              </div>
+                            ) : (
+                              <div style={{ fontSize: "0.58rem", color: "var(--text-3)", maxWidth: 60 }}>tap C / VC</div>
+                            )}
+                          </div>
+                          <div style={{ textAlign: "center" as const, flex: 1 }}>
+                            <div style={{ fontSize: "0.45rem", color: "var(--text-3)", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 3 }}>SIMULATED</div>
+                            <div style={{ fontSize: "1.4rem", fontWeight: 700, color: changed ? (delta >= 0 ? "#2ecc8f" : "#f05050") : "var(--text-3)", lineHeight: 1 }}>{altSim}</div>
+                            <div style={{ fontSize: "0.45rem", color: "var(--text-3)", marginTop: 2 }}>{changed ? `C: ${effectiveCap.split(" ").pop()} · VC: ${effectiveVC.split(" ").pop()}` : "—"}</div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ background: "var(--surface-2)", borderRadius: 12, padding: 14, marginBottom: 12, textAlign: "center" as const }}>
+                        <div style={{ fontSize: "0.68rem", color: "var(--text-3)" }}>Match data loading…</div>
+                      </div>
+                    )}
+
+                    {/* Player list with C/VC toggles */}
+                    <div className="players-grid" style={{ borderTop: `2px solid ${wiTeam.color}70`, borderRadius: "var(--radius-md)", boxShadow: `0 -3px 14px ${wiTeam.color}33` }}>
+                      {[...wiTeam.players].sort((a, b) => (rawPts[b.name] || 0) - (rawPts[a.name] || 0)).map(p => {
+                        const raw = rawPts[p.name] || 0;
+                        const isCurCap = p.name === wiTeam.captain;
+                        const isCurVC  = p.name === wiTeam.vc;
+                        const isAltCap = p.name === effectiveCap && changed;
+                        const isAltVC  = p.name === effectiveVC && changed;
+                        const iplColor = IPL_COLORS[p.ipl] || "rgba(255,255,255,0.15)";
+                        const roleColor = ROLE_COLORS[p.role] || "var(--text-3)";
+                        return (
+                          <div key={p.name} className="player-card" style={{ background: `linear-gradient(90deg, ${iplColor}08 0%, transparent 45%)` }}>
+                            <img src={TEAM_LOGO_CDN[p.ipl]} alt={p.ipl} style={{ width: 30, height: 30, objectFit: "contain", flexShrink: 0 }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                <div className="player-name" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, fontSize: "0.84rem" }}>{p.name}</div>
+                                {isCurCap && <span style={{ fontSize: "0.48rem", fontWeight: 800, background: "#d4a84322", color: "#d4a843", borderRadius: 4, padding: "1px 5px", flexShrink: 0 }}>C</span>}
+                                {isCurVC  && <span style={{ fontSize: "0.48rem", fontWeight: 800, background: "rgba(255,255,255,0.07)", color: "var(--text-3)", borderRadius: 4, padding: "1px 5px", flexShrink: 0 }}>VC</span>}
+                              </div>
+                              <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 2 }}>
+                                <span style={{ fontSize: "0.48rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase" as const, padding: "1px 4px", borderRadius: 4, color: roleColor, background: roleColor + "18", border: `1px solid ${roleColor}30`, flexShrink: 0 }}>{p.role}</span>
+                                <span style={{ fontSize: "0.46rem", color: "var(--text-3)" }}>{raw} pts</span>
+                              </div>
+                            </div>
+                            <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
+                              <button onClick={e => { e.stopPropagation(); if (altCap === p.name) setAltCap(""); else { setAltCap(p.name); if (altVC === p.name) setAltVC(""); } }}
+                                style={{ background: isAltCap ? "#d4a843" : "var(--surface-2)", color: isAltCap ? "#000" : "var(--text-3)", border: `1px solid ${isAltCap ? "#d4a843" : "var(--border)"}`, borderRadius: 6, padding: "5px 9px", cursor: "pointer", fontFamily: "inherit", fontSize: "0.6rem", fontWeight: 800, lineHeight: 1 }}>C</button>
+                              <button onClick={e => { e.stopPropagation(); if (altVC === p.name) setAltVC(""); else { setAltVC(p.name); if (altCap === p.name) setAltCap(""); } }}
+                                style={{ background: isAltVC ? "rgba(255,255,255,0.18)" : "var(--surface-2)", color: isAltVC ? "var(--text)" : "var(--text-3)", border: `1px solid ${isAltVC ? "rgba(255,255,255,0.28)" : "var(--border)"}`, borderRadius: 6, padding: "5px 9px", cursor: "pointer", fontFamily: "inherit", fontSize: "0.6rem", fontWeight: 800, lineHeight: 1 }}>VC</button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* ── PLAYER TRADES ── */}
               {xferScenarios.length === 0 ? (
-                <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", padding: "64px 20px", gap: 14 }}>
+                <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", padding: "48px 20px", gap: 14 }}>
                   <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
                   <div style={{ fontSize: "0.75rem", color: "var(--text-3)", fontWeight: 500 }}>No trades recorded this season</div>
                   <button onClick={addScenarioFn}
