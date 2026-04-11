@@ -498,12 +498,8 @@ const buildMatchPreviews = (matches: any[]) =>
 
 export default function App() {
   const [tab, setTab] = useState("home");
-  const [wiSection, setWiSection] = useState<"permatch" | "intel" | "transfer">("transfer");
-  const [wiSwapOpen, setWiSwapOpen] = useState(false);
+  const [wiSection, setWiSection] = useState<"swap" | "permatch" | "intel">("swap");
   const [wiTeamId, setWiTeamId] = useState("rajveer");
-  type XferScenario = { id: number; teamA: string; teamB: string; playersA: string[]; playersB: string[]; afterMatch: number | null; capA: string; vcA: string; capB: string; vcB: string };
-  const [xferScenarios, setXferScenarios] = useState<XferScenario[]>([]);
-  const [xferActiveId, setXferActiveId] = useState<number | null>(null);
   const [altCap, setAltCap] = useState("");
   const [altVC, setAltVC] = useState("");
   const [perMatchCaps, setPerMatchCaps] = useState<Record<string, Record<number, { cap: string; vc: string }>>>({});
@@ -4230,8 +4226,8 @@ export default function App() {
 
         {/* Sub-tabs */}
         <div style={{ display: "flex", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 22, padding: 3, marginBottom: 14, gap: 2 }}>
-          {([["transfer", "Trades"], ["permatch", "Per Match"], ["intel", "Match Intel"]] as const).map(([id, label]) => (
-            <button key={id} onClick={() => setWiSection(id as "permatch" | "intel" | "transfer")}
+          {([["swap", "Season Swap"], ["permatch", "Per Match"], ["intel", "Match Intel"]] as const).map(([id, label]) => (
+            <button key={id} onClick={() => setWiSection(id as "swap" | "permatch" | "intel")}
               style={{
                 flex: 1, padding: "7px 0", borderRadius: 18, border: "none", cursor: "pointer",
                 fontFamily: "inherit", fontSize: "0.7rem", fontWeight: 600, transition: "all 0.18s",
@@ -4240,6 +4236,123 @@ export default function App() {
               }}>{label}</button>
           ))}
         </div>
+
+        {/* ============ CAPTAIN SWAP ============ */}
+        {wiSection === "swap" && (
+          <div>
+            {/* Owner selector */}
+            <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
+              {PRED_OWNERS.map(id => {
+                const ft = FANTASY_TEAMS[id];
+                const sel = wiTeamId === id;
+                return (
+                  <button key={id} onClick={() => { setWiTeamId(id); setAltCap(""); setAltVC(""); }}
+                    style={{
+                      flex: 1, background: sel ? ft.color + "22" : "var(--surface)",
+                      border: `1px solid ${sel ? ft.color + "88" : "var(--border)"}`,
+                      borderRadius: 10, padding: "9px 4px", cursor: "pointer",
+                      display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 5,
+                    }}>
+                    <div style={{ width: 32, height: 32, borderRadius: "50%", border: `2px solid ${sel ? ft.color : "rgba(255,255,255,0.1)"}`, overflow: "hidden", flexShrink: 0, transition: "border-color 0.18s" }}>
+                      <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner}
+                        style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: ft.avatarPosition || "center center", display: "block" }} />
+                    </div>
+                    <div style={{ fontSize: "0.55rem", fontWeight: 700, color: sel ? ft.color : "var(--text-3)", letterSpacing: "0.06em", textAlign: "center" as const }}>{ft.owner.toUpperCase()}</div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Delta bar */}
+            {hasMatchData ? (
+              <div style={{ background: "var(--surface)", border: `1px solid ${changed ? wiTeam.color + "55" : "var(--border)"}`, borderRadius: 14, padding: "14px 16px", marginBottom: 14 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
+                  <div style={{ textAlign: "center" as const, flex: 1 }}>
+                    <div style={{ fontSize: "0.48rem", color: "var(--text-3)", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 4 }}>CURRENT</div>
+                    <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.6rem", fontWeight: 700, color: wiTeam.color, lineHeight: 1 }}>{currentSim}</div>
+                    <div style={{ fontSize: "0.5rem", color: "var(--text-3)", marginTop: 3 }}>C: {wiTeam.captain.split(" ").pop()} · VC: {wiTeam.vc.split(" ").pop()}</div>
+                  </div>
+                  <div style={{ textAlign: "center" as const, flexShrink: 0, padding: "0 14px" }}>
+                    {changed ? (
+                      <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.3rem", fontWeight: 800, color: delta > 0 ? "#2ecc8f" : delta < 0 ? "#f05050" : "var(--text-3)" }}>
+                        {delta > 0 ? `+${delta}` : delta}
+                      </div>
+                    ) : (
+                      <div style={{ fontSize: "0.62rem", color: "var(--text-3)", maxWidth: 70 }}>tap C / VC below</div>
+                    )}
+                  </div>
+                  <div style={{ textAlign: "center" as const, flex: 1 }}>
+                    <div style={{ fontSize: "0.48rem", color: "var(--text-3)", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 4 }}>SIMULATED</div>
+                    <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.6rem", fontWeight: 700, color: changed ? (delta >= 0 ? "#2ecc8f" : "#f05050") : "var(--text-3)", lineHeight: 1 }}>{altSim}</div>
+                    <div style={{ fontSize: "0.5rem", color: "var(--text-3)", marginTop: 3 }}>{changed ? `C: ${effectiveCap.split(" ").pop()} · VC: ${effectiveVC.split(" ").pop()}` : "—"}</div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, padding: 16, marginBottom: 14, textAlign: "center" as const }}>
+                <div style={{ fontSize: "0.72rem", color: "var(--text-3)" }}>Match data loading…</div>
+              </div>
+            )}
+
+            {/* Player list — same card style as Teams tab */}
+            <div className="players-grid" style={{ borderTop: `2px solid ${wiTeam.color}70`, borderRadius: "var(--radius-md)", boxShadow: `0 -3px 14px ${wiTeam.color}33` }}>
+              {[...wiTeam.players].sort((a, b) => (rawPts[b.name] || 0) - (rawPts[a.name] || 0)).map(p => {
+                const raw = rawPts[p.name] || 0;
+                const isCurCap = p.name === wiTeam.captain;
+                const isCurVC  = p.name === wiTeam.vc;
+                const isAltCap = p.name === effectiveCap && changed;
+                const isAltVC  = p.name === effectiveVC && changed;
+                const iplColor = IPL_COLORS[p.ipl] || "rgba(255,255,255,0.15)";
+                const roleColor = ROLE_COLORS[p.role] || "var(--text-3)";
+                return (
+                  <div key={p.name} className="player-card"
+                    style={{ background: `linear-gradient(90deg, ${iplColor}08 0%, transparent 45%)` }}>
+                    <img src={TEAM_LOGO_CDN[p.ipl]} alt={p.ipl}
+                      style={{ width: 32, height: 32, objectFit: "contain", flexShrink: 0 }}
+                      onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                        <div className="player-name" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, fontSize: "0.88rem" }}>
+                          {p.name}
+                        </div>
+                        {isCurCap && <span style={{ fontSize: "0.5rem", fontWeight: 800, background: "#d4a84322", color: "#d4a843", borderRadius: 4, padding: "1px 5px", flexShrink: 0 }}>C</span>}
+                        {isCurVC  && <span style={{ fontSize: "0.5rem", fontWeight: 800, background: "rgba(255,255,255,0.07)", color: "var(--text-3)", borderRadius: 4, padding: "1px 5px", flexShrink: 0 }}>VC</span>}
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 3 }}>
+                        <span style={{
+                          fontSize: "0.5rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase" as const,
+                          padding: "1px 5px", borderRadius: 4,
+                          color: roleColor, background: roleColor + "18", border: `1px solid ${roleColor}30`, flexShrink: 0,
+                        }}>{p.role}</span>
+                        {p.price != null && <span style={{ fontSize: "0.48rem", fontWeight: 600, color: "var(--text-2)" }}>{p.price}cr</span>}
+                        <span style={{ fontSize: "0.48rem", color: "var(--text-3)" }}>{raw} pts</span>
+                      </div>
+                    </div>
+                    {/* C / VC toggle buttons */}
+                    <div style={{ display: "flex", gap: 5, flexShrink: 0 }}>
+                      <button onClick={e => { e.stopPropagation(); if (altCap === p.name) { setAltCap(""); } else { setAltCap(p.name); if (altVC === p.name) setAltVC(""); } }}
+                        style={{
+                          background: isAltCap ? "#d4a843" : "var(--surface-2)",
+                          color: isAltCap ? "#000" : "var(--text-3)",
+                          border: `1px solid ${isAltCap ? "#d4a843" : "var(--border)"}`,
+                          borderRadius: 6, padding: "5px 10px", cursor: "pointer", fontFamily: "inherit",
+                          fontSize: "0.62rem", fontWeight: 800, transition: "all 0.15s", lineHeight: 1,
+                        }}>C</button>
+                      <button onClick={e => { e.stopPropagation(); if (altVC === p.name) { setAltVC(""); } else { setAltVC(p.name); if (altCap === p.name) setAltCap(""); } }}
+                        style={{
+                          background: isAltVC ? "rgba(255,255,255,0.18)" : "var(--surface-2)",
+                          color: isAltVC ? "var(--text)" : "var(--text-3)",
+                          border: `1px solid ${isAltVC ? "rgba(255,255,255,0.28)" : "var(--border)"}`,
+                          borderRadius: 6, padding: "5px 10px", cursor: "pointer", fontFamily: "inherit",
+                          fontSize: "0.62rem", fontWeight: 800, transition: "all 0.15s", lineHeight: 1,
+                        }}>VC</button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* ============ PER MATCH ============ */}
         {wiSection === "permatch" && (() => {
@@ -4464,618 +4577,6 @@ export default function App() {
                   style={{ width: "100%", marginTop: 12, padding: "10px 0", background: "transparent", border: "1px solid var(--border)", borderRadius: 10, color: "var(--text-3)", fontSize: "0.65rem", fontFamily: "inherit", cursor: "pointer" }}>
                   Reset All Overrides
                 </button>
-              )}
-            </div>
-          );
-        })()}
-
-        {/* ============ TRANSFERS ============ */}
-        {wiSection === "transfer" && (() => {
-          const OWNER_IDS = ["rajveer", "mombasa", "mumbai", "ponygoat"] as const;
-
-          // Active scenario aliases — all existing logic below reads these unchanged
-          const ownerShortName = (id: string) => ({ rajveer: "Raj", mombasa: "Rahul", mumbai: "Smeet", ponygoat: "Deb" }[id] || id);
-
-          const addScenarioFn = () => {
-            const newId = xferScenarios.length === 0 ? 1 : Math.max(...xferScenarios.map(s => s.id)) + 1;
-            setXferScenarios(prev => [...prev, { id: newId, teamA: "rajveer", teamB: "mombasa", playersA: [], playersB: [], afterMatch: null, capA: "", vcA: "", capB: "", vcB: "" }]);
-            setXferActiveId(newId);
-          };
-
-          if (xferScenarios.length === 0 || xferActiveId === null) {
-            return (
-              <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", gap: 14, padding: "64px 20px" }}>
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
-                <div style={{ fontSize: "0.75rem", color: "var(--text-3)", fontWeight: 500 }}>No trades yet — player swaps and C/VC changes in one place</div>
-                <button onClick={addScenarioFn}
-                  style={{ marginTop: 4, padding: "12px 32px", background: "var(--gold)", border: "none", borderRadius: 10, color: "#000", fontSize: "0.82rem", fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
-                  + Add Trade
-                </button>
-              </div>
-            );
-          }
-
-          const sc = xferScenarios.find(s => s.id === xferActiveId) ?? xferScenarios[0];
-          const updateSc = (patch: Partial<typeof sc>) =>
-            setXferScenarios(prev => prev.map(s => s.id === sc.id ? { ...s, ...patch } : s));
-          const xferTeamA = sc.teamA;
-          const xferTeamB = sc.teamB;
-          const xferPlayersA = sc.playersA;
-          const xferPlayersB = sc.playersB;
-          const xferAfterMatch = sc.afterMatch;
-          const setXferTeamA = (v: string) => updateSc({ teamA: v, playersA: [], playersB: [] });
-          const setXferTeamB = (v: string) => updateSc({ teamB: v, playersA: [], playersB: [] });
-          const setXferPlayersA = (v: string[] | ((p: string[]) => string[])) => updateSc({ playersA: typeof v === "function" ? v(sc.playersA) : v });
-          const setXferPlayersB = (v: string[] | ((p: string[]) => string[])) => updateSc({ playersB: typeof v === "function" ? v(sc.playersB) : v });
-          const setXferAfterMatch = (v: number | null) => updateSc({ afterMatch: v });
-          const xferCapA = sc.capA ?? "";
-          const xferVCA  = sc.vcA  ?? "";
-          const xferCapB = sc.capB ?? "";
-          const xferVCB  = sc.vcB  ?? "";
-          const setXferCapA = (v: string) => updateSc({ capA: v });
-          const setXferVCA  = (v: string) => updateSc({ vcA: v });
-          const setXferCapB = (v: string) => updateSc({ capB: v });
-          const setXferVCB  = (v: string) => updateSc({ vcB: v });
-
-          const teamA = FANTASY_TEAMS[xferTeamA];
-          const teamB = FANTASY_TEAMS[xferTeamB];
-
-          // Collect played match numbers, then fill forward to M74 (full season)
-          const playedMatchNums = Array.from(new Set([
-            ...teamA.players.flatMap(p => (playerMatchPoints[p.name] || []).map((e: any) => e.matchNum)),
-            ...teamB.players.flatMap(p => (playerMatchPoints[p.name] || []).map((e: any) => e.matchNum)),
-          ].filter((n: number) => n < 900))) as number[];
-          const lastPlayed = playedMatchNums.length > 0 ? Math.max(...playedMatchNums) : 0;
-          const allMatchNums: number[] = Array.from({ length: 74 }, (_, i) => i + 1);
-
-          // Partial point helpers
-          const getPtsUpTo = (name: string, upTo: number) =>
-            (playerMatchPoints[name] || []).filter((e: any) => e.matchNum <= upTo).reduce((s: number, e: any) => s + e.pts, 0);
-          const getPtsAfter = (name: string, after: number) =>
-            (playerMatchPoints[name] || []).filter((e: any) => e.matchNum > after).reduce((s: number, e: any) => s + e.pts, 0);
-
-          // Simulate team total with custom per-player point overrides
-          const simTeamTotal = (players: typeof FANTASY_TEAMS[string]["players"], cap: string, vc: string, overridePts: Record<string, number>) => {
-            const withPts = players.map(p => {
-              const raw = p.name in overridePts ? overridePts[p.name] : (playerPoints[p.name] || 0);
-              const adj = applyMultiplier(raw, p.name === cap, p.name === vc);
-              return { ...p, raw, adj };
-            }).sort((a, b) => b.adj - a.adj);
-            const top11 = new Set(withPts.slice(0, 11).map(p => p.name));
-            return Math.round(withPts.filter(p => top11.has(p.name)).reduce((s, p) => s + p.adj, 0));
-          };
-
-          // Toggle selection helpers
-          const toggleA = (name: string) => setXferPlayersA(prev => prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name]);
-          const toggleB = (name: string) => setXferPlayersB(prev => prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name]);
-
-          // Validate: player counts match OR cap/vc override exists
-          const hasPlayerTrade = xferPlayersA.length > 0 && xferPlayersA.length === xferPlayersB.length;
-          const hasCapVcChange = !!(xferCapA || xferVCA || xferCapB || xferVCB);
-          const countMatch = hasPlayerTrade || hasCapVcChange;
-
-          // Build simulated squads
-          const simPlayersA = [
-            ...teamA.players.filter(p => !xferPlayersA.includes(p.name)),
-            ...teamB.players.filter(p => xferPlayersB.includes(p.name)),
-          ];
-          const simPlayersB = [
-            ...teamB.players.filter(p => !xferPlayersB.includes(p.name)),
-            ...teamA.players.filter(p => xferPlayersA.includes(p.name)),
-          ];
-
-          // Captain/VC: explicit override first, then reset if traded away, else keep
-          const simCapA = xferCapA || (xferPlayersA.includes(teamA.captain) ? (simPlayersA[0]?.name || "") : teamA.captain);
-          const simVCA  = xferVCA  || (xferPlayersA.includes(teamA.vc) && simCapA !== teamA.vc ? (simPlayersA[1]?.name || "") : xferPlayersA.includes(teamA.vc) ? (simPlayersA[0]?.name || "") : teamA.vc);
-          const simCapB = xferCapB || (xferPlayersB.includes(teamB.captain) ? (simPlayersB[0]?.name || "") : teamB.captain);
-          const simVCB  = xferVCB  || (xferPlayersB.includes(teamB.vc) && simCapB !== teamB.vc ? (simPlayersB[1]?.name || "") : xferPlayersB.includes(teamB.vc) ? (simPlayersB[0]?.name || "") : teamB.vc);
-
-          // Build point overrides based on game-week cutoff
-          const overrideA: Record<string, number> = {};
-          const overrideB: Record<string, number> = {};
-          if (xferAfterMatch !== null) {
-            // Outgoing from A: only M1..transferMatch
-            xferPlayersA.forEach(name => { overrideA[name] = getPtsUpTo(name, xferAfterMatch); });
-            // Incoming to A (from B): only M(transferMatch+1)..end
-            xferPlayersB.forEach(name => { overrideA[name] = getPtsAfter(name, xferAfterMatch); });
-            // Outgoing from B: only M1..transferMatch
-            xferPlayersB.forEach(name => { overrideB[name] = getPtsUpTo(name, xferAfterMatch); });
-            // Incoming to B (from A): only M(transferMatch+1)..end
-            xferPlayersA.forEach(name => { overrideB[name] = getPtsAfter(name, xferAfterMatch); });
-          }
-
-          const actualA = teamScores.find(s => s.id === xferTeamA)?.total ?? 0;
-          const actualB = teamScores.find(s => s.id === xferTeamB)?.total ?? 0;
-          const simA = countMatch ? simTeamTotal(simPlayersA, simCapA, simVCA, overrideA) : actualA;
-          const simB = countMatch ? simTeamTotal(simPlayersB, simCapB, simVCB, overrideB) : actualB;
-          const deltaA = simA - actualA;
-          const deltaB = simB - actualB;
-
-          // New leaderboard
-          const simScores = teamScores.map(s => {
-            if (s.id === xferTeamA) return { ...s, total: simA };
-            if (s.id === xferTeamB) return { ...s, total: simB };
-            return s;
-          }).sort((a, b) => b.total - a.total);
-          const rankA = teamScores.findIndex(s => s.id === xferTeamA) + 1;
-          const rankB = teamScores.findIndex(s => s.id === xferTeamB) + 1;
-          const simRankA = simScores.findIndex(s => s.id === xferTeamA) + 1;
-          const simRankB = simScores.findIndex(s => s.id === xferTeamB) + 1;
-
-          const hasData = Object.keys(playerPoints).length > 0;
-
-
-          const PlayerList = ({ team, selectedPlayers, onToggle }: {
-            team: typeof FANTASY_TEAMS[string];
-            selectedPlayers: string[];
-            onToggle: (name: string) => void;
-          }) => {
-            const sorted = [...team.players].sort((a, b) => (playerPoints[b.name] || 0) - (playerPoints[a.name] || 0));
-            return (
-              <div style={{ display: "flex", flexDirection: "column" as const, gap: 1 }}>
-                {sorted.map(p => {
-                  const isSelected = selectedPlayers.includes(p.name);
-                  const fullPts = playerPoints[p.name] || 0;
-                  const roleColor = ROLE_COLORS[p.role] || "var(--text-3)";
-                  const isCap = p.name === team.captain;
-                  const isVC = p.name === team.vc;
-                  // Game-week split points (shown when timing is set and player is selected)
-                  const retainedPts = xferAfterMatch !== null ? getPtsUpTo(p.name, xferAfterMatch) : null;
-                  const contributedPts = xferAfterMatch !== null ? getPtsAfter(p.name, xferAfterMatch) : null;
-                  return (
-                    <button key={p.name} onClick={() => onToggle(p.name)}
-                      style={{
-                        display: "flex", alignItems: "center", gap: 8, padding: "8px 10px",
-                        background: isSelected ? team.color + "18" : "transparent",
-                        border: `1px solid ${isSelected ? team.color + "66" : "rgba(255,255,255,0.04)"}`,
-                        borderRadius: 8, cursor: "pointer", textAlign: "left" as const, fontFamily: "inherit",
-                        transition: "all 0.15s", width: "100%",
-                      }}>
-                      <div style={{
-                        width: 16, height: 16, borderRadius: 4, border: `1.5px solid ${isSelected ? team.color : "rgba(255,255,255,0.2)"}`,
-                        background: isSelected ? team.color : "transparent", flexShrink: 0,
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                      }}>
-                        {isSelected && <svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5L8 1" stroke="#000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                          <span style={{ fontSize: "0.75rem", fontWeight: 600, color: isSelected ? team.color : "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{p.name}</span>
-                          {isCap && <span style={{ fontSize: "0.43rem", fontWeight: 800, color: "#d4a843", background: "#d4a84322", borderRadius: 3, padding: "1px 4px", flexShrink: 0 }}>C</span>}
-                          {isVC  && <span style={{ fontSize: "0.43rem", fontWeight: 800, color: "var(--text-3)", background: "rgba(255,255,255,0.07)", borderRadius: 3, padding: "1px 4px", flexShrink: 0 }}>VC</span>}
-                        </div>
-                        <div style={{ display: "flex", gap: 5, marginTop: 2, alignItems: "center", flexWrap: "wrap" as const }}>
-                          <span style={{ fontSize: "0.45rem", color: roleColor, background: roleColor + "18", border: `1px solid ${roleColor}30`, borderRadius: 3, padding: "1px 4px" }}>{p.role}</span>
-                          <span style={{ fontSize: "0.48rem", color: "var(--text-3)" }}>{p.ipl}</span>
-                          {p.price != null && <span style={{ fontSize: "0.45rem", color: "var(--text-3)" }}>{p.price}cr</span>}
-                          {/* Game-week split — shown when timing is set and player is selected */}
-                          {isSelected && retainedPts !== null && (
-                            <>
-                              <span style={{ fontSize: "0.43rem", color: "#fbbf24", background: "rgba(251,191,36,0.12)", borderRadius: 3, padding: "1px 4px", fontVariantNumeric: "tabular-nums" }}>
-                                ≤M{xferAfterMatch}: {retainedPts}
-                              </span>
-                              <span style={{ fontSize: "0.43rem", color: "#60a5fa", background: "rgba(96,165,250,0.12)", borderRadius: 3, padding: "1px 4px", fontVariantNumeric: "tabular-nums" }}>
-                                M{xferAfterMatch!+1}+: {contributedPts}
-                              </span>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                      <div style={{ textAlign: "right" as const, flexShrink: 0 }}>
-                        <div style={{ fontSize: "0.72rem", fontWeight: 700, color: isSelected ? team.color : "var(--text-3)", fontVariantNumeric: "tabular-nums" }}>{fullPts}</div>
-                        {isSelected && retainedPts !== null && (
-                          <div style={{ fontSize: "0.48rem", color: "#fbbf24", fontVariantNumeric: "tabular-nums" }}>keeps {retainedPts}</div>
-                        )}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            );
-          };
-
-          const deleteScenario = (id: number) => {
-            const remaining = xferScenarios.filter(s => s.id !== id);
-            setXferScenarios(remaining);
-            setXferActiveId(remaining.length > 0 ? (remaining[remaining.length - 1]?.id ?? null) : null);
-          };
-
-          const validScenarios = xferScenarios.filter(s => s.playersA.length > 0 && s.playersA.length === s.playersB.length);
-          const ownerNetDelta: Record<string, number> = {};
-          OWNER_IDS.forEach(id => { ownerNetDelta[id] = 0; });
-          validScenarios.forEach(sc => {
-            const aGives = sc.playersA.reduce((sum, p) => sum + (sc.afterMatch !== null ? getPtsAfter(p, sc.afterMatch) : (playerPoints[p] || 0)), 0);
-            const bGives = sc.playersB.reduce((sum, p) => sum + (sc.afterMatch !== null ? getPtsAfter(p, sc.afterMatch) : (playerPoints[p] || 0)), 0);
-            ownerNetDelta[sc.teamA] = (ownerNetDelta[sc.teamA] || 0) + (bGives - aGives);
-            ownerNetDelta[sc.teamB] = (ownerNetDelta[sc.teamB] || 0) + (aGives - bGives);
-          });
-
-          return (
-            <div>
-
-              {/* ── TRADES (player swaps + C/VC changes) ── */}
-              {xferScenarios.length === 0 ? (
-                <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", padding: "48px 20px", gap: 14 }}>
-                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
-                  <div style={{ fontSize: "0.75rem", color: "var(--text-3)", fontWeight: 500 }}>No trades recorded this season</div>
-                  <button onClick={addScenarioFn}
-                    style={{ marginTop: 4, padding: "12px 32px", background: "var(--gold)", border: "none", borderRadius: 10, color: "#000", fontSize: "0.82rem", fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
-                    + Add Trade
-                  </button>
-                </div>
-              ) : (
-                <div style={{ display: "flex", flexDirection: "column" as const, gap: 10 }}>
-
-                  {/* Header row */}
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 2 }}>
-                    <span style={{ fontSize: "0.52rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.1em" }}>
-                      {xferScenarios.length} TRADE{xferScenarios.length !== 1 ? "S" : ""} THIS SEASON
-                    </span>
-                    <button onClick={addScenarioFn}
-                      style={{ padding: "7px 16px", background: "var(--gold)", border: "none", borderRadius: 9, color: "#000", fontSize: "0.65rem", fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
-                      + Add Trade
-                    </button>
-                  </div>
-
-                  {/* Trade cards */}
-                  {xferScenarios.map((s, idx) => {
-                    const isOpen = s.id === xferActiveId;
-                    const tA = FANTASY_TEAMS[s.teamA];
-                    const tB = FANTASY_TEAMS[s.teamB];
-                    const isValid = s.playersA.length > 0 && s.playersA.length === s.playersB.length;
-                    return (
-                      <div key={s.id} style={{ background: "var(--surface)", border: `1px solid ${isOpen ? "rgba(255,255,255,0.16)" : "var(--border)"}`, borderRadius: 13, overflow: "hidden" }}>
-
-                        {/* Compact header — tap to expand */}
-                        <div onClick={() => setXferActiveId(isOpen ? null : s.id)}
-                          style={{ display: "flex", alignItems: "center", gap: 8, padding: "12px 14px", cursor: "pointer", background: isOpen ? "var(--surface-2)" : "transparent", borderBottom: isOpen ? "1px solid var(--border)" : "none" }}>
-                          <span style={{ fontSize: "0.52rem", fontWeight: 700, color: "var(--text-3)", minWidth: 20 }}>#{idx + 1}</span>
-                          <span style={{ fontSize: "0.82rem", fontWeight: 700, color: tA.color }}>{ownerShortName(s.teamA)}</span>
-                          <span style={{ fontSize: "0.65rem", color: "var(--text-3)" }}>↔</span>
-                          <span style={{ fontSize: "0.82rem", fontWeight: 700, color: tB.color }}>{ownerShortName(s.teamB)}</span>
-                          {s.afterMatch !== null && (
-                            <span style={{ fontSize: "0.5rem", color: "var(--text-3)", background: "rgba(255,255,255,0.07)", borderRadius: 5, padding: "2px 6px", flexShrink: 0 }}>M{s.afterMatch}</span>
-                          )}
-                          {isValid && <span style={{ fontSize: "0.6rem", color: "#22c55e", flexShrink: 0 }}>✓</span>}
-                          {(s.capA || s.vcA || s.capB || s.vcB) && <span style={{ fontSize: "0.45rem", fontWeight: 700, color: "#d4a843", background: "#d4a84322", borderRadius: 4, padding: "2px 5px", flexShrink: 0 }}>C/VC</span>}
-                          <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
-                            <button onClick={e => { e.stopPropagation(); deleteScenario(s.id); }}
-                              style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--text-3)", fontSize: "0.72rem", padding: "2px 4px", lineHeight: 1, fontFamily: "inherit" }}>✕</button>
-                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--text-3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
-                              style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s", flexShrink: 0 }}>
-                              <path d="M2 4l4 4 4-4"/>
-                            </svg>
-                          </div>
-                        </div>
-
-                        {/* Player preview when closed + valid */}
-                        {!isOpen && isValid && (
-                          <div style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "8px 14px 11px" }}>
-                            <div style={{ flex: 1, textAlign: "right" as const }}>
-                              {s.playersA.map(p => <div key={p} style={{ fontSize: "0.65rem", fontWeight: 600, color: tA.color }}>{p.split(" ").slice(-1)[0]}</div>)}
-                            </div>
-                            <svg width="14" height="10" viewBox="0 0 14 10" fill="none" stroke="var(--text-3)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" style={{ marginTop: 4, flexShrink: 0 }}>
-                              <path d="M1 3h12M10 1l2 2-2 2"/><path d="M13 7H1M4 5l-2 2 2 2"/>
-                            </svg>
-                            <div style={{ flex: 1 }}>
-                              {s.playersB.map(p => <div key={p} style={{ fontSize: "0.65rem", fontWeight: 600, color: tB.color }}>{p.split(" ").slice(-1)[0]}</div>)}
-                            </div>
-                          </div>
-                        )}
-                        {!isOpen && !isValid && (s.playersA.length > 0 || s.playersB.length > 0) && (
-                          <div style={{ padding: "6px 14px 10px", fontSize: "0.55rem", color: "var(--text-3)" }}>
-                            {s.playersA.length} ↔ {s.playersB.length} — player counts must match
-                          </div>
-                        )}
-
-                        {/* Expanded trade form */}
-                        {isOpen && (
-                          <div style={{ padding: "12px 12px 14px", display: "flex", flexDirection: "column" as const, gap: 0 }}>
-
-                            {/* Party pickers */}
-                            <div style={{ display: "flex", flexDirection: "column" as const, gap: 6, marginBottom: 12 }}>
-                              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                <span style={{ fontSize: "0.45rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.1em", width: 28, flexShrink: 0 }}>PARTY A</span>
-                                <select value={xferTeamA} onChange={e => { setXferTeamA(e.target.value); setXferPlayersA([]); setXferPlayersB([]); }}
-                                  style={{ flex: 1, background: FANTASY_TEAMS[xferTeamA].color + "18", border: `1.5px solid ${FANTASY_TEAMS[xferTeamA].color}55`, borderRadius: 10, color: FANTASY_TEAMS[xferTeamA].color, fontSize: "0.8rem", fontWeight: 700, padding: "9px 12px", cursor: "pointer", outline: "none", fontFamily: "inherit" }}>
-                                  {OWNER_IDS.filter(id => id !== xferTeamB).map(id => (
-                                    <option key={id} value={id}>{ownerShortName(id)}</option>
-                                  ))}
-                                </select>
-                              </div>
-                              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                <span style={{ fontSize: "0.45rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.1em", width: 28, flexShrink: 0 }}>PARTY B</span>
-                                <select value={xferTeamB} onChange={e => { setXferTeamB(e.target.value); setXferPlayersA([]); setXferPlayersB([]); }}
-                                  style={{ flex: 1, background: FANTASY_TEAMS[xferTeamB].color + "18", border: `1.5px solid ${FANTASY_TEAMS[xferTeamB].color}55`, borderRadius: 10, color: FANTASY_TEAMS[xferTeamB].color, fontSize: "0.8rem", fontWeight: 700, padding: "9px 12px", cursor: "pointer", outline: "none", fontFamily: "inherit" }}>
-                                  {OWNER_IDS.filter(id => id !== xferTeamA).map(id => (
-                                    <option key={id} value={id}>{ownerShortName(id)}</option>
-                                  ))}
-                                </select>
-                              </div>
-                            </div>
-
-                            {/* Transfer timing */}
-                            <div style={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 12, padding: "10px 12px", marginBottom: 14 }}>
-                              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-                                <div>
-                                  <div style={{ fontSize: "0.48rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.1em", marginBottom: 3 }}>TRANSFER TIMING</div>
-                                  <div style={{ fontSize: "0.6rem", color: xferAfterMatch !== null ? "var(--text-2)" : "var(--text-3)" }}>
-                                    {xferAfterMatch !== null ? `After M${xferAfterMatch} — each side keeps pre-trade points, gains post-trade only` : "Full season — no timing restriction"}
-                                  </div>
-                                </div>
-                                <select value={xferAfterMatch ?? ""} onChange={e => setXferAfterMatch(e.target.value === "" ? null : Number(e.target.value))}
-                                  style={{ background: "var(--surface)", border: `1px solid ${xferAfterMatch !== null ? "rgba(255,255,255,0.18)" : "var(--border)"}`, borderRadius: 8, color: xferAfterMatch !== null ? "var(--text)" : "var(--text-3)", fontSize: "0.65rem", fontWeight: 600, padding: "5px 8px", cursor: "pointer", outline: "none", flexShrink: 0 }}>
-                                  <option value="">Full season</option>
-                                  {lastPlayed > 0 && (
-                                    <optgroup label="— Played —">
-                                      {allMatchNums.filter(m => m <= lastPlayed).map(m => <option key={m} value={m}>After M{m}</option>)}
-                                    </optgroup>
-                                  )}
-                                  <optgroup label="— Upcoming —">
-                                    {allMatchNums.filter(m => m > lastPlayed).map(m => <option key={m} value={m}>After M{m}</option>)}
-                                  </optgroup>
-                                </select>
-                              </div>
-                            </div>
-
-                            {/* Trade impact card */}
-                            {hasData && (
-                              <div style={{ background: "var(--surface-2)", border: `1px solid ${countMatch ? "rgba(255,255,255,0.12)" : "var(--border)"}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}>
-                                {!countMatch ? (
-                                  <div style={{ textAlign: "center" as const }}>
-                                    <div style={{ fontSize: "0.65rem", color: "var(--text-3)", marginBottom: 4 }}>
-                                      {xferPlayersA.length === 0 && xferPlayersB.length === 0 ? "Select players from both teams to simulate a trade" : `${xferPlayersA.length} from ${teamA.owner} ↔ ${xferPlayersB.length} from ${teamB.owner} — counts must match`}
-                                    </div>
-                                    {(xferPlayersA.length > 0 || xferPlayersB.length > 0) && (
-                                      <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 6 }}>
-                                        <span style={{ fontSize: "0.6rem", fontWeight: 700, color: teamA.color }}>{xferPlayersA.length} offered</span>
-                                        <span style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>↔</span>
-                                        <span style={{ fontSize: "0.6rem", fontWeight: 700, color: teamB.color }}>{xferPlayersB.length} offered</span>
-                                      </div>
-                                    )}
-                                  </div>
-                                ) : (
-                                  <>
-                                    <div style={{ fontSize: "0.48rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.1em", marginBottom: 8, textAlign: "center" as const }}>TRADE IMPACT</div>
-                                    <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
-                                      <div style={{ flex: 1, background: teamA.color + "12", border: `1px solid ${teamA.color}33`, borderRadius: 10, padding: "10px 10px 8px" }}>
-                                        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-                                          <div style={{ width: 18, height: 18, borderRadius: "50%", overflow: "hidden", border: `1.5px solid ${teamA.color}`, flexShrink: 0 }}>
-                                            <img src={`${import.meta.env.BASE_URL}avatars/${teamA.avatar}`} alt={teamA.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: teamA.avatarPosition || "center" }} />
-                                          </div>
-                                          <span style={{ fontSize: "0.62rem", fontWeight: 700, color: teamA.color }}>{teamA.owner}</span>
-                                        </div>
-                                        <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-                                          <span style={{ fontSize: "1.3rem", fontWeight: 700, color: teamA.color, fontVariantNumeric: "tabular-nums" }}>{simA}</span>
-                                          <span style={{ fontSize: "0.72rem", fontWeight: 700, color: deltaA > 0 ? "#2ecc8f" : deltaA < 0 ? "#f05050" : "var(--text-3)" }}>{deltaA > 0 ? `+${deltaA}` : deltaA}</span>
-                                        </div>
-                                        <div style={{ fontSize: "0.48rem", color: simRankA !== rankA ? (simRankA < rankA ? "#2ecc8f" : "#f05050") : "var(--text-3)", marginTop: 3 }}>
-                                          {simRankA === rankA ? `#${rankA} unchanged` : `#${rankA} → #${simRankA}`}
-                                        </div>
-                                        <div style={{ fontSize: "0.45rem", color: (xferCapA || xferVCA || xferPlayersA.includes(teamA.captain) || xferPlayersA.includes(teamA.vc)) ? "#d4a843" : "var(--text-3)", marginTop: 4 }}>
-                                          C: {simCapA.split(" ").pop()} · VC: {simVCA.split(" ").pop()}
-                                        </div>
-                                      </div>
-                                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
-                                      </div>
-                                      <div style={{ flex: 1, background: teamB.color + "12", border: `1px solid ${teamB.color}33`, borderRadius: 10, padding: "10px 10px 8px" }}>
-                                        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-                                          <div style={{ width: 18, height: 18, borderRadius: "50%", overflow: "hidden", border: `1.5px solid ${teamB.color}`, flexShrink: 0 }}>
-                                            <img src={`${import.meta.env.BASE_URL}avatars/${teamB.avatar}`} alt={teamB.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: teamB.avatarPosition || "center" }} />
-                                          </div>
-                                          <span style={{ fontSize: "0.62rem", fontWeight: 700, color: teamB.color }}>{teamB.owner}</span>
-                                        </div>
-                                        <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-                                          <span style={{ fontSize: "1.3rem", fontWeight: 700, color: teamB.color, fontVariantNumeric: "tabular-nums" }}>{simB}</span>
-                                          <span style={{ fontSize: "0.72rem", fontWeight: 700, color: deltaB > 0 ? "#2ecc8f" : deltaB < 0 ? "#f05050" : "var(--text-3)" }}>{deltaB > 0 ? `+${deltaB}` : deltaB}</span>
-                                        </div>
-                                        <div style={{ fontSize: "0.48rem", color: simRankB !== rankB ? (simRankB < rankB ? "#2ecc8f" : "#f05050") : "var(--text-3)", marginTop: 3 }}>
-                                          {simRankB === rankB ? `#${rankB} unchanged` : `#${rankB} → #${simRankB}`}
-                                        </div>
-                                        <div style={{ fontSize: "0.45rem", color: (xferCapB || xferVCB || xferPlayersB.includes(teamB.captain) || xferPlayersB.includes(teamB.vc)) ? "#d4a843" : "var(--text-3)", marginTop: 4 }}>
-                                          C: {simCapB.split(" ").pop()} · VC: {simVCB.split(" ").pop()}
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div style={{ background: "var(--surface)", borderRadius: 9, padding: "8px 10px" }}>
-                                      <div style={{ fontSize: "0.45rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.1em", marginBottom: 6 }}>TRADE PAIRS{xferAfterMatch !== null ? ` · After M${xferAfterMatch}` : ""}</div>
-                                      {xferPlayersA.map((pA, i) => {
-                                        const pB = xferPlayersB[i];
-                                        const ptsAFull = playerPoints[pA] || 0;
-                                        const ptsBFull = pB ? playerPoints[pB] || 0 : 0;
-                                        const pARetained = xferAfterMatch !== null ? getPtsUpTo(pA, xferAfterMatch) : null;
-                                        const pAContrib = xferAfterMatch !== null && pB ? getPtsAfter(pB, xferAfterMatch) : null;
-                                        const pBRetained = xferAfterMatch !== null && pB ? getPtsUpTo(pB, xferAfterMatch) : null;
-                                        const pBContrib = xferAfterMatch !== null ? getPtsAfter(pA, xferAfterMatch) : null;
-                                        return (
-                                          <div key={pA} style={{ marginBottom: i < xferPlayersA.length - 1 ? 7 : 0, paddingBottom: i < xferPlayersA.length - 1 ? 7 : 0, borderBottom: i < xferPlayersA.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none" }}>
-                                            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                                              <div style={{ flex: 1, textAlign: "right" as const }}>
-                                                <div style={{ fontSize: "0.65rem", fontWeight: 600, color: teamA.color }}>{pA.split(" ").slice(-1)[0]}</div>
-                                                {xferAfterMatch !== null ? (
-                                                  <div style={{ fontSize: "0.45rem", color: "var(--text-3)", lineHeight: 1.5 }}><span style={{ color: "#fbbf24" }}>≤M{xferAfterMatch}: {pARetained}</span>{" · "}full: {ptsAFull}</div>
-                                                ) : <div style={{ fontSize: "0.45rem", color: "var(--text-3)" }}>{ptsAFull} pts → {teamB.owner}</div>}
-                                              </div>
-                                              <svg width="14" height="10" viewBox="0 0 14 10" fill="none" stroke="var(--text-3)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"><path d="M1 3h12M10 1l2 2-2 2"/><path d="M13 7H1M4 5l-2 2 2 2"/></svg>
-                                              <div style={{ flex: 1 }}>
-                                                <div style={{ fontSize: "0.65rem", fontWeight: 600, color: teamB.color }}>{pB ? pB.split(" ").slice(-1)[0] : "—"}</div>
-                                                {pB && (xferAfterMatch !== null ? (
-                                                  <div style={{ fontSize: "0.45rem", color: "var(--text-3)", lineHeight: 1.5 }}><span style={{ color: "#fbbf24" }}>≤M{xferAfterMatch}: {pBRetained}</span>{" · "}full: {ptsBFull}</div>
-                                                ) : <div style={{ fontSize: "0.45rem", color: "var(--text-3)" }}>{ptsBFull} pts → {teamA.owner}</div>)}
-                                              </div>
-                                            </div>
-                                            {xferAfterMatch !== null && pB && (
-                                              <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
-                                                <div style={{ flex: 1, textAlign: "right" as const, fontSize: "0.45rem" }}>
-                                                  <span style={{ color: teamA.color }}>{teamA.owner}</span><span style={{ color: "var(--text-3)" }}>: keeps {pARetained} + gets </span><span style={{ color: "#60a5fa" }}>M{xferAfterMatch!+1}+: {pAContrib}</span>
-                                                </div>
-                                                <div style={{ width: 14, flexShrink: 0 }} />
-                                                <div style={{ flex: 1, fontSize: "0.45rem" }}>
-                                                  <span style={{ color: teamB.color }}>{teamB.owner}</span><span style={{ color: "var(--text-3)" }}>: keeps {pBRetained} + gets </span><span style={{ color: "#60a5fa" }}>M{xferAfterMatch!+1}+: {pBContrib}</span>
-                                                </div>
-                                              </div>
-                                            )}
-                                          </div>
-                                        );
-                                      })}
-                                    </div>
-                                    <div style={{ marginTop: 8, background: "var(--surface)", borderRadius: 9, padding: "8px 10px" }}>
-                                      <div style={{ fontSize: "0.45rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.1em", marginBottom: 6 }}>NEW LEADERBOARD</div>
-                                      {simScores.map((sc2, i) => {
-                                        const ft = FANTASY_TEAMS[sc2.id];
-                                        const isChanged = sc2.id === xferTeamA || sc2.id === xferTeamB;
-                                        const origRank = teamScores.findIndex(t => t.id === sc2.id) + 1;
-                                        const moved = origRank - (i + 1);
-                                        return (
-                                          <div key={sc2.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 0", borderBottom: i < 3 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
-                                            <span style={{ fontSize: "0.55rem", fontWeight: 700, color: i === 0 ? "var(--gold)" : "var(--text-3)", width: 12, textAlign: "center" as const }}>{i + 1}</span>
-                                            <div style={{ width: 18, height: 18, borderRadius: "50%", overflow: "hidden", border: `1.5px solid ${ft.color}${isChanged ? "" : "44"}`, flexShrink: 0 }}>
-                                              <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: ft.avatarPosition || "center" }} />
-                                            </div>
-                                            <span style={{ flex: 1, fontSize: "0.65rem", fontWeight: isChanged ? 700 : 400, color: isChanged ? ft.color : "var(--text-2)" }}>{ft.owner}</span>
-                                            <span style={{ fontSize: "0.65rem", fontVariantNumeric: "tabular-nums", fontWeight: 700, color: isChanged ? ft.color : "var(--text-3)" }}>{sc2.total}</span>
-                                            {moved !== 0 && <span style={{ fontSize: "0.5rem", color: moved > 0 ? "#2ecc8f" : "#f05050" }}>{moved > 0 ? `▲${moved}` : `▼${Math.abs(moved)}`}</span>}
-                                          </div>
-                                        );
-                                      })}
-                                    </div>
-                                  </>
-                                )}
-                              </div>
-                            )}
-
-                            {/* Player selection */}
-                            <div style={{ display: "flex", flexDirection: "column" as const, gap: 10 }}>
-                              <div style={{ background: "var(--surface-2)", border: `1px solid ${teamA.color}33`, borderRadius: 12, overflow: "hidden" }}>
-                                <div style={{ padding: "9px 12px", borderBottom: `1px solid ${teamA.color}22`, display: "flex", alignItems: "center", justifyContent: "space-between", background: teamA.color + "0d" }}>
-                                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                    <div style={{ width: 20, height: 20, borderRadius: "50%", overflow: "hidden", border: `1.5px solid ${teamA.color}`, flexShrink: 0 }}>
-                                      <img src={`${import.meta.env.BASE_URL}avatars/${teamA.avatar}`} alt={teamA.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: teamA.avatarPosition || "center" }} />
-                                    </div>
-                                    <span style={{ fontSize: "0.62rem", fontWeight: 700, color: teamA.color }}>{teamA.owner} offers out</span>
-                                  </div>
-                                  {xferPlayersA.length > 0 && (
-                                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                                      <span style={{ fontSize: "0.55rem", fontWeight: 700, color: teamA.color, background: teamA.color + "22", borderRadius: 10, padding: "2px 8px" }}>{xferPlayersA.length} selected</span>
-                                      <button onClick={() => setXferPlayersA([])} style={{ fontSize: "0.5rem", color: "var(--text-3)", background: "transparent", border: "none", cursor: "pointer", padding: 0 }}>✕</button>
-                                    </div>
-                                  )}
-                                </div>
-                                <div style={{ padding: "6px 8px" }}>
-                                  <PlayerList team={teamA} selectedPlayers={xferPlayersA} onToggle={toggleA} />
-                                </div>
-                              </div>
-                              <div style={{ background: "var(--surface-2)", border: `1px solid ${teamB.color}33`, borderRadius: 12, overflow: "hidden" }}>
-                                <div style={{ padding: "9px 12px", borderBottom: `1px solid ${teamB.color}22`, display: "flex", alignItems: "center", justifyContent: "space-between", background: teamB.color + "0d" }}>
-                                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                    <div style={{ width: 20, height: 20, borderRadius: "50%", overflow: "hidden", border: `1.5px solid ${teamB.color}`, flexShrink: 0 }}>
-                                      <img src={`${import.meta.env.BASE_URL}avatars/${teamB.avatar}`} alt={teamB.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: teamB.avatarPosition || "center" }} />
-                                    </div>
-                                    <span style={{ fontSize: "0.62rem", fontWeight: 700, color: teamB.color }}>{teamB.owner} offers out</span>
-                                  </div>
-                                  {xferPlayersB.length > 0 && (
-                                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                                      <span style={{ fontSize: "0.55rem", fontWeight: 700, color: teamB.color, background: teamB.color + "22", borderRadius: 10, padding: "2px 8px" }}>{xferPlayersB.length} selected</span>
-                                      <button onClick={() => setXferPlayersB([])} style={{ fontSize: "0.5rem", color: "var(--text-3)", background: "transparent", border: "none", cursor: "pointer", padding: 0 }}>✕</button>
-                                    </div>
-                                  )}
-                                </div>
-                                <div style={{ padding: "6px 8px" }}>
-                                  <PlayerList team={teamB} selectedPlayers={xferPlayersB} onToggle={toggleB} />
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* C/VC Override */}
-                            <div style={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 12, padding: "10px 12px", marginTop: 10 }}>
-                              <div style={{ fontSize: "0.45rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.1em", marginBottom: 8 }}>
-                                C/VC OVERRIDE
-                                {(xferCapA || xferVCA || xferCapB || xferVCB) && (
-                                  <button onClick={() => { setXferCapA(""); setXferVCA(""); setXferCapB(""); setXferVCB(""); }}
-                                    style={{ marginLeft: 8, fontSize: "0.45rem", color: "var(--text-3)", background: "transparent", border: "none", cursor: "pointer", padding: 0 }}>clear</button>
-                                )}
-                              </div>
-                              {([
-                                { label: "A", team: teamA, roster: simPlayersA, cap: xferCapA, vc: xferVCA, setCap: setXferCapA, setVc: setXferVCA },
-                                { label: "B", team: teamB, roster: simPlayersB, cap: xferCapB, vc: xferVCB, setCap: setXferCapB, setVc: setXferVCB },
-                              ] as const).map(({ label, team, roster, cap, vc, setCap, setVc }) => (
-                                <div key={label} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: label === "A" ? 8 : 0 }}>
-                                  <div style={{ width: 20, height: 20, borderRadius: "50%", overflow: "hidden", border: `1.5px solid ${team.color}`, flexShrink: 0 }}>
-                                    <img src={`${import.meta.env.BASE_URL}avatars/${team.avatar}`} alt={team.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: team.avatarPosition || "center" }} />
-                                  </div>
-                                  <span style={{ fontSize: "0.58rem", fontWeight: 700, color: team.color, flexShrink: 0, minWidth: 32 }}>{team.owner}</span>
-                                  <div style={{ display: "flex", gap: 5, flex: 1 }}>
-                                    <div style={{ flex: 1, display: "flex", flexDirection: "column" as const, gap: 2 }}>
-                                      <span style={{ fontSize: "0.4rem", fontWeight: 700, color: "#d4a843", letterSpacing: "0.08em" }}>C</span>
-                                      <select value={cap} onChange={e => { setCap(e.target.value); if (e.target.value && e.target.value === vc) setVc(""); }}
-                                        style={{ background: cap ? "#d4a84322" : "var(--surface)", border: `1px solid ${cap ? "#d4a84366" : "var(--border)"}`, borderRadius: 7, color: cap ? "#d4a843" : "var(--text-3)", fontSize: "0.58rem", fontWeight: 600, padding: "4px 6px", cursor: "pointer", outline: "none", fontFamily: "inherit" }}>
-                                        <option value="">Auto ({(cap ? cap : (roster.find(p => p.name === team.captain) ? team.captain : roster[0]?.name ?? "—")).split(" ").pop()})</option>
-                                        {roster.map(p => <option key={p.name} value={p.name}>{p.name.split(" ").pop()}</option>)}
-                                      </select>
-                                    </div>
-                                    <div style={{ flex: 1, display: "flex", flexDirection: "column" as const, gap: 2 }}>
-                                      <span style={{ fontSize: "0.4rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.08em" }}>VC</span>
-                                      <select value={vc} onChange={e => { setVc(e.target.value); if (e.target.value && e.target.value === cap) setCap(""); }}
-                                        style={{ background: vc ? "rgba(255,255,255,0.08)" : "var(--surface)", border: `1px solid ${vc ? "rgba(255,255,255,0.2)" : "var(--border)"}`, borderRadius: 7, color: vc ? "var(--text)" : "var(--text-3)", fontSize: "0.58rem", fontWeight: 600, padding: "4px 6px", cursor: "pointer", outline: "none", fontFamily: "inherit" }}>
-                                        <option value="">Auto ({(vc ? vc : (roster.find(p => p.name === team.vc) ? team.vc : roster[1]?.name ?? "—")).split(" ").pop()})</option>
-                                        {roster.filter(p => p.name !== cap).map(p => <option key={p.name} value={p.name}>{p.name.split(" ").pop()}</option>)}
-                                      </select>
-                                    </div>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-
-                            {/* Reset */}
-                            {(xferPlayersA.length > 0 || xferPlayersB.length > 0 || xferCapA || xferVCA || xferCapB || xferVCB) && (
-                              <button onClick={() => { setXferPlayersA([]); setXferPlayersB([]); setXferCapA(""); setXferVCA(""); setXferCapB(""); setXferVCB(""); }}
-                                style={{ width: "100%", marginTop: 12, padding: "10px 0", background: "transparent", border: "1px solid var(--border)", borderRadius: 10, color: "var(--text-3)", fontSize: "0.65rem", fontFamily: "inherit", cursor: "pointer" }}>
-                                Reset Trade
-                              </button>
-                            )}
-
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-
-                  {/* Season Summary */}
-                  {validScenarios.length > 0 && hasData && (
-                    <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, padding: "14px" }}>
-                      <div style={{ fontSize: "0.48rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.1em", marginBottom: 12 }}>SEASON SUMMARY</div>
-                      <div style={{ display: "flex", flexDirection: "column" as const, gap: 1 }}>
-                        {OWNER_IDS.map(id => {
-                          const ft = FANTASY_TEAMS[id];
-                          const delta = ownerNetDelta[id] || 0;
-                          const base = teamScores.find(sc => sc.id === id)?.total ?? 0;
-                          const newTotal = base + delta;
-                          return (
-                            <div key={id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                              <div style={{ width: 22, height: 22, borderRadius: "50%", overflow: "hidden", border: `1.5px solid ${ft.color}`, flexShrink: 0 }}>
-                                <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: ft.avatarPosition || "center" }} />
-                              </div>
-                              <span style={{ flex: 1, fontSize: "0.7rem", fontWeight: 600, color: ft.color }}>{ft.owner}</span>
-                              <span style={{ fontSize: "0.65rem", fontVariantNumeric: "tabular-nums", color: "var(--text-3)" }}>{base}</span>
-                              <span style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>→</span>
-                              <span style={{ fontSize: "0.82rem", fontWeight: 700, fontVariantNumeric: "tabular-nums", color: delta > 0 ? "#2ecc8f" : delta < 0 ? "#f05050" : "var(--text)" }}>{newTotal}</span>
-                              {delta !== 0 && (
-                                <span style={{ fontSize: "0.6rem", fontWeight: 700, color: delta > 0 ? "#2ecc8f" : "#f05050", minWidth: 30, textAlign: "right" as const }}>
-                                  {delta > 0 ? `+${delta}` : delta}
-                                </span>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                      <div style={{ fontSize: "0.45rem", color: "var(--text-3)", marginTop: 10, textAlign: "center" as const }}>
-                        Aggregate across {validScenarios.length} valid trade{validScenarios.length !== 1 ? "s" : ""} · excludes C/VC multiplier adjustments
-                      </div>
-                    </div>
-                  )}
-
-                </div>
               )}
             </div>
           );
