@@ -501,7 +501,7 @@ export default function App() {
   const [wiSection, setWiSection] = useState<"permatch" | "intel" | "transfer">("transfer");
   const [wiSwapOpen, setWiSwapOpen] = useState(false);
   const [wiTeamId, setWiTeamId] = useState("rajveer");
-  type XferScenario = { id: number; teamA: string; teamB: string; playersA: string[]; playersB: string[]; afterMatch: number | null };
+  type XferScenario = { id: number; teamA: string; teamB: string; playersA: string[]; playersB: string[]; afterMatch: number | null; capA: string; vcA: string; capB: string; vcB: string };
   const [xferScenarios, setXferScenarios] = useState<XferScenario[]>([]);
   const [xferActiveId, setXferActiveId] = useState<number | null>(null);
   const [altCap, setAltCap] = useState("");
@@ -4478,117 +4478,19 @@ export default function App() {
 
           const addScenarioFn = () => {
             const newId = xferScenarios.length === 0 ? 1 : Math.max(...xferScenarios.map(s => s.id)) + 1;
-            setXferScenarios(prev => [...prev, { id: newId, teamA: "rajveer", teamB: "mombasa", playersA: [], playersB: [], afterMatch: null }]);
+            setXferScenarios(prev => [...prev, { id: newId, teamA: "rajveer", teamB: "mombasa", playersA: [], playersB: [], afterMatch: null, capA: "", vcA: "", capB: "", vcB: "" }]);
             setXferActiveId(newId);
           };
 
           if (xferScenarios.length === 0 || xferActiveId === null) {
             return (
-              <div>
-                {/* C/VC swap card always shown */}
-                <div style={{ background: "var(--surface)", border: `1px solid ${wiSwapOpen && changed ? wiTeam.color + "55" : "var(--border)"}`, borderRadius: 14, marginBottom: 14, overflow: "hidden" }}>
-                  <button onClick={() => setWiSwapOpen(o => !o)}
-                    style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", background: "none", border: "none", cursor: "pointer", padding: "12px 14px", fontFamily: "inherit" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ fontSize: "0.6rem", fontWeight: 800, color: "var(--text-3)", letterSpacing: "0.1em" }}>C/VC SWAP</span>
-                      {changed && (
-                        <span style={{ fontSize: "0.58rem", fontWeight: 700, color: delta > 0 ? "#2ecc8f" : "#f05050", background: (delta > 0 ? "#2ecc8f" : "#f05050") + "18", borderRadius: 5, padding: "2px 6px" }}>
-                          {delta > 0 ? `+${delta}` : delta} pts
-                        </span>
-                      )}
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      {!wiSwapOpen && <span style={{ fontSize: "0.55rem", color: "var(--text-3)" }}>{wiTeam.owner} · C: {(altCap || wiTeam.captain).split(" ").pop()} · VC: {(altVC || wiTeam.vc).split(" ").pop()}</span>}
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: wiSwapOpen ? "rotate(180deg)" : "none", transition: "transform 0.18s" }}>
-                        <polyline points="6 9 12 15 18 9" />
-                      </svg>
-                    </div>
-                  </button>
-                  {wiSwapOpen && (
-                    <div style={{ padding: "0 14px 14px" }}>
-                      <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
-                        {PRED_OWNERS.map(id => {
-                          const ft = FANTASY_TEAMS[id];
-                          const sel = wiTeamId === id;
-                          return (
-                            <button key={id} onClick={() => { setWiTeamId(id); setAltCap(""); setAltVC(""); }}
-                              style={{ flex: 1, background: sel ? ft.color + "22" : "var(--surface-2)", border: `1px solid ${sel ? ft.color + "88" : "var(--border)"}`, borderRadius: 10, padding: "8px 4px", cursor: "pointer", display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 4 }}>
-                              <div style={{ width: 28, height: 28, borderRadius: "50%", border: `2px solid ${sel ? ft.color : "rgba(255,255,255,0.1)"}`, overflow: "hidden", flexShrink: 0 }}>
-                                <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: ft.avatarPosition || "center center", display: "block" }} />
-                              </div>
-                              <div style={{ fontSize: "0.5rem", fontWeight: 700, color: sel ? ft.color : "var(--text-3)", letterSpacing: "0.06em" }}>{ft.owner.toUpperCase()}</div>
-                            </button>
-                          );
-                        })}
-                      </div>
-                      {hasMatchData ? (
-                        <div style={{ background: "var(--surface-2)", borderRadius: 12, padding: "12px 14px", marginBottom: 12 }}>
-                          <div style={{ display: "flex", alignItems: "center" }}>
-                            <div style={{ textAlign: "center" as const, flex: 1 }}>
-                              <div style={{ fontSize: "0.45rem", color: "var(--text-3)", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 3 }}>CURRENT</div>
-                              <div style={{ fontSize: "1.4rem", fontWeight: 700, color: wiTeam.color, lineHeight: 1 }}>{currentSim}</div>
-                              <div style={{ fontSize: "0.45rem", color: "var(--text-3)", marginTop: 2 }}>C: {wiTeam.captain.split(" ").pop()} · VC: {wiTeam.vc.split(" ").pop()}</div>
-                            </div>
-                            <div style={{ textAlign: "center" as const, flexShrink: 0, padding: "0 12px" }}>
-                              {changed ? <div style={{ fontSize: "1.2rem", fontWeight: 800, color: delta > 0 ? "#2ecc8f" : delta < 0 ? "#f05050" : "var(--text-3)" }}>{delta > 0 ? `+${delta}` : delta}</div>
-                                : <div style={{ fontSize: "0.58rem", color: "var(--text-3)", maxWidth: 60 }}>tap C / VC</div>}
-                            </div>
-                            <div style={{ textAlign: "center" as const, flex: 1 }}>
-                              <div style={{ fontSize: "0.45rem", color: "var(--text-3)", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 3 }}>SIMULATED</div>
-                              <div style={{ fontSize: "1.4rem", fontWeight: 700, color: changed ? (delta >= 0 ? "#2ecc8f" : "#f05050") : "var(--text-3)", lineHeight: 1 }}>{altSim}</div>
-                              <div style={{ fontSize: "0.45rem", color: "var(--text-3)", marginTop: 2 }}>{changed ? `C: ${effectiveCap.split(" ").pop()} · VC: ${effectiveVC.split(" ").pop()}` : "—"}</div>
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <div style={{ background: "var(--surface-2)", borderRadius: 12, padding: 14, marginBottom: 12, textAlign: "center" as const }}>
-                          <div style={{ fontSize: "0.68rem", color: "var(--text-3)" }}>Match data loading…</div>
-                        </div>
-                      )}
-                      <div className="players-grid" style={{ borderTop: `2px solid ${wiTeam.color}70`, borderRadius: "var(--radius-md)", boxShadow: `0 -3px 14px ${wiTeam.color}33` }}>
-                        {[...wiTeam.players].sort((a, b) => (rawPts[b.name] || 0) - (rawPts[a.name] || 0)).map(p => {
-                          const raw = rawPts[p.name] || 0;
-                          const isCurCap = p.name === wiTeam.captain;
-                          const isCurVC  = p.name === wiTeam.vc;
-                          const isAltCap = p.name === effectiveCap && changed;
-                          const isAltVC  = p.name === effectiveVC && changed;
-                          const iplColor = IPL_COLORS[p.ipl] || "rgba(255,255,255,0.15)";
-                          const roleColor = ROLE_COLORS[p.role] || "var(--text-3)";
-                          return (
-                            <div key={p.name} className="player-card" style={{ background: `linear-gradient(90deg, ${iplColor}08 0%, transparent 45%)` }}>
-                              <img src={TEAM_LOGO_CDN[p.ipl]} alt={p.ipl} style={{ width: 30, height: 30, objectFit: "contain", flexShrink: 0 }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                              <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                                  <div className="player-name" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, fontSize: "0.84rem" }}>{p.name}</div>
-                                  {isCurCap && <span style={{ fontSize: "0.48rem", fontWeight: 800, background: "#d4a84322", color: "#d4a843", borderRadius: 4, padding: "1px 5px", flexShrink: 0 }}>C</span>}
-                                  {isCurVC  && <span style={{ fontSize: "0.48rem", fontWeight: 800, background: "rgba(255,255,255,0.07)", color: "var(--text-3)", borderRadius: 4, padding: "1px 5px", flexShrink: 0 }}>VC</span>}
-                                </div>
-                                <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 2 }}>
-                                  <span style={{ fontSize: "0.48rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase" as const, padding: "1px 4px", borderRadius: 4, color: roleColor, background: roleColor + "18", border: `1px solid ${roleColor}30`, flexShrink: 0 }}>{p.role}</span>
-                                  <span style={{ fontSize: "0.46rem", color: "var(--text-3)" }}>{raw} pts</span>
-                                </div>
-                              </div>
-                              <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
-                                <button onClick={e => { e.stopPropagation(); if (altCap === p.name) setAltCap(""); else { setAltCap(p.name); if (altVC === p.name) setAltVC(""); } }}
-                                  style={{ background: isAltCap ? "#d4a843" : "var(--surface-2)", color: isAltCap ? "#000" : "var(--text-3)", border: `1px solid ${isAltCap ? "#d4a843" : "var(--border)"}`, borderRadius: 6, padding: "5px 9px", cursor: "pointer", fontFamily: "inherit", fontSize: "0.6rem", fontWeight: 800, lineHeight: 1 }}>C</button>
-                                <button onClick={e => { e.stopPropagation(); if (altVC === p.name) setAltVC(""); else { setAltVC(p.name); if (altCap === p.name) setAltCap(""); } }}
-                                  style={{ background: isAltVC ? "rgba(255,255,255,0.18)" : "var(--surface-2)", color: isAltVC ? "var(--text)" : "var(--text-3)", border: `1px solid ${isAltVC ? "rgba(255,255,255,0.28)" : "var(--border)"}`, borderRadius: 6, padding: "5px 9px", cursor: "pointer", fontFamily: "inherit", fontSize: "0.6rem", fontWeight: 800, lineHeight: 1 }}>VC</button>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-                </div>
-                {/* Empty trades state */}
-                <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", gap: 14, padding: "36px 0" }}>
-                  <div style={{ fontSize: "0.75rem", color: "var(--text-3)" }}>No trade scenarios yet</div>
-                  <button onClick={addScenarioFn}
-                    style={{ background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10, padding: "10px 22px", cursor: "pointer", color: "var(--text)", fontSize: "0.75rem", fontFamily: "inherit", fontWeight: 600 }}>
-                    + New Trade
-                  </button>
-                </div>
+              <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", gap: 14, padding: "64px 20px" }}>
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
+                <div style={{ fontSize: "0.75rem", color: "var(--text-3)", fontWeight: 500 }}>No trades yet — player swaps and C/VC changes in one place</div>
+                <button onClick={addScenarioFn}
+                  style={{ marginTop: 4, padding: "12px 32px", background: "var(--gold)", border: "none", borderRadius: 10, color: "#000", fontSize: "0.82rem", fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+                  + Add Trade
+                </button>
               </div>
             );
           }
@@ -4606,6 +4508,14 @@ export default function App() {
           const setXferPlayersA = (v: string[] | ((p: string[]) => string[])) => updateSc({ playersA: typeof v === "function" ? v(sc.playersA) : v });
           const setXferPlayersB = (v: string[] | ((p: string[]) => string[])) => updateSc({ playersB: typeof v === "function" ? v(sc.playersB) : v });
           const setXferAfterMatch = (v: number | null) => updateSc({ afterMatch: v });
+          const xferCapA = sc.capA ?? "";
+          const xferVCA  = sc.vcA  ?? "";
+          const xferCapB = sc.capB ?? "";
+          const xferVCB  = sc.vcB  ?? "";
+          const setXferCapA = (v: string) => updateSc({ capA: v });
+          const setXferVCA  = (v: string) => updateSc({ vcA: v });
+          const setXferCapB = (v: string) => updateSc({ capB: v });
+          const setXferVCB  = (v: string) => updateSc({ vcB: v });
 
           const teamA = FANTASY_TEAMS[xferTeamA];
           const teamB = FANTASY_TEAMS[xferTeamB];
@@ -4639,8 +4549,10 @@ export default function App() {
           const toggleA = (name: string) => setXferPlayersA(prev => prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name]);
           const toggleB = (name: string) => setXferPlayersB(prev => prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name]);
 
-          // Validate counts match
-          const countMatch = xferPlayersA.length > 0 && xferPlayersA.length === xferPlayersB.length;
+          // Validate: player counts match OR cap/vc override exists
+          const hasPlayerTrade = xferPlayersA.length > 0 && xferPlayersA.length === xferPlayersB.length;
+          const hasCapVcChange = !!(xferCapA || xferVCA || xferCapB || xferVCB);
+          const countMatch = hasPlayerTrade || hasCapVcChange;
 
           // Build simulated squads
           const simPlayersA = [
@@ -4652,11 +4564,11 @@ export default function App() {
             ...teamA.players.filter(p => xferPlayersA.includes(p.name)),
           ];
 
-          // Captain/VC: reset if traded away
-          const simCapA = xferPlayersA.includes(teamA.captain) ? (simPlayersA[0]?.name || "") : teamA.captain;
-          const simVCA  = xferPlayersA.includes(teamA.vc) && simCapA !== teamA.vc ? (simPlayersA[1]?.name || "") : xferPlayersA.includes(teamA.vc) ? (simPlayersA[0]?.name || "") : teamA.vc;
-          const simCapB = xferPlayersB.includes(teamB.captain) ? (simPlayersB[0]?.name || "") : teamB.captain;
-          const simVCB  = xferPlayersB.includes(teamB.vc) && simCapB !== teamB.vc ? (simPlayersB[1]?.name || "") : xferPlayersB.includes(teamB.vc) ? (simPlayersB[0]?.name || "") : teamB.vc;
+          // Captain/VC: explicit override first, then reset if traded away, else keep
+          const simCapA = xferCapA || (xferPlayersA.includes(teamA.captain) ? (simPlayersA[0]?.name || "") : teamA.captain);
+          const simVCA  = xferVCA  || (xferPlayersA.includes(teamA.vc) && simCapA !== teamA.vc ? (simPlayersA[1]?.name || "") : xferPlayersA.includes(teamA.vc) ? (simPlayersA[0]?.name || "") : teamA.vc);
+          const simCapB = xferCapB || (xferPlayersB.includes(teamB.captain) ? (simPlayersB[0]?.name || "") : teamB.captain);
+          const simVCB  = xferVCB  || (xferPlayersB.includes(teamB.vc) && simCapB !== teamB.vc ? (simPlayersB[1]?.name || "") : xferPlayersB.includes(teamB.vc) ? (simPlayersB[0]?.name || "") : teamB.vc);
 
           // Build point overrides based on game-week cutoff
           const overrideA: Record<string, number> = {};
@@ -4781,122 +4693,7 @@ export default function App() {
           return (
             <div>
 
-              {/* ── C/VC SWAP (collapsible) ── */}
-              <div style={{ background: "var(--surface)", border: `1px solid ${wiSwapOpen && changed ? wiTeam.color + "55" : "var(--border)"}`, borderRadius: 14, marginBottom: 14, overflow: "hidden" }}>
-                {/* Header */}
-                <button onClick={() => setWiSwapOpen(o => !o)}
-                  style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", background: "none", border: "none", cursor: "pointer", padding: "12px 14px", fontFamily: "inherit" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <span style={{ fontSize: "0.6rem", fontWeight: 800, color: "var(--text-3)", letterSpacing: "0.1em" }}>C/VC SWAP</span>
-                    {changed && (
-                      <span style={{ fontSize: "0.58rem", fontWeight: 700, color: delta > 0 ? "#2ecc8f" : "#f05050", background: (delta > 0 ? "#2ecc8f" : "#f05050") + "18", borderRadius: 5, padding: "2px 6px" }}>
-                        {delta > 0 ? `+${delta}` : delta} pts
-                      </span>
-                    )}
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    {!wiSwapOpen && (
-                      <span style={{ fontSize: "0.55rem", color: "var(--text-3)" }}>
-                        {wiTeam.owner} · C: {(altCap || wiTeam.captain).split(" ").pop()} · VC: {(altVC || wiTeam.vc).split(" ").pop()}
-                      </span>
-                    )}
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                      style={{ transform: wiSwapOpen ? "rotate(180deg)" : "none", transition: "transform 0.18s" }}>
-                      <polyline points="6 9 12 15 18 9" />
-                    </svg>
-                  </div>
-                </button>
-
-                {/* Expanded body */}
-                {wiSwapOpen && (
-                  <div style={{ padding: "0 14px 14px" }}>
-                    {/* Owner selector */}
-                    <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
-                      {PRED_OWNERS.map(id => {
-                        const ft = FANTASY_TEAMS[id];
-                        const sel = wiTeamId === id;
-                        return (
-                          <button key={id} onClick={() => { setWiTeamId(id); setAltCap(""); setAltVC(""); }}
-                            style={{ flex: 1, background: sel ? ft.color + "22" : "var(--surface-2)", border: `1px solid ${sel ? ft.color + "88" : "var(--border)"}`, borderRadius: 10, padding: "8px 4px", cursor: "pointer", display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 4 }}>
-                            <div style={{ width: 28, height: 28, borderRadius: "50%", border: `2px solid ${sel ? ft.color : "rgba(255,255,255,0.1)"}`, overflow: "hidden", flexShrink: 0 }}>
-                              <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: ft.avatarPosition || "center center", display: "block" }} />
-                            </div>
-                            <div style={{ fontSize: "0.5rem", fontWeight: 700, color: sel ? ft.color : "var(--text-3)", letterSpacing: "0.06em" }}>{ft.owner.toUpperCase()}</div>
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    {/* Delta bar */}
-                    {hasMatchData ? (
-                      <div style={{ background: "var(--surface-2)", borderRadius: 12, padding: "12px 14px", marginBottom: 12 }}>
-                        <div style={{ display: "flex", alignItems: "center" }}>
-                          <div style={{ textAlign: "center" as const, flex: 1 }}>
-                            <div style={{ fontSize: "0.45rem", color: "var(--text-3)", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 3 }}>CURRENT</div>
-                            <div style={{ fontSize: "1.4rem", fontWeight: 700, color: wiTeam.color, lineHeight: 1 }}>{currentSim}</div>
-                            <div style={{ fontSize: "0.45rem", color: "var(--text-3)", marginTop: 2 }}>C: {wiTeam.captain.split(" ").pop()} · VC: {wiTeam.vc.split(" ").pop()}</div>
-                          </div>
-                          <div style={{ textAlign: "center" as const, flexShrink: 0, padding: "0 12px" }}>
-                            {changed ? (
-                              <div style={{ fontSize: "1.2rem", fontWeight: 800, color: delta > 0 ? "#2ecc8f" : delta < 0 ? "#f05050" : "var(--text-3)" }}>
-                                {delta > 0 ? `+${delta}` : delta}
-                              </div>
-                            ) : (
-                              <div style={{ fontSize: "0.58rem", color: "var(--text-3)", maxWidth: 60 }}>tap C / VC</div>
-                            )}
-                          </div>
-                          <div style={{ textAlign: "center" as const, flex: 1 }}>
-                            <div style={{ fontSize: "0.45rem", color: "var(--text-3)", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 3 }}>SIMULATED</div>
-                            <div style={{ fontSize: "1.4rem", fontWeight: 700, color: changed ? (delta >= 0 ? "#2ecc8f" : "#f05050") : "var(--text-3)", lineHeight: 1 }}>{altSim}</div>
-                            <div style={{ fontSize: "0.45rem", color: "var(--text-3)", marginTop: 2 }}>{changed ? `C: ${effectiveCap.split(" ").pop()} · VC: ${effectiveVC.split(" ").pop()}` : "—"}</div>
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div style={{ background: "var(--surface-2)", borderRadius: 12, padding: 14, marginBottom: 12, textAlign: "center" as const }}>
-                        <div style={{ fontSize: "0.68rem", color: "var(--text-3)" }}>Match data loading…</div>
-                      </div>
-                    )}
-
-                    {/* Player list with C/VC toggles */}
-                    <div className="players-grid" style={{ borderTop: `2px solid ${wiTeam.color}70`, borderRadius: "var(--radius-md)", boxShadow: `0 -3px 14px ${wiTeam.color}33` }}>
-                      {[...wiTeam.players].sort((a, b) => (rawPts[b.name] || 0) - (rawPts[a.name] || 0)).map(p => {
-                        const raw = rawPts[p.name] || 0;
-                        const isCurCap = p.name === wiTeam.captain;
-                        const isCurVC  = p.name === wiTeam.vc;
-                        const isAltCap = p.name === effectiveCap && changed;
-                        const isAltVC  = p.name === effectiveVC && changed;
-                        const iplColor = IPL_COLORS[p.ipl] || "rgba(255,255,255,0.15)";
-                        const roleColor = ROLE_COLORS[p.role] || "var(--text-3)";
-                        return (
-                          <div key={p.name} className="player-card" style={{ background: `linear-gradient(90deg, ${iplColor}08 0%, transparent 45%)` }}>
-                            <img src={TEAM_LOGO_CDN[p.ipl]} alt={p.ipl} style={{ width: 30, height: 30, objectFit: "contain", flexShrink: 0 }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                                <div className="player-name" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, fontSize: "0.84rem" }}>{p.name}</div>
-                                {isCurCap && <span style={{ fontSize: "0.48rem", fontWeight: 800, background: "#d4a84322", color: "#d4a843", borderRadius: 4, padding: "1px 5px", flexShrink: 0 }}>C</span>}
-                                {isCurVC  && <span style={{ fontSize: "0.48rem", fontWeight: 800, background: "rgba(255,255,255,0.07)", color: "var(--text-3)", borderRadius: 4, padding: "1px 5px", flexShrink: 0 }}>VC</span>}
-                              </div>
-                              <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 2 }}>
-                                <span style={{ fontSize: "0.48rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase" as const, padding: "1px 4px", borderRadius: 4, color: roleColor, background: roleColor + "18", border: `1px solid ${roleColor}30`, flexShrink: 0 }}>{p.role}</span>
-                                <span style={{ fontSize: "0.46rem", color: "var(--text-3)" }}>{raw} pts</span>
-                              </div>
-                            </div>
-                            <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
-                              <button onClick={e => { e.stopPropagation(); if (altCap === p.name) setAltCap(""); else { setAltCap(p.name); if (altVC === p.name) setAltVC(""); } }}
-                                style={{ background: isAltCap ? "#d4a843" : "var(--surface-2)", color: isAltCap ? "#000" : "var(--text-3)", border: `1px solid ${isAltCap ? "#d4a843" : "var(--border)"}`, borderRadius: 6, padding: "5px 9px", cursor: "pointer", fontFamily: "inherit", fontSize: "0.6rem", fontWeight: 800, lineHeight: 1 }}>C</button>
-                              <button onClick={e => { e.stopPropagation(); if (altVC === p.name) setAltVC(""); else { setAltVC(p.name); if (altCap === p.name) setAltCap(""); } }}
-                                style={{ background: isAltVC ? "rgba(255,255,255,0.18)" : "var(--surface-2)", color: isAltVC ? "var(--text)" : "var(--text-3)", border: `1px solid ${isAltVC ? "rgba(255,255,255,0.28)" : "var(--border)"}`, borderRadius: 6, padding: "5px 9px", cursor: "pointer", fontFamily: "inherit", fontSize: "0.6rem", fontWeight: 800, lineHeight: 1 }}>VC</button>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* ── PLAYER TRADES ── */}
+              {/* ── TRADES (player swaps + C/VC changes) ── */}
               {xferScenarios.length === 0 ? (
                 <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", padding: "48px 20px", gap: 14 }}>
                   <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
@@ -4940,6 +4737,7 @@ export default function App() {
                             <span style={{ fontSize: "0.5rem", color: "var(--text-3)", background: "rgba(255,255,255,0.07)", borderRadius: 5, padding: "2px 6px", flexShrink: 0 }}>M{s.afterMatch}</span>
                           )}
                           {isValid && <span style={{ fontSize: "0.6rem", color: "#22c55e", flexShrink: 0 }}>✓</span>}
+                          {(s.capA || s.vcA || s.capB || s.vcB) && <span style={{ fontSize: "0.45rem", fontWeight: 700, color: "#d4a843", background: "#d4a84322", borderRadius: 4, padding: "2px 5px", flexShrink: 0 }}>C/VC</span>}
                           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
                             <button onClick={e => { e.stopPropagation(); deleteScenario(s.id); }}
                               style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--text-3)", fontSize: "0.72rem", padding: "2px 4px", lineHeight: 1, fontFamily: "inherit" }}>✕</button>
@@ -5054,7 +4852,9 @@ export default function App() {
                                         <div style={{ fontSize: "0.48rem", color: simRankA !== rankA ? (simRankA < rankA ? "#2ecc8f" : "#f05050") : "var(--text-3)", marginTop: 3 }}>
                                           {simRankA === rankA ? `#${rankA} unchanged` : `#${rankA} → #${simRankA}`}
                                         </div>
-                                        {(xferPlayersA.includes(teamA.captain) || xferPlayersA.includes(teamA.vc)) && <div style={{ fontSize: "0.45rem", color: "#f59e0b", marginTop: 4 }}>⚠ C/VC reassigned</div>}
+                                        <div style={{ fontSize: "0.45rem", color: (xferCapA || xferVCA || xferPlayersA.includes(teamA.captain) || xferPlayersA.includes(teamA.vc)) ? "#d4a843" : "var(--text-3)", marginTop: 4 }}>
+                                          C: {simCapA.split(" ").pop()} · VC: {simVCA.split(" ").pop()}
+                                        </div>
                                       </div>
                                       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
@@ -5073,7 +4873,9 @@ export default function App() {
                                         <div style={{ fontSize: "0.48rem", color: simRankB !== rankB ? (simRankB < rankB ? "#2ecc8f" : "#f05050") : "var(--text-3)", marginTop: 3 }}>
                                           {simRankB === rankB ? `#${rankB} unchanged` : `#${rankB} → #${simRankB}`}
                                         </div>
-                                        {(xferPlayersB.includes(teamB.captain) || xferPlayersB.includes(teamB.vc)) && <div style={{ fontSize: "0.45rem", color: "#f59e0b", marginTop: 4 }}>⚠ C/VC reassigned</div>}
+                                        <div style={{ fontSize: "0.45rem", color: (xferCapB || xferVCB || xferPlayersB.includes(teamB.captain) || xferPlayersB.includes(teamB.vc)) ? "#d4a843" : "var(--text-3)", marginTop: 4 }}>
+                                          C: {simCapB.split(" ").pop()} · VC: {simVCB.split(" ").pop()}
+                                        </div>
                                       </div>
                                     </div>
                                     <div style={{ background: "var(--surface)", borderRadius: 9, padding: "8px 10px" }}>
@@ -5185,9 +4987,49 @@ export default function App() {
                               </div>
                             </div>
 
+                            {/* C/VC Override */}
+                            <div style={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 12, padding: "10px 12px", marginTop: 10 }}>
+                              <div style={{ fontSize: "0.45rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.1em", marginBottom: 8 }}>
+                                C/VC OVERRIDE
+                                {(xferCapA || xferVCA || xferCapB || xferVCB) && (
+                                  <button onClick={() => { setXferCapA(""); setXferVCA(""); setXferCapB(""); setXferVCB(""); }}
+                                    style={{ marginLeft: 8, fontSize: "0.45rem", color: "var(--text-3)", background: "transparent", border: "none", cursor: "pointer", padding: 0 }}>clear</button>
+                                )}
+                              </div>
+                              {([
+                                { label: "A", team: teamA, roster: simPlayersA, cap: xferCapA, vc: xferVCA, setCap: setXferCapA, setVc: setXferVCA },
+                                { label: "B", team: teamB, roster: simPlayersB, cap: xferCapB, vc: xferVCB, setCap: setXferCapB, setVc: setXferVCB },
+                              ] as const).map(({ label, team, roster, cap, vc, setCap, setVc }) => (
+                                <div key={label} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: label === "A" ? 8 : 0 }}>
+                                  <div style={{ width: 20, height: 20, borderRadius: "50%", overflow: "hidden", border: `1.5px solid ${team.color}`, flexShrink: 0 }}>
+                                    <img src={`${import.meta.env.BASE_URL}avatars/${team.avatar}`} alt={team.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: team.avatarPosition || "center" }} />
+                                  </div>
+                                  <span style={{ fontSize: "0.58rem", fontWeight: 700, color: team.color, flexShrink: 0, minWidth: 32 }}>{team.owner}</span>
+                                  <div style={{ display: "flex", gap: 5, flex: 1 }}>
+                                    <div style={{ flex: 1, display: "flex", flexDirection: "column" as const, gap: 2 }}>
+                                      <span style={{ fontSize: "0.4rem", fontWeight: 700, color: "#d4a843", letterSpacing: "0.08em" }}>C</span>
+                                      <select value={cap} onChange={e => { setCap(e.target.value); if (e.target.value && e.target.value === vc) setVc(""); }}
+                                        style={{ background: cap ? "#d4a84322" : "var(--surface)", border: `1px solid ${cap ? "#d4a84366" : "var(--border)"}`, borderRadius: 7, color: cap ? "#d4a843" : "var(--text-3)", fontSize: "0.58rem", fontWeight: 600, padding: "4px 6px", cursor: "pointer", outline: "none", fontFamily: "inherit" }}>
+                                        <option value="">Auto ({(cap ? cap : (roster.find(p => p.name === team.captain) ? team.captain : roster[0]?.name ?? "—")).split(" ").pop()})</option>
+                                        {roster.map(p => <option key={p.name} value={p.name}>{p.name.split(" ").pop()}</option>)}
+                                      </select>
+                                    </div>
+                                    <div style={{ flex: 1, display: "flex", flexDirection: "column" as const, gap: 2 }}>
+                                      <span style={{ fontSize: "0.4rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.08em" }}>VC</span>
+                                      <select value={vc} onChange={e => { setVc(e.target.value); if (e.target.value && e.target.value === cap) setCap(""); }}
+                                        style={{ background: vc ? "rgba(255,255,255,0.08)" : "var(--surface)", border: `1px solid ${vc ? "rgba(255,255,255,0.2)" : "var(--border)"}`, borderRadius: 7, color: vc ? "var(--text)" : "var(--text-3)", fontSize: "0.58rem", fontWeight: 600, padding: "4px 6px", cursor: "pointer", outline: "none", fontFamily: "inherit" }}>
+                                        <option value="">Auto ({(vc ? vc : (roster.find(p => p.name === team.vc) ? team.vc : roster[1]?.name ?? "—")).split(" ").pop()})</option>
+                                        {roster.filter(p => p.name !== cap).map(p => <option key={p.name} value={p.name}>{p.name.split(" ").pop()}</option>)}
+                                      </select>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+
                             {/* Reset */}
-                            {(xferPlayersA.length > 0 || xferPlayersB.length > 0) && (
-                              <button onClick={() => { setXferPlayersA([]); setXferPlayersB([]); }}
+                            {(xferPlayersA.length > 0 || xferPlayersB.length > 0 || xferCapA || xferVCA || xferCapB || xferVCB) && (
+                              <button onClick={() => { setXferPlayersA([]); setXferPlayersB([]); setXferCapA(""); setXferVCA(""); setXferCapB(""); setXferVCB(""); }}
                                 style={{ width: "100%", marginTop: 12, padding: "10px 0", background: "transparent", border: "1px solid var(--border)", borderRadius: 10, color: "var(--text-3)", fontSize: "0.65rem", fontFamily: "inherit", cursor: "pointer" }}>
                                 Reset Trade
                               </button>
