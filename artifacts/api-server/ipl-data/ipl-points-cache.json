@@ -11176,7 +11176,7 @@
         "Shubman Gill": 20,
         "Jos Buttler": 12,
         "Nicholas Pooran": 33,
-        "Mohammed Shami": 28,
+        "Mohammed Shami": 34,
         "Sai Sudharsan": 12,
         "Prasidh Krishna": 166,
         "Aiden Markram": 66,
@@ -11384,15 +11384,15 @@
         },
         {
           "name": "Gujarat Titans Inning 2",
-          "total": "4/0 (0.2 ov)",
+          "total": "4/0 (0.5 ov)",
           "batting": [
             {
               "name": "Sai Sudharsan",
               "runs": 4,
-              "balls": 2,
+              "balls": 5,
               "fours": 1,
               "sixes": 0,
-              "sr": "200.00",
+              "sr": "80.00",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -11522,14 +11522,14 @@
           "bowling": [
             {
               "name": "Mohammad Shami",
-              "overs": "0.2",
+              "overs": "0.5",
               "maidens": 0,
               "runs": 4,
               "wickets": 0,
-              "eco": "12",
+              "eco": "4.8",
               "wides": 0,
               "noBalls": 0,
-              "dots": 1
+              "dots": 4
             }
           ]
         }
@@ -11597,10 +11597,10 @@
           "sixes": 1,
           "duck": false,
           "wickets": 0,
-          "dots": 1,
+          "dots": 4,
           "lbwBowled": 0,
           "maidens": 0,
-          "ballsBowled": 2,
+          "ballsBowled": 5,
           "runsConceded": 4,
           "catches": 0,
           "runOuts": 0,
@@ -11610,7 +11610,7 @@
         "Sai Sudharsan": {
           "played": true,
           "runs": 4,
-          "balls": 2,
+          "balls": 5,
           "fours": 1,
           "sixes": 0,
           "duck": false,
