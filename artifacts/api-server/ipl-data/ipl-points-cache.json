@@ -11174,14 +11174,14 @@
       "points": {
         "Shubman Gill": 12,
         "Aiden Markram": 14,
-        "Rishabh Pant": 21,
+        "Rishabh Pant": 22,
         "Mohammed Siraj": 14,
         "Mitchell Marsh": 25
       },
       "innings": [
         {
           "name": "Lucknow Super Giants Inning 1",
-          "total": "27/1 (2.2 ov)",
+          "total": "28/1 (2.3 ov)",
           "batting": [
             {
               "name": "Aiden Markram",
@@ -11207,11 +11207,11 @@
             },
             {
               "name": "Rishabh Pant (c)",
-              "runs": 9,
-              "balls": 4,
+              "runs": 10,
+              "balls": 5,
               "fours": 2,
               "sixes": 0,
-              "sr": "225.00",
+              "sr": "200.00",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -11308,11 +11308,11 @@
           "bowling": [
             {
               "name": "Mohammed Siraj",
-              "overs": "1.2",
+              "overs": "1.3",
               "maidens": 0,
-              "runs": 7,
+              "runs": 8,
               "wickets": 0,
-              "eco": "5.25",
+              "eco": "5.33",
               "wides": 0,
               "noBalls": 0,
               "dots": 5
@@ -11370,8 +11370,8 @@
         },
         "Rishabh Pant": {
           "played": true,
-          "runs": 9,
-          "balls": 4,
+          "runs": 10,
+          "balls": 5,
           "fours": 2,
           "sixes": 0,
           "duck": false,
@@ -11397,8 +11397,8 @@
           "dots": 5,
           "lbwBowled": 0,
           "maidens": 0,
-          "ballsBowled": 8,
-          "runsConceded": 7,
+          "ballsBowled": 9,
+          "runsConceded": 8,
           "catches": 0,
           "runOuts": 0,
           "sharedRunOuts": 0,
