@@ -11173,11 +11173,11 @@
     },
     "2435": {
       "points": {
-        "Shubman Gill": 82,
+        "Shubman Gill": 33,
         "Jos Buttler": 12,
         "Nicholas Pooran": 33,
-        "Mohammed Shami": 42,
-        "Sai Sudharsan": 31,
+        "Mohammed Shami": 48,
+        "Sai Sudharsan": 21,
         "Prasidh Krishna": 166,
         "Aiden Markram": 66,
         "Rashid Khan": 26,
@@ -11384,26 +11384,26 @@
         },
         {
           "name": "Gujarat Titans Inning 2",
-          "total": "45/0 (5.0 ov)",
+          "total": "20/0 (3.3 ov)",
           "batting": [
             {
               "name": "Sai Sudharsan",
-              "runs": 15,
-              "balls": 13,
-              "fours": 3,
+              "runs": 11,
+              "balls": 12,
+              "fours": 2,
               "sixes": 0,
-              "sr": "115.38",
+              "sr": "91.67",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
             },
             {
               "name": "Shubman Gill",
-              "runs": 30,
-              "balls": 17,
-              "fours": 4,
-              "sixes": 1,
-              "sr": "176.47",
+              "runs": 9,
+              "balls": 9,
+              "fours": 1,
+              "sixes": 0,
+              "sr": "100.00",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -11522,25 +11522,25 @@
           "bowling": [
             {
               "name": "Mohammad Shami",
-              "overs": "3",
+              "overs": "2",
               "maidens": 0,
-              "runs": 30,
+              "runs": 10,
               "wickets": 0,
-              "eco": "10",
+              "eco": "5",
               "wides": 0,
               "noBalls": 0,
-              "dots": 9
+              "dots": 8
             },
             {
               "name": "Prince Yadav",
-              "overs": "2",
+              "overs": "1.3",
               "maidens": 0,
-              "runs": 15,
+              "runs": 10,
               "wickets": 0,
-              "eco": "7.5",
+              "eco": "6.67",
               "wides": 0,
               "noBalls": 0,
-              "dots": 4
+              "dots": 3
             }
           ]
         }
@@ -11548,10 +11548,10 @@
       "playerStats": {
         "Shubman Gill": {
           "played": true,
-          "runs": 30,
-          "balls": 17,
-          "fours": 4,
-          "sixes": 1,
+          "runs": 9,
+          "balls": 9,
+          "fours": 1,
+          "sixes": 0,
           "duck": false,
           "wickets": 0,
           "dots": 0,
@@ -11608,11 +11608,11 @@
           "sixes": 1,
           "duck": false,
           "wickets": 0,
-          "dots": 9,
+          "dots": 8,
           "lbwBowled": 0,
           "maidens": 0,
-          "ballsBowled": 18,
-          "runsConceded": 30,
+          "ballsBowled": 12,
+          "runsConceded": 10,
           "catches": 0,
           "runOuts": 0,
           "sharedRunOuts": 0,
@@ -11620,9 +11620,9 @@
         },
         "Sai Sudharsan": {
           "played": true,
-          "runs": 15,
-          "balls": 13,
-          "fours": 3,
+          "runs": 11,
+          "balls": 12,
+          "fours": 2,
           "sixes": 0,
           "duck": false,
           "wickets": 0,
@@ -12794,6 +12794,6 @@
   "lastUpdated": "2026-04-11T15:07:35.769Z",
   "dailyHits": {
     "date": "2026-04-12",
-    "count": 18
+    "count": 6
   }
 }

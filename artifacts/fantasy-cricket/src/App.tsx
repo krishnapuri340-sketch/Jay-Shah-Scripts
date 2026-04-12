@@ -2323,34 +2323,12 @@ export default function App() {
 
         {/* ─── Season Race ─── */}
         {matchHistory.length > 0 && matchHistory[0].points.length >= 2 && (() => {
-          // Build chart data: "xi" = official top-11 scores; "all" = all 15 players counted
-          const chartHistory = (() => {
-            if (awardXiFilter === "xi") return matchHistory;
-            // Recompute from playerMatchPoints including bench
-            return Object.entries(FANTASY_TEAMS).map(([tid, ft]) => {
-              const matchTotals = new Map<number, number>();
-              for (const player of ft.players) {
-                const isCap = player.name === ft.captain;
-                const isVC = player.name === ft.vc;
-                for (const entry of (playerMatchPoints[player.name] || [])) {
-                  if (entry.matchNum >= 900) continue;
-                  const pts = applyMultiplier(entry.pts, isCap, isVC);
-                  matchTotals.set(entry.matchNum, (matchTotals.get(entry.matchNum) ?? 0) + pts);
-                }
-              }
-              const sorted = [...matchTotals.entries()].sort((a, b) => a[0] - b[0]);
-              let cum = 0;
-              const points = sorted.map(([matchNum, pts]) => { cum += pts; return { matchNum, cum }; });
-              return { teamId: tid, points };
-            }).filter(t => t.points.length > 0);
-          })();
-
-          const allMatchNums = chartHistory[0]?.points.map(p => p.matchNum) ?? matchHistory[0].points.map(p => p.matchNum);
+          const allMatchNums = matchHistory[0].points.map(p => p.matchNum);
           const n = allMatchNums.length;
 
           // Per-match raw scores (cum[i] - cum[i-1])
           const rawScores: Record<string, number[]> = {};
-          for (const t of chartHistory) {
+          for (const t of matchHistory) {
             rawScores[t.teamId] = t.points.map((p, i) => i === 0 ? p.cum : p.cum - t.points[i - 1].cum);
           }
           const lastMatchScores: Record<string, number> = {};
@@ -2387,7 +2365,7 @@ export default function App() {
           // Chart dimensions
           const W = 320, H = 148, PL = 14, PR = 54, PT = 14, PB = 20;
           const CW = W - PL - PR, CH = H - PT - PB;
-          const maxCum = Math.max(...chartHistory.flatMap(t => t.points.map(p => p.cum)), 1);
+          const maxCum = Math.max(...matchHistory.flatMap(t => t.points.map(p => p.cum)), 1);
           const xOf = (i: number) => PL + (n <= 1 ? CW / 2 : (i / (n - 1)) * CW);
           const yOf = (v: number) => PT + CH - (v / maxCum) * CH;
           const bottom = PT + CH;
@@ -2410,7 +2388,7 @@ export default function App() {
             return d;
           };
 
-          const sortedByFinal = [...chartHistory].sort((a, b) =>
+          const sortedByFinal = [...matchHistory].sort((a, b) =>
             (b.points[b.points.length - 1]?.cum ?? 0) - (a.points[a.points.length - 1]?.cum ?? 0)
           );
 
@@ -2517,21 +2495,8 @@ export default function App() {
 
           return (
             <div style={{ marginTop: 22 }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+              <div style={{ marginBottom: 10 }}>
                 <div className="sec-title" style={{ marginBottom: 0 }}>Season Race</div>
-                <div style={{ display: "flex", background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 7, overflow: "hidden" }}>
-                  {(["all", "xi"] as const).map(f => (
-                    <button key={f} onClick={() => setAwardXiFilter(f)}
-                      style={{
-                        padding: "4px 9px", fontSize: "0.6rem", fontWeight: 700, border: "none", cursor: "pointer",
-                        background: awardXiFilter === f ? "rgba(255,255,255,0.12)" : "transparent",
-                        color: awardXiFilter === f ? "var(--text)" : "var(--text-3)",
-                        letterSpacing: "0.04em",
-                      }}>
-                      {f === "all" ? "All" : "Top XI"}
-                    </button>
-                  ))}
-                </div>
               </div>
 
               {/* Line chart */}
