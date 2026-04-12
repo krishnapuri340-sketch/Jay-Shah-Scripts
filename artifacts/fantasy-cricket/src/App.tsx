@@ -758,7 +758,7 @@ export default function App() {
         setLiveMatches(matches);
         setDataSources(data.sources || null);
         const hasLive = matches.some((m: any) => m.matchStarted && !m.matchEnded);
-        setMatchFilter(hasLive ? "live" : "upcoming");
+        setMatchFilter(prev => (prev === "completed" || prev === "all") ? prev : (hasLive ? "live" : "upcoming"));
       } else {
         setApiError("No IPL matches found from official sources.");
       }
