@@ -11169,6 +11169,260 @@
           "stumpings": 0
         }
       }
+    },
+    "2435": {
+      "points": {
+        "Shubman Gill": 12,
+        "Aiden Markram": 14,
+        "Rishabh Pant": 21,
+        "Mohammed Siraj": 14,
+        "Mitchell Marsh": 25
+      },
+      "innings": [
+        {
+          "name": "Lucknow Super Giants Inning 1",
+          "total": "27/1 (2.2 ov)",
+          "batting": [
+            {
+              "name": "Aiden Markram",
+              "runs": 6,
+              "balls": 6,
+              "fours": 1,
+              "sixes": 0,
+              "sr": "100.00",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Mitchell Marsh",
+              "runs": 11,
+              "balls": 4,
+              "fours": 1,
+              "sixes": 1,
+              "sr": "275.00",
+              "dismissal": "c Shubman Gill b Kagiso Rabada",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Rishabh Pant (c)",
+              "runs": 9,
+              "balls": 4,
+              "fours": 2,
+              "sixes": 0,
+              "sr": "225.00",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Ayush Badoni",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Nicholas Pooran",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Abdul Samad",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Mukul Choudhary",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Avesh Khan",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Mohammad Shami",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Digvesh Singh",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Prince Yadav",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            }
+          ],
+          "bowling": [
+            {
+              "name": "Mohammed Siraj",
+              "overs": "1.2",
+              "maidens": 0,
+              "runs": 7,
+              "wickets": 0,
+              "eco": "5.25",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 5
+            },
+            {
+              "name": "Kagiso Rabada",
+              "overs": "1",
+              "maidens": 0,
+              "runs": 19,
+              "wickets": 1,
+              "eco": "19",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 1
+            }
+          ]
+        }
+      ],
+      "playerStats": {
+        "Shubman Gill": {
+          "played": true,
+          "runs": 0,
+          "balls": 0,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 1,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Aiden Markram": {
+          "played": true,
+          "runs": 6,
+          "balls": 6,
+          "fours": 1,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Rishabh Pant": {
+          "played": true,
+          "runs": 9,
+          "balls": 4,
+          "fours": 2,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Mohammed Siraj": {
+          "played": true,
+          "runs": 0,
+          "balls": 0,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 5,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 8,
+          "runsConceded": 7,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Mitchell Marsh": {
+          "played": true,
+          "runs": 11,
+          "balls": 4,
+          "fours": 1,
+          "sixes": 1,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        }
+      }
     }
   },
   "supabaseScores": {
@@ -12199,7 +12453,7 @@
   },
   "lastUpdated": "2026-04-11T15:07:35.769Z",
   "dailyHits": {
-    "date": "2026-04-11",
-    "count": 17
+    "date": "2026-04-12",
+    "count": 0
   }
 }
