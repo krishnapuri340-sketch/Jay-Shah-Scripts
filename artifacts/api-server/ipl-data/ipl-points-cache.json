@@ -11174,18 +11174,18 @@
     },
     "2435": {
       "points": {
-        "Shubman Gill": 93,
-        "Jos Buttler": 33,
+        "Shubman Gill": 116,
+        "Jos Buttler": 128,
         "Nicholas Pooran": 33,
-        "Mohammed Shami": 42,
+        "Mohammed Shami": 80,
         "Sai Sudharsan": 31,
         "Prasidh Krishna": 166,
-        "Aiden Markram": 66,
+        "Aiden Markram": 78,
         "Rashid Khan": 26,
-        "Rishabh Pant": 40,
+        "Rishabh Pant": 48,
         "Mohammed Siraj": 68,
         "Mitchell Marsh": 25,
-        "Washington Sundar": 12
+        "Washington Sundar": 51
       },
       "innings": [
         {
@@ -11385,7 +11385,7 @@
         },
         {
           "name": "Gujarat Titans Inning 2",
-          "total": "67/1 (7.4 ov)",
+          "total": "165/3 (18.4 ov)",
           "batting": [
             {
               "name": "Sai Sudharsan",
@@ -11400,50 +11400,50 @@
             },
             {
               "name": "Shubman Gill",
-              "runs": 39,
-              "balls": 24,
-              "fours": 5,
+              "runs": 56,
+              "balls": 40,
+              "fours": 6,
               "sixes": 1,
-              "sr": "162.50",
+              "sr": "140.00",
+              "dismissal": "c Rishabh Pant b Prince Yadav",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Jos Buttler",
+              "runs": 60,
+              "balls": 37,
+              "fours": 11,
+              "sixes": 0,
+              "sr": "162.16",
+              "dismissal": "c Aiden Markram b Mohammad Shami",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Washington Sundar",
+              "runs": 21,
+              "balls": 13,
+              "fours": 2,
+              "sixes": 1,
+              "sr": "161.54",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
             },
             {
-              "name": "Jos Buttler",
-              "runs": 13,
+              "name": "Rahul Tewatia",
+              "runs": 10,
               "balls": 8,
-              "fours": 2,
+              "fours": 1,
               "sixes": 0,
-              "sr": "162.50",
+              "sr": "125.00",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
             },
             {
               "name": "Glenn Phillips",
-              "runs": 0,
-              "balls": 0,
-              "fours": 0,
-              "sixes": 0,
-              "sr": "-",
-              "dismissal": "",
-              "notOut": false,
-              "dnb": true
-            },
-            {
-              "name": "Washington Sundar",
-              "runs": 0,
-              "balls": 0,
-              "fours": 0,
-              "sixes": 0,
-              "sr": "-",
-              "dismissal": "",
-              "notOut": false,
-              "dnb": true
-            },
-            {
-              "name": "Rahul Tewatia",
               "runs": 0,
               "balls": 0,
               "fours": 0,
@@ -11523,47 +11523,69 @@
           "bowling": [
             {
               "name": "Mohammad Shami",
-              "overs": "3",
+              "overs": "4",
               "maidens": 0,
-              "runs": 30,
-              "wickets": 0,
-              "eco": "10",
+              "runs": 36,
+              "wickets": 1,
+              "eco": "9",
               "wides": 0,
+              "noBalls": 0,
+              "dots": 12
+            },
+            {
+              "name": "Prince Yadav",
+              "overs": "4",
+              "maidens": 0,
+              "runs": 31,
+              "wickets": 1,
+              "eco": "7.75",
+              "wides": 1,
               "noBalls": 0,
               "dots": 9
             },
             {
-              "name": "Prince Yadav",
-              "overs": "2",
+              "name": "Digvesh Singh",
+              "overs": "4",
               "maidens": 0,
-              "runs": 15,
-              "wickets": 0,
-              "eco": "7.5",
-              "wides": 0,
+              "runs": 31,
+              "wickets": 1,
+              "eco": "7.75",
+              "wides": 1,
               "noBalls": 0,
-              "dots": 4
+              "dots": 6
             },
             {
-              "name": "Digvesh Singh",
-              "overs": "1.4",
+              "name": "George Linde",
+              "overs": "3",
               "maidens": 0,
-              "runs": 10,
-              "wickets": 1,
-              "eco": "6",
+              "runs": 28,
+              "wickets": 0,
+              "eco": "9.33",
               "wides": 0,
+              "noBalls": 0,
+              "dots": 5
+            },
+            {
+              "name": "Avesh Khan",
+              "overs": "2",
+              "maidens": 0,
+              "runs": 24,
+              "wickets": 0,
+              "eco": "12",
+              "wides": 1,
               "noBalls": 0,
               "dots": 3
             },
             {
-              "name": "George Linde",
-              "overs": "1",
+              "name": "Aiden Markram",
+              "overs": "1.4",
               "maidens": 0,
-              "runs": 12,
+              "runs": 15,
               "wickets": 0,
-              "eco": "12",
+              "eco": "9",
               "wides": 0,
               "noBalls": 0,
-              "dots": 0
+              "dots": 2
             }
           ]
         }
@@ -11571,9 +11593,9 @@
       "playerStats": {
         "Shubman Gill": {
           "played": true,
-          "runs": 39,
-          "balls": 24,
-          "fours": 5,
+          "runs": 56,
+          "balls": 40,
+          "fours": 6,
           "sixes": 1,
           "duck": false,
           "wickets": 0,
@@ -11589,9 +11611,9 @@
         },
         "Jos Buttler": {
           "played": true,
-          "runs": 13,
-          "balls": 8,
-          "fours": 2,
+          "runs": 60,
+          "balls": 37,
+          "fours": 11,
           "sixes": 0,
           "duck": false,
           "wickets": 0,
@@ -11630,12 +11652,12 @@
           "fours": 1,
           "sixes": 1,
           "duck": false,
-          "wickets": 0,
-          "dots": 9,
+          "wickets": 1,
+          "dots": 12,
           "lbwBowled": 0,
           "maidens": 0,
-          "ballsBowled": 18,
-          "runsConceded": 30,
+          "ballsBowled": 24,
+          "runsConceded": 36,
           "catches": 0,
           "runOuts": 0,
           "sharedRunOuts": 0,
@@ -11685,12 +11707,12 @@
           "sixes": 1,
           "duck": false,
           "wickets": 0,
-          "dots": 0,
+          "dots": 2,
           "lbwBowled": 0,
           "maidens": 0,
-          "ballsBowled": 0,
-          "runsConceded": 0,
-          "catches": 0,
+          "ballsBowled": 10,
+          "runsConceded": 15,
+          "catches": 1,
           "runOuts": 0,
           "sharedRunOuts": 0,
           "stumpings": 0
@@ -11726,7 +11748,7 @@
           "maidens": 0,
           "ballsBowled": 0,
           "runsConceded": 0,
-          "catches": 0,
+          "catches": 1,
           "runOuts": 0,
           "sharedRunOuts": 0,
           "stumpings": 0
@@ -11769,10 +11791,10 @@
         },
         "Washington Sundar": {
           "played": true,
-          "runs": 0,
-          "balls": 0,
-          "fours": 0,
-          "sixes": 0,
+          "runs": 21,
+          "balls": 13,
+          "fours": 2,
+          "sixes": 1,
           "duck": false,
           "wickets": 0,
           "dots": 0,
@@ -13522,6 +13544,6 @@
   "lastUpdated": "2026-04-12T23:38:43.006Z",
   "dailyHits": {
     "date": "2026-04-12",
-    "count": 12
+    "count": 13
   }
 }
