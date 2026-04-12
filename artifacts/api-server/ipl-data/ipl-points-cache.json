@@ -11812,7 +11812,7 @@
     "2436": {
       "points": {
         "Rajat Patidar": 127,
-        "Bhuvneshwar Kumar": 22,
+        "Bhuvneshwar Kumar": 24,
         "Phil Salt": 162,
         "Krunal Pandya": 52,
         "Tim David": 76,
@@ -11820,7 +11820,7 @@
         "Trent Boult": 38,
         "Tilak Varma": 13,
         "Rohit Sharma": 39,
-        "Sherfane Rutherford": 41,
+        "Sherfane Rutherford": 149,
         "Hardik Pandya": 136,
         "Virat Kohli": 90,
         "Suryakumar Yadav": 71,
@@ -12036,7 +12036,7 @@
         },
         {
           "name": "Mumbai Indians Inning 2",
-          "total": "167/5 (17.1 ov)",
+          "total": "222/5 (20.0 ov)",
           "batting": [
             {
               "name": "Ryan Rickelton",
@@ -12095,11 +12095,11 @@
             },
             {
               "name": "Sherfane Rutherford",
-              "runs": 23,
-              "balls": 16,
-              "fours": 0,
-              "sixes": 2,
-              "sr": "143.75",
+              "runs": 71,
+              "balls": 31,
+              "fours": 1,
+              "sixes": 9,
+              "sr": "229.03",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -12117,11 +12117,11 @@
             },
             {
               "name": "Mitchell Santner",
-              "runs": 6,
-              "balls": 4,
+              "runs": 8,
+              "balls": 6,
               "fours": 1,
               "sixes": 0,
-              "sr": "150.00",
+              "sr": "133.33",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -12174,25 +12174,25 @@
           "bowling": [
             {
               "name": "Jacob Duffy",
-              "overs": "3.1",
+              "overs": "4",
               "maidens": 0,
-              "runs": 38,
+              "runs": 58,
               "wickets": 1,
-              "eco": "12",
-              "wides": 2,
+              "eco": "14.5",
+              "wides": 4,
               "noBalls": 0,
-              "dots": 8
+              "dots": 10
             },
             {
               "name": "Bhuvneshwar Kumar",
-              "overs": "3",
+              "overs": "4",
               "maidens": 0,
-              "runs": 29,
+              "runs": 38,
               "wickets": 0,
-              "eco": "9.67",
-              "wides": 1,
+              "eco": "9.5",
+              "wides": 2,
               "noBalls": 0,
-              "dots": 5
+              "dots": 6
             },
             {
               "name": "Rasikh Dar",
@@ -12229,14 +12229,14 @@
             },
             {
               "name": "Romario Shepherd",
-              "overs": "0.1",
+              "overs": "1.1",
               "maidens": 0,
-              "runs": 2,
+              "runs": 28,
               "wickets": 0,
-              "eco": "12",
-              "wides": 0,
+              "eco": "24",
+              "wides": 2,
               "noBalls": 1,
-              "dots": 0
+              "dots": 2
             }
           ]
         }
@@ -12268,11 +12268,11 @@
           "sixes": 0,
           "duck": false,
           "wickets": 0,
-          "dots": 5,
+          "dots": 6,
           "lbwBowled": 0,
           "maidens": 0,
-          "ballsBowled": 18,
-          "runsConceded": 29,
+          "ballsBowled": 24,
+          "runsConceded": 38,
           "catches": 1,
           "runOuts": 0,
           "sharedRunOuts": 0,
@@ -12406,10 +12406,10 @@
         },
         "Sherfane Rutherford": {
           "played": true,
-          "runs": 23,
-          "balls": 16,
-          "fours": 0,
-          "sixes": 2,
+          "runs": 71,
+          "balls": 31,
+          "fours": 1,
+          "sixes": 9,
           "duck": false,
           "wickets": 0,
           "dots": 0,
@@ -13544,6 +13544,6 @@
   "lastUpdated": "2026-04-12T23:38:43.006Z",
   "dailyHits": {
     "date": "2026-04-12",
-    "count": 13
+    "count": 14
   }
 }
