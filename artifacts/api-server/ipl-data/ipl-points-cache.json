@@ -6,7 +6,8 @@
     "2430": "5945bbf4-b6b5-45b6-abac-db03e8a39130",
     "2431": "2d6c0b86-76c0-4795-96a4-e252f575d2d9",
     "2432": "3ec1f721-7f79-49e3-bbc1-69e88b9cf4a3",
-    "2434": "d8d0937a-8bd7-47b0-acbc-00d381578f85"
+    "2434": "d8d0937a-8bd7-47b0-acbc-00d381578f85",
+    "2435": "823d67eb-102e-4b60-93a0-1911a150d626"
   },
   "processedMatches": {
     "2417": {
@@ -11173,20 +11174,20 @@
     "2435": {
       "points": {
         "Shubman Gill": 12,
-        "Aiden Markram": 14,
-        "Rishabh Pant": 22,
-        "Mohammed Siraj": 14,
+        "Aiden Markram": 15,
+        "Rishabh Pant": 23,
+        "Mohammed Siraj": 22,
         "Mitchell Marsh": 25
       },
       "innings": [
         {
           "name": "Lucknow Super Giants Inning 1",
-          "total": "28/1 (2.3 ov)",
+          "total": "30/1 (3.0 ov)",
           "batting": [
             {
               "name": "Aiden Markram",
-              "runs": 6,
-              "balls": 6,
+              "runs": 7,
+              "balls": 7,
               "fours": 1,
               "sixes": 0,
               "sr": "100.00",
@@ -11207,11 +11208,11 @@
             },
             {
               "name": "Rishabh Pant (c)",
-              "runs": 10,
-              "balls": 5,
+              "runs": 11,
+              "balls": 7,
               "fours": 2,
               "sixes": 0,
-              "sr": "200.00",
+              "sr": "157.14",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -11308,14 +11309,14 @@
           "bowling": [
             {
               "name": "Mohammed Siraj",
-              "overs": "1.3",
+              "overs": "2",
               "maidens": 0,
-              "runs": 8,
+              "runs": 10,
               "wickets": 0,
-              "eco": "5.33",
+              "eco": "5",
               "wides": 0,
               "noBalls": 0,
-              "dots": 5
+              "dots": 6
             },
             {
               "name": "Kagiso Rabada",
@@ -11352,8 +11353,8 @@
         },
         "Aiden Markram": {
           "played": true,
-          "runs": 6,
-          "balls": 6,
+          "runs": 7,
+          "balls": 7,
           "fours": 1,
           "sixes": 0,
           "duck": false,
@@ -11370,8 +11371,8 @@
         },
         "Rishabh Pant": {
           "played": true,
-          "runs": 10,
-          "balls": 5,
+          "runs": 11,
+          "balls": 7,
           "fours": 2,
           "sixes": 0,
           "duck": false,
@@ -11394,11 +11395,11 @@
           "sixes": 0,
           "duck": false,
           "wickets": 0,
-          "dots": 5,
+          "dots": 6,
           "lbwBowled": 0,
           "maidens": 0,
-          "ballsBowled": 9,
-          "runsConceded": 8,
+          "ballsBowled": 12,
+          "runsConceded": 10,
           "catches": 0,
           "runOuts": 0,
           "sharedRunOuts": 0,
@@ -12454,6 +12455,6 @@
   "lastUpdated": "2026-04-11T15:07:35.769Z",
   "dailyHits": {
     "date": "2026-04-12",
-    "count": 0
+    "count": 4
   }
 }
