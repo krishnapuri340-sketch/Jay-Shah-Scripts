@@ -11798,7 +11798,7 @@
         "Trent Boult": 38,
         "Tilak Varma": 13,
         "Rohit Sharma": 39,
-        "Sherfane Rutherford": 21,
+        "Sherfane Rutherford": 33,
         "Hardik Pandya": 136,
         "Virat Kohli": 90,
         "Suryakumar Yadav": 71,
@@ -12014,7 +12014,7 @@
         },
         {
           "name": "Mumbai Indians Inning 2",
-          "total": "147/4 (15.0 ov)",
+          "total": "153/4 (15.1 ov)",
           "batting": [
             {
               "name": "Ryan Rickelton",
@@ -12073,11 +12073,11 @@
             },
             {
               "name": "Sherfane Rutherford",
-              "runs": 11,
-              "balls": 7,
+              "runs": 17,
+              "balls": 8,
               "fours": 0,
-              "sixes": 1,
-              "sr": "157.14",
+              "sixes": 2,
+              "sr": "212.50",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -12174,11 +12174,11 @@
             },
             {
               "name": "Rasikh Dar",
-              "overs": "2",
+              "overs": "2.1",
               "maidens": 0,
-              "runs": 15,
+              "runs": 21,
               "wickets": 0,
-              "eco": "7.5",
+              "eco": "9.69",
               "wides": 0,
               "noBalls": 0,
               "dots": 6
@@ -12373,10 +12373,10 @@
         },
         "Sherfane Rutherford": {
           "played": true,
-          "runs": 11,
-          "balls": 7,
+          "runs": 17,
+          "balls": 8,
           "fours": 0,
-          "sixes": 1,
+          "sixes": 2,
           "duck": false,
           "wickets": 0,
           "dots": 0,
