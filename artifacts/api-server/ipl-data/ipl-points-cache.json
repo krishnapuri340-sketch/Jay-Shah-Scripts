@@ -13210,7 +13210,7 @@
         },
         {
           "name": "Kolkata Knight Riders Inning 2",
-          "total": "153/6 (19.2 ov)",
+          "total": "160/7 (20.0 ov)",
           "batting": [
             {
               "name": "Finn Allen",
@@ -13280,11 +13280,11 @@
             },
             {
               "name": "Rovman Powell",
-              "runs": 25,
-              "balls": 20,
+              "runs": 31,
+              "balls": 22,
               "fours": 1,
-              "sixes": 1,
-              "sr": "125.00",
+              "sixes": 2,
+              "sr": "140.91",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -13292,24 +13292,24 @@
             {
               "name": "Ramandeep Singh",
               "runs": 35,
-              "balls": 22,
+              "balls": 23,
               "fours": 4,
               "sixes": 1,
-              "sr": "159.09",
-              "dismissal": "not out",
-              "notOut": true,
+              "sr": "152.17",
+              "dismissal": "c Sarfaraz Khan b Anshul Kamboj",
+              "notOut": false,
               "dnb": false
             },
             {
               "name": "Anukul Roy",
-              "runs": 0,
-              "balls": 0,
+              "runs": 1,
+              "balls": 1,
               "fours": 0,
               "sixes": 0,
-              "sr": "-",
-              "dismissal": "",
-              "notOut": false,
-              "dnb": true
+              "sr": "100.00",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
             },
             {
               "name": "Vaibhav Arora",
@@ -13359,14 +13359,14 @@
             },
             {
               "name": "Anshul Kamboj",
-              "overs": "3.2",
+              "overs": "4",
               "maidens": 0,
-              "runs": 25,
-              "wickets": 1,
-              "eco": "7.5",
+              "runs": 32,
+              "wickets": 2,
+              "eco": "8",
               "wides": 2,
               "noBalls": 0,
-              "dots": 7
+              "dots": 9
             },
             {
               "name": "Akeal Hosein",
@@ -14725,6 +14725,6 @@
   "lastUpdated": "2026-04-14T17:51:54.051Z",
   "dailyHits": {
     "date": "2026-04-14",
-    "count": 3
+    "count": 20
   }
 }
