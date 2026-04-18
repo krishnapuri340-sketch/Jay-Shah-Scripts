@@ -34,7 +34,7 @@ export const FANTASY_TEAMS: Record<string, FantasyTeam> = {
     ],
   },
   mombasa: {
-    id: "mombasa", name: "Mombasa Kenyans", owner: "Rahul", emoji: "⚡", color: "#eab308",
+    id: "mombasa", name: "Mombasa Kenyans", owner: "Rahul", emoji: "⚡", color: "#3b82f6",
     avatar: "rahul.jpeg", avatarPosition: "center 30%",
     captain: "Abhishek Sharma", vc: "Sai Sudharsan",
     players: [
@@ -59,7 +59,7 @@ export const FANTASY_TEAMS: Record<string, FantasyTeam> = {
     ],
   },
   mumbai: {
-    id: "mumbai", name: "Mumbai Mavericks", owner: "Smeet", emoji: "🌊", color: "#3b82f6",
+    id: "mumbai", name: "Mumbai Mavericks", owner: "Smeet", emoji: "🌊", color: "#eab308",
     avatar: "smeet.jpeg", avatarPosition: "center 35%",
     captain: "Hardik Pandya", vc: "Sanju Samson",
     players: [
