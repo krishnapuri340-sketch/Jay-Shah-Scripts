@@ -15540,21 +15540,7 @@
       }
     },
     "2466": {
-      "points": {
-        "Rajat Patidar": 18,
-        "Axar Patel": 82,
-        "Bhuvneshwar Kumar": 7,
-        "Phil Salt": 113,
-        "Krunal Pandya": 22,
-        "Tim David": 56,
-        "Jitesh Sharma": 20,
-        "Lungi Ngidi": 76,
-        "Tristan Stubbs": 12,
-        "Virat Kohli": 37,
-        "KL Rahul": 22,
-        "Kuldeep Yadav": 80,
-        "T Natarajan": 24
-      },
+      "points": {},
       "innings": [
         {
           "name": "Royal Challengers Bengaluru Inning 1",
@@ -16492,7 +16478,8 @@
       },
       "matchLabel": "Royal Challengers Bengaluru vs Delhi Capitals",
       "matchDate": "2026-04-18",
-      "matchNumber": 26
+      "matchNumber": 26,
+      "linkedIplId": "2466"
     },
     "ae75ebba-34a0-4877-abf7-9a41dde1cd24": {
       "points": {
@@ -16512,7 +16499,8 @@
       },
       "matchLabel": "Gujarat Titans vs Kolkata Knight Riders",
       "matchDate": "2026-04-17",
-      "matchNumber": 25
+      "matchNumber": 25,
+      "linkedIplId": "2465"
     }
   },
   "playerIdMap": {
@@ -17189,9 +17177,9 @@
       "matchNumber": 70
     }
   },
-  "lastUpdated": "2026-04-18T11:52:47.957Z",
+  "lastUpdated": "2026-04-18T11:58:46.969Z",
   "dailyHits": {
     "date": "2026-04-18",
-    "count": 3
+    "count": 12
   }
 }
