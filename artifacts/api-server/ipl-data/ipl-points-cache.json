@@ -16196,7 +16196,7 @@
       "innings": [
         {
           "name": "Sunrisers Hyderabad Inning 1",
-          "total": "112/4 (10.1 ov)",
+          "total": "113/4 (10.3 ov)",
           "batting": [
             {
               "name": "Abhishek Sharma",
@@ -16234,10 +16234,10 @@
             {
               "name": "Heinrich Klaasen",
               "runs": 19,
-              "balls": 14,
+              "balls": 15,
               "fours": 2,
               "sixes": 1,
-              "sr": "135.71",
+              "sr": "126.67",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -16254,18 +16254,18 @@
               "dnb": false
             },
             {
-              "name": "Salil Arora",
-              "runs": 0,
-              "balls": 0,
+              "name": "Nitish Kumar Reddy",
+              "runs": 1,
+              "balls": 1,
               "fours": 0,
               "sixes": 0,
-              "sr": "-",
-              "dismissal": "",
-              "notOut": false,
-              "dnb": true
+              "sr": "100.00",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
             },
             {
-              "name": "Nitish Kumar Reddy",
+              "name": "Salil Arora",
               "runs": 0,
               "balls": 0,
               "fours": 0,
@@ -16367,14 +16367,14 @@
             },
             {
               "name": "Jamie Overton",
-              "overs": "1.1",
+              "overs": "1.3",
               "maidens": 0,
-              "runs": 8,
+              "runs": 9,
               "wickets": 2,
-              "eco": "6.86",
+              "eco": "6",
               "wides": 0,
               "noBalls": 0,
-              "dots": 3
+              "dots": 4
             },
             {
               "name": "Gurjapneet Singh",
@@ -16412,7 +16412,7 @@
         "Heinrich Klaasen": {
           "played": true,
           "runs": 19,
-          "balls": 14,
+          "balls": 15,
           "fours": 2,
           "sixes": 1,
           "duck": false,
