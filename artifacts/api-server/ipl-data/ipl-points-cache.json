@@ -15750,7 +15750,7 @@
         },
         {
           "name": "Delhi Capitals Inning 2",
-          "total": "2/1 (0.5 ov)",
+          "total": "2/1 (1.0 ov)",
           "batting": [
             {
               "name": "Pathum Nissanka",
@@ -15777,7 +15777,7 @@
             {
               "name": "Karun Nair",
               "runs": 0,
-              "balls": 1,
+              "balls": 2,
               "fours": 0,
               "sixes": 0,
               "sr": "0.00",
@@ -15888,14 +15888,14 @@
           "bowling": [
             {
               "name": "Bhuvneshwar Kumar",
-              "overs": "0.5",
+              "overs": "1",
               "maidens": 0,
               "runs": 2,
               "wickets": 1,
-              "eco": "2.4",
+              "eco": "2",
               "wides": 0,
               "noBalls": 0,
-              "dots": 3
+              "dots": 4
             }
           ]
         }
@@ -15945,10 +15945,10 @@
           "sixes": 0,
           "duck": false,
           "wickets": 1,
-          "dots": 3,
+          "dots": 4,
           "lbwBowled": 0,
           "maidens": 0,
-          "ballsBowled": 5,
+          "ballsBowled": 6,
           "runsConceded": 2,
           "catches": 0,
           "runOuts": 0,
@@ -17331,6 +17331,6 @@
   "lastUpdated": "2026-04-18T11:58:46.969Z",
   "dailyHits": {
     "date": "2026-04-18",
-    "count": 51
+    "count": 54
   }
 }
