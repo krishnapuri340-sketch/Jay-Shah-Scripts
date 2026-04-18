@@ -16196,7 +16196,7 @@
       "innings": [
         {
           "name": "Sunrisers Hyderabad Inning 1",
-          "total": "63/0 (5.0 ov)",
+          "total": "75/0 (5.4 ov)",
           "batting": [
             {
               "name": "Abhishek Sharma",
@@ -16211,11 +16211,11 @@
             },
             {
               "name": "Travis Head",
-              "runs": 11,
-              "balls": 15,
-              "fours": 0,
+              "runs": 23,
+              "balls": 19,
+              "fours": 3,
               "sixes": 1,
-              "sr": "73.33",
+              "sr": "121.05",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -16334,14 +16334,14 @@
             },
             {
               "name": "Mukesh Choudhary",
-              "overs": "1",
+              "overs": "1.4",
               "maidens": 0,
-              "runs": 9,
+              "runs": 21,
               "wickets": 0,
-              "eco": "9",
+              "eco": "12.6",
               "wides": 0,
               "noBalls": 0,
-              "dots": 3
+              "dots": 4
             },
             {
               "name": "Anshul Kamboj",
@@ -16378,9 +16378,9 @@
         },
         "Travis Head": {
           "played": true,
-          "runs": 11,
-          "balls": 15,
-          "fours": 0,
+          "runs": 23,
+          "balls": 19,
+          "fours": 3,
           "sixes": 1,
           "duck": false,
           "wickets": 0,
@@ -16498,21 +16498,21 @@
     },
     "653147a7-f920-4ba2-b86b-9f284c894950": {
       "points": {
-        "Suryakumar Yadav": 2,
         "Marco Jansen": 52,
         "Deepak Chahar": 10,
-        "Prabhsimran Singh": 160,
+        "Arshdeep Singh": 142,
         "Yuzvendra Chahal": 12,
+        "Prabhsimran Singh": 160,
+        "Suryakumar Yadav": 2,
+        "Shreyas Iyer": 128,
+        "Sherfane Rutherford": 5,
+        "Priyansh Arya": 33,
+        "Shashank Singh": 48,
+        "Ryan Rickelton": 6,
+        "Hardik Pandya": 24,
         "Jasprit Bumrah": 20,
         "Marcus Stoinis": 22,
-        "Sherfane Rutherford": 5,
-        "Arshdeep Singh": 142,
-        "Tilak Varma": 20,
-        "Shashank Singh": 48,
-        "Hardik Pandya": 24,
-        "Ryan Rickelton": 6,
-        "Priyansh Arya": 33,
-        "Shreyas Iyer": 128
+        "Tilak Varma": 20
       },
       "matchLabel": "Mumbai Indians vs Punjab Kings",
       "matchDate": "2026-04-16",
@@ -16548,7 +16548,7 @@
         "Dewald Brevis": 4,
         "Ishan Kishan": 4,
         "Abhishek Sharma": 114,
-        "Travis Head": 19
+        "Travis Head": 27
       },
       "matchLabel": "Sunrisers Hyderabad vs Chennai Super Kings",
       "matchDate": "2026-04-18",
@@ -16779,20 +16779,20 @@
     },
     "5bc166fd-37d1-41a7-9ba1-302ab3196a7a": {
       "points": {
-        "Prabhsimran Singh": 116,
-        "Priyansh Arya": 127,
-        "Nehal Wadhera": 24,
-        "Ishan Kishan": 57,
-        "Shreyas Iyer": 139,
-        "Shashank Singh": 108,
-        "Marcus Stoinis": 9,
         "Marco Jansen": 20,
+        "Harshal Patel": 2,
         "Arshdeep Singh": 86,
         "Yuzvendra Chahal": 8,
-        "Abhishek Sharma": 164,
-        "Travis Head": 76,
+        "Prabhsimran Singh": 116,
         "Heinrich Klaasen": 65,
-        "Harshal Patel": 2
+        "Shreyas Iyer": 139,
+        "Priyansh Arya": 127,
+        "Shashank Singh": 108,
+        "Marcus Stoinis": 9,
+        "Ishan Kishan": 57,
+        "Abhishek Sharma": 164,
+        "Nehal Wadhera": 24,
+        "Travis Head": 76
       },
       "matchLabel": "Punjab Kings vs Sunrisers Hyderabad",
       "matchDate": "2026-04-11",
@@ -16848,18 +16848,18 @@
     },
     "08066553-9d57-4f97-9d8b-f4a2e918f76b": {
       "points": {
-        "Aiden Markram": 78,
-        "Mitchell Marsh": 25,
-        "Mohammed Siraj": 64,
+        "Prasidh Krishna": 166,
         "Sai Sudharsan": 31,
-        "Shubman Gill": 116,
-        "Jos Buttler": 128,
-        "Washington Sundar": 51,
         "Rishabh Pant": 48,
-        "Nicholas Pooran": 33,
-        "Mohammed Shami": 80,
+        "Mohammed Siraj": 64,
         "Rashid Khan": 26,
-        "Prasidh Krishna": 166
+        "Jos Buttler": 128,
+        "Shubman Gill": 116,
+        "Mohammed Shami": 80,
+        "Washington Sundar": 51,
+        "Mitchell Marsh": 25,
+        "Aiden Markram": 78,
+        "Nicholas Pooran": 33
       },
       "matchLabel": "Lucknow Super Giants vs Gujarat Titans",
       "matchDate": "2026-04-12",
@@ -17605,10 +17605,10 @@
       "matchNumber": 70
     }
   },
-  "lastUpdated": "2026-04-18T14:20:34.037Z",
+  "lastUpdated": "2026-04-18T14:21:14.710Z",
   "dailyHits": {
     "date": "2026-04-18",
-    "count": 33
+    "count": 35
   },
   "_testWrite": 1776521826871
 }
