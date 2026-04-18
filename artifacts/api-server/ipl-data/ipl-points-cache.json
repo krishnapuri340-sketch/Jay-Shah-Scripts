@@ -16196,7 +16196,7 @@
       "innings": [
         {
           "name": "Sunrisers Hyderabad Inning 1",
-          "total": "118/4 (11.0 ov)",
+          "total": "119/4 (11.1 ov)",
           "batting": [
             {
               "name": "Abhishek Sharma",
@@ -16233,11 +16233,11 @@
             },
             {
               "name": "Heinrich Klaasen",
-              "runs": 24,
-              "balls": 18,
+              "runs": 25,
+              "balls": 19,
               "fours": 2,
               "sixes": 1,
-              "sr": "133.33",
+              "sr": "131.58",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -16378,11 +16378,11 @@
             },
             {
               "name": "Gurjapneet Singh",
-              "overs": "1",
+              "overs": "1.1",
               "maidens": 0,
-              "runs": 7,
+              "runs": 8,
               "wickets": 0,
-              "eco": "7",
+              "eco": "6.86",
               "wides": 0,
               "noBalls": 0,
               "dots": 4
@@ -16411,8 +16411,8 @@
         },
         "Heinrich Klaasen": {
           "played": true,
-          "runs": 24,
-          "balls": 18,
+          "runs": 25,
+          "balls": 19,
           "fours": 2,
           "sixes": 1,
           "duck": false,

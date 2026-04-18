@@ -2996,8 +2996,8 @@ export default function App() {
 
     const TEAM_BG: Record<string, string> = {
       rajveer:  `${import.meta.env.BASE_URL}lb-bg-rajveer.jpeg`,
-      mombasa:  `${import.meta.env.BASE_URL}lb-bg-mombasa.jpeg`,
-      mumbai:   `${import.meta.env.BASE_URL}lb-bg-mumbai.jpeg`,
+      mombasa:  `${import.meta.env.BASE_URL}lb-bg-mumbai.jpeg`,
+      mumbai:   `${import.meta.env.BASE_URL}lb-bg-mombasa.jpeg`,
       ponygoat: `${import.meta.env.BASE_URL}lb-bg-ponygoat.jpeg`,
     };
 
@@ -4848,8 +4848,8 @@ export default function App() {
               {(() => {
                 const PRED_BG: Record<string, string> = {
                   rajveer:  `${import.meta.env.BASE_URL}lb-bg-rajveer.jpeg`,
-                  mombasa:  `${import.meta.env.BASE_URL}lb-bg-mombasa.jpeg`,
-                  mumbai:   `${import.meta.env.BASE_URL}lb-bg-mumbai.jpeg`,
+                  mombasa:  `${import.meta.env.BASE_URL}lb-bg-mumbai.jpeg`,
+                  mumbai:   `${import.meta.env.BASE_URL}lb-bg-mombasa.jpeg`,
                   ponygoat: `${import.meta.env.BASE_URL}lb-bg-ponygoat.jpeg`,
                 };
                 return (
