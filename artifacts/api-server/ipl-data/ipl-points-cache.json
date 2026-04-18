@@ -16196,7 +16196,7 @@
       "innings": [
         {
           "name": "Sunrisers Hyderabad Inning 1",
-          "total": "120/4 (11.2 ov)",
+          "total": "131/4 (12.0 ov)",
           "batting": [
             {
               "name": "Abhishek Sharma",
@@ -16233,11 +16233,11 @@
             },
             {
               "name": "Heinrich Klaasen",
-              "runs": 25,
-              "balls": 19,
-              "fours": 2,
+              "runs": 30,
+              "balls": 22,
+              "fours": 3,
               "sixes": 1,
-              "sr": "131.58",
+              "sr": "136.36",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -16255,11 +16255,11 @@
             },
             {
               "name": "Nitish Kumar Reddy",
-              "runs": 2,
-              "balls": 2,
+              "runs": 8,
+              "balls": 3,
               "fours": 0,
-              "sixes": 0,
-              "sr": "100.00",
+              "sixes": 1,
+              "sr": "266.67",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -16378,14 +16378,14 @@
             },
             {
               "name": "Gurjapneet Singh",
-              "overs": "1.2",
+              "overs": "2",
               "maidens": 0,
-              "runs": 9,
+              "runs": 20,
               "wickets": 0,
-              "eco": "6.75",
+              "eco": "10",
               "wides": 0,
               "noBalls": 0,
-              "dots": 4
+              "dots": 5
             }
           ]
         }
@@ -16411,9 +16411,9 @@
         },
         "Heinrich Klaasen": {
           "played": true,
-          "runs": 25,
-          "balls": 19,
-          "fours": 2,
+          "runs": 30,
+          "balls": 22,
+          "fours": 3,
           "sixes": 1,
           "duck": false,
           "wickets": 0,
@@ -17713,7 +17713,7 @@
   "lastUpdated": "2026-04-18T14:21:14.710Z",
   "dailyHits": {
     "date": "2026-04-18",
-    "count": 38
+    "count": 41
   },
   "_testWrite": 1776521826871
 }
