@@ -16196,65 +16196,65 @@
       "innings": [
         {
           "name": "Sunrisers Hyderabad Inning 1",
-          "total": "75/0 (5.4 ov)",
+          "total": "112/4 (10.1 ov)",
           "batting": [
             {
               "name": "Abhishek Sharma",
-              "runs": 50,
-              "balls": 15,
-              "fours": 5,
+              "runs": 59,
+              "balls": 22,
+              "fours": 6,
               "sixes": 4,
-              "sr": "333.33",
-              "dismissal": "not out",
-              "notOut": true,
+              "sr": "268.18",
+              "dismissal": "c Sanju Samson b Jamie Overton",
+              "notOut": false,
               "dnb": false
             },
             {
               "name": "Travis Head",
               "runs": 23,
-              "balls": 19,
+              "balls": 20,
               "fours": 3,
               "sixes": 1,
-              "sr": "121.05",
-              "dismissal": "not out",
-              "notOut": true,
+              "sr": "115.00",
+              "dismissal": "c Ruturaj Gaikwad b Mukesh Choudhary",
+              "notOut": false,
               "dnb": false
             },
             {
               "name": "Ishan Kishan",
               "runs": 0,
-              "balls": 0,
+              "balls": 1,
               "fours": 0,
               "sixes": 0,
-              "sr": "-",
-              "dismissal": "",
+              "sr": "0.00",
+              "dismissal": "c Ruturaj Gaikwad b Mukesh Choudhary",
               "notOut": false,
-              "dnb": true
+              "dnb": false
             },
             {
               "name": "Heinrich Klaasen",
-              "runs": 0,
-              "balls": 0,
-              "fours": 0,
-              "sixes": 0,
-              "sr": "-",
-              "dismissal": "",
-              "notOut": false,
-              "dnb": true
-            },
-            {
-              "name": "Salil Arora",
-              "runs": 0,
-              "balls": 0,
-              "fours": 0,
-              "sixes": 0,
-              "sr": "-",
-              "dismissal": "",
-              "notOut": false,
-              "dnb": true
+              "runs": 19,
+              "balls": 14,
+              "fours": 2,
+              "sixes": 1,
+              "sr": "135.71",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
             },
             {
               "name": "Aniket Verma",
+              "runs": 2,
+              "balls": 4,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "50.00",
+              "dismissal": "c Noor Ahmad b Jamie Overton",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Salil Arora",
               "runs": 0,
               "balls": 0,
               "fours": 0,
@@ -16334,14 +16334,14 @@
             },
             {
               "name": "Mukesh Choudhary",
-              "overs": "1.4",
+              "overs": "2",
               "maidens": 0,
               "runs": 21,
-              "wickets": 0,
-              "eco": "12.6",
+              "wickets": 2,
+              "eco": "10.5",
               "wides": 0,
               "noBalls": 0,
-              "dots": 4
+              "dots": 6
             },
             {
               "name": "Anshul Kamboj",
@@ -16353,6 +16353,39 @@
               "wides": 0,
               "noBalls": 0,
               "dots": 2
+            },
+            {
+              "name": "Noor Ahmad",
+              "overs": "2",
+              "maidens": 0,
+              "runs": 16,
+              "wickets": 0,
+              "eco": "8",
+              "wides": 1,
+              "noBalls": 0,
+              "dots": 3
+            },
+            {
+              "name": "Jamie Overton",
+              "overs": "1.1",
+              "maidens": 0,
+              "runs": 8,
+              "wickets": 2,
+              "eco": "6.86",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 3
+            },
+            {
+              "name": "Gurjapneet Singh",
+              "overs": "1",
+              "maidens": 0,
+              "runs": 7,
+              "wickets": 0,
+              "eco": "7",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 4
             }
           ]
         }
@@ -16360,11 +16393,83 @@
       "playerStats": {
         "Abhishek Sharma": {
           "played": true,
-          "runs": 50,
-          "balls": 15,
-          "fours": 5,
+          "runs": 59,
+          "balls": 22,
+          "fours": 6,
           "sixes": 4,
           "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Heinrich Klaasen": {
+          "played": true,
+          "runs": 19,
+          "balls": 14,
+          "fours": 2,
+          "sixes": 1,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Ruturaj Gaikwad": {
+          "played": true,
+          "runs": 0,
+          "balls": 0,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 2,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Sanju Samson": {
+          "played": true,
+          "runs": 0,
+          "balls": 0,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 1,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Ishan Kishan": {
+          "played": true,
+          "runs": 0,
+          "balls": 1,
+          "fours": 0,
+          "sixes": 0,
+          "duck": true,
           "wickets": 0,
           "dots": 0,
           "lbwBowled": 0,
@@ -16379,7 +16484,7 @@
         "Travis Head": {
           "played": true,
           "runs": 23,
-          "balls": 19,
+          "balls": 20,
           "fours": 3,
           "sixes": 1,
           "duck": false,
@@ -17608,7 +17713,7 @@
   "lastUpdated": "2026-04-18T14:21:14.710Z",
   "dailyHits": {
     "date": "2026-04-18",
-    "count": 35
+    "count": 36
   },
   "_testWrite": 1776521826871
 }
