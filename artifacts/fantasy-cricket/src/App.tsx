@@ -531,6 +531,7 @@ export default function App() {
   const [chartHover, setChartHover] = useState<number | null>(null);
   const [selectedAwardIdx, setSelectedAwardIdx] = useState(0);
   const [awardXiFilter, setAwardXiFilter] = useState<"all" | "xi">("all");
+  const [chartXiFilter, setChartXiFilter] = useState<"all" | "xi">("all");
   const [collapsedInnings, setCollapsedInnings] = useState<Set<string>>(new Set());
   const [openScoreRows, setOpenScoreRows] = useState<Set<string>>(new Set());
   const [pointsUpdating, setPointsUpdating] = useState(false);
@@ -2413,7 +2414,26 @@ export default function App() {
             return d;
           };
 
-          const sortedByFinal = [...matchHistory].sort((a, b) =>
+          const chartMatchHistory = chartXiFilter === "xi"
+            ? matchHistory.map(t => {
+                const top11Set = getTeamData(t.teamId, playerPoints).top11;
+                const team = FANTASY_TEAMS[t.teamId];
+                let cum = 0;
+                const points = matchHistory[0].points.map(({ matchNum }) => {
+                  let pts = 0;
+                  for (const player of team.players) {
+                    if (!top11Set.has(player.name)) continue;
+                    const entry = (playerMatchPoints[player.name] || []).find((e: any) => e.matchNum === matchNum);
+                    if (entry) pts += applyMultiplier(entry.pts, player.name === team.captain, player.name === team.vc);
+                  }
+                  cum += pts;
+                  return { matchNum, label: `M${matchNum}`, cum };
+                });
+                return { ...t, points };
+              })
+            : matchHistory;
+
+          const sortedByFinal = [...chartMatchHistory].sort((a, b) =>
             (b.points[b.points.length - 1]?.cum ?? 0) - (a.points[a.points.length - 1]?.cum ?? 0)
           );
 
@@ -2520,8 +2540,22 @@ export default function App() {
 
           return (
             <div style={{ marginTop: 22 }}>
-              <div style={{ marginBottom: 10 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
                 <div className="sec-title" style={{ marginBottom: 0 }}>Season Race</div>
+                <div style={{ display: "flex", background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 7, overflow: "hidden" }}>
+                  {(["all", "xi"] as const).map(f => (
+                    <button key={f} onClick={() => setChartXiFilter(f)}
+                      style={{
+                        padding: "4px 9px", fontSize: "0.6rem", fontWeight: 700, border: "none", cursor: "pointer",
+                        fontFamily: "inherit",
+                        background: chartXiFilter === f ? "rgba(255,255,255,0.12)" : "transparent",
+                        color: chartXiFilter === f ? "var(--text)" : "var(--text-3)",
+                        letterSpacing: "0.04em",
+                      }}>
+                      {f === "all" ? "All" : "Top XI"}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Line chart */}
