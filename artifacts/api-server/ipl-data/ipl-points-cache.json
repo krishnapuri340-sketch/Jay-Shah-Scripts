@@ -16196,7 +16196,7 @@
       "innings": [
         {
           "name": "Sunrisers Hyderabad Inning 1",
-          "total": "119/4 (11.1 ov)",
+          "total": "120/4 (11.2 ov)",
           "batting": [
             {
               "name": "Abhishek Sharma",
@@ -16255,8 +16255,8 @@
             },
             {
               "name": "Nitish Kumar Reddy",
-              "runs": 1,
-              "balls": 1,
+              "runs": 2,
+              "balls": 2,
               "fours": 0,
               "sixes": 0,
               "sr": "100.00",
@@ -16378,11 +16378,11 @@
             },
             {
               "name": "Gurjapneet Singh",
-              "overs": "1.1",
+              "overs": "1.2",
               "maidens": 0,
-              "runs": 8,
+              "runs": 9,
               "wickets": 0,
-              "eco": "6.86",
+              "eco": "6.75",
               "wides": 0,
               "noBalls": 0,
               "dots": 4
