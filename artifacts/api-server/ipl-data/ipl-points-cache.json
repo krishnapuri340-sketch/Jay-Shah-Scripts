@@ -15747,6 +15747,146 @@
               "dots": 7
             }
           ]
+        },
+        {
+          "name": "Delhi Capitals Inning 2",
+          "total": "2/0 (0.3 ov)",
+          "batting": [
+            {
+              "name": "Pathum Nissanka",
+              "runs": 1,
+              "balls": 1,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "100.00",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "K L Rahul",
+              "runs": 1,
+              "balls": 2,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "50.00",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Axar Patel",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Sameer Rizvi",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "David Miller",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Tristan Stubbs",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Auqib Nabi",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Lungisani Ngidi",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Kuldeep Yadav",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "T Natarajan",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Mukesh Kumar",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            }
+          ],
+          "bowling": [
+            {
+              "name": "Bhuvneshwar Kumar",
+              "overs": "0.3",
+              "maidens": 0,
+              "runs": 2,
+              "wickets": 0,
+              "eco": "4",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 1
+            }
+          ]
         }
       ],
       "playerStats": {
@@ -15794,11 +15934,11 @@
           "sixes": 0,
           "duck": false,
           "wickets": 0,
-          "dots": 0,
+          "dots": 1,
           "lbwBowled": 0,
           "maidens": 0,
-          "ballsBowled": 0,
-          "runsConceded": 0,
+          "ballsBowled": 3,
+          "runsConceded": 2,
           "catches": 0,
           "runOuts": 0,
           "sharedRunOuts": 0,
@@ -15932,8 +16072,8 @@
         },
         "KL Rahul": {
           "played": true,
-          "runs": 0,
-          "balls": 0,
+          "runs": 1,
+          "balls": 2,
           "fours": 0,
           "sixes": 0,
           "duck": false,
@@ -17180,6 +17320,6 @@
   "lastUpdated": "2026-04-18T11:58:46.969Z",
   "dailyHits": {
     "date": "2026-04-18",
-    "count": 27
+    "count": 42
   }
 }

@@ -525,6 +525,7 @@ export default function App() {
   const [pointsLoading, setPointsLoading] = useState(false);
   const [supabaseSyncing, setSupabaseSyncing] = useState(false);
   const [statsRefreshing, setStatsRefreshing] = useState(false);
+  const [statsTabRefreshing, setStatsTabRefreshing] = useState(false);
   const [supabaseSyncMsg, setSupabaseSyncMsg] = useState<string | null>(null);
   const [s3Prefetching, setS3Prefetching] = useState(false);
   const [s3PrefetchResult, setS3PrefetchResult] = useState<{ found: number; missing: number; foundIds: string[]; missingIds: string[] } | null>(null);
@@ -745,6 +746,28 @@ export default function App() {
       await fetchStats();
     } catch (_) {}
     setStatsRefreshing(false);
+  };
+
+  const handleStatsTabRefresh = async () => {
+    if (statsTabRefreshing) return;
+    setStatsTabRefreshing(true);
+    try {
+      await Promise.all([
+        fetch("/api/ipl/points").then(r => r.ok ? r.json() : null).then(data => {
+          if (!data || (data.error && !data.playerPoints)) return;
+          setPlayerPoints(data.playerPoints || {});
+          setPlayerMatchPoints(data.playerMatchPoints || {});
+          setProcessedMatches(data.processedMatches || []);
+          setAbandonedMatchIds(data.abandonedMatchIds || []);
+          setPointsUpdating(data.updating || false);
+          setPointsLastUpdated(new Date());
+        }),
+        fetch("/api/ipl/stats").then(r => r.ok ? r.json() : null).then(data => {
+          if (data) setIplStats(data);
+        }),
+      ]);
+    } catch (_) {}
+    setStatsTabRefreshing(false);
   };
 
   const fetchLive = async () => {
@@ -4747,7 +4770,16 @@ export default function App() {
 
     return (
       <div>
-        <div className="sec-title">IPL 2026 Stats</div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 0 }}>
+          <div className="sec-title" style={{ marginBottom: 0 }}>IPL 2026 Stats</div>
+          <button
+            onClick={handleStatsTabRefresh}
+            disabled={statsTabRefreshing}
+            style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 20, padding: "5px 11px", cursor: statsTabRefreshing ? "default" : "pointer", fontSize: "0.65rem", color: "var(--text-3)", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 5, opacity: statsTabRefreshing ? 0.6 : 1, transition: "opacity 0.2s" }}>
+            <span style={statsTabRefreshing ? { display: "inline-block", animation: "spin 0.8s linear infinite" } : undefined}>↻</span>
+            <span>{statsTabRefreshing ? "Syncing…" : "Refresh"}</span>
+          </button>
+        </div>
 
         {/* Segmented control — iOS pill style */}
         <div style={{ display: "flex", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 22, padding: 3, marginBottom: 12, gap: 2 }}>
