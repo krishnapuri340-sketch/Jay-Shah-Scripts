@@ -2334,8 +2334,8 @@ export default function App() {
         {(() => {
           const LB_BG: Record<string, string> = {
             rajveer:  `${import.meta.env.BASE_URL}lb-bg-rajveer.jpeg`,
-            mombasa:  `${import.meta.env.BASE_URL}lb-bg-mombasa.jpeg`,
-            mumbai:   `${import.meta.env.BASE_URL}lb-bg-mumbai.jpeg`,
+            mombasa:  `${import.meta.env.BASE_URL}lb-bg-mumbai.jpeg`,
+            mumbai:   `${import.meta.env.BASE_URL}lb-bg-mombasa.jpeg`,
             ponygoat: `${import.meta.env.BASE_URL}lb-bg-ponygoat.jpeg`,
           };
           const leaderTotal = teamScores[0]?.total ?? 0;

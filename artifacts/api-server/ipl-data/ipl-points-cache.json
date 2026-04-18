@@ -16196,7 +16196,7 @@
       "innings": [
         {
           "name": "Sunrisers Hyderabad Inning 1",
-          "total": "113/4 (10.3 ov)",
+          "total": "118/4 (11.0 ov)",
           "batting": [
             {
               "name": "Abhishek Sharma",
@@ -16233,11 +16233,11 @@
             },
             {
               "name": "Heinrich Klaasen",
-              "runs": 19,
-              "balls": 15,
+              "runs": 24,
+              "balls": 18,
               "fours": 2,
               "sixes": 1,
-              "sr": "126.67",
+              "sr": "133.33",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -16367,11 +16367,11 @@
             },
             {
               "name": "Jamie Overton",
-              "overs": "1.3",
+              "overs": "2",
               "maidens": 0,
-              "runs": 9,
+              "runs": 14,
               "wickets": 2,
-              "eco": "6",
+              "eco": "7",
               "wides": 0,
               "noBalls": 0,
               "dots": 4
@@ -16411,8 +16411,8 @@
         },
         "Heinrich Klaasen": {
           "played": true,
-          "runs": 19,
-          "balls": 15,
+          "runs": 24,
+          "balls": 18,
           "fours": 2,
           "sixes": 1,
           "duck": false,
@@ -17713,7 +17713,7 @@
   "lastUpdated": "2026-04-18T14:21:14.710Z",
   "dailyHits": {
     "date": "2026-04-18",
-    "count": 36
+    "count": 38
   },
   "_testWrite": 1776521826871
 }
