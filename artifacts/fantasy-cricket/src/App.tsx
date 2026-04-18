@@ -1154,7 +1154,30 @@ export default function App() {
     try {
       await fetch("/api/ipl/points/sync-supabase", { method: "POST" });
     } catch (_) {}
-    await Promise.all([fetchPoints(), fetchStandings(), fetchPredictions(), fetchStats()]);
+    try {
+      await Promise.all([
+        fetch("/api/ipl/points").then(r => r.ok ? r.json() : null).then(data => {
+          if (!data || (data.error && !data.playerPoints)) return;
+          setPlayerPoints(data.playerPoints || {});
+          setPlayerMatchPoints(data.playerMatchPoints || {});
+          setIplIdToMatchNum(data.iplIdToMatchNum || {});
+          setProcessedMatches(data.processedMatches || []);
+          setAbandonedMatchIds(data.abandonedMatchIds || []);
+          setPointsUpdating(data.updating || false);
+          setPendingMatches(data.pendingMatches || 0);
+          setPointsLastUpdated(new Date());
+        }),
+        fetch("/api/ipl/standings").then(r => r.ok ? r.json() : null).then(data => {
+          if (data) setStandings(data.standings || data);
+        }),
+        fetch("/api/ipl/predictions").then(r => r.ok ? r.json() : null).then(data => {
+          if (data) { setPredictions(data); saveLocalPreds(data); }
+        }),
+        fetch("/api/ipl/stats").then(r => r.ok ? r.json() : null).then(data => {
+          if (data) setIplStats(data);
+        }),
+      ]);
+    } catch (_) {}
     setLbRefreshing(false);
   };
 

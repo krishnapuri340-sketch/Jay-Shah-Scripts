@@ -16197,37 +16197,184 @@
       "points": {},
       "innings": [
         {
-          "name": "0 Inning 1",
-          "total": "0",
+          "name": "Sunrisers Hyderabad Inning 1",
+          "total": "4/0 (1.0 ov)",
           "batting": [
             {
-              "name": "0",
+              "name": "Abhishek Sharma",
+              "runs": 2,
+              "balls": 3,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "66.67",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Travis Head",
+              "runs": 1,
+              "balls": 3,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "33.33",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Ishan Kishan",
               "runs": 0,
               "balls": 0,
               "fours": 0,
               "sixes": 0,
-              "sr": "0",
-              "dismissal": "0",
+              "sr": "-",
+              "dismissal": "",
               "notOut": false,
-              "dnb": false
+              "dnb": true
+            },
+            {
+              "name": "Heinrich Klaasen",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Salil Arora",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Aniket Verma",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Nitish Kumar Reddy",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Shivang Kumar",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Praful Hinge",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Sakib Hussain",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Eshan Malinga",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
             }
           ],
           "bowling": [
             {
-              "name": "0",
-              "overs": "0",
+              "name": "Matthew Short",
+              "overs": "1",
               "maidens": 0,
-              "runs": 0,
+              "runs": 4,
               "wickets": 0,
-              "eco": "0",
-              "wides": 0,
+              "eco": "4",
+              "wides": 1,
               "noBalls": 0,
-              "dots": 0
+              "dots": 3
             }
           ]
         }
       ],
-      "playerStats": {}
+      "playerStats": {
+        "Abhishek Sharma": {
+          "played": true,
+          "runs": 2,
+          "balls": 3,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Travis Head": {
+          "played": true,
+          "runs": 1,
+          "balls": 3,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        }
+      }
     }
   },
   "supabaseScores": {
@@ -17436,9 +17583,9 @@
       "matchNumber": 70
     }
   },
-  "lastUpdated": "2026-04-18T14:01:04.212Z",
+  "lastUpdated": "2026-04-18T14:04:10.838Z",
   "dailyHits": {
     "date": "2026-04-18",
-    "count": 73
+    "count": 83
   }
 }
