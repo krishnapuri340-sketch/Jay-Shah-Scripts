@@ -17623,15 +17623,15 @@
         },
         {
           "name": "Lucknow Super Giants Inning 2",
-          "total": "61/1 (6.0 ov)",
+          "total": "63/1 (6.2 ov)",
           "batting": [
             {
               "name": "Mitchell Marsh",
-              "runs": 24,
-              "balls": 15,
+              "runs": 25,
+              "balls": 16,
               "fours": 3,
               "sixes": 1,
-              "sr": "160.00",
+              "sr": "156.25",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -17649,14 +17649,14 @@
             },
             {
               "name": "Rishabh Pant (c)",
-              "runs": 0,
-              "balls": 0,
+              "runs": 1,
+              "balls": 1,
               "fours": 0,
               "sixes": 0,
-              "sr": "-",
-              "dismissal": "",
-              "notOut": false,
-              "dnb": true
+              "sr": "100.00",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
             },
             {
               "name": "Aiden Markram",
@@ -17783,11 +17783,11 @@
             },
             {
               "name": "Marco Jansen",
-              "overs": "1",
+              "overs": "1.2",
               "maidens": 0,
-              "runs": 10,
+              "runs": 12,
               "wickets": 0,
-              "eco": "10",
+              "eco": "9",
               "wides": 0,
               "noBalls": 0,
               "dots": 2
@@ -17890,8 +17890,8 @@
           "dots": 2,
           "lbwBowled": 0,
           "maidens": 0,
-          "ballsBowled": 6,
-          "runsConceded": 10,
+          "ballsBowled": 8,
+          "runsConceded": 12,
           "catches": 0,
           "runOuts": 0,
           "sharedRunOuts": 0,
@@ -17969,6 +17969,24 @@
           "sharedRunOuts": 0,
           "stumpings": 0
         },
+        "Rishabh Pant": {
+          "played": true,
+          "runs": 1,
+          "balls": 1,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
         "Marcus Stoinis": {
           "played": true,
           "runs": 29,
@@ -18007,8 +18025,8 @@
         },
         "Mitchell Marsh": {
           "played": true,
-          "runs": 24,
-          "balls": 15,
+          "runs": 25,
+          "balls": 16,
           "fours": 3,
           "sixes": 1,
           "duck": false,
