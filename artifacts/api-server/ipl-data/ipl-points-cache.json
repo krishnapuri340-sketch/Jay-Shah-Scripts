@@ -17406,17 +17406,17 @@
       "innings": [
         {
           "name": "Punjab Kings Inning 1",
-          "total": "183/1 (13.2 ov)",
+          "total": "194/4 (15.3 ov)",
           "batting": [
             {
               "name": "Priyansh Arya",
-              "runs": 92,
-              "balls": 35,
+              "runs": 93,
+              "balls": 37,
               "fours": 4,
               "sixes": 9,
-              "sr": "262.86",
-              "dismissal": "not out",
-              "notOut": true,
+              "sr": "251.35",
+              "dismissal": "c Mitchell Marsh b M Siddharth",
+              "notOut": false,
               "dnb": false
             },
             {
@@ -17432,50 +17432,50 @@
             },
             {
               "name": "Cooper Connolly",
-              "runs": 86,
-              "balls": 44,
+              "runs": 87,
+              "balls": 46,
               "fours": 8,
               "sixes": 7,
-              "sr": "195.45",
+              "sr": "189.13",
+              "dismissal": "c M Siddharth b Prince Yadav",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Shreyas Iyer",
+              "runs": 5,
+              "balls": 6,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "83.33",
+              "dismissal": "c Mohammad Shami b Mohsin Khan",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Marcus Stoinis",
+              "runs": 3,
+              "balls": 2,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "150.00",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
             },
             {
-              "name": "Shreyas Iyer",
-              "runs": 0,
-              "balls": 0,
+              "name": "Nehal Wadhera",
+              "runs": 1,
+              "balls": 1,
               "fours": 0,
               "sixes": 0,
-              "sr": "-",
-              "dismissal": "",
-              "notOut": false,
-              "dnb": true
+              "sr": "100.00",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
             },
             {
               "name": "Shashank Singh",
-              "runs": 0,
-              "balls": 0,
-              "fours": 0,
-              "sixes": 0,
-              "sr": "-",
-              "dismissal": "",
-              "notOut": false,
-              "dnb": true
-            },
-            {
-              "name": "Nehal Wadhera",
-              "runs": 0,
-              "balls": 0,
-              "fours": 0,
-              "sixes": 0,
-              "sr": "-",
-              "dismissal": "",
-              "notOut": false,
-              "dnb": true
-            },
-            {
-              "name": "Marcus Stoinis",
               "runs": 0,
               "balls": 0,
               "fours": 0,
@@ -17544,25 +17544,25 @@
             },
             {
               "name": "Mohsin Khan",
-              "overs": "3",
+              "overs": "3.3",
               "maidens": 0,
-              "runs": 40,
-              "wickets": 0,
-              "eco": "13.33",
-              "wides": 0,
-              "noBalls": 0,
-              "dots": 6
-            },
-            {
-              "name": "Prince Yadav",
-              "overs": "2.2",
-              "maidens": 0,
-              "runs": 17,
-              "wickets": 0,
-              "eco": "7.29",
+              "runs": 41,
+              "wickets": 1,
+              "eco": "11.71",
               "wides": 0,
               "noBalls": 0,
               "dots": 8
+            },
+            {
+              "name": "Prince Yadav",
+              "overs": "3",
+              "maidens": 0,
+              "runs": 20,
+              "wickets": 1,
+              "eco": "6.67",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 9
             },
             {
               "name": "Ayush Badoni",
@@ -17588,14 +17588,14 @@
             },
             {
               "name": "M Siddharth",
-              "overs": "1",
+              "overs": "2",
               "maidens": 0,
-              "runs": 10,
-              "wickets": 0,
-              "eco": "10",
+              "runs": 17,
+              "wickets": 1,
+              "eco": "8.5",
               "wides": 0,
               "noBalls": 0,
-              "dots": 0
+              "dots": 1
             },
             {
               "name": "Aiden Markram",
@@ -17612,10 +17612,28 @@
         }
       ],
       "playerStats": {
+        "Shreyas Iyer": {
+          "played": true,
+          "runs": 5,
+          "balls": 6,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
         "Priyansh Arya": {
           "played": true,
-          "runs": 92,
-          "balls": 35,
+          "runs": 93,
+          "balls": 37,
           "fours": 4,
           "sixes": 9,
           "duck": false,
@@ -17643,7 +17661,7 @@
           "maidens": 0,
           "ballsBowled": 18,
           "runsConceded": 36,
-          "catches": 0,
+          "catches": 1,
           "runOuts": 0,
           "sharedRunOuts": 0,
           "stumpings": 0
@@ -17655,6 +17673,24 @@
           "fours": 0,
           "sixes": 0,
           "duck": true,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Nehal Wadhera": {
+          "played": true,
+          "runs": 1,
+          "balls": 1,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
           "wickets": 0,
           "dots": 0,
           "lbwBowled": 0,
@@ -17684,6 +17720,24 @@
           "sharedRunOuts": 0,
           "stumpings": 0
         },
+        "Marcus Stoinis": {
+          "played": true,
+          "runs": 3,
+          "balls": 2,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
         "Mitchell Marsh": {
           "played": true,
           "runs": 0,
@@ -17697,7 +17751,7 @@
           "maidens": 0,
           "ballsBowled": 0,
           "runsConceded": 0,
-          "catches": 1,
+          "catches": 2,
           "runOuts": 0,
           "sharedRunOuts": 0,
           "stumpings": 0
@@ -18958,7 +19012,7 @@
   "lastUpdated": "2026-04-19T14:36:40.771Z",
   "dailyHits": {
     "date": "2026-04-19",
-    "count": 23
+    "count": 38
   },
   "_testWrite": 1776521826871
 }

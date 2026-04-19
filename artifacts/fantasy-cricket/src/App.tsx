@@ -587,10 +587,10 @@ export default function App() {
   const swipeBlocked = useRef(false);
   const pointsRetryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pointsRetryCount = useRef(0);
+  const [pullY, setPullY] = useState(0);
   // PTR refs
   const pullState = useRef({ active: false, startY: 0, startX: 0 });
   const pullYRef = useRef(0);
-  const pullIndicatorRef = useRef<HTMLDivElement>(null);
   const sparkTipTimer = useRef<ReturnType<typeof setTimeout>>();
   // Always-fresh ref to refresh fn (avoids stale closure in PTR listener)
   const refreshFnRef = useRef(() => {});
@@ -1041,25 +1041,15 @@ export default function App() {
       pullState.current.startY = e.touches[0].clientY;
       pullState.current.startX = e.touches[0].clientX;
     };
-    const hidePTR = () => {
-      if (pullIndicatorRef.current) pullIndicatorRef.current.style.display = "none";
-    };
-    const showPTR = (clamped: number) => {
-      const el = pullIndicatorRef.current;
-      if (!el) return;
-      el.style.display = "";
-      el.style.opacity = String(Math.min(clamped / PULL_THRESHOLD, 1));
-      el.textContent = clamped >= PULL_THRESHOLD - 5 ? "↑ Release to refresh" : "↓ Pull to refresh";
-    };
     const onMove = (e: TouchEvent) => {
       if (!pullState.current.active) return;
       const dy = e.touches[0].clientY - pullState.current.startY;
-      if (dy <= 0) { pullState.current.active = false; pullYRef.current = 0; hidePTR(); return; }
+      if (dy <= 0) { pullState.current.active = false; pullYRef.current = 0; setPullY(0); return; }
       const dx = Math.abs(e.touches[0].clientX - pullState.current.startX);
-      if (dx > 30) { pullState.current.active = false; pullYRef.current = 0; hidePTR(); return; }
+      if (dx > 30) { pullState.current.active = false; pullYRef.current = 0; setPullY(0); return; }
       const clamped = Math.min(dy * 0.45, PULL_THRESHOLD);
       pullYRef.current = clamped;
-      showPTR(clamped);
+      setPullY(clamped);
     };
     const onEnd = () => {
       if (pullState.current.active && pullYRef.current >= PULL_THRESHOLD - 5) {
@@ -1067,7 +1057,7 @@ export default function App() {
       }
       pullState.current.active = false;
       pullYRef.current = 0;
-      hidePTR();
+      setPullY(0);
     };
     document.addEventListener("touchstart", onStart, { passive: true });
     document.addEventListener("touchmove", onMove, { passive: true });
@@ -5565,7 +5555,11 @@ export default function App() {
           {sparkTip.pts > 0 ? `+${sparkTip.pts}` : "0"} pts · {sparkTip.label}
         </div>
       )}
-      <div ref={pullIndicatorRef} className="ptr-indicator" style={{ display: "none" }} aria-hidden="true" />
+      {pullY > 0 && (
+        <div className="ptr-indicator" style={{ opacity: Math.min(pullY / PULL_THRESHOLD, 1) }}>
+          {pullY >= PULL_THRESHOLD - 5 ? "↑ Release to refresh" : "↓ Pull to refresh"}
+        </div>
+      )}
       <div className="app"
         onTouchStart={handleSwipeStart}
         onTouchEnd={handleSwipeEnd}
