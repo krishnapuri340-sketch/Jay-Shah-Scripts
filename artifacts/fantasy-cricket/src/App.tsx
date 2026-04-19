@@ -1020,7 +1020,14 @@ export default function App() {
   }, [currentUser]);
 
   // Keep refreshFnRef up-to-date every render so PTR always calls the latest version
-  useEffect(() => { refreshFnRef.current = () => { fetchLive(); fetchPoints(); }; });
+  useEffect(() => {
+    refreshFnRef.current = () => {
+      fetchLive();
+      fetchPoints();
+      fetchStandings();
+      fetchStats();
+    };
+  });
 
   // PWA install prompt
   useEffect(() => {
@@ -1140,9 +1147,8 @@ export default function App() {
   const handleLbRefresh = async () => {
     if (lbRefreshing) return;
     setLbRefreshing(true);
-    try {
-      await fetch("/api/ipl/points/sync-supabase", { method: "POST" });
-    } catch (_) {}
+    // Fire Supabase sync in background — don't block the UI refresh on it
+    fetch("/api/ipl/points/sync-supabase", { method: "POST" }).catch(() => {});
     try {
       await Promise.all([
         fetch("/api/ipl/points").then(r => r.ok ? r.json() : null).then(data => {

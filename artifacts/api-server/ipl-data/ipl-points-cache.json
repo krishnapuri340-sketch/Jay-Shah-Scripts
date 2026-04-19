@@ -17406,7 +17406,7 @@
       "innings": [
         {
           "name": "Punjab Kings Inning 1",
-          "total": "194/4 (15.3 ov)",
+          "total": "208/5 (16.5 ov)",
           "batting": [
             {
               "name": "Priyansh Arya",
@@ -17454,24 +17454,24 @@
             },
             {
               "name": "Marcus Stoinis",
-              "runs": 3,
-              "balls": 2,
+              "runs": 5,
+              "balls": 4,
               "fours": 0,
               "sixes": 0,
-              "sr": "150.00",
+              "sr": "125.00",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
             },
             {
               "name": "Nehal Wadhera",
-              "runs": 1,
-              "balls": 1,
-              "fours": 0,
-              "sixes": 0,
-              "sr": "100.00",
-              "dismissal": "not out",
-              "notOut": true,
+              "runs": 13,
+              "balls": 7,
+              "fours": 1,
+              "sixes": 1,
+              "sr": "185.71",
+              "dismissal": "c Nicholas Pooran b M Siddharth",
+              "notOut": false,
               "dnb": false
             },
             {
@@ -17544,14 +17544,14 @@
             },
             {
               "name": "Mohsin Khan",
-              "overs": "3.3",
+              "overs": "4",
               "maidens": 0,
-              "runs": 41,
+              "runs": 43,
               "wickets": 1,
-              "eco": "11.71",
+              "eco": "10.75",
               "wides": 0,
               "noBalls": 0,
-              "dots": 8
+              "dots": 9
             },
             {
               "name": "Prince Yadav",
@@ -17588,14 +17588,14 @@
             },
             {
               "name": "M Siddharth",
-              "overs": "2",
+              "overs": "2.5",
               "maidens": 0,
-              "runs": 17,
-              "wickets": 1,
-              "eco": "8.5",
+              "runs": 29,
+              "wickets": 2,
+              "eco": "10.24",
               "wides": 0,
               "noBalls": 0,
-              "dots": 1
+              "dots": 2
             },
             {
               "name": "Aiden Markram",
@@ -17626,6 +17626,24 @@
           "ballsBowled": 0,
           "runsConceded": 0,
           "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Nicholas Pooran": {
+          "played": true,
+          "runs": 0,
+          "balls": 0,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 1,
           "runOuts": 0,
           "sharedRunOuts": 0,
           "stumpings": 0
@@ -17686,10 +17704,10 @@
         },
         "Nehal Wadhera": {
           "played": true,
-          "runs": 1,
-          "balls": 1,
-          "fours": 0,
-          "sixes": 0,
+          "runs": 13,
+          "balls": 7,
+          "fours": 1,
+          "sixes": 1,
           "duck": false,
           "wickets": 0,
           "dots": 0,
@@ -17722,8 +17740,8 @@
         },
         "Marcus Stoinis": {
           "played": true,
-          "runs": 3,
-          "balls": 2,
+          "runs": 5,
+          "balls": 4,
           "fours": 0,
           "sixes": 0,
           "duck": false,
@@ -19012,7 +19030,7 @@
   "lastUpdated": "2026-04-19T14:36:40.771Z",
   "dailyHits": {
     "date": "2026-04-19",
-    "count": 38
+    "count": 43
   },
   "_testWrite": 1776521826871
 }
