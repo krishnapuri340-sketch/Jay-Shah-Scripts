@@ -17406,15 +17406,15 @@
       "innings": [
         {
           "name": "Punjab Kings Inning 1",
-          "total": "89/1 (7.5 ov)",
+          "total": "117/1 (10.2 ov)",
           "batting": [
             {
               "name": "Priyansh Arya",
-              "runs": 47,
-              "balls": 17,
-              "fours": 3,
-              "sixes": 4,
-              "sr": "276.47",
+              "runs": 66,
+              "balls": 28,
+              "fours": 4,
+              "sixes": 5,
+              "sr": "235.71",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -17432,11 +17432,11 @@
             },
             {
               "name": "Cooper Connolly",
-              "runs": 38,
-              "balls": 29,
+              "runs": 47,
+              "balls": 33,
               "fours": 5,
-              "sixes": 2,
-              "sr": "131.03",
+              "sixes": 3,
+              "sr": "142.42",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -17533,11 +17533,11 @@
           "bowling": [
             {
               "name": "Mohammad Shami",
-              "overs": "2",
+              "overs": "2.2",
               "maidens": 0,
-              "runs": 17,
+              "runs": 24,
               "wickets": 1,
-              "eco": "8.5",
+              "eco": "10.29",
               "wides": 2,
               "noBalls": 0,
               "dots": 6
@@ -17555,14 +17555,14 @@
             },
             {
               "name": "Prince Yadav",
-              "overs": "1",
+              "overs": "2",
               "maidens": 0,
-              "runs": 4,
+              "runs": 13,
               "wickets": 0,
-              "eco": "4",
+              "eco": "6.5",
               "wides": 0,
               "noBalls": 0,
-              "dots": 5
+              "dots": 7
             },
             {
               "name": "Ayush Badoni",
@@ -17577,14 +17577,25 @@
             },
             {
               "name": "Avesh Khan",
-              "overs": "0.5",
+              "overs": "1",
               "maidens": 0,
-              "runs": 12,
+              "runs": 14,
               "wickets": 0,
-              "eco": "14.4",
+              "eco": "14",
               "wides": 0,
               "noBalls": 0,
               "dots": 1
+            },
+            {
+              "name": "M Siddharth",
+              "overs": "1",
+              "maidens": 0,
+              "runs": 10,
+              "wickets": 0,
+              "eco": "10",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 0
             }
           ]
         }
@@ -17592,10 +17603,10 @@
       "playerStats": {
         "Priyansh Arya": {
           "played": true,
-          "runs": 47,
-          "balls": 17,
-          "fours": 3,
-          "sixes": 4,
+          "runs": 66,
+          "balls": 28,
+          "fours": 4,
+          "sixes": 5,
           "duck": false,
           "wickets": 0,
           "dots": 0,
@@ -17619,8 +17630,8 @@
           "dots": 6,
           "lbwBowled": 0,
           "maidens": 0,
-          "ballsBowled": 12,
-          "runsConceded": 17,
+          "ballsBowled": 14,
+          "runsConceded": 24,
           "catches": 0,
           "runOuts": 0,
           "sharedRunOuts": 0,
@@ -18918,7 +18929,7 @@
   "lastUpdated": "2026-04-19T14:36:40.771Z",
   "dailyHits": {
     "date": "2026-04-19",
-    "count": 1
+    "count": 12
   },
   "_testWrite": 1776521826871
 }

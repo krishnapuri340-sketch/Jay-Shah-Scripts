@@ -1,0 +1,59 @@
+Good — I have a thorough picture of the codebase. Here’s my design audit:
+
+Design Issues Found
+🔴 Critical
+1. Extreme micro-typography — many labels are illegible
+Several labels go as small as 0.48rem (~7.7px) and 0.52rem (~8.3px), well below the WCAG minimum of 9px for supporting text. The worst offenders:
+	•	.player-pts-raw → 0.48rem
+	•	.player-pts-label, .hist-award-lbl → 0.52rem
+	•	.countdown-label, .team-hlabel, .player-detail-stat-lbl → 0.54rem
+These are rendered in uppercase with letter-spacing, which makes them even harder to parse at small sizes on low-DPI screens. The safe floor should be 0.65rem.
+2. Focus outlines completely suppressed
+
+.nav-btn:focus, .nav-btn:focus-visible { outline: none; background: none; }
+
+
+The nav buttons have focus removed entirely with no replacement indicator. This breaks keyboard and switch-access navigation. The :focus-visible rule should provide at minimum a visible ring (e.g. outline: 2px solid var(--gold)).
+
+🟡 Significant
+3. Hardcoded colors that break in light mode
+Three values bypass the theme variable system:
+	•	.lb-rank.third { color: #92400e; } — a dark-mode brown that will be nearly invisible on the light #f4f4f5 background
+	•	.lb-rank.second { color: #9ca3af; } — contrast is borderline in both modes
+	•	.player-card.live-now .player-name { color: #f08080; } — light salmon on white fails contrast
+All three should be CSS variables with light-mode overrides.
+4. --gold-dim not overridden in light mode
+--gold-dim: #c99a30 is used in .notice text but has no html.light equivalent. In light mode it falls back to the dark-mode value, which at ~4.0:1 against the light background is only marginally compliant — and it’s used on a gold tinted background, making it worse.
+5. prefers-reduced-motion completely absent
+There are at least 12 named @keyframes (livePulse, lbCardEnter, tabFadeIn, barGrow, pinShake, ptrSlideDown, etc.) with no @media (prefers-reduced-motion: reduce) block anywhere. Users who opt out of motion will still get all animations including the infinite pulsing dots.
+
+🟠 Minor / Polish
+6. .btn-primary naming is misleading
+.btn-primary has background: var(--surface-2) and color: var(--text-2) — it looks like a secondary/ghost button. The name creates confusion in the component model, and its gold accent never fires (only on .active via .btn-dashboard). Either rename it or give it a gold-accented default state to match the app’s visual hierarchy.
+7. Inconsistent border-radius on interactive pills
+Round pills use border-radius: 22px or 20px (.team-tab, .filter-team-btn) but .hist-yr-btn uses var(--radius-sm) (8px), making it a rectangular chip. With similar sizing and function, these should share a token.
+8. .lb-pts.first size jump is abrupt
+First place gets font-size: 2rem vs second place’s 1.75rem. That 12.5% jump creates an uneven visual rhythm on the leaderboard, especially noticeable when the list animates in. A more graduated scale (1.75 → 1.85 → 2.0) or a separate crown/badge treatment would look cleaner.
+9. --ease-snap is a duplicate of --ease-out
+Both resolve to the exact same value cubic-bezier(0.4, 0, 0.2, 1). One of them should be removed to avoid confusion.
+10. --glass token defined but never used
+--glass: rgba(255,255,255,0.02) appears in :root but has zero usages in the stylesheet. Dead token.
+
+Summary
+
+
+
+|Severity|Issue                                 |
+|--------|--------------------------------------|
+|🔴       |Sub-8px labels (`0.48–0.54rem`)       |
+|🔴       |Focus outlines fully removed on nav   |
+|🟡       |3 hardcoded colors break in light mode|
+|🟡       |`--gold-dim` missing light override   |
+|🟡       |No `prefers-reduced-motion` support   |
+|🟠       |`btn-primary` semantic mismatch       |
+|🟠       |Pill vs chip radius inconsistency     |
+|🟠       |Abrupt rank-1 font size jump          |
+|🟠       |`--ease-snap` is a duplicate token    |
+|🟠       |`--glass` is a dead unused token      |
+
+The overall design system is well-structured — the token naming, spacing scale, and dark-mode palette are solid. The issues above are mostly refinements rather than fundamental problems.​​​​​​​​​​​​​​​​
