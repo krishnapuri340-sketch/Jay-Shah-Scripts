@@ -17406,15 +17406,15 @@
       "innings": [
         {
           "name": "Punjab Kings Inning 1",
-          "total": "166/1 (12.3 ov)",
+          "total": "183/1 (13.2 ov)",
           "batting": [
             {
               "name": "Priyansh Arya",
-              "runs": 80,
-              "balls": 33,
+              "runs": 92,
+              "balls": 35,
               "fours": 4,
-              "sixes": 7,
-              "sr": "242.42",
+              "sixes": 9,
+              "sr": "262.86",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -17432,11 +17432,11 @@
             },
             {
               "name": "Cooper Connolly",
-              "runs": 81,
-              "balls": 41,
-              "fours": 7,
+              "runs": 86,
+              "balls": 44,
+              "fours": 8,
               "sixes": 7,
-              "sr": "197.56",
+              "sr": "195.45",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -17555,14 +17555,14 @@
             },
             {
               "name": "Prince Yadav",
-              "overs": "2",
+              "overs": "2.2",
               "maidens": 0,
-              "runs": 13,
+              "runs": 17,
               "wickets": 0,
-              "eco": "6.5",
+              "eco": "7.29",
               "wides": 0,
               "noBalls": 0,
-              "dots": 7
+              "dots": 8
             },
             {
               "name": "Ayush Badoni",
@@ -17599,11 +17599,11 @@
             },
             {
               "name": "Aiden Markram",
-              "overs": "0.3",
+              "overs": "1",
               "maidens": 0,
-              "runs": 19,
+              "runs": 32,
               "wickets": 0,
-              "eco": "38",
+              "eco": "32",
               "wides": 1,
               "noBalls": 0,
               "dots": 0
@@ -17614,10 +17614,10 @@
       "playerStats": {
         "Priyansh Arya": {
           "played": true,
-          "runs": 80,
-          "balls": 33,
+          "runs": 92,
+          "balls": 35,
           "fours": 4,
-          "sixes": 7,
+          "sixes": 9,
           "duck": false,
           "wickets": 0,
           "dots": 0,
@@ -17677,8 +17677,8 @@
           "dots": 0,
           "lbwBowled": 0,
           "maidens": 0,
-          "ballsBowled": 3,
-          "runsConceded": 19,
+          "ballsBowled": 6,
+          "runsConceded": 32,
           "catches": 0,
           "runOuts": 0,
           "sharedRunOuts": 0,
@@ -18958,7 +18958,7 @@
   "lastUpdated": "2026-04-19T14:36:40.771Z",
   "dailyHits": {
     "date": "2026-04-19",
-    "count": 18
+    "count": 23
   },
   "_testWrite": 1776521826871
 }
