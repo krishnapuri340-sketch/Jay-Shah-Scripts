@@ -17406,15 +17406,15 @@
       "innings": [
         {
           "name": "Punjab Kings Inning 1",
-          "total": "141/1 (11.2 ov)",
+          "total": "166/1 (12.3 ov)",
           "batting": [
             {
               "name": "Priyansh Arya",
-              "runs": 79,
-              "balls": 31,
+              "runs": 80,
+              "balls": 33,
               "fours": 4,
               "sixes": 7,
-              "sr": "254.84",
+              "sr": "242.42",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -17432,11 +17432,11 @@
             },
             {
               "name": "Cooper Connolly",
-              "runs": 58,
-              "balls": 36,
-              "fours": 6,
-              "sixes": 4,
-              "sr": "161.11",
+              "runs": 81,
+              "balls": 41,
+              "fours": 7,
+              "sixes": 7,
+              "sr": "197.56",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -17577,14 +17577,14 @@
             },
             {
               "name": "Avesh Khan",
-              "overs": "1.2",
+              "overs": "2",
               "maidens": 0,
-              "runs": 26,
+              "runs": 32,
               "wickets": 0,
-              "eco": "19.5",
+              "eco": "16",
               "wides": 0,
               "noBalls": 0,
-              "dots": 1
+              "dots": 2
             },
             {
               "name": "M Siddharth",
@@ -17596,6 +17596,17 @@
               "wides": 0,
               "noBalls": 0,
               "dots": 0
+            },
+            {
+              "name": "Aiden Markram",
+              "overs": "0.3",
+              "maidens": 0,
+              "runs": 19,
+              "wickets": 0,
+              "eco": "38",
+              "wides": 1,
+              "noBalls": 0,
+              "dots": 0
             }
           ]
         }
@@ -17603,8 +17614,8 @@
       "playerStats": {
         "Priyansh Arya": {
           "played": true,
-          "runs": 79,
-          "balls": 31,
+          "runs": 80,
+          "balls": 33,
           "fours": 4,
           "sixes": 7,
           "duck": false,
@@ -17650,6 +17661,24 @@
           "maidens": 0,
           "ballsBowled": 0,
           "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Aiden Markram": {
+          "played": true,
+          "runs": 0,
+          "balls": 0,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 3,
+          "runsConceded": 19,
           "catches": 0,
           "runOuts": 0,
           "sharedRunOuts": 0,
@@ -18929,7 +18958,7 @@
   "lastUpdated": "2026-04-19T14:36:40.771Z",
   "dailyHits": {
     "date": "2026-04-19",
-    "count": 12
+    "count": 18
   },
   "_testWrite": 1776521826871
 }

@@ -578,7 +578,6 @@ export default function App() {
   const [predSaveState, setPredSaveState] = useState<Record<string, "saving" | "saved" | "error">>({});
 
   const [sparkTip, setSparkTip] = useState<{ label: string; pts: number } | null>(null);
-  const [pullY, setPullY] = useState(0);
   const [installPrompt, setInstallPrompt] = useState<any>(null);
   const [appInstalled, setAppInstalled] = useState(false);
   const [showToast, setShowToast] = useState(false);
@@ -591,6 +590,7 @@ export default function App() {
   // PTR refs
   const pullState = useRef({ active: false, startY: 0, startX: 0 });
   const pullYRef = useRef(0);
+  const pullIndicatorRef = useRef<HTMLDivElement>(null);
   const sparkTipTimer = useRef<ReturnType<typeof setTimeout>>();
   // Always-fresh ref to refresh fn (avoids stale closure in PTR listener)
   const refreshFnRef = useRef(() => {});
@@ -965,11 +965,10 @@ export default function App() {
     }
     // Live match — faster status, slower points (server cooldown aligned)
     const ids = [
-      setInterval(fetchLive,        liveStatus),
-      setInterval(fetchStandings,   liveStatus),
-      setInterval(fetchPoints,      livePoints),
-      setInterval(fetchStats,       livePoints),
-      setInterval(fetchPredictions, livePoints),
+      setInterval(fetchLive,      liveStatus),
+      setInterval(fetchStandings, liveStatus),
+      setInterval(fetchPoints,    livePoints),
+      setInterval(fetchStats,     livePoints),
     ];
     return () => ids.forEach(clearInterval);
   }, [isAnyMatchLive, currentUser]);
@@ -987,7 +986,6 @@ export default function App() {
     es.onmessage = (e) => {
       try {
         const data = JSON.parse(e.data) as Record<string, Record<string, string | null>>;
-        // Update lastPredSaveRef so the 30s poll fallback doesn't overwrite this fresh push
         lastPredSaveRef.current = Date.now();
         saveLocalPreds(data);
         setPredictions(data);
@@ -1000,20 +998,11 @@ export default function App() {
     return () => es.close();
   }, [currentUser]);
 
-  // Poll predictions on all tabs as fallback (SSE covers normal operation)
+  // Fetch predictions once on login — SSE keeps them live after that
   useEffect(() => {
     if (!currentUser) return;
-    fetchPredictions(); // immediate fetch on login / tab change
-    const id = setInterval(fetchPredictions, 30_000);
-    return () => clearInterval(id);
+    fetchPredictions();
   }, [currentUser]);
-
-  // Fast-poll predictions when the Predictions view is open (picks can change up until match starts)
-  useEffect(() => {
-    if (!currentUser || !(tab === "stats" && statsFilter === "predictions")) return;
-    const id = setInterval(fetchPredictions, 15_000);
-    return () => clearInterval(id);
-  }, [tab, statsFilter, currentUser]);
 
   // Refresh when the user returns to the tab after being away
   useEffect(() => {
@@ -1052,15 +1041,25 @@ export default function App() {
       pullState.current.startY = e.touches[0].clientY;
       pullState.current.startX = e.touches[0].clientX;
     };
+    const hidePTR = () => {
+      if (pullIndicatorRef.current) pullIndicatorRef.current.style.display = "none";
+    };
+    const showPTR = (clamped: number) => {
+      const el = pullIndicatorRef.current;
+      if (!el) return;
+      el.style.display = "";
+      el.style.opacity = String(Math.min(clamped / PULL_THRESHOLD, 1));
+      el.textContent = clamped >= PULL_THRESHOLD - 5 ? "↑ Release to refresh" : "↓ Pull to refresh";
+    };
     const onMove = (e: TouchEvent) => {
       if (!pullState.current.active) return;
       const dy = e.touches[0].clientY - pullState.current.startY;
-      if (dy <= 0) { pullState.current.active = false; pullYRef.current = 0; setPullY(0); return; }
+      if (dy <= 0) { pullState.current.active = false; pullYRef.current = 0; hidePTR(); return; }
       const dx = Math.abs(e.touches[0].clientX - pullState.current.startX);
-      if (dx > 30) { pullState.current.active = false; pullYRef.current = 0; setPullY(0); return; }
+      if (dx > 30) { pullState.current.active = false; pullYRef.current = 0; hidePTR(); return; }
       const clamped = Math.min(dy * 0.45, PULL_THRESHOLD);
       pullYRef.current = clamped;
-      setPullY(clamped);
+      showPTR(clamped);
     };
     const onEnd = () => {
       if (pullState.current.active && pullYRef.current >= PULL_THRESHOLD - 5) {
@@ -1068,7 +1067,7 @@ export default function App() {
       }
       pullState.current.active = false;
       pullYRef.current = 0;
-      setPullY(0);
+      hidePTR();
     };
     document.addEventListener("touchstart", onStart, { passive: true });
     document.addEventListener("touchmove", onMove, { passive: true });
@@ -5566,11 +5565,7 @@ export default function App() {
           {sparkTip.pts > 0 ? `+${sparkTip.pts}` : "0"} pts · {sparkTip.label}
         </div>
       )}
-      {pullY > 0 && (
-        <div className="ptr-indicator" style={{ opacity: Math.min(pullY / PULL_THRESHOLD, 1) }}>
-          {pullY >= PULL_THRESHOLD - 5 ? "↑ Release to refresh" : "↓ Pull to refresh"}
-        </div>
-      )}
+      <div ref={pullIndicatorRef} className="ptr-indicator" style={{ display: "none" }} aria-hidden="true" />
       <div className="app"
         onTouchStart={handleSwipeStart}
         onTouchEnd={handleSwipeEnd}
