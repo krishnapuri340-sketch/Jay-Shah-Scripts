@@ -578,6 +578,7 @@ export default function App() {
   const [predSaveState, setPredSaveState] = useState<Record<string, "saving" | "saved" | "error">>({});
 
   const [sparkTip, setSparkTip] = useState<{ label: string; pts: number } | null>(null);
+  const [pullY, setPullY] = useState(0);
   const [installPrompt, setInstallPrompt] = useState<any>(null);
   const [appInstalled, setAppInstalled] = useState(false);
   const [showToast, setShowToast] = useState(false);
@@ -587,7 +588,6 @@ export default function App() {
   const swipeBlocked = useRef(false);
   const pointsRetryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pointsRetryCount = useRef(0);
-  const [pullY, setPullY] = useState(0);
   // PTR refs
   const pullState = useRef({ active: false, startY: 0, startX: 0 });
   const pullYRef = useRef(0);
@@ -965,10 +965,11 @@ export default function App() {
     }
     // Live match — faster status, slower points (server cooldown aligned)
     const ids = [
-      setInterval(fetchLive,      liveStatus),
-      setInterval(fetchStandings, liveStatus),
-      setInterval(fetchPoints,    livePoints),
-      setInterval(fetchStats,     livePoints),
+      setInterval(fetchLive,        liveStatus),
+      setInterval(fetchStandings,   liveStatus),
+      setInterval(fetchPoints,      livePoints),
+      setInterval(fetchStats,       livePoints),
+      setInterval(fetchPredictions, livePoints),
     ];
     return () => ids.forEach(clearInterval);
   }, [isAnyMatchLive, currentUser]);
@@ -986,6 +987,7 @@ export default function App() {
     es.onmessage = (e) => {
       try {
         const data = JSON.parse(e.data) as Record<string, Record<string, string | null>>;
+        // Update lastPredSaveRef so the 30s poll fallback doesn't overwrite this fresh push
         lastPredSaveRef.current = Date.now();
         saveLocalPreds(data);
         setPredictions(data);
@@ -998,11 +1000,20 @@ export default function App() {
     return () => es.close();
   }, [currentUser]);
 
-  // Fetch predictions once on login — SSE keeps them live after that
+  // Poll predictions on all tabs as fallback (SSE covers normal operation)
   useEffect(() => {
     if (!currentUser) return;
-    fetchPredictions();
+    fetchPredictions(); // immediate fetch on login / tab change
+    const id = setInterval(fetchPredictions, 30_000);
+    return () => clearInterval(id);
   }, [currentUser]);
+
+  // Fast-poll predictions when the Predictions view is open (picks can change up until match starts)
+  useEffect(() => {
+    if (!currentUser || !(tab === "stats" && statsFilter === "predictions")) return;
+    const id = setInterval(fetchPredictions, 15_000);
+    return () => clearInterval(id);
+  }, [tab, statsFilter, currentUser]);
 
   // Refresh when the user returns to the tab after being away
   useEffect(() => {
@@ -1020,14 +1031,7 @@ export default function App() {
   }, [currentUser]);
 
   // Keep refreshFnRef up-to-date every render so PTR always calls the latest version
-  useEffect(() => {
-    refreshFnRef.current = () => {
-      fetchLive();
-      fetchPoints();
-      fetchStandings();
-      fetchStats();
-    };
-  });
+  useEffect(() => { refreshFnRef.current = () => { fetchLive(); fetchPoints(); }; });
 
   // PWA install prompt
   useEffect(() => {
@@ -1147,8 +1151,9 @@ export default function App() {
   const handleLbRefresh = async () => {
     if (lbRefreshing) return;
     setLbRefreshing(true);
-    // Fire Supabase sync in background — don't block the UI refresh on it
-    fetch("/api/ipl/points/sync-supabase", { method: "POST" }).catch(() => {});
+    try {
+      await fetch("/api/ipl/points/sync-supabase", { method: "POST" });
+    } catch (_) {}
     try {
       await Promise.all([
         fetch("/api/ipl/points").then(r => r.ok ? r.json() : null).then(data => {
