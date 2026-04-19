@@ -17406,15 +17406,15 @@
       "innings": [
         {
           "name": "Punjab Kings Inning 1",
-          "total": "84/1 (7.3 ov)",
+          "total": "89/1 (7.5 ov)",
           "batting": [
             {
               "name": "Priyansh Arya",
-              "runs": 43,
-              "balls": 16,
-              "fours": 2,
+              "runs": 47,
+              "balls": 17,
+              "fours": 3,
               "sixes": 4,
-              "sr": "268.75",
+              "sr": "276.47",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -17432,11 +17432,11 @@
             },
             {
               "name": "Cooper Connolly",
-              "runs": 37,
-              "balls": 28,
+              "runs": 38,
+              "balls": 29,
               "fours": 5,
               "sixes": 2,
-              "sr": "132.14",
+              "sr": "131.03",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -17577,11 +17577,11 @@
             },
             {
               "name": "Avesh Khan",
-              "overs": "0.3",
+              "overs": "0.5",
               "maidens": 0,
-              "runs": 7,
+              "runs": 12,
               "wickets": 0,
-              "eco": "14",
+              "eco": "14.4",
               "wides": 0,
               "noBalls": 0,
               "dots": 1
@@ -17592,9 +17592,9 @@
       "playerStats": {
         "Priyansh Arya": {
           "played": true,
-          "runs": 43,
-          "balls": 16,
-          "fours": 2,
+          "runs": 47,
+          "balls": 17,
+          "fours": 3,
           "sixes": 4,
           "duck": false,
           "wickets": 0,
