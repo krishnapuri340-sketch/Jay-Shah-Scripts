@@ -19940,20 +19940,20 @@
     },
     "89a84f95-ee2f-4a1d-a6a6-8e340f0bb720": {
       "points": {
-        "Virat Kohli": 84,
-        "Phil Salt": 2,
-        "Rajat Patidar": 119,
         "Jitesh Sharma": 17,
-        "Tim David": 27,
-        "Krunal Pandya": 89,
-        "Bhuvneshwar Kumar": 35,
-        "Venkatesh Iyer": 61,
-        "Vaibhav Suryavanshi": 176,
-        "Yashasvi Jaiswal": 29,
+        "Virat Kohli": 84,
         "Dhruv Jurel": 161,
-        "Riyan Parag": 7,
         "Shimron Hetmyer": 30,
-        "Ravindra Jadeja": 68
+        "Riyan Parag": 7,
+        "Rajat Patidar": 119,
+        "Ravindra Jadeja": 68,
+        "Krunal Pandya": 89,
+        "Phil Salt": 2,
+        "Vaibhav Suryavanshi": 176,
+        "Tim David": 27,
+        "Yashasvi Jaiswal": 29,
+        "Bhuvneshwar Kumar": 35,
+        "Venkatesh Iyer": 61
       },
       "matchLabel": "Rajasthan Royals vs Royal Challengers Bengaluru",
       "matchDate": "2026-04-10",
@@ -20040,15 +20040,15 @@
     },
     "cfbe0107-9d42-40cd-a74a-6137ac8e258a": {
       "points": {
-        "Ajinkya Rahane": 83,
-        "Finn Allen": 21,
         "Cameron Green": 92,
-        "Rinku Singh": 16,
+        "Rishabh Pant": 18,
         "Sunil Narine": 70,
+        "Finn Allen": 21,
+        "Ajinkya Rahane": 83,
+        "Rinku Singh": 16,
+        "Mohammed Shami": 35,
         "Mitchell Marsh": 31,
         "Aiden Markram": 50,
-        "Mohammed Shami": 35,
-        "Rishabh Pant": 18,
         "Nicholas Pooran": 21
       },
       "matchLabel": "Kolkata Knight Riders vs Lucknow Super Giants",
@@ -20232,15 +20232,15 @@
     },
     "3c44e9f8-17ff-46f4-a5a5-0779fb52a863": {
       "points": {
-        "Dhruv Jurel": 15,
-        "Heinrich Klaasen": 74,
-        "Riyan Parag": 52,
-        "Ravindra Jadeja": 75,
         "Vaibhav Suryavanshi": 2,
-        "Yashasvi Jaiswal": 5,
-        "Ishan Kishan": 199,
         "Abhishek Sharma": 10,
-        "Travis Head": 34
+        "Travis Head": 34,
+        "Ishan Kishan": 199,
+        "Heinrich Klaasen": 74,
+        "Yashasvi Jaiswal": 5,
+        "Dhruv Jurel": 15,
+        "Riyan Parag": 52,
+        "Ravindra Jadeja": 75
       },
       "matchLabel": "Sunrisers Hyderabad vs Rajasthan Royals",
       "matchDate": "2026-04-13",
@@ -20291,17 +20291,17 @@
     },
     "d404e08c-c101-4379-827d-a86bf6182cb9": {
       "points": {
-        "Aiden Markram": 2,
-        "Rishabh Pant": 18,
+        "Dhruv Jurel": 30,
         "Shimron Hetmyer": 40,
-        "Ravindra Jadeja": 117,
         "Riyan Parag": 54,
-        "Mohammed Shami": 108,
+        "Rishabh Pant": 18,
+        "Ravindra Jadeja": 117,
         "Vaibhav Suryavanshi": 18,
         "Yashasvi Jaiswal": 48,
-        "Nicholas Pooran": 44,
+        "Mohammed Shami": 108,
         "Mitchell Marsh": 105,
-        "Dhruv Jurel": 30
+        "Aiden Markram": 2,
+        "Nicholas Pooran": 44
       },
       "matchLabel": "Lucknow Super Giants vs Rajasthan Royals",
       "matchDate": "2026-04-22",
@@ -20329,18 +20329,18 @@
     },
     "e1d196fb-1105-4ddb-91bc-7186ba553777": {
       "points": {
-        "Tilak Varma": 203,
+        "Prasidh Krishna": 36,
+        "Sai Sudharsan": 2,
         "Suryakumar Yadav": 31,
-        "Rashid Khan": 20,
         "Sherfane Rutherford": 5,
         "Mohammed Siraj": 58,
-        "Washington Sundar": 60,
+        "Rashid Khan": 20,
+        "Hardik Pandya": 63,
         "Jasprit Bumrah": 62,
-        "Prasidh Krishna": 36,
-        "Shubman Gill": 30,
-        "Sai Sudharsan": 2,
         "Jos Buttler": 13,
-        "Hardik Pandya": 63
+        "Shubman Gill": 30,
+        "Tilak Varma": 203,
+        "Washington Sundar": 60
       },
       "matchLabel": "Gujarat Titans vs Mumbai Indians",
       "matchDate": "2026-04-20",
@@ -21024,7 +21024,7 @@
       "matchNumber": 70
     }
   },
-  "lastUpdated": "2026-04-22T18:52:36.724Z",
+  "lastUpdated": "2026-04-22T19:01:14.236Z",
   "cricapiMatchIds": {
     "2428": "12b5d808-d9ab-468e-bd25-a2c347f64bdc",
     "2467": "c5bf2a95-1855-463d-accf-9c1db88418cd",

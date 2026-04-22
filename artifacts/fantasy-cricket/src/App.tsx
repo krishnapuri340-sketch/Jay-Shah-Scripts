@@ -616,7 +616,9 @@ export default function App() {
     fetchStats();
   }, [tab, currentUser]);
 
-  // SSE: server pushes predictions to all open sessions instantly on any save
+  // SSE: server pushes predictions to all open sessions instantly on any save.
+  // Bumped on tab-visible to force a fresh connection (mobile browsers kill SSE in background).
+  const [sseGen, setSseGen] = useState(0);
   useEffect(() => {
     if (!currentUser) return;
     const es = new EventSource("/api/ipl/predictions/stream");
@@ -630,11 +632,10 @@ export default function App() {
       } catch {}
     };
     es.onerror = () => {
-      // Browser auto-reconnects on error — this is just observability
       console.warn("[SSE] prediction stream error — browser will reconnect automatically");
     };
     return () => es.close();
-  }, [currentUser]);
+  }, [currentUser, sseGen]);
 
   // Poll predictions on all tabs as fallback (SSE covers normal operation)
   useEffect(() => {
@@ -660,6 +661,7 @@ export default function App() {
         fetchPoints();
         fetchPredictions();
         fetchStandings();
+        setSseGen(g => g + 1); // force-reconnect SSE — mobile browsers kill it in background
       }
     };
     document.addEventListener("visibilitychange", onVisible);
