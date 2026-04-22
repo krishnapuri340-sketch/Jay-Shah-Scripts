@@ -11,6 +11,7 @@ export const STAT_CATS = [
   { id: "catchesLeader", label: "Catches", sub: "Most Catches" },
   { id: "srLeader", label: "Strike Rate", sub: "Min 10 balls" },
   { id: "ecoLeader", label: "Economy", sub: "Min 2 overs" },
+  { id: "dotsLeader", label: "Dot Balls", sub: "Most Dots Bowled" },
 ] as const;
 
 function renderStatRow(entry: any, i: number, cat: string) {
@@ -27,7 +28,7 @@ function renderStatRow(entry: any, i: number, cat: string) {
           {entry.name}
           {entry.isFantasy && <span className="fantasy-tag">F</span>}
         </div>
-        {cat === "catchesLeader" ? (
+        {cat === "catchesLeader" || cat === "dotsLeader" ? (
           <div className="stat-row-sub">Fantasy Pts: {entry.fantasyPts ?? 0}</div>
         ) : isBat ? (
           <div className="stat-row-sub">
@@ -52,6 +53,7 @@ function renderStatRow(entry: any, i: number, cat: string) {
           {cat === "catchesLeader" && entry.catches}
           {cat === "srLeader" && entry.sr}
           {cat === "ecoLeader" && entry.eco}
+          {cat === "dotsLeader" && entry.dots}
         </div>
         <div className="stat-row-unit">
           {cat === "orangeCap" && "runs"}
@@ -61,6 +63,7 @@ function renderStatRow(entry: any, i: number, cat: string) {
           {cat === "catchesLeader" && "catches"}
           {cat === "srLeader" && "sr"}
           {cat === "ecoLeader" && "eco"}
+          {cat === "dotsLeader" && "dots"}
         </div>
       </div>
     </div>
@@ -68,7 +71,7 @@ function renderStatRow(entry: any, i: number, cat: string) {
 }
 
 export interface StatsPageProps {
-  statsCategory: "fantasyPts" | "orangeCap" | "purpleCap" | "sixesLeader" | "foursLeader" | "catchesLeader" | "srLeader" | "ecoLeader";
+  statsCategory: "fantasyPts" | "orangeCap" | "purpleCap" | "sixesLeader" | "foursLeader" | "catchesLeader" | "srLeader" | "ecoLeader" | "dotsLeader";
   statsFilter: "all" | "fantasy" | "predictions";
   statsExpanded: boolean;
   fantasyPtsOpen: boolean;

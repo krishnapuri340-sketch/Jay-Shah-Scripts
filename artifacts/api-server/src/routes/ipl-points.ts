@@ -1133,6 +1133,7 @@ function buildStatsResponse() {
   const battingStats: Record<string, { runs: number; fours: number; sixes: number; balls: number; innings: number; notOuts: number; hs: number; team: string }> = {};
   const bowlingStats: Record<string, { wickets: number; balls: number; runs: number; innings: number; bestW: number; bestR: number }> = {};
   const catchesStats: Record<string, number> = {};
+  const dotsStats: Record<string, number> = {};
   // Per-player accumulated fantasy points computed from per-match batting+bowling
   const playerFantasyPts: Record<string, number> = {};
 
@@ -1197,6 +1198,8 @@ function buildStatsResponse() {
         ms.maidens += bowl.maidens || 0;
         ms.ballsBowled += bowlBalls;
         ms.runsConceded += bowl.runs || 0;
+        // Global dots accumulation for leaderboard
+        dotsStats[k] = (dotsStats[k] || 0) + (bowl.dots || 0);
       }
     }
 
@@ -1249,6 +1252,11 @@ function buildStatsResponse() {
     .sort((a, b) => b.catches - a.catches)
     .filter(e => e.catches > 0);
 
+  const dotsLeader = Object.entries(dotsStats)
+    .map(([name, dots]) => ({ name, dots, isFantasy: isFantasy(name), fantasyPts: playerFantasyPts[name] ?? 0 }))
+    .filter(e => e.dots > 0)
+    .sort((a, b) => b.dots - a.dots);
+
   return {
     orangeCap: [...batters].sort((a, b) => b.runs - a.runs || b.sr - a.sr),
     purpleCap: [...bowlers].sort((a, b) => b.wickets - a.wickets || a.eco - b.eco),
@@ -1257,6 +1265,7 @@ function buildStatsResponse() {
     catchesLeader,
     srLeader: [...batters].filter(b => b.balls >= 10).sort((a, b) => b.sr - a.sr),
     ecoLeader: [...bowlers].filter(b => b.balls >= 12).sort((a, b) => a.eco - b.eco),
+    dotsLeader,
     matchesProcessed: s3InningsCache.size,
     timestamp: new Date().toISOString(),
   };
