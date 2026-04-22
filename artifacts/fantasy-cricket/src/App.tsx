@@ -11,6 +11,8 @@ import WhatIfPage from "./pages/WhatIf";
 import FixturesPage from "./pages/Fixtures";
 import TeamsPage from "./pages/Teams";
 import HomePage from "./pages/Home";
+import { useStandings } from "./hooks/useStandings";
+import { useIplStats } from "./hooks/useIplStats";
 import LineupPreviewCard from "./LineupPreviewCard";
 
 // ─── PIN login ───────────────────────────────────────────────────────────────
@@ -363,10 +365,8 @@ export default function App() {
   const [expandedMatchId, setExpandedMatchId] = useState<string | null>(null);
   const [scorecards, setScorecards] = useState<Record<string, any>>({});
   const [scorecardLoading, setScorecardLoading] = useState<string | null>(null);
-  const [standings, setStandings] = useState<any[]>([]);
-  const [standingsLoading, setStandingsLoading] = useState(false);
-  const [iplStats, setIplStats] = useState<any | null>(null);
-  const [statsLoading, setStatsLoading] = useState(false);
+  const { standings, setStandings, standingsLoading, fetchStandings } = useStandings();
+  const { iplStats, setIplStats, statsLoading, fetchStats } = useIplStats();
   const [statsFilter, setStatsFilter] = useState<"all" | "fantasy" | "predictions">("all");
   const [statsCategory, setStatsCategory] = useState<"fantasyPts" | "orangeCap" | "purpleCap" | "sixesLeader" | "foursLeader" | "catchesLeader" | "srLeader" | "ecoLeader">("fantasyPts");
   const [statsExpanded, setStatsExpanded] = useState(false);
@@ -619,29 +619,6 @@ export default function App() {
       }
     } catch (_) {}
     setScorecardLoading(null);
-  };
-
-  const fetchStandings = async () => {
-    if (standingsLoading) return;
-    setStandingsLoading(true);
-    try {
-      const res = await fetch("/api/ipl/standings");
-      if (res.ok) {
-        const data = await res.json();
-        setStandings(data.standings || []);
-      }
-    } catch (_) {}
-    setStandingsLoading(false);
-  };
-
-  const fetchStats = async () => {
-    if (statsLoading) return;
-    setStatsLoading(true);
-    try {
-      const res = await fetch("/api/ipl/stats");
-      if (res.ok) setIplStats(await res.json());
-    } catch (_) {}
-    setStatsLoading(false);
   };
 
   const PRED_CACHE_KEY = "ipl-predictions-2026";
