@@ -540,7 +540,7 @@ export default function App() {
   const [nextAttempt, setNextAttempt] = useState<string | null>(null);
   const [processedMatches, setProcessedMatches] = useState<string[]>([]);
   const [abandonedMatchIds, setAbandonedMatchIds] = useState<string[]>([]);
-  const [dailyHits, setDailyHits] = useState<{ count: number; limit: number; date: string } | null>(null);
+
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [pointsLastUpdated, setPointsLastUpdated] = useState<Date | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
@@ -673,7 +673,6 @@ export default function App() {
         setPointsUpdating(data.updating || false);
         setPendingMatches(data.pendingMatches || 0);
         setNextAttempt(data.nextAttempt || null);
-        if (data.dailyHits) setDailyHits(data.dailyHits);
         setPointsLastUpdated(new Date());
         // If data came back empty (server still syncing on startup), retry quickly — but cap attempts
         if (Object.keys(pp).length === 0 && pointsRetryCount.current < MAX_POINTS_RETRIES) {
@@ -5368,22 +5367,6 @@ export default function App() {
                 {pointsUpdating ? "⏳ Processing..." : pointsError ? `⚠ ${pointsError.slice(0, 40)}` : pendingMatches > 0 ? `⏳ ${pendingMatches} pending` : "✓ Active"}
               </span>
             </div>
-            {dailyHits && (() => {
-              const pct = dailyHits.count / dailyHits.limit;
-              const barColor = pct >= 0.9 ? "#ef4444" : pct >= 0.7 ? "#f59e0b" : "#34d399";
-              return (
-                <div style={{ display: "flex", flexDirection: "column" as const, gap: 5 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem" }}>
-                    <span style={{ color: "#64748b" }}>CricAPI innings syncs today (UTC)</span>
-                    <span style={{ color: barColor, fontWeight: 700 }}>{dailyHits.count} / {dailyHits.limit}</span>
-                  </div>
-                  <div style={{ height: 4, borderRadius: 2, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
-                    <div style={{ height: "100%", width: `${Math.min(pct * 100, 100)}%`, background: barColor, borderRadius: 2, transition: "width 0.4s" }} />
-                  </div>
-                  <div style={{ fontSize: "0.6rem", color: "#334155" }}>Hard cap at {dailyHits.limit} · Resets midnight UTC (5:30 AM IST)</div>
-                </div>
-              );
-            })()}
             {nextAttempt && (
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem" }}>
                 <span style={{ color: "#475569" }}>Rate limit — next attempt</span>

@@ -1,11 +1,5 @@
 {
   "seriesId": "87c62aac-bc3c-4738-ab93-19da0690488f",
-  "cricapiMatchIds": {
-    "2428": "12b5d808-d9ab-468e-bd25-a2c347f64bdc",
-    "2467": "c5bf2a95-1855-463d-accf-9c1db88418cd",
-    "2469": "ca8f24c0-6eef-4f8e-b50f-c63fc2b1ca98",
-    "2472": "b8ec0cee-4d2f-456d-a815-a987e806f99a"
-  },
   "processedMatches": {
     "2417": {
       "points": {},
@@ -19330,7 +19324,7 @@
       "innings": [
         {
           "name": "Rajasthan Royals Inning 1",
-          "total": "127/6 (18.1 ov)",
+          "total": "139/6 (19.0 ov)",
           "batting": [
             {
               "name": "Yashasvi Jaiswal",
@@ -19389,8 +19383,8 @@
             },
             {
               "name": "Ravindra Jadeja",
-              "runs": 21,
-              "balls": 21,
+              "runs": 23,
+              "balls": 23,
               "fours": 0,
               "sixes": 0,
               "sr": "100.00",
@@ -19411,11 +19405,11 @@
             },
             {
               "name": "Shubham Dubey",
-              "runs": 10,
-              "balls": 8,
-              "fours": 1,
+              "runs": 19,
+              "balls": 11,
+              "fours": 3,
               "sixes": 0,
-              "sr": "125.00",
+              "sr": "172.73",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -19479,14 +19473,14 @@
             },
             {
               "name": "Prince Yadav",
-              "overs": "3.1",
+              "overs": "4",
               "maidens": 0,
-              "runs": 18,
+              "runs": 29,
               "wickets": 2,
-              "eco": "5.68",
+              "eco": "7.25",
               "wides": 0,
               "noBalls": 0,
-              "dots": 12
+              "dots": 13
             },
             {
               "name": "Mohsin Khan",
@@ -19671,8 +19665,8 @@
         },
         "Ravindra Jadeja": {
           "played": true,
-          "runs": 21,
-          "balls": 21,
+          "runs": 23,
+          "balls": 23,
           "fours": 0,
           "sixes": 0,
           "duck": false,
@@ -20265,17 +20259,17 @@
     },
     "d404e08c-c101-4379-827d-a86bf6182cb9": {
       "points": {
-        "Mohammed Shami": 4,
-        "Vaibhav Suryavanshi": 4,
-        "Yashasvi Jaiswal": 4,
-        "Dhruv Jurel": 4,
-        "Riyan Parag": 4,
-        "Shimron Hetmyer": 4,
-        "Ravindra Jadeja": 4,
+        "Vaibhav Suryavanshi": 18,
+        "Yashasvi Jaiswal": 48,
+        "Dhruv Jurel": 2,
+        "Ravindra Jadeja": 27,
+        "Mohammed Shami": 96,
+        "Shimron Hetmyer": 40,
+        "Riyan Parag": 38,
         "Mitchell Marsh": 4,
-        "Rishabh Pant": 4,
+        "Rishabh Pant": 20,
         "Aiden Markram": 4,
-        "Nicholas Pooran": 4
+        "Nicholas Pooran": 12
       },
       "matchLabel": "Lucknow Super Giants vs Rajasthan Royals",
       "matchDate": "2026-04-22",
@@ -20998,10 +20992,16 @@
       "matchNumber": 70
     }
   },
-  "lastUpdated": "2026-04-22T13:38:48.364Z",
+  "lastUpdated": "2026-04-22T15:45:01.344Z",
+  "cricapiMatchIds": {
+    "2428": "12b5d808-d9ab-468e-bd25-a2c347f64bdc",
+    "2467": "c5bf2a95-1855-463d-accf-9c1db88418cd",
+    "2469": "ca8f24c0-6eef-4f8e-b50f-c63fc2b1ca98",
+    "2472": "b8ec0cee-4d2f-456d-a815-a987e806f99a"
+  },
   "dailyHits": {
     "date": "2026-04-22",
-    "count": 8
+    "count": 10
   },
   "_testWrite": 1776521826871
 }

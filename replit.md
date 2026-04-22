@@ -12,7 +12,7 @@ Primary application: IPL Fantasy Cricket Tracker for 4 teams (Rajveer Puri, Momb
 - **Frontend**: `artifacts/fantasy-cricket` — React + Vite SPA, tabs: Home (Leaderboard), Teams, Matches, Stats, History, What If, Admin
 - **Backend**: `artifacts/api-server` — Express API with two main route modules:
   - `routes/ipl.ts` — Fetches live match schedule from IPL official S3 feed (Competition ID 284)
-  - `routes/ipl-points.ts` — Syncs fantasy points from AuctionRoom (Supabase); fetches innings via CricAPI for display; caches to `ipl-points-cache.json`
+  - `routes/ipl-points.ts` — Syncs fantasy points from AuctionRoom (Supabase); fetches live/completed innings from IPL S3 feeds; caches to `ipl-points-cache.json`
 
 ### Data Sources
 - **IPL Schedule**: `https://ipl-stats-sports-mechanic.s3.ap-south-1.amazonaws.com/ipl/feeds/284-matchschedule.js`
@@ -26,15 +26,12 @@ Primary application: IPL Fantasy Cricket Tracker for 4 teams (Rajveer Puri, Momb
   - Tables: `player_fixture_scores` (fixture_id, player_id, score), `tournament_fixtures` (match metadata), `tournament_players` (player_id), `players` (id, name)
   - Scores are official auctionroom.in values (includes all fielding bonuses, LBW, stumpings etc.)
   - `syncAuctionRoomScores()` fetches completed fixtures, maps player IDs to names via 250-player cache
-- **CricAPI** (`https://api.cricapi.com/v1/`) using secret `CRICAPI_KEY` — **innings display only**
-  - Endpoints: `/series`, `/series_info`, `/match_scorecard`; 1900/day limit
-  - Used ONLY for batting/bowling innings rows in scorecard display (not for points calculation)
-
 ### Points Engine (`ipl-points.ts`)
 - **Primary**: `syncAuctionRoomScores()` — fetches from Supabase `player_fixture_scores`, maps player UUIDs to names, matches to FANTASY_PLAYER_NAMES using `namesMatch()`, caches in `supabaseScores[fixtureId]`
-- **Secondary**: CricAPI processes innings only (no points from CricAPI anymore) — `processedMatches[iplId] = { points: {}, innings: InningData[] }`
+- **Secondary**: S3 innings feeds for live/incomplete matches — `processedMatches[iplId] = { points: {}, innings: InningData[] }`
 - `InningData` contains `{ name, total, batting: BattingRow[], bowling: BowlingRow[] }` — stored in processedMatches
-- Background job: Supabase sync first → CricAPI innings for display → cooldown 16 min
+- Background job: Supabase sync first → S3 innings for display → cooldown 16 min
+- Live poller: polls S3 innings every 30s when a match is active (no external API needed)
 - **`GET /api/ipl/scorecard/:matchId`** — returns cached innings + live S3 match overview (result, toss, venue)
 
 ### Fantasy Teams
