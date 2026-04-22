@@ -1079,9 +1079,9 @@ export default function App() {
     };
   }, []);
 
-  const teamScores = Object.keys(FANTASY_TEAMS)
+  const teamScores = useMemo(() => Object.keys(FANTASY_TEAMS)
     .map(id => ({ id, ...getTeamData(id, playerPoints), team: FANTASY_TEAMS[id] }))
-    .sort((a, b) => b.total - a.total);
+    .sort((a, b) => b.total - a.total), [playerPoints]);
 
 
   // Countdown to next match
@@ -1111,17 +1111,17 @@ export default function App() {
 
 
   // Hot players: scored >= 25 pts in most recent match
-  const hotPlayers = new Set<string>(
+  const hotPlayers = useMemo(() => new Set<string>(
     Object.entries(playerMatchPoints)
       .filter(([, matches]) => {
         const sorted = [...matches].sort((a, b) => b.matchNum - a.matchNum);
         return sorted.length > 0 && sorted[0].pts >= 25;
       })
       .map(([name]) => name)
-  );
+  ), [playerMatchPoints]);
 
   // Per-team match-by-match cumulative points (for chart)
-  const matchHistory = (() => {
+  const matchHistory = useMemo(() => {
     const allNums = new Set<number>();
     const labels: Record<number, string> = {};
     for (const matches of Object.values(playerMatchPoints)) {
@@ -1144,7 +1144,7 @@ export default function App() {
       });
       return { teamId, color: team.color, name: team.name, emoji: team.emoji, points };
     });
-  })();
+  }, [playerMatchPoints]);
 
   const [lbRefreshing, setLbRefreshing] = React.useState(false);
   const handleLbRefresh = async () => {

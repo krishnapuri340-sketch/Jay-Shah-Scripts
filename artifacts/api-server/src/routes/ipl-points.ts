@@ -71,6 +71,10 @@ interface ProcessedMatchData {
   playerStats?: Record<string, PlayerStats>;
 }
 
+// ── IPL S3 feed base URL (single source of truth) ───────────────────────────
+const S3_FEEDS_BASE = "https://ipl-stats-sports-mechanic.s3.ap-south-1.amazonaws.com/ipl/feeds";
+const IPL_COMP_ID = 284;
+
 // ── Abandoned / No-Result matches ───────────────────────────────────────────
 const ABANDONED_MATCH_IPL_IDS = new Set<string>(["2428"]); // M12 (KKR vs PBKS, abandoned)
 
@@ -110,6 +114,11 @@ interface PointsCache {
 
 function utcDateString(): string {
   return new Date().toISOString().slice(0, 10); // "YYYY-MM-DD" in UTC
+}
+
+/** Strip JSONP wrapper — e.g. `MatchSchedule({...});` → `{...}` */
+function stripJsonp(text: string): string {
+  return text.replace(/^[A-Za-z_$][A-Za-z0-9_$]*\(/, "").replace(/\)\s*;?\s*$/, "");
 }
 
 function loadCache(): PointsCache {
@@ -281,130 +290,6 @@ function parseDismissal(dismissal: string): { caught?: string; lbwBowled?: boole
   return result;
 }
 
-function processScorecard(scorecard: any[]): { players: Record<string, PlayerStats>; innings: InningData[] } {
-  const players: Record<string, PlayerStats> = {};
-  const innings: InningData[] = [];
-
-  const getPlayer = (name: string): PlayerStats => {
-    const key = normalizeName(name);
-    if (!players[key]) {
-      players[key] = { played: true, runs: 0, balls: 0, fours: 0, sixes: 0, duck: false, wickets: 0, dots: 0, lbwBowled: 0, maidens: 0, ballsBowled: 0, runsConceded: 0, catches: 0, runOuts: 0, sharedRunOuts: 0, stumpings: 0 };
-    }
-    return players[key];
-  };
-
-  for (const inning of scorecard) {
-    const batting: any[] = inning.batting || [];
-    const bowling: any[] = inning.bowling || [];
-    const inningName: string = inning.inning || "";
-
-    const battingRows: BattingRow[] = [];
-    const bowlingRows: BowlingRow[] = [];
-
-    // Calculate inning total for display
-    let inningRuns = 0;
-    let inningWickets = 0;
-    let inningOvers = "";
-
-    for (const bat of batting) {
-      const name = bat?.batsman?.name || bat?.batsmanName || "";
-      if (!name) continue;
-      const dismissal = bat.dismissal || bat["out/not-out"] || "";
-      const isDnb = dismissal.toLowerCase() === "dnb" || dismissal.toLowerCase() === "did not bat";
-      const notOut = !isDnb && (dismissal.toLowerCase().includes("not out") || dismissal === "");
-
-      const runs = parseInt(bat.r) || 0;
-      const balls = parseInt(bat.b) || 0;
-      const fours = parseInt(bat["4s"]) || 0;
-      const sixes = parseInt(bat["6s"]) || 0;
-      const srVal = bat.sr || (balls > 0 ? ((runs / balls) * 100).toFixed(2) : "0.00");
-
-      battingRows.push({ name, runs, balls, fours, sixes, sr: String(srVal), dismissal: isDnb ? "DNB" : (notOut ? "not out" : dismissal), notOut, dnb: isDnb });
-
-      if (!isDnb) {
-        const p = getPlayer(name);
-        p.runs = (p.runs || 0) + runs;
-        p.balls = (p.balls || 0) + balls;
-        p.fours = (p.fours || 0) + fours;
-        p.sixes = (p.sixes || 0) + sixes;
-        const isOut = !notOut;
-        if (isOut && runs === 0) p.duck = true;
-
-        if (isOut) inningWickets++;
-        inningRuns += runs;
-
-        const parsed = parseDismissal(dismissal);
-        if (parsed.caught) {
-          const catcher = getPlayer(parsed.caught);
-          if (!dismissal.toLowerCase().includes("& b")) catcher.catches = (catcher.catches || 0) + 1;
-        }
-        if (parsed.stumped) {
-          const keeper = getPlayer(parsed.stumped);
-          keeper.stumpings = (keeper.stumpings || 0) + 1;
-        }
-        if (parsed.runOut) {
-          const fielder = getPlayer(parsed.runOut);
-          fielder.runOuts = (fielder.runOuts || 0) + 1;
-        }
-        if (parsed.sharedRunOut) {
-          parsed.sharedRunOut.forEach((fname: string) => {
-            const f = getPlayer(fname);
-            f.sharedRunOuts = (f.sharedRunOuts || 0) + 1;
-          });
-        }
-      }
-    }
-
-    for (const bowl of bowling) {
-      const name = bowl?.bowler?.name || bowl?.bowlerName || "";
-      if (!name) continue;
-      const balls = parseOversTooBalls(bowl.o || 0);
-      const runsC = parseInt(bowl.r) || 0;
-      const wickets = parseInt(bowl.w) || 0;
-      const maidens = parseInt(bowl.m) || 0;
-      const wides = parseInt(bowl.wd) || 0;
-      const noBalls = parseInt(bowl.nb) || 0;
-      const dots = parseInt(bowl.dots || bowl.d || bowl.D || "0") || 0;
-      const eco = bowl.eco || (balls > 0 ? ((runsC / (balls / 6))).toFixed(2) : "0.00");
-
-      bowlingRows.push({ name, overs: String(bowl.o || "0"), maidens, runs: runsC, wickets, eco: String(eco), wides, noBalls, dots });
-
-      const p = getPlayer(name);
-      p.ballsBowled = (p.ballsBowled || 0) + balls;
-      p.runsConceded = (p.runsConceded || 0) + runsC;
-      p.wickets = (p.wickets || 0) + wickets;
-      p.maidens = (p.maidens || 0) + maidens;
-      p.dots = (p.dots || 0) + dots;
-      if (!inningOvers && bowl.o) inningOvers = String(bowl.o);
-    }
-
-    // LBW/bowled bonus: parse bowler name from dismissal text
-    for (const bat of batting) {
-      const dismissal = bat.dismissal || bat["out/not-out"] || "";
-      const parsed = parseDismissal(dismissal);
-      if (parsed.lbwBowled) {
-        const bowlerMatch = dismissal.match(/\sb\s(.+)$/);
-        if (bowlerMatch) {
-          const bowlerName = bowlerMatch[1].trim();
-          const p = getPlayer(bowlerName);
-          p.lbwBowled = (p.lbwBowled || 0) + 1;
-        }
-      }
-    }
-
-    // Sum extras if available
-    const extras = inning.extras?.total || inning.extra?.total || 0;
-    inningRuns += parseInt(String(extras)) || 0;
-    const totalOvers = bowlingRows.reduce((acc, b) => {
-      const parts = b.overs.split(".");
-      return acc + (parseInt(parts[0]) || 0) + (parseInt(parts[1]) || 0) / 10;
-    }, 0);
-    const overStr = totalOvers > 0 ? totalOvers.toFixed(1) : inningOvers;
-    innings.push({ name: inningName, total: `${inningRuns}/${inningWickets}${overStr ? ` (${overStr} ov)` : ""}`, batting: battingRows, bowling: bowlingRows });
-  }
-
-  return { players, innings };
-}
 
 // Match a Supabase team label (e.g. "Mumbai Indians") to an S3 team name (e.g. "Mumbai Indians (MI)").
 // Also handles short codes like "MI" and partial matches.
@@ -425,8 +310,7 @@ function teamNamesMatch(a: string, b: string): boolean {
   return false;
 }
 
-// Derive fantasy points directly from pre-parsed InningData[] (e.g. from S3 innings feed).
-// Mirrors processScorecard logic but works on the already-normalised display format.
+// Derive fantasy points from pre-parsed InningData[] (already-normalised S3 display format).
 function processInningsForPoints(
   innings: InningData[],
   allPlayers: string[],
@@ -602,14 +486,11 @@ async function ensurePlayerIdMap(cache: PointsCache): Promise<void> {
 async function linkSupabaseFixtures(cache: PointsCache): Promise<void> {
   try {
     const scheduleRes = await fetch(
-      "https://ipl-stats-sports-mechanic.s3.ap-south-1.amazonaws.com/ipl/feeds/284-matchschedule.js",
+      `${S3_FEEDS_BASE}/${IPL_COMP_ID}-matchschedule.js`,
       { signal: AbortSignal.timeout(10000) }
     );
     if (!scheduleRes.ok) return;
-    const scheduleText = await scheduleRes.text();
-    const m = scheduleText.match(/^[A-Za-z_$][A-Za-z0-9_$]*\(([\s\S]*)\)\s*;?\s*$/);
-    if (!m) return;
-    const schedule = JSON.parse(m[1]);
+    const schedule = JSON.parse(stripJsonp(await scheduleRes.text()));
     const allMatches: any[] = schedule.Matchsummary || [];
     const sortedMatches = [...allMatches].sort((a: any, b: any) => a.MatchID - b.MatchID);
     if (!cache.matchMetadata) cache.matchMetadata = {};
@@ -854,14 +735,13 @@ router.get("/ipl/points", async (req, res) => {
 
           // Step 2: Fetch schedule → populate metadata, link Supabase, fetch S3 innings for display
           const scheduleRes = await fetch(
-            "https://ipl-stats-sports-mechanic.s3.ap-south-1.amazonaws.com/ipl/feeds/284-matchschedule.js",
+            `${S3_FEEDS_BASE}/${IPL_COMP_ID}-matchschedule.js`,
             { signal: AbortSignal.timeout(10000) }
           );
           if (scheduleRes.ok) {
             const scheduleText = await scheduleRes.text();
-            const scheduleMatch = scheduleText.match(/^[A-Za-z_$][A-Za-z0-9_$]*\(([\s\S]*)\)\s*;?\s*$/);
-            if (scheduleMatch) {
-              const schedule = JSON.parse(scheduleMatch[1]);
+            try {
+              const schedule = JSON.parse(stripJsonp(scheduleText));
               const allMatches: any[] = schedule.Matchsummary || [];
 
               // 2a. Populate matchMetadata for all matches (needed for linking + live labels)
@@ -945,14 +825,13 @@ router.get("/ipl/points", async (req, res) => {
                       : matchData;
                     const tag = isSupabaseCovered ? "S3-innings-only" : "S3-points";
                     console.log(`[s3] ${tag} match ${iplId}: ${s3Innings.length} innings, ${Object.keys(matchData.points).length} pts`);
-                    pointsCache = cache; saveCache(cache);
                   }
                 } catch (_) {}
               }
 
-              // Save after metadata + linking updates
+              // Single save after all matches processed (batch: one disk write per cycle)
               pointsCache = cache; saveCache(cache);
-            }
+            } catch (_) {}
           }
         } catch (e: any) {
           console.error("[ipl-points] Background job error:", e?.message || e);
@@ -972,9 +851,6 @@ router.get("/ipl/points", async (req, res) => {
   }
 });
 
-// ── Playing XI cache (stable after toss, keyed by IPL match ID) ─────────────
-const playing11Cache: Record<string, { names: string[]; fetched: number }> = {};
-const PLAYING11_CACHE_TTL = 30 * 60 * 1000; // 30 min
 
 router.get("/ipl/playing11", async (req, res) => {
   try {
@@ -990,14 +866,12 @@ router.get("/ipl/playing11", async (req, res) => {
     // Step 1: Fetch today's live matches directly from IPL schedule (self-sufficient)
     try {
       const schedRes = await fetch(
-        "https://ipl-stats-sports-mechanic.s3.ap-south-1.amazonaws.com/ipl/feeds/284-matchschedule.js",
+        `${S3_FEEDS_BASE}/${IPL_COMP_ID}-matchschedule.js`,
         { signal: AbortSignal.timeout(8000) }
       );
       if (schedRes.ok) {
-        const text = await schedRes.text();
-        const m = text.match(/^[A-Za-z_$][A-Za-z0-9_$]*\(([\s\S]*)\)\s*;?\s*$/);
-        if (m) {
-          const data = JSON.parse(m[1]);
+        try {
+          const data = JSON.parse(stripJsonp(await schedRes.text()));
           const allMatches: any[] = data.Matchsummary || [];
           const todayLive = allMatches.filter((match: any) =>
             (match.GMTMatchDate || match.MatchDate || "") === today &&
@@ -1011,8 +885,6 @@ router.get("/ipl/playing11", async (req, res) => {
           for (const iplMatch of todayLive) {
             const iplId = String(iplMatch.MatchID);
             todayIplIds.push(iplId);
-
-            // Populate matchMetadata so other endpoints can use it
             if (!pointsCache.matchMetadata[iplId]) {
               pointsCache.matchMetadata[iplId] = {
                 matchDate: today,
@@ -1020,9 +892,8 @@ router.get("/ipl/playing11", async (req, res) => {
                 teamB: iplMatch.AwayTeamName || "",
               };
             }
-
           }
-        }
+        } catch (_) {}
       }
     } catch { /* schedule fetch failed — return what we have */ }
 
@@ -1044,17 +915,14 @@ router.get("/ipl/playing11", async (req, res) => {
     // BattingCard lists ALL 11 from the batting team in order — even players yet to bat.
     // BowlingCard lists fielding-team bowlers who've bowled so far.
     // Combining innings 1+2 gives up to the full 22-player playing XI.
-    const IPL_FEED_BASE = "https://ipl-stats-sports-mechanic.s3.ap-south-1.amazonaws.com/ipl/feeds";
     const iplInnNames: string[] = [];
 
     for (const iplId of todayIplIds) {
       for (const n of [1, 2]) {
         try {
-          const r = await fetch(`${IPL_FEED_BASE}/${iplId}-Innings${n}.js`);
+          const r = await fetch(`${S3_FEEDS_BASE}/${iplId}-Innings${n}.js`);
           if (!r.ok) break;
-          const text = await r.text();
-          const raw = text.replace(/^[A-Za-z_$][A-Za-z0-9_$]*\(/, "").replace(/\)\s*;?\s*$/, "");
-          const data = JSON.parse(raw);
+          const data = JSON.parse(stripJsonp(await r.text()));
           const inn = data[`Innings${n}`] || {};
           for (const bat of inn.BattingCard || []) {
             const name = stripRoleMarkers(bat.PlayerName || "");
@@ -1099,7 +967,6 @@ router.get("/ipl/playing11", async (req, res) => {
 // Live matches: cached 30 s (score updates frequently)
 const summaryCache = new Map<string, { data: any; timestamp: number; isCompleted: boolean }>();
 
-const IPL_S3_BASE = "https://ipl-stats-sports-mechanic.s3.ap-south-1.amazonaws.com/ipl/feeds";
 const s3InningsCache = new Map<string, { data: InningData[]; timestamp: number; isCompleted: boolean }>();
 
 async function fetchIplS3Innings(matchId: string, isCompleted: boolean): Promise<InningData[]> {
@@ -1132,14 +999,12 @@ async function fetchIplS3Innings(matchId: string, isCompleted: boolean): Promise
   const results: InningData[] = [];
   for (const n of [1, 2]) {
     try {
-      const r = await fetch(`${IPL_S3_BASE}/${matchId}-Innings${n}.js`, {
+      const r = await fetch(`${S3_FEEDS_BASE}/${matchId}-Innings${n}.js`, {
         headers: { "User-Agent": "Mozilla/5.0 (compatible; IPLFetcher/1.0)" },
         signal: AbortSignal.timeout(5000),
       });
       if (!r.ok) break;
-      const text = await r.text();
-      const cleaned = text.replace(/^[A-Za-z_$][A-Za-z0-9_$]*\(/, "").replace(/\)\s*;?\s*$/, "");
-      const parsed = JSON.parse(cleaned);
+      const parsed = JSON.parse(stripJsonp(await r.text()));
       const inning = parseInning(parsed, n);
       if (inning && (inning.batting.length > 0 || inning.bowling.length > 0)) results.push(inning);
     } catch { break; }
@@ -1160,17 +1025,14 @@ export async function fetchMatchOverview(matchId: string, isCompleted: boolean):
 
   try {
     const sumRes = await fetch(
-      `https://ipl-stats-sports-mechanic.s3.ap-south-1.amazonaws.com/ipl/feeds/${matchId}-matchsummary.js`,
+      `${S3_FEEDS_BASE}/${matchId}-matchsummary.js`,
       {
         headers: { "User-Agent": "Mozilla/5.0 (compatible; IPLFetcher/1.0)" },
         signal: AbortSignal.timeout(4000),
       }
     );
     if (!sumRes.ok) return entry?.data ?? null;
-    const text = await sumRes.text();
-    const m = text.match(/^[A-Za-z_$][A-Za-z0-9_$]*\(([\s\S]*)\)\s*;?\s*$/);
-    if (!m) return entry?.data ?? null;
-    const raw = JSON.parse(m[1]);
+    const raw = JSON.parse(stripJsonp(await sumRes.text()));
     const ms = (raw.MatchSummary || [])[0] || {};
     const overview = {
       result: ms.Comments || "",
@@ -1213,104 +1075,52 @@ router.get("/ipl/scorecard/:matchId", async (req, res) => {
   res.json({ matchId, overview, innings, hasScorecard: innings.length > 0 });
 });
 
-// ── All-IPL stats engine — covers EVERY completed match from S3, not just fantasy-processed ones ──
-const IPL_STATS_S3 = "https://ipl-stats-sports-mechanic.s3.ap-south-1.amazonaws.com/ipl/feeds";
-const IPL_STATS_COMP = 284;
-
-interface AllStatsEntry { innings: InningData[]; fetched: number }
-const allStatsInningsCache = new Map<string, AllStatsEntry>();
-let allStatsRefreshing = false;
-let allStatsLastRefresh = 0;
-let allStatsMatchCount = 0;
-
-async function fetchS3InningsForStats(matchId: string): Promise<InningData[]> {
-  const parseInning = (raw: any, n: number): InningData | null => {
-    const inn = raw[`Innings${n}`];
-    if (!inn) return null;
-    const extras = (inn.Extras || [])[0] || {};
-    const totalStr = (extras.Total as string || "").replace(/\s*Overs\s*/i, " ov");
-    const teamName = extras.BattingTeamName || `Innings ${n}`;
-    const batting: BattingRow[] = (inn.BattingCard || []).map((b: any) => {
-      const name = (b.PlayerName || "").replace(/\s*\([^)]*\)\s*$/, "").trim();
-      const notOut = typeof b.OutDesc === "string" && b.OutDesc.toLowerCase().includes("not out");
-      const dnb = !notOut && (!b.OutDesc || b.OutDesc === "") && (b.Balls ?? 0) === 0 && (b.Runs ?? 0) === 0;
-      return { name, runs: b.Runs ?? 0, balls: b.Balls ?? 0, fours: b.Fours ?? 0, sixes: b.Sixes ?? 0,
-        sr: String(b.StrikeRate ?? "0"), dismissal: b.OutDesc || (notOut ? "not out" : ""), notOut, dnb };
-    }).filter((b: BattingRow) => b.name);
-    const bowling: BowlingRow[] = (inn.BowlingCard || []).map((b: any) => ({
-      name: (b.PlayerName || "").replace(/\s*\([^)]*\)\s*$/, "").trim(),
-      overs: String(b.Overs ?? ""), maidens: b.Maidens ?? 0,
-      runs: b.Runs ?? 0, wickets: b.Wickets ?? 0,
-      eco: String(b.Economy ?? ""), wides: b.Wides ?? 0, noBalls: b.NoBalls ?? 0,
-      dots: b.Dots ?? b.DotBalls ?? 0,
-    })).filter((b: BowlingRow) => b.name);
-    return { name: `${teamName} Inning ${n}`, total: totalStr, batting, bowling };
-  };
-  const results: InningData[] = [];
-  for (const n of [1, 2]) {
-    try {
-      const r = await fetch(`${IPL_STATS_S3}/${matchId}-Innings${n}.js`, {
-        headers: { "User-Agent": "Mozilla/5.0 (compatible; IPLFetcher/1.0)" },
-        signal: AbortSignal.timeout(6000),
-      });
-      if (!r.ok) break;
-      const text = await r.text();
-      const cleaned = text.replace(/^[A-Za-z_$][A-Za-z0-9_$]*\(/, "").replace(/\)\s*;?\s*$/, "");
-      const parsed = JSON.parse(cleaned);
-      const inning = parseInning(parsed, n);
-      if (inning && (inning.batting.length > 0 || inning.bowling.length > 0)) results.push(inning);
-    } catch { break; }
-  }
-  return results;
-}
+// ── All-IPL stats engine — covers EVERY completed match from S3 ──────────────
+// Uses the shared s3InningsCache (same as scorecard endpoint) — no duplicate fetches.
+let statsRefreshing = false;
+let statsLastRefresh = 0;
 
 async function doRefreshAllStats(force = false): Promise<{ matchesFetched: number; errors: number }> {
-  if (allStatsRefreshing) return { matchesFetched: 0, errors: 0 };
-  if (!force && Date.now() - allStatsLastRefresh < 5 * 60 * 1000) return { matchesFetched: allStatsMatchCount, errors: 0 };
-  allStatsRefreshing = true;
+  if (statsRefreshing) return { matchesFetched: 0, errors: 0 };
+  if (!force && Date.now() - statsLastRefresh < 5 * 60 * 1000) return { matchesFetched: s3InningsCache.size, errors: 0 };
+  statsRefreshing = true;
   let fetched = 0;
   let errors = 0;
   try {
-    const schedRes = await fetch(`${IPL_STATS_S3}/${IPL_STATS_COMP}-matchschedule.js`, {
+    const schedRes = await fetch(`${S3_FEEDS_BASE}/${IPL_COMP_ID}-matchschedule.js`, {
       headers: { "User-Agent": "Mozilla/5.0 (compatible; IPLFetcher/1.0)" },
       signal: AbortSignal.timeout(12000),
     });
     if (!schedRes.ok) return { matchesFetched: 0, errors: 1 };
-    const schedText = await schedRes.text();
-    const cleaned = schedText.replace(/^[A-Za-z_$][A-Za-z0-9_$]*\(/, "").replace(/\)\s*;?\s*$/, "");
-    const schedData = JSON.parse(cleaned);
-    const allMatches: any[] = schedData?.Matchsummary || schedData?.AppMatchSchedule?.Match || schedData?.MatchSchedule?.Match || [];
+    const schedData = JSON.parse(stripJsonp(await schedRes.text()));
+    const allMatches: any[] = schedData?.Matchsummary || [];
     const completedIds: string[] = allMatches
       .filter((m: any) => {
         const s = String(m?.MatchStatus || "").toLowerCase();
         return s === "post" || s === "result" || s === "completed" || s === "match over";
       })
-      .map((m: any) => String(m?.MatchID || m?.MatchId || ""))
+      .map((m: any) => String(m?.MatchID || ""))
       .filter(Boolean);
     console.log(`[stats-refresh] Found ${completedIds.length} completed matches to fetch from S3`);
-    if (force) allStatsInningsCache.clear();
+    if (force) s3InningsCache.clear();
     const batchSize = 4;
     for (let i = 0; i < completedIds.length; i += batchSize) {
       const batch = completedIds.slice(i, i + batchSize);
       await Promise.all(batch.map(async (matchId) => {
-        if (!force && allStatsInningsCache.has(matchId)) return;
+        if (!force && s3InningsCache.has(matchId)) return;
         try {
-          const innings = await fetchS3InningsForStats(matchId);
-          if (innings.length > 0) {
-            allStatsInningsCache.set(matchId, { innings, fetched: Date.now() });
-            fetched++;
-          }
+          const innings = await fetchIplS3Innings(matchId, true); // completed = Infinity TTL
+          if (innings.length > 0) fetched++;
         } catch { errors++; }
       }));
     }
-    allStatsLastRefresh = Date.now();
-    allStatsMatchCount = allStatsInningsCache.size;
-    console.log(`[stats-refresh] Done: ${allStatsInningsCache.size} matches in stats cache, ${errors} errors`);
+    statsLastRefresh = Date.now();
+    console.log(`[stats-refresh] Done: ${s3InningsCache.size} matches in cache, ${errors} errors`);
   } catch (e) {
     console.error("[stats-refresh] Schedule fetch failed:", e);
     errors++;
   } finally {
-    allStatsRefreshing = false;
+    statsRefreshing = false;
   }
   return { matchesFetched: fetched, errors };
 }
@@ -1327,15 +1137,14 @@ function buildStatsResponse() {
   const playerFantasyPts: Record<string, number> = {};
 
   const allMatchIds = new Set([
-    ...allStatsInningsCache.keys(),
+    ...s3InningsCache.keys(),
     ...Object.keys(pointsCache.processedMatches),
   ]);
 
   for (const matchId of allMatchIds) {
-    const s3Entry = allStatsInningsCache.get(matchId);
+    const s3Entry = s3InningsCache.get(matchId);
     const processed = pointsCache.processedMatches[matchId];
-    const s3Legacy = s3InningsCache.get(matchId);
-    const inningsToUse: InningData[] = s3Entry?.innings ?? s3Legacy?.data ?? processed?.innings ?? [];
+    const inningsToUse: InningData[] = s3Entry?.data ?? processed?.innings ?? [];
 
     // Build per-player stats for this match to compute fantasy pts accurately
     const matchStats: Record<string, PlayerStats> = {};
@@ -1448,14 +1257,14 @@ function buildStatsResponse() {
     catchesLeader,
     srLeader: [...batters].filter(b => b.balls >= 10).sort((a, b) => b.sr - a.sr),
     ecoLeader: [...bowlers].filter(b => b.balls >= 12).sort((a, b) => a.eco - b.eco),
-    matchesProcessed: allStatsInningsCache.size,
+    matchesProcessed: s3InningsCache.size,
     timestamp: new Date().toISOString(),
   };
 }
 
 router.get("/ipl/stats", (_req, res) => {
   // Always check if we should refresh (respects 5-min TTL, fires in background)
-  if (!allStatsRefreshing) doRefreshAllStats().catch(() => {});
+  if (!statsRefreshing) doRefreshAllStats().catch(() => {});
   res.json(buildStatsResponse());
 });
 
@@ -1463,7 +1272,7 @@ router.get("/ipl/stats", (_req, res) => {
 router.post("/ipl/stats/refresh", async (req, res) => {
   try {
     const result = await doRefreshAllStats(true);
-    res.json({ ok: true, ...result, matchesInCache: allStatsInningsCache.size });
+    res.json({ ok: true, ...result, matchesInCache: s3InningsCache.size });
   } catch (e: any) {
     res.status(500).json({ ok: false, error: e?.message || "Unknown error" });
   }
@@ -1533,21 +1342,10 @@ router.post("/ipl/scorecard/prefetch-s3", async (req, res) => {
       continue;
     }
     try {
-      const r = await fetch(`${IPL_S3_BASE}/${matchId}-Innings1.js`, {
-        headers: { "User-Agent": "Mozilla/5.0 (compatible; IPLFetcher/1.0)" },
-        signal: AbortSignal.timeout(5000),
-      });
-      if (r.ok) {
-        // Full fetch via the helper — populates the cache
-        const innings = await fetchIplS3Innings(matchId, isCompleted);
-        if (innings.length > 0) {
-          foundIds.push(matchId);
-        } else {
-          missingIds.push(matchId);
-        }
-      } else {
-        missingIds.push(matchId);
-      }
+      // fetchIplS3Innings checks its own in-memory cache, fetches from S3 if needed, and stores result
+      const innings = await fetchIplS3Innings(matchId, isCompleted);
+      if (innings.length > 0) foundIds.push(matchId);
+      else missingIds.push(matchId);
     } catch {
       missingIds.push(matchId);
     }
