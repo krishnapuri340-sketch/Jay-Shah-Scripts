@@ -19519,15 +19519,15 @@
         },
         {
           "name": "Lucknow Super Giants Inning 2",
-          "total": "55/4 (10.0 ov)",
+          "total": "62/4 (11.0 ov)",
           "batting": [
             {
               "name": "Mitchell Marsh",
-              "runs": 29,
-              "balls": 24,
-              "fours": 3,
+              "runs": 34,
+              "balls": 27,
+              "fours": 4,
               "sixes": 1,
-              "sr": "120.83",
+              "sr": "125.93",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -19578,11 +19578,11 @@
             },
             {
               "name": "Himmat Singh",
-              "runs": 1,
-              "balls": 1,
+              "runs": 2,
+              "balls": 4,
               "fours": 0,
               "sixes": 0,
-              "sr": "100.00",
+              "sr": "50.00",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -19701,14 +19701,14 @@
             },
             {
               "name": "Ravi Bishnoi",
-              "overs": "1",
+              "overs": "2",
               "maidens": 0,
-              "runs": 6,
+              "runs": 13,
               "wickets": 0,
-              "eco": "6",
-              "wides": 1,
+              "eco": "6.5",
+              "wides": 2,
               "noBalls": 0,
-              "dots": 2
+              "dots": 5
             }
           ]
         }
