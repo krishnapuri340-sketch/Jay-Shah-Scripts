@@ -19519,7 +19519,7 @@
         },
         {
           "name": "Lucknow Super Giants Inning 2",
-          "total": "113/8 (16.3 ov)",
+          "total": "114/8 (17.0 ov)",
           "batting": [
             {
               "name": "Mitchell Marsh",
@@ -19612,6 +19612,17 @@
             {
               "name": "Mayank Yadav",
               "runs": 1,
+              "balls": 3,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "33.33",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Digvesh Singh",
+              "runs": 1,
               "balls": 1,
               "fours": 0,
               "sixes": 0,
@@ -19622,17 +19633,6 @@
             },
             {
               "name": "Mohsin Khan",
-              "runs": 0,
-              "balls": 0,
-              "fours": 0,
-              "sixes": 0,
-              "sr": "-",
-              "dismissal": "",
-              "notOut": false,
-              "dnb": true
-            },
-            {
-              "name": "Digvesh Singh",
               "runs": 0,
               "balls": 0,
               "fours": 0,
@@ -19679,14 +19679,14 @@
             },
             {
               "name": "Brijesh Sharma",
-              "overs": "2.3",
+              "overs": "3",
               "maidens": 0,
-              "runs": 16,
+              "runs": 17,
               "wickets": 2,
-              "eco": "6.4",
+              "eco": "5.67",
               "wides": 1,
               "noBalls": 0,
-              "dots": 6
+              "dots": 8
             },
             {
               "name": "Ravindra Jadeja",
