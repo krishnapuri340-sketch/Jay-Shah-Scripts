@@ -19519,15 +19519,15 @@
         },
         {
           "name": "Lucknow Super Giants Inning 2",
-          "total": "40/3 (7.0 ov)",
+          "total": "55/4 (10.0 ov)",
           "batting": [
             {
               "name": "Mitchell Marsh",
-              "runs": 24,
-              "balls": 18,
+              "runs": 29,
+              "balls": 24,
               "fours": 3,
               "sixes": 1,
-              "sr": "133.33",
+              "sr": "120.83",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -19567,9 +19567,20 @@
             },
             {
               "name": "Nicholas Pooran",
-              "runs": 14,
-              "balls": 14,
+              "runs": 22,
+              "balls": 25,
               "fours": 3,
+              "sixes": 0,
+              "sr": "88.00",
+              "dismissal": "c Donovan Ferreira b Ravindra Jadeja",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Himmat Singh",
+              "runs": 1,
+              "balls": 1,
+              "fours": 0,
               "sixes": 0,
               "sr": "100.00",
               "dismissal": "not out",
@@ -19610,7 +19621,7 @@
               "dnb": true
             },
             {
-              "name": "Prince Yadav",
+              "name": "Digvesh Singh",
               "runs": 0,
               "balls": 0,
               "fours": 0,
@@ -19621,7 +19632,7 @@
               "dnb": true
             },
             {
-              "name": "Digvesh Singh",
+              "name": "Prince Yadav",
               "runs": 0,
               "balls": 0,
               "fours": 0,
@@ -19676,6 +19687,28 @@
               "wides": 0,
               "noBalls": 0,
               "dots": 3
+            },
+            {
+              "name": "Ravindra Jadeja",
+              "overs": "2",
+              "maidens": 0,
+              "runs": 9,
+              "wickets": 1,
+              "eco": "4.5",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 5
+            },
+            {
+              "name": "Ravi Bishnoi",
+              "overs": "1",
+              "maidens": 0,
+              "runs": 6,
+              "wickets": 0,
+              "eco": "6",
+              "wides": 1,
+              "noBalls": 0,
+              "dots": 2
             }
           ]
         }
@@ -19745,18 +19778,18 @@
     "241c3065-a0a9-49f7-ad9c-adf89bf530af": {
       "points": {
         "Jitesh Sharma": 28,
-        "Phil Salt": 121,
-        "KL Rahul": 122,
         "Virat Kohli": 45,
-        "Bhuvneshwar Kumar": 133,
-        "Krunal Pandya": 66,
-        "Tim David": 56,
-        "Lungi Ngidi": 81,
         "Axar Patel": 126,
-        "Tristan Stubbs": 102,
-        "T Natarajan": 24,
         "Rajat Patidar": 18,
-        "Kuldeep Yadav": 88
+        "Kuldeep Yadav": 88,
+        "Krunal Pandya": 66,
+        "Phil Salt": 121,
+        "Tristan Stubbs": 102,
+        "Tim David": 56,
+        "Bhuvneshwar Kumar": 133,
+        "T Natarajan": 24,
+        "KL Rahul": 122,
+        "Lungi Ngidi": 81
       },
       "matchLabel": "Royal Challengers Bengaluru vs Delhi Capitals",
       "matchDate": "2026-04-18",
@@ -19827,14 +19860,14 @@
     },
     "c954a4ee-202b-44a1-9db2-87c6a079e439": {
       "points": {
-        "Heinrich Klaasen": 127,
-        "Ruturaj Gaikwad": 53,
-        "Shivam Dube": 37,
-        "Sanju Samson": 25,
-        "Dewald Brevis": 18,
         "Ishan Kishan": 2,
+        "Ruturaj Gaikwad": 53,
         "Abhishek Sharma": 127,
-        "Travis Head": 45
+        "Heinrich Klaasen": 127,
+        "Shivam Dube": 37,
+        "Dewald Brevis": 18,
+        "Travis Head": 45,
+        "Sanju Samson": 25
       },
       "matchLabel": "Sunrisers Hyderabad vs Chennai Super Kings",
       "matchDate": "2026-04-18",
@@ -19843,20 +19876,20 @@
     },
     "2cc1d637-93e2-48ba-9ccc-0591f997224a": {
       "points": {
+        "Deepak Chahar": 58,
+        "Axar Patel": 64,
+        "Suryakumar Yadav": 89,
+        "Sherfane Rutherford": 13,
+        "Kuldeep Yadav": 10,
+        "Ryan Rickelton": 27,
+        "Nitish Rana": 10,
+        "Jasprit Bumrah": 46,
+        "Tristan Stubbs": 15,
+        "Tilak Varma": 10,
         "T Natarajan": 44,
         "Rohit Sharma": 71,
         "KL Rahul": 5,
-        "Lungi Ngidi": 58,
-        "Nitish Rana": 10,
-        "Axar Patel": 64,
-        "Tristan Stubbs": 15,
-        "Kuldeep Yadav": 10,
-        "Ryan Rickelton": 27,
-        "Tilak Varma": 10,
-        "Suryakumar Yadav": 89,
-        "Sherfane Rutherford": 13,
-        "Deepak Chahar": 58,
-        "Jasprit Bumrah": 46
+        "Lungi Ngidi": 58
       },
       "matchLabel": "Delhi Capitals vs Mumbai Indians",
       "matchDate": "2026-04-04",
@@ -19929,16 +19962,16 @@
     },
     "0478c79b-1c1c-456b-912a-35dba6d57201": {
       "points": {
-        "Abhishek Sharma": 2,
-        "Travis Head": 15,
-        "Ishan Kishan": 27,
-        "Heinrich Klaasen": 110,
         "Harshal Patel": 30,
+        "Heinrich Klaasen": 110,
+        "Rishabh Pant": 144,
+        "Ishan Kishan": 27,
+        "Mohammed Shami": 108,
+        "Abhishek Sharma": 2,
         "Mitchell Marsh": 26,
         "Aiden Markram": 101,
-        "Rishabh Pant": 144,
-        "Nicholas Pooran": 5,
-        "Mohammed Shami": 108
+        "Travis Head": 15,
+        "Nicholas Pooran": 5
       },
       "matchLabel": "Sunrisers Hyderabad vs Lucknow Super Giants",
       "matchDate": "2026-04-05",
@@ -19967,16 +20000,16 @@
     },
     "bd620723-6d40-4794-a046-c1f146af908a": {
       "points": {
+        "Riyan Parag": 28,
+        "Shivam Dube": 16,
+        "Vaibhav Suryavanshi": 118,
+        "Yashasvi Jaiswal": 72,
         "Dhruv Jurel": 59,
         "Shimron Hetmyer": 9,
-        "Riyan Parag": 28,
-        "Khaleel Ahmed": 30,
         "Ravindra Jadeja": 98,
-        "Ruturaj Gaikwad": 8,
-        "Shivam Dube": 16,
         "Sanju Samson": 14,
-        "Vaibhav Suryavanshi": 118,
-        "Yashasvi Jaiswal": 72
+        "Ruturaj Gaikwad": 8,
+        "Khaleel Ahmed": 30
       },
       "matchLabel": "Rajasthan Royals vs Chennai Super Kings",
       "matchDate": "2026-03-30",
@@ -19985,20 +20018,20 @@
     },
     "be62c490-219c-4418-9620-880d23123e42": {
       "points": {
-        "Marco Jansen": 62,
-        "Arshdeep Singh": 20,
-        "Yuzvendra Chahal": 54,
-        "Prabhsimran Singh": 89,
-        "Shreyas Iyer": 102,
-        "Prashant Veer": 14,
-        "Khaleel Ahmed": 22,
+        "Shashank Singh": 26,
         "Priyansh Arya": 91,
         "Ruturaj Gaikwad": 49,
-        "Shivam Dube": 83,
-        "Shashank Singh": 26,
         "Sanju Samson": 15,
+        "Shivam Dube": 83,
+        "Prashant Veer": 14,
+        "Khaleel Ahmed": 22,
+        "Shreyas Iyer": 102,
+        "Prabhsimran Singh": 89,
+        "Nehal Wadhera": 36,
         "Marcus Stoinis": 23,
-        "Nehal Wadhera": 36
+        "Marco Jansen": 62,
+        "Arshdeep Singh": 20,
+        "Yuzvendra Chahal": 54
       },
       "matchLabel": "Chennai Super Kings vs Punjab Kings",
       "matchDate": "2026-04-03",
@@ -20007,15 +20040,15 @@
     },
     "cfbe0107-9d42-40cd-a74a-6137ac8e258a": {
       "points": {
-        "Cameron Green": 92,
-        "Rishabh Pant": 18,
-        "Sunil Narine": 70,
-        "Finn Allen": 21,
         "Ajinkya Rahane": 83,
+        "Finn Allen": 21,
+        "Cameron Green": 92,
         "Rinku Singh": 16,
-        "Mohammed Shami": 35,
+        "Sunil Narine": 70,
         "Mitchell Marsh": 31,
         "Aiden Markram": 50,
+        "Mohammed Shami": 35,
+        "Rishabh Pant": 18,
         "Nicholas Pooran": 21
       },
       "matchLabel": "Kolkata Knight Riders vs Lucknow Super Giants",
@@ -20027,14 +20060,14 @@
       "points": {
         "Cameron Green": 2,
         "Varun Chakravarthy": 16,
-        "Khaleel Ahmed": 62,
-        "Sunil Narine": 116,
-        "Finn Allen": 5,
-        "Ajinkya Rahane": 48,
+        "Sanju Samson": 92,
         "Ruturaj Gaikwad": 23,
         "Shivam Dube": 37,
-        "Sanju Samson": 92,
+        "Sunil Narine": 116,
         "Rinku Singh": 4,
+        "Finn Allen": 5,
+        "Ajinkya Rahane": 48,
+        "Khaleel Ahmed": 62,
         "Dewald Brevis": 87
       },
       "matchLabel": "Chennai Super Kings vs Kolkata Knight Riders",
@@ -20044,19 +20077,19 @@
     },
     "ae75ebba-34a0-4877-abf7-9a41dde1cd24": {
       "points": {
-        "Prasidh Krishna": 57,
-        "Sai Sudharsan": 44,
-        "Cameron Green": 165,
-        "Varun Chakravarthy": 74,
-        "Mohammed Siraj": 114,
         "Sunil Narine": 58,
         "Ajinkya Rahane": 2,
-        "Rashid Khan": 52,
-        "Rinku Singh": 13,
+        "Washington Sundar": 21,
+        "Mohammed Siraj": 114,
         "Jos Buttler": 98,
         "Shubman Gill": 164,
-        "Washington Sundar": 21,
-        "Tim Seifert": 39
+        "Sai Sudharsan": 44,
+        "Varun Chakravarthy": 74,
+        "Rashid Khan": 52,
+        "Tim Seifert": 39,
+        "Cameron Green": 165,
+        "Rinku Singh": 13,
+        "Prasidh Krishna": 57
       },
       "matchLabel": "Gujarat Titans vs Kolkata Knight Riders",
       "matchDate": "2026-04-17",
@@ -20065,20 +20098,20 @@
     },
     "5bc166fd-37d1-41a7-9ba1-302ab3196a7a": {
       "points": {
-        "Prabhsimran Singh": 116,
-        "Priyansh Arya": 127,
-        "Nehal Wadhera": 24,
-        "Ishan Kishan": 57,
-        "Shreyas Iyer": 139,
-        "Shashank Singh": 108,
-        "Marcus Stoinis": 9,
         "Marco Jansen": 20,
+        "Harshal Patel": 2,
         "Arshdeep Singh": 86,
         "Yuzvendra Chahal": 8,
-        "Abhishek Sharma": 164,
-        "Travis Head": 76,
+        "Prabhsimran Singh": 116,
         "Heinrich Klaasen": 65,
-        "Harshal Patel": 2
+        "Shreyas Iyer": 139,
+        "Priyansh Arya": 127,
+        "Shashank Singh": 108,
+        "Marcus Stoinis": 9,
+        "Ishan Kishan": 57,
+        "Abhishek Sharma": 164,
+        "Nehal Wadhera": 24,
+        "Travis Head": 76
       },
       "matchLabel": "Punjab Kings vs Sunrisers Hyderabad",
       "matchDate": "2026-04-11",
@@ -20087,22 +20120,22 @@
     },
     "e92389cf-976f-4a14-aa45-47a346271e10": {
       "points": {
-        "Marco Jansen": 77,
+        "Priyansh Arya": 17,
+        "Nehal Wadhera": 7,
+        "Shashank Singh": 8,
         "Prasidh Krishna": 134,
-        "Sai Sudharsan": 25,
-        "Arshdeep Singh": 36,
-        "Yuzvendra Chahal": 86,
         "Prabhsimran Singh": 77,
         "Shreyas Iyer": 46,
-        "Mohammed Siraj": 18,
-        "Priyansh Arya": 17,
-        "Rashid Khan": 64,
-        "Shashank Singh": 8,
-        "Jos Buttler": 78,
-        "Shubman Gill": 89,
         "Marcus Stoinis": 2,
+        "Marco Jansen": 77,
+        "Arshdeep Singh": 36,
+        "Yuzvendra Chahal": 86,
+        "Shubman Gill": 89,
+        "Sai Sudharsan": 25,
+        "Jos Buttler": 78,
         "Washington Sundar": 80,
-        "Nehal Wadhera": 7
+        "Rashid Khan": 64,
+        "Mohammed Siraj": 18
       },
       "matchLabel": "Punjab Kings vs Gujarat Titans",
       "matchDate": "2026-03-31",
@@ -20199,15 +20232,15 @@
     },
     "3c44e9f8-17ff-46f4-a5a5-0779fb52a863": {
       "points": {
-        "Dhruv Jurel": 15,
-        "Heinrich Klaasen": 74,
-        "Riyan Parag": 52,
-        "Ravindra Jadeja": 75,
         "Vaibhav Suryavanshi": 2,
-        "Yashasvi Jaiswal": 5,
-        "Ishan Kishan": 199,
         "Abhishek Sharma": 10,
-        "Travis Head": 34
+        "Travis Head": 34,
+        "Ishan Kishan": 199,
+        "Heinrich Klaasen": 74,
+        "Yashasvi Jaiswal": 5,
+        "Dhruv Jurel": 15,
+        "Riyan Parag": 52,
+        "Ravindra Jadeja": 75
       },
       "matchLabel": "Sunrisers Hyderabad vs Rajasthan Royals",
       "matchDate": "2026-04-13",
@@ -20258,17 +20291,17 @@
     },
     "d404e08c-c101-4379-827d-a86bf6182cb9": {
       "points": {
+        "Aiden Markram": 2,
+        "Rishabh Pant": 18,
+        "Shimron Hetmyer": 40,
+        "Ravindra Jadeja": 105,
+        "Riyan Parag": 38,
+        "Mohammed Shami": 96,
         "Vaibhav Suryavanshi": 18,
         "Yashasvi Jaiswal": 48,
-        "Dhruv Jurel": 2,
-        "Ravindra Jadeja": 67,
-        "Mohammed Shami": 96,
-        "Shimron Hetmyer": 40,
-        "Riyan Parag": 38,
-        "Mitchell Marsh": 4,
-        "Rishabh Pant": 20,
-        "Aiden Markram": 4,
-        "Nicholas Pooran": 12
+        "Nicholas Pooran": 44,
+        "Mitchell Marsh": 55,
+        "Dhruv Jurel": 18
       },
       "matchLabel": "Lucknow Super Giants vs Rajasthan Royals",
       "matchDate": "2026-04-22",
@@ -20991,7 +21024,7 @@
       "matchNumber": 70
     }
   },
-  "lastUpdated": "2026-04-22T16:03:37.860Z",
+  "lastUpdated": "2026-04-22T17:01:13.084Z",
   "cricapiMatchIds": {
     "2428": "12b5d808-d9ab-468e-bd25-a2c347f64bdc",
     "2467": "c5bf2a95-1855-463d-accf-9c1db88418cd",

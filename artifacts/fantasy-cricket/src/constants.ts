@@ -393,3 +393,19 @@ export const IPL_HISTORY = [
     ],
   },
 ];
+
+export const VENUE_AVG: Record<string, { avg: number; high: number; note: string }> = {
+  "ACA Stadium":                                                     { avg: 168, high: 205, note: "Flat deck, batters love it" },
+  "Arun Jaitley Stadium":                                            { avg: 170, high: 220, note: "Good carry, pace-friendly" },
+  "Bharat Ratna Shri Atal Bihari Vajpayee Ekana Cricket Stadium":   { avg: 167, high: 200, note: "Grips late, tough to dominate" },
+  "Eden Gardens":                                                    { avg: 169, high: 227, note: "Bounce & carry, pacers thrive" },
+  "Himachal Pradesh Cricket Association Stadium":                    { avg: 160, high: 198, note: "Altitude swing, low-scoring" },
+  "M Chinnaswamy Stadium":                                           { avg: 192, high: 263, note: "Tiny ground, batting paradise" },
+  "MA Chidambaram Stadium":                                          { avg: 158, high: 213, note: "Slow turner, spinners dominate" },
+  "Narendra Modi Stadium":                                           { avg: 175, high: 228, note: "True surface, big hits carry" },
+  "New International Cricket Stadium":                               { avg: 164, high: 190, note: "New venue, balanced" },
+  "Rajiv Gandhi International Stadium":                              { avg: 172, high: 210, note: "Good batting surface" },
+  "Sawai Mansingh Stadium":                                          { avg: 163, high: 215, note: "Grips, spin effective" },
+  "Shaheed Veer Narayan Singh International Cricket Stadium":        { avg: 162, high: 195, note: "Bowler-friendly, grip & turn" },
+  "Wankhede Stadium":                                                { avg: 183, high: 240, note: "Compact ground, explosive scoring" },
+};
