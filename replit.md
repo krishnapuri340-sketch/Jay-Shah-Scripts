@@ -28,11 +28,14 @@ Primary application: IPL Fantasy Cricket Tracker for 4 teams (Rajveer Puri, Momb
   - `syncAuctionRoomScores()` fetches completed fixtures, maps player IDs to names via 250-player cache
 ### Points Engine (`ipl-points.ts`)
 - **Primary**: `syncAuctionRoomScores()` — fetches from Supabase `player_fixture_scores`, maps player UUIDs to names, matches to FANTASY_PLAYER_NAMES using `namesMatch()`, caches in `supabaseScores[fixtureId]`
-- **Secondary**: S3 innings feeds for live/incomplete matches — `processedMatches[iplId] = { points: {}, innings: InningData[] }`
-- `InningData` contains `{ name, total, batting: BattingRow[], bowling: BowlingRow[] }` — stored in processedMatches
-- Background job: Supabase sync first → S3 innings for display → cooldown 16 min
+- **Secondary**: S3 innings feeds — `fetchIplS3Innings(matchId, completed)` populates the single shared `s3InningsCache` (completed = Infinity TTL, live = 30s TTL)
+- `InningData` contains `{ name, total, batting: BattingRow[], bowling: BowlingRow[] }` — stored in processedMatches and s3InningsCache
+- Background job: Supabase sync first → S3 innings for display → cooldown 16 min (45s when live match detected)
 - Live poller: polls S3 innings every 30s when a match is active (no external API needed)
 - **`GET /api/ipl/scorecard/:matchId`** — returns cached innings + live S3 match overview (result, toss, venue)
+- **Stats engine**: `doRefreshAllStats()` reuses `s3InningsCache` — no separate stats cache or duplicate S3 fetches
+- **Shared constants**: `S3_FEEDS_BASE`, `IPL_COMP_ID=284`, `stripJsonp()` helper used throughout
+- **`ipl-points.ts` is ~1408 lines** (down from 1611; ~200 lines of dead CricAPI code removed)
 
 ### Fantasy Teams
 - Each team has 18 players with Captain (×2) and Vice-Captain (×1.5) designations
@@ -73,7 +76,7 @@ Primary application: IPL Fantasy Cricket Tracker for 4 teams (Rajveer Puri, Momb
 - **Header**: Slim glass sticky bar with Inter title + DM Mono year badge; no animated ring
 
 ### Key Files
-- `artifacts/fantasy-cricket/src/App.tsx` — Main frontend logic: state, effects, render functions, handlers (~4800+ lines)
+- `artifacts/fantasy-cricket/src/App.tsx` — Main frontend logic: state, effects, render functions, handlers (~5670 lines); teamScores/hotPlayers/matchHistory wrapped in useMemo
 - `artifacts/fantasy-cricket/src/constants.ts` — All static IPL data: IPL_COLORS, IPL_FULL_NAMES, ROLE_ICONS, ROLE_COLORS, IPL_TEAM_BADGE, SWIPEABLE_TABS, IPL_HISTORY (2008–2025)
 - `artifacts/fantasy-cricket/src/LineupPreviewCard.tsx` — Collapsible next-match lineup preview component
 - `artifacts/fantasy-cricket/src/teams.ts` — Fantasy team definitions (players, captains, colors)
