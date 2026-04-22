@@ -76,13 +76,13 @@ Primary application: IPL Fantasy Cricket Tracker for 4 teams (Rajveer Puri, Momb
 - **Header**: Slim glass sticky bar with Inter title + DM Mono year badge; no animated ring
 
 ### Key Files
-- `artifacts/fantasy-cricket/src/App.tsx` — Top-level shell: PIN login, state coordination, effects, swipe/PTR, thin renderX wrappers (~1930 lines, down from 5376 — 64% reduction via refactor)
-- `artifacts/fantasy-cricket/src/pages/` — Per-tab page components: `Home.tsx`, `Teams.tsx`, `Fixtures.tsx`, `Stats.tsx`, `WhatIf.tsx`, `Admin.tsx`, `History.tsx`
+- `artifacts/fantasy-cricket/src/App.tsx` — Top-level shell: PIN login, state coordination, effects, swipe/PTR, thin tab-dispatch wrappers (~1928 lines, down from 5376 — 64% reduction via refactor; imports trimmed to only what App.tsx actually uses)
+- `artifacts/fantasy-cricket/src/pages/` — Per-tab page components: `Home.tsx` (869), `Teams.tsx` (682), `Fixtures.tsx` (627), `WhatIf.tsx` (485), `Admin.tsx` (402), `Stats.tsx` (397), `History.tsx` (192)
 - `artifacts/fantasy-cricket/src/hooks/` — Data hooks: `useFantasyPoints` (retry + 11 state slices), `useLiveMatches` (with onMatches callback), `usePredictions` (with 8s anti-clobber save guard + cache helpers), `useScorecard` (race-safe cache), `useStandings`, `useIplStats` — all use inFlight refs for true short-circuit
 - `artifacts/fantasy-cricket/src/utils.ts` — Shared helpers: `getMatchWinner`, `getH2H`, `fmtDate`, `fmtTime`, `getMatchNum`, `predictNextMatch`, `predictFirstInningsTotal`, `getTeamData`, `applyMultiplier`, `rankLabel`, `PlayerStats` interface
 - `artifacts/fantasy-cricket/src/constants.ts` — All static IPL data: IPL_COLORS, IPL_FULL_NAMES, ROLE_ICONS, ROLE_COLORS, IPL_TEAM_BADGE, SWIPEABLE_TABS, IPL_HISTORY (2008–2025)
-- `artifacts/fantasy-cricket/src/LineupPreviewCard.tsx` — Collapsible next-match lineup preview component
 - `artifacts/fantasy-cricket/src/teams.ts` — Fantasy team definitions (players, captains, colors)
+- `artifacts/fantasy-cricket/src/index.css` — All styles: design tokens, utility classes per page (`.hist-*`, `.stat-row`, `.fpts-row`, `.stats-list-card`, `.seg-pill`, `.wi-owner-*`, `.admin-section`, `.admin-pin-*`, etc.)
 - `artifacts/api-server/src/routes/ipl.ts` — IPL schedule + match data + standings + predictions + PIN routes
 - `artifacts/api-server/src/routes/ipl-points.ts` — Auto-points pipeline + Supabase sync + stats endpoint
 - `artifacts/api-server/ipl-data/ipl-points-cache.json` — Persistent points cache (real data directory)

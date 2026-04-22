@@ -1,23 +1,20 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import InningsTable from "./components/InningsTable";
-import TeamBadge from "./components/TeamBadge";
 import HistoryPage from "./pages/History";
 import AdminPage from "./pages/Admin";
 import StatsPage from "./pages/Stats";
 import { FANTASY_TEAMS } from "./teams";
-import { applyMultiplier, getTeamData, getMatchWinner, getH2H, fmtDate, fmtTime, getMatchNum, predictNextMatch, predictFirstInningsTotal, type PlayerStats } from "./utils";
-import { IPL_COLORS, IPL_FULL_NAMES, ROLE_ICONS, ROLE_COLORS, IPL_TEAM_BADGE, SWIPEABLE_TABS, IPL_HISTORY, ABBR_TO_TEAM, TEAM_LOGO_CDN, VENUE_AVG } from "./constants";
+import { applyMultiplier, getTeamData } from "./utils";
+import { IPL_COLORS, SWIPEABLE_TABS, TEAM_LOGO_CDN } from "./constants";
 import WhatIfPage from "./pages/WhatIf";
 import FixturesPage from "./pages/Fixtures";
 import TeamsPage from "./pages/Teams";
 import HomePage from "./pages/Home";
 import { useStandings } from "./hooks/useStandings";
 import { useIplStats } from "./hooks/useIplStats";
-import { usePredictions, saveLocalPreds, loadLocalPreds } from "./hooks/usePredictions";
+import { usePredictions, saveLocalPreds } from "./hooks/usePredictions";
 import { useScorecard } from "./hooks/useScorecard";
 import { useLiveMatches } from "./hooks/useLiveMatches";
 import { useFantasyPoints } from "./hooks/useFantasyPoints";
-import LineupPreviewCard from "./LineupPreviewCard";
 
 // ─── PIN login ───────────────────────────────────────────────────────────────
 const DEFAULT_PINS: Record<string, string> = { rajveer: "1111", mombasa: "2222", mumbai: "3333", ponygoat: "4444" };
