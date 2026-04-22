@@ -19330,7 +19330,7 @@
       "innings": [
         {
           "name": "Rajasthan Royals Inning 1",
-          "total": "126/6 (17.5 ov)",
+          "total": "127/6 (18.1 ov)",
           "batting": [
             {
               "name": "Yashasvi Jaiswal",
@@ -19411,11 +19411,11 @@
             },
             {
               "name": "Shubham Dubey",
-              "runs": 9,
-              "balls": 6,
+              "runs": 10,
+              "balls": 8,
               "fours": 1,
               "sixes": 0,
-              "sr": "150.00",
+              "sr": "125.00",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -19479,14 +19479,14 @@
             },
             {
               "name": "Prince Yadav",
-              "overs": "3",
+              "overs": "3.1",
               "maidens": 0,
               "runs": 18,
               "wickets": 2,
-              "eco": "6",
+              "eco": "5.68",
               "wides": 0,
               "noBalls": 0,
-              "dots": 11
+              "dots": 12
             },
             {
               "name": "Mohsin Khan",
@@ -19512,11 +19512,11 @@
             },
             {
               "name": "Digvesh Singh",
-              "overs": "3.5",
+              "overs": "4",
               "maidens": 0,
-              "runs": 25,
+              "runs": 26,
               "wickets": 0,
-              "eco": "6.52",
+              "eco": "6.5",
               "wides": 0,
               "noBalls": 0,
               "dots": 5
