@@ -147,3 +147,10 @@ export function predictNextMatch(homeCode: string, awayCode: string): { pick: st
 }
 
 export const rankLabel = (i: number) => i === 0 ? "first" : i === 1 ? "second" : i === 2 ? "third" : "";
+
+export interface PlayerStats {
+  played: boolean; runs: number; balls: number; fours: number; sixes: number;
+  duck: boolean; wickets: number; dots: number; lbwBowled: number;
+  maidens: number; ballsBowled: number; runsConceded: number;
+  catches: number; runOuts: number; stumpings: number;
+}

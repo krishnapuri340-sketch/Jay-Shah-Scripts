@@ -5,7 +5,7 @@ import HistoryPage from "./pages/History";
 import AdminPage from "./pages/Admin";
 import StatsPage from "./pages/Stats";
 import { FANTASY_TEAMS } from "./teams";
-import { applyMultiplier, getTeamData, getMatchWinner, getH2H, fmtDate, fmtTime, getMatchNum, predictNextMatch, predictFirstInningsTotal } from "./utils";
+import { applyMultiplier, getTeamData, getMatchWinner, getH2H, fmtDate, fmtTime, getMatchNum, predictNextMatch, predictFirstInningsTotal, type PlayerStats } from "./utils";
 import { IPL_COLORS, IPL_FULL_NAMES, ROLE_ICONS, ROLE_COLORS, IPL_TEAM_BADGE, SWIPEABLE_TABS, IPL_HISTORY, ABBR_TO_TEAM, TEAM_LOGO_CDN, VENUE_AVG } from "./constants";
 import WhatIfPage from "./pages/WhatIf";
 import FixturesPage from "./pages/Fixtures";
@@ -13,6 +13,10 @@ import TeamsPage from "./pages/Teams";
 import HomePage from "./pages/Home";
 import { useStandings } from "./hooks/useStandings";
 import { useIplStats } from "./hooks/useIplStats";
+import { usePredictions, saveLocalPreds, loadLocalPreds } from "./hooks/usePredictions";
+import { useScorecard } from "./hooks/useScorecard";
+import { useLiveMatches } from "./hooks/useLiveMatches";
+import { useFantasyPoints } from "./hooks/useFantasyPoints";
 import LineupPreviewCard from "./LineupPreviewCard";
 
 // ─── PIN login ───────────────────────────────────────────────────────────────
@@ -291,14 +295,6 @@ const NAV_ICON: Record<string, JSX.Element> = {
   ),
 };
 
-interface PlayerStats {
-  played: boolean; runs: number; balls: number; fours: number; sixes: number;
-  duck: boolean; wickets: number; dots: number; lbwBowled: number;
-  maidens: number; ballsBowled: number; runsConceded: number;
-  catches: number; runOuts: number; stumpings: number;
-}
-
-
 const buildMatchPreviews = (matches: any[]) =>
   matches.map((match: any) => {
     const teamInfo: any[] = match.teamInfo || [];
@@ -324,9 +320,21 @@ export default function App() {
   const [histTop10Tab, setHistTop10Tab] = useState<"bat" | "bwl">("bat");
   const [selectedTeam, setSelectedTeam] = useState("rajveer");
   const [fixtureHomeAwayFilter, setFixtureHomeAwayFilter] = useState<"all" | "home" | "away">("all");
-  const [playerPoints, setPlayerPoints] = useState<Record<string, number>>({});
-  const [playerMatchPoints, setPlayerMatchPoints] = useState<Record<string, Array<{ matchNum: number; label: string; pts: number; source: string; stats?: PlayerStats }>>>({});
-  const [iplIdToMatchNum, setIplIdToMatchNum] = useState<Record<string, number>>({});
+  const {
+    playerPoints, setPlayerPoints,
+    playerMatchPoints, setPlayerMatchPoints,
+    iplIdToMatchNum, setIplIdToMatchNum,
+    pointsLoading,
+    pointsError, setPointsError,
+    pointsLastUpdated, setPointsLastUpdated,
+    pointsUpdating, setPointsUpdating,
+    pendingMatches, setPendingMatches,
+    nextAttempt, setNextAttempt,
+    processedMatches, setProcessedMatches,
+    abandonedMatchIds, setAbandonedMatchIds,
+    fetchPoints,
+    resetRetries: resetPointsRetries,
+  } = useFantasyPoints();
   const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
   const [expandedBdMatches, setExpandedBdMatches] = useState<Set<string>>(new Set());
   const [scoringGuideOpen, setScoringGuideOpen] = useState(false);
@@ -336,9 +344,21 @@ export default function App() {
   const [expandedMatchNums, setExpandedMatchNums] = useState<Set<number>>(new Set());
   const [expandedAdminPlayer, setExpandedAdminPlayer] = useState<string | null>(null);
   const [adminBreakdownOpen, setAdminBreakdownOpen] = useState(false);
-  const [liveMatches, setLiveMatches] = useState<any[]>([]);
-  const [liveLoading, setLiveLoading] = useState(false);
-  const [pointsLoading, setPointsLoading] = useState(false);
+  const {
+    liveMatches,
+    setLiveMatches,
+    liveLoading,
+    lastUpdated,
+    setLastUpdated,
+    apiError,
+    setApiError,
+    dataSources,
+    setDataSources,
+    fetchLive,
+  } = useLiveMatches((matches) => {
+    const hasLive = matches.some((m: any) => m.matchStarted && !m.matchEnded);
+    setMatchFilter(prev => (prev === "completed" || prev === "all") ? prev : (hasLive ? "live" : "upcoming"));
+  });
   const [supabaseSyncing, setSupabaseSyncing] = useState(false);
   const [statsRefreshing, setStatsRefreshing] = useState(false);
   const [statsTabRefreshing, setStatsTabRefreshing] = useState(false);
@@ -351,20 +371,8 @@ export default function App() {
   const [chartXiFilter, setChartXiFilter] = useState<"all" | "xi">("all");
   const [collapsedInnings, setCollapsedInnings] = useState<Set<string>>(new Set());
   const [openScoreRows, setOpenScoreRows] = useState<Set<string>>(new Set());
-  const [pointsUpdating, setPointsUpdating] = useState(false);
-  const [pendingMatches, setPendingMatches] = useState(0);
-  const [nextAttempt, setNextAttempt] = useState<string | null>(null);
-  const [processedMatches, setProcessedMatches] = useState<string[]>([]);
-  const [abandonedMatchIds, setAbandonedMatchIds] = useState<string[]>([]);
-
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const [pointsLastUpdated, setPointsLastUpdated] = useState<Date | null>(null);
-  const [apiError, setApiError] = useState<string | null>(null);
-  const [pointsError, setPointsError] = useState<string | null>(null);
-  const [dataSources, setDataSources] = useState<{ iplOfficial: number; liveCount: number; competitionId?: number } | null>(null);
   const [expandedMatchId, setExpandedMatchId] = useState<string | null>(null);
-  const [scorecards, setScorecards] = useState<Record<string, any>>({});
-  const [scorecardLoading, setScorecardLoading] = useState<string | null>(null);
+  const { scorecards, setScorecards, scorecardLoading, fetchScorecard } = useScorecard();
   const { standings, setStandings, standingsLoading, fetchStandings } = useStandings();
   const { iplStats, setIplStats, statsLoading, fetchStats } = useIplStats();
   const [statsFilter, setStatsFilter] = useState<"all" | "fantasy" | "predictions">("all");
@@ -386,8 +394,7 @@ export default function App() {
   const settingsRef = useRef<HTMLDivElement>(null);
   const [expandedPredMatchId, setExpandedPredMatchId] = useState<string | null>(null);
   const [expandedFantasyMatchId, setExpandedFantasyMatchId] = useState<string | null>(null);
-  const [predictions, setPredictions] = useState<Record<string, Record<string, string | null>>>({});
-  const lastPredSaveRef = useRef<number>(0);
+  const { predictions, setPredictions, lastPredSaveRef, fetchPredictions } = usePredictions();
   const [predFlash, setPredFlash] = useState<string | null>(null);
   const [predSaveState, setPredSaveState] = useState<Record<string, "saving" | "saved" | "error">>({});
 
@@ -400,8 +407,6 @@ export default function App() {
   const swipeStartX = useRef(0);
   const swipeStartY = useRef(0);
   const swipeBlocked = useRef(false);
-  const pointsRetryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const pointsRetryCount = useRef(0);
   // PTR refs
   const pullState = useRef({ active: false, startY: 0, startX: 0 });
   const pullYRef = useRef(0);
@@ -462,55 +467,6 @@ export default function App() {
         body: JSON.stringify({ pin: pinEditVal, oldPin: savedOld }),
       });
     } catch (_) {}
-  };
-
-  const MAX_POINTS_RETRIES = 4;
-  const fetchPoints = async () => {
-    if (pointsLoading) return;
-    setPointsLoading(true);
-    setPointsError(null);
-    // Clear any pending retry
-    if (pointsRetryTimer.current) { clearTimeout(pointsRetryTimer.current); pointsRetryTimer.current = null; }
-    try {
-      const res = await fetch("/api/ipl/points");
-      if (!res.ok) throw new Error(`Server error: ${res.status}`);
-      const data = await res.json();
-      if (data.error && !data.playerPoints) {
-        setPointsError(data.error);
-      } else {
-        const pp = data.playerPoints || {};
-        setPlayerPoints(pp);
-        setPlayerMatchPoints(data.playerMatchPoints || {});
-        setIplIdToMatchNum(data.iplIdToMatchNum || {});
-        setProcessedMatches(data.processedMatches || []);
-        setAbandonedMatchIds(data.abandonedMatchIds || []);
-        setPointsUpdating(data.updating || false);
-        setPendingMatches(data.pendingMatches || 0);
-        setNextAttempt(data.nextAttempt || null);
-        setPointsLastUpdated(new Date());
-        // If data came back empty (server still syncing on startup), retry quickly — but cap attempts
-        if (Object.keys(pp).length === 0 && pointsRetryCount.current < MAX_POINTS_RETRIES) {
-          pointsRetryCount.current += 1;
-          pointsRetryTimer.current = setTimeout(() => {
-            pointsRetryTimer.current = null;
-            fetchPoints();
-          }, 4000);
-        } else {
-          pointsRetryCount.current = 0; // reset on success
-        }
-      }
-    } catch (e: any) {
-      setPointsError("Points fetch failed: " + (e.message || "Unknown error"));
-      // Retry on network failure — capped at MAX_POINTS_RETRIES
-      if (pointsRetryCount.current < MAX_POINTS_RETRIES) {
-        pointsRetryCount.current += 1;
-        pointsRetryTimer.current = setTimeout(() => {
-          pointsRetryTimer.current = null;
-          fetchPoints();
-        }, 5000);
-      }
-    }
-    setPointsLoading(false);
   };
 
   const syncSupabase = async () => {
@@ -583,76 +539,6 @@ export default function App() {
     setStatsTabRefreshing(false);
   };
 
-  const fetchLive = async () => {
-    if (liveLoading) return;
-    setLiveLoading(true);
-    setApiError(null);
-    try {
-      const res = await fetch("/api/ipl/matches");
-      if (!res.ok) throw new Error(`Server error: ${res.status}`);
-      const data = await res.json();
-      const matches: any[] = data.matches || [];
-      if (matches.length > 0) {
-        setLiveMatches(matches);
-        setDataSources(data.sources || null);
-        const hasLive = matches.some((m: any) => m.matchStarted && !m.matchEnded);
-        setMatchFilter(prev => (prev === "completed" || prev === "all") ? prev : (hasLive ? "live" : "upcoming"));
-      } else {
-        setApiError("No IPL matches found from official sources.");
-      }
-      setLastUpdated(new Date());
-    } catch (e: any) {
-      setApiError("Fetch failed: " + (e.message || "Unknown error"));
-    }
-    setLiveLoading(false);
-  };
-
-  const fetchScorecard = async (matchId: string, force = false) => {
-    if (!force && (scorecards[matchId] || scorecardLoading === matchId)) return;
-    if (scorecardLoading === matchId) return;
-    setScorecardLoading(matchId);
-    try {
-      const res = await fetch(`/api/ipl/scorecard/${matchId}`);
-      if (res.ok) {
-        const data = await res.json();
-        setScorecards(prev => ({ ...prev, [matchId]: data }));
-      }
-    } catch (_) {}
-    setScorecardLoading(null);
-  };
-
-  const PRED_CACHE_KEY = "ipl-predictions-2026";
-  const loadLocalPreds = (): Record<string, Record<string, string | null>> => {
-    try { return JSON.parse(localStorage.getItem(PRED_CACHE_KEY) || "{}"); } catch { return {}; }
-  };
-  const saveLocalPreds = (data: Record<string, Record<string, string | null>>) => {
-    try { localStorage.setItem(PRED_CACHE_KEY, JSON.stringify(data)); } catch {}
-  };
-
-  const fetchPredictions = async () => {
-    // Don't overwrite a just-saved prediction — wait 8 s for the POST to settle
-    if (Date.now() - lastPredSaveRef.current < 8000) return;
-    const fetchStartedAt = Date.now();
-    try {
-      const res = await fetch("/api/ipl/predictions");
-      if (res.ok) {
-        const server: Record<string, Record<string, string | null>> = await res.json();
-        // Re-check guard AFTER the async fetch completes (fetch takes 1-3s)
-        if (Date.now() - lastPredSaveRef.current < 8000) return;
-        // If a save happened while the fetch was in-flight, abort
-        if (fetchStartedAt < lastPredSaveRef.current) return;
-        // Server is the source of truth — always use it directly.
-        // Local cache is only a fallback for offline use.
-        saveLocalPreds(server);
-        setPredictions(server);
-      }
-    } catch (_) {
-      // On network failure, use local cache
-      const local = loadLocalPreds();
-      if (Object.keys(local).length > 0) setPredictions(local);
-    }
-  };
-
   const fetchPins = async () => {
     try {
       const res = await fetch("/api/ipl/pins", { headers: { "X-Owner-Id": "rajveer" } });
@@ -694,11 +580,6 @@ export default function App() {
     const id = setInterval(() => fetchScorecard(expandedMatchId, true), 10_000);
     return () => clearInterval(id);
   }, [expandedMatchId, liveMatches]);
-
-  // Cleanup retry timer on unmount
-  useEffect(() => {
-    return () => { if (pointsRetryTimer.current) clearTimeout(pointsRetryTimer.current); };
-  }, []);
 
   useEffect(() => {
     if (!settingsOpen) return;
@@ -809,7 +690,7 @@ export default function App() {
   useEffect(() => {
     const onVisible = () => {
       if (document.visibilityState === "visible" && currentUser) {
-        pointsRetryCount.current = 0; // allow fresh retries after coming back
+        resetPointsRetries(); // allow fresh retries after coming back
         fetchLive();
         fetchPoints();
         fetchPredictions();
