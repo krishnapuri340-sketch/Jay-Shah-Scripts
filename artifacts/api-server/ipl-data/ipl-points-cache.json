@@ -19519,7 +19519,7 @@
         },
         {
           "name": "Lucknow Super Giants Inning 2",
-          "total": "105/6 (15.5 ov)",
+          "total": "113/8 (16.3 ov)",
           "batting": [
             {
               "name": "Mitchell Marsh",
@@ -19590,21 +19590,32 @@
             {
               "name": "Mukul Choudhary",
               "runs": 7,
-              "balls": 2,
+              "balls": 3,
               "fours": 0,
               "sixes": 1,
-              "sr": "350.00",
-              "dismissal": "not out",
-              "notOut": true,
+              "sr": "233.33",
+              "dismissal": "c Riyan Parag b Brijesh Sharma",
+              "notOut": false,
               "dnb": false
             },
             {
               "name": "Mohammad Shami",
-              "runs": 0,
-              "balls": 2,
+              "runs": 6,
+              "balls": 4,
+              "fours": 0,
+              "sixes": 1,
+              "sr": "150.00",
+              "dismissal": "b Brijesh Sharma",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Mayank Yadav",
+              "runs": 1,
+              "balls": 1,
               "fours": 0,
               "sixes": 0,
-              "sr": "0.00",
+              "sr": "100.00",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -19641,17 +19652,6 @@
               "dismissal": "",
               "notOut": false,
               "dnb": true
-            },
-            {
-              "name": "Mayank Yadav",
-              "runs": 0,
-              "balls": 0,
-              "fours": 0,
-              "sixes": 0,
-              "sr": "-",
-              "dismissal": "",
-              "notOut": false,
-              "dnb": true
             }
           ],
           "bowling": [
@@ -19668,25 +19668,25 @@
             },
             {
               "name": "Nandre Burger",
-              "overs": "3.5",
+              "overs": "4",
               "maidens": 0,
-              "runs": 21,
+              "runs": 27,
               "wickets": 2,
-              "eco": "5.48",
+              "eco": "6.75",
               "wides": 0,
               "noBalls": 0,
               "dots": 15
             },
             {
               "name": "Brijesh Sharma",
-              "overs": "2",
+              "overs": "2.3",
               "maidens": 0,
-              "runs": 14,
-              "wickets": 0,
-              "eco": "7",
-              "wides": 0,
+              "runs": 16,
+              "wickets": 2,
+              "eco": "6.4",
+              "wides": 1,
               "noBalls": 0,
-              "dots": 4
+              "dots": 6
             },
             {
               "name": "Ravindra Jadeja",

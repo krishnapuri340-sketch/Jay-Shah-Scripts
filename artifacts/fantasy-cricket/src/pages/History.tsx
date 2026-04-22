@@ -80,14 +80,14 @@ export default function HistoryPage({ historyYear, setHistoryYear, histTop10Tab,
             <div className="hist-hero-row">
               <div className="hist-hero-card champion">
                 <div className="hist-hero-card-label">🏆 Champions</div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
+                <div className="hist-hero-card-team">
                   <TeamBadge name={s.champion} size={36} />
                   <div className="hist-hero-card-val" style={{ color: s.color }}>{s.champion}</div>
                 </div>
               </div>
               <div className="hist-hero-card">
                 <div className="hist-hero-card-label">🥈 Runner-up</div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
+                <div className="hist-hero-card-team">
                   <TeamBadge name={s.runnerUp} size={36} />
                   <div className="hist-hero-card-val">{s.runnerUp}</div>
                 </div>
@@ -95,53 +95,54 @@ export default function HistoryPage({ historyYear, setHistoryYear, histTop10Tab,
             </div>
             <div className="hist-awards-grid">
               <div className="hist-award-cell">
-                <div className="hist-award-icon" style={{ filter: "hue-rotate(175deg) saturate(3) brightness(1.1)" }}>🧢</div>
+                <div className="hist-award-icon cap-orange-emoji">🧢</div>
                 <div className="hist-award-lbl" style={{ color: "#f97316" }}>Orange Cap</div>
                 <div className="hist-award-name">{s.orangeCap}</div>
-                <div style={{ fontSize: "0.62rem", color: "#f97316", marginTop: 2, fontWeight: 700 }}>{s.orangeRuns} runs</div>
+                <div className="hist-award-detail" style={{ color: "#f97316" }}>{s.orangeRuns} runs</div>
               </div>
               <div className="hist-award-cell">
-                <div className="hist-award-icon" style={{ filter: "hue-rotate(25deg) saturate(4) brightness(0.5)" }}>🧢</div>
+                <div className="hist-award-icon cap-purple-emoji">🧢</div>
                 <div className="hist-award-lbl" style={{ color: "#7c3aed" }}>Purple Cap</div>
                 <div className="hist-award-name">{s.purpleCap}</div>
-                <div style={{ fontSize: "0.62rem", color: "#7c3aed", marginTop: 2, fontWeight: 700 }}>{s.purpleWkts} wkts</div>
+                <div className="hist-award-detail" style={{ color: "#7c3aed" }}>{s.purpleWkts} wkts</div>
               </div>
               <div className="hist-award-cell">
                 <div className="hist-award-icon">⭐</div>
                 <div className="hist-award-lbl" style={{ color: "#d4a843" }}>MVP</div>
                 <div className="hist-award-name">{s.mvp}</div>
-                <div style={{ fontSize: "0.62rem", color: "#d4a843", marginTop: 2, fontWeight: 700 }}>Tournament</div>
+                <div className="hist-award-detail" style={{ color: "#d4a843" }}>Tournament</div>
               </div>
             </div>
           </div>
           {/* Top 10 — segmented toggle */}
-          <div style={{ marginTop: 16 }}>
+          <div className="hist-top10-wrap">
             {/* Segmented pill */}
-            <div style={{ display: "flex", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 22, padding: 3, marginBottom: 12, gap: 2 }}>
-              {([["bat", "Orange Cap", "hue-rotate(175deg) saturate(3) brightness(1.1)", "#f97316"] as const, ["bwl", "Purple Cap", "hue-rotate(25deg) saturate(4) brightness(0.5)", "#7c3aed"] as const]).map(([id, label, capFilter, activeColor]) => (
-                <button key={id} onClick={() => setHistTop10Tab(id)}
-                  style={{
-                    flex: 1, padding: "7px 0", borderRadius: 18, border: "none", cursor: "pointer",
-                    fontFamily: "inherit", fontSize: "0.72rem", fontWeight: 600, transition: "all 0.18s ease",
-                    background: histTop10Tab === id ? "var(--surface-3)" : "transparent",
-                    color: histTop10Tab === id ? activeColor : "var(--text-3)",
-                    boxShadow: histTop10Tab === id ? "0 1px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)" : "none",
-                  }}>
-                  <span style={{ filter: histTop10Tab === id ? capFilter : "grayscale(1) opacity(0.4)" }}>🧢</span> {label}
-                </button>
-              ))}
+            <div className="hist-top10-pill">
+              {([["bat", "Orange Cap", "cap-orange-emoji", "#f97316"] as const, ["bwl", "Purple Cap", "cap-purple-emoji", "#7c3aed"] as const]).map(([id, label, capCls, activeColor]) => {
+                const active = histTop10Tab === id;
+                return (
+                  <button
+                    key={id}
+                    onClick={() => setHistTop10Tab(id)}
+                    className={`hist-top10-pill-btn${active ? " active" : ""}`}
+                    style={active ? { color: activeColor } : undefined}
+                  >
+                    <span className={active ? capCls : "cap-grayed"}>🧢</span> {label}
+                  </button>
+                );
+              })}
             </div>
             {/* Full-width list */}
-            <div style={{ background: "var(--surface)", borderRadius: "var(--radius-md)", border: "1px solid var(--border)", overflow: "hidden" }}>
+            <div className="hist-top10-list">
               {(histTop10Tab === "bat" ? s.topBat : s.topBwl).map((p, i) => {
                 const accentColors = ["#d4a843", "#94a3b8", "#71717a"];
                 const accentColor = i < 3 ? accentColors[i] : "var(--border)";
                 return (
-                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderBottom: i < (histTop10Tab === "bat" ? s.topBat : s.topBwl).length - 1 ? "1px solid var(--border)" : "none", borderLeft: `4px solid ${accentColor}` }}>
-                    <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.9rem", fontWeight: 700, color: i < 3 ? accentColors[i] : "var(--text-3)", width: 18, textAlign: "center" as const, flexShrink: 0 }}>{i + 1}</span>
+                  <div key={i} className="hist-top10-row" style={{ borderLeft: `4px solid ${accentColor}` }}>
+                    <span className="hist-top10-rank" style={i < 3 ? { color: accentColors[i] } : undefined}>{i + 1}</span>
                     <TeamBadge name={p.team} size={22} />
-                    <span style={{ flex: 1, fontSize: "0.82rem", fontWeight: 500, color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{p.name}</span>
-                    <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.05rem", fontWeight: 700, color: histTop10Tab === "bat" ? "#f97316" : "#7c3aed", flexShrink: 0 }}>{p.val}</span>
+                    <span className="hist-top10-name">{p.name}</span>
+                    <span className="hist-top10-val" style={{ color: histTop10Tab === "bat" ? "#f97316" : "#7c3aed" }}>{p.val}</span>
                   </div>
                 );
               })}
@@ -178,8 +179,8 @@ export default function HistoryPage({ historyYear, setHistoryYear, histTop10Tab,
               </div>
               {/* Cap line */}
               <div className="hist-card-caps">
-                <span className="hist-cap-orange"><span style={{ filter: "hue-rotate(175deg) saturate(3) brightness(1.1)" }}>🧢</span> {h.orangeCap.split(" ").slice(-1)[0]} {h.orangeRuns} runs</span>
-                <span className="hist-cap-purple"><span style={{ filter: "hue-rotate(25deg) saturate(4) brightness(0.5)" }}>🧢</span> {h.purpleCap.split(" ").slice(-1)[0]} {h.purpleWkts} wks</span>
+                <span className="hist-cap-orange"><span className="cap-orange-emoji">🧢</span> {h.orangeCap.split(" ").slice(-1)[0]} {h.orangeRuns} runs</span>
+                <span className="hist-cap-purple"><span className="cap-purple-emoji">🧢</span> {h.purpleCap.split(" ").slice(-1)[0]} {h.purpleWkts} wks</span>
               </div>
             </div>
             <div className="hist-card-arrow">›</div>

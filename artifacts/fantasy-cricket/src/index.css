@@ -1076,3 +1076,44 @@ body { background: var(--bg); }
 .btn-danger:hover { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.4); }
 .btn-danger:active { opacity: 0.7; }
 .btn-danger:disabled { opacity: 0.38; cursor: not-allowed; }
+
+/* History page — additional utility classes */
+.cap-orange-emoji { filter: hue-rotate(175deg) saturate(3) brightness(1.1); }
+.cap-purple-emoji { filter: hue-rotate(25deg) saturate(4) brightness(0.5); }
+.cap-grayed       { filter: grayscale(1) opacity(0.4); }
+.hist-hero-card-team { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+.hist-award-detail { font-size: 0.62rem; margin-top: 2px; font-weight: 700; }
+.hist-top10-wrap { margin-top: 16px; }
+.hist-top10-pill {
+  display: flex; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 22px; padding: 3px; margin-bottom: 12px; gap: 2px;
+}
+.hist-top10-pill-btn {
+  flex: 1; padding: 7px 0; border-radius: 18px; border: none; cursor: pointer;
+  font-family: inherit; font-size: 0.72rem; font-weight: 600; transition: all 0.18s ease;
+  background: transparent; color: var(--text-3);
+}
+.hist-top10-pill-btn.active {
+  background: var(--surface-3);
+  box-shadow: 0 1px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04);
+}
+.hist-top10-list {
+  background: var(--surface); border-radius: var(--radius-md);
+  border: 1px solid var(--border); overflow: hidden;
+}
+.hist-top10-row {
+  display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.hist-top10-row:last-child { border-bottom: none; }
+.hist-top10-rank {
+  font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 700;
+  width: 18px; text-align: center; flex-shrink: 0; color: var(--text-3);
+}
+.hist-top10-name {
+  flex: 1; font-size: 0.82rem; font-weight: 500; color: var(--text);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.hist-top10-val {
+  font-family: 'Inter', sans-serif; font-size: 1.05rem; font-weight: 700; flex-shrink: 0;
+}
