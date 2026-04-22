@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import InningsTable from "./components/InningsTable";
 import TeamBadge from "./components/TeamBadge";
 import HistoryPage from "./pages/History";
+import AdminPage from "./pages/Admin";
+import StatsPage from "./pages/Stats";
 import { FANTASY_TEAMS } from "./teams";
-import { applyMultiplier, getTeamData } from "./utils";
+import { applyMultiplier, getTeamData, getMatchWinner } from "./utils";
 import { IPL_COLORS, IPL_FULL_NAMES, ROLE_ICONS, ROLE_COLORS, IPL_TEAM_BADGE, SWIPEABLE_TABS, IPL_HISTORY, ABBR_TO_TEAM, TEAM_LOGO_CDN } from "./constants";
 import LineupPreviewCard from "./LineupPreviewCard";
 const IPL_H2H: Record<string, [number, number]> = {
@@ -107,32 +109,6 @@ function predictNextMatch(homeCode: string, awayCode: string): { pick: string | 
   else reason = "Home advantage";
 
   return { pick, reason, homeW: homeScore, awayW: awayScore };
-}
-
-function getMatchWinner(m: any): string | null {
-  if (!m.matchEnded || !m.status) return null;
-  const s = m.status.toLowerCase();
-  if (s.includes("no result") || s.includes("abandoned")) return null;
-  if (s.includes("tied") || s.includes(" tie")) return "tie";
-  const wonIdx = s.indexOf(" won ");
-  if (wonIdx === -1) return null;
-  const before = s.slice(0, wonIdx);
-  if (m.teamInfo) {
-    for (const ti of m.teamInfo) {
-      if (ti.name && before.includes(ti.name.toLowerCase())) return ti.shortname;
-    }
-  }
-  const codeNames: Record<string, string[]> = {
-    MI: ["mumbai indians"], KKR: ["kolkata knight riders"],
-    RCB: ["royal challengers bengaluru", "royal challengers bangalore"],
-    CSK: ["chennai super kings"], SRH: ["sunrisers hyderabad"],
-    RR: ["rajasthan royals"], PBKS: ["punjab kings", "kings xi punjab"],
-    GT: ["gujarat titans"], LSG: ["lucknow super giants"], DC: ["delhi capitals"],
-  };
-  for (const [code, names] of Object.entries(codeNames)) {
-    if (names.some(n => before.includes(n))) return code;
-  }
-  return null;
 }
 
 
@@ -3946,72 +3922,6 @@ export default function App() {
     );
   };
 
-  const STAT_CATS = [
-    { id: "fantasyPts", label: "Fantasy Pts", sub: "Most Fantasy Points" },
-    { id: "orangeCap", label: "Orange Cap", sub: "Most Runs" },
-    { id: "purpleCap", label: "Purple Cap", sub: "Most Wickets" },
-    { id: "sixesLeader", label: "Sixes", sub: "Most Sixes" },
-    { id: "foursLeader", label: "Fours", sub: "Most Fours" },
-    { id: "catchesLeader", label: "Catches", sub: "Most Catches" },
-    { id: "srLeader", label: "Strike Rate", sub: "Min 10 balls" },
-    { id: "ecoLeader", label: "Economy", sub: "Min 2 overs" },
-  ] as const;
-
-  const renderStatRow = (entry: any, i: number, cat: string) => {
-    const isBat = ["orangeCap", "sixesLeader", "foursLeader", "srLeader"].includes(cat);
-    const accentColors = ["#d4a843", "#94a3b8", "#71717a"];
-    const accentColor = i < 3 ? accentColors[i] : "var(--border)";
-    const statColor = i === 0 ? "#d4a843" : i < 3 ? "var(--text)" : "var(--blue)";
-    return (
-      <div key={entry.name} style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 14px", borderBottom: "1px solid var(--border)", borderLeft: `4px solid ${accentColor}` }}>
-        <div style={{ width: 18, textAlign: "center" as const, fontFamily: "'Inter', sans-serif", fontSize: "0.9rem", fontWeight: 700, color: i < 3 ? accentColors[i] : "var(--text-3)", flexShrink: 0 }}>{i + 1}</div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: "0.82rem", fontWeight: 500, color: entry.isFantasy ? "var(--text)" : "var(--text-2)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
-            {entry.name}
-            {entry.isFantasy && <span style={{ marginLeft: 5, fontSize: "0.58rem", fontWeight: 800, color: "#22c55e", verticalAlign: "middle" }}>F</span>}
-          </div>
-          {cat === "catchesLeader" ? (
-            <div style={{ fontSize: "0.62rem", color: "var(--text-3)", marginTop: 1 }}>
-              Fantasy Pts: {entry.fantasyPts ?? 0}
-            </div>
-          ) : isBat ? (
-            <div style={{ fontSize: "0.62rem", color: "var(--text-3)", marginTop: 1 }}>
-              {cat === "orangeCap" && `HS: ${entry.hs} · SR: ${entry.sr} · ${entry.innings} inn`}
-              {cat === "sixesLeader" && `Runs: ${entry.runs} · SR: ${entry.sr}`}
-              {cat === "foursLeader" && `Runs: ${entry.runs} · SR: ${entry.sr}`}
-              {cat === "srLeader" && `${entry.runs} off ${entry.balls}b · ${entry.innings} inn`}
-            </div>
-          ) : (
-            <div style={{ fontSize: "0.62rem", color: "var(--text-3)", marginTop: 1 }}>
-              {cat === "purpleCap" && `Best: ${entry.best} · Eco: ${entry.eco} · ${entry.innings} inn`}
-              {cat === "ecoLeader" && `${entry.wickets}W · ${entry.overs} ov`}
-            </div>
-          )}
-        </div>
-        <div style={{ textAlign: "right" as const, flexShrink: 0 }}>
-          <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.1rem", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1, color: statColor }}>
-            {cat === "orangeCap" && entry.runs}
-            {cat === "purpleCap" && entry.wickets}
-            {cat === "sixesLeader" && entry.sixes}
-            {cat === "foursLeader" && entry.fours}
-            {cat === "catchesLeader" && entry.catches}
-            {cat === "srLeader" && entry.sr}
-            {cat === "ecoLeader" && entry.eco}
-          </div>
-          <div style={{ fontSize: "0.55rem", color: "var(--text-3)", textTransform: "uppercase" as const, letterSpacing: "0.08em", marginTop: 2 }}>
-            {cat === "orangeCap" && "runs"}
-            {cat === "purpleCap" && "wkts"}
-            {cat === "sixesLeader" && "sixes"}
-            {cat === "foursLeader" && "fours"}
-            {cat === "catchesLeader" && "catches"}
-            {cat === "srLeader" && "sr"}
-            {cat === "ecoLeader" && "eco"}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   const renderWhatIf = () => {
     const PRED_OWNERS = ["rajveer", "mombasa", "mumbai", "ponygoat"] as const;
     const wiTeam = FANTASY_TEAMS[wiTeamId];
@@ -4491,736 +4401,78 @@ export default function App() {
     );
   };
 
-  const renderStats = () => {
-    const cat = statsCategory;
-    const raw: any[] = iplStats?.[cat] || [];
-    const entries = statsFilter === "fantasy" ? raw.filter((e: any) => e.isFantasy) : raw;
 
-    return (
-      <div>
-        <div className="sec-title">IPL 2026 Stats</div>
-
-        {/* Segmented control — iOS pill style */}
-        <div style={{ display: "flex", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 22, padding: 3, marginBottom: 12, gap: 2 }}>
-          {([["all", "All IPL"], ["fantasy", "Fantasy"], ["predictions", "Predictions"]] as [string, string][]).map(([f, label]) => (
-            <button key={f} onClick={() => { setStatsFilter(f as any); setStatsExpanded(false); if (f !== "fantasy" && statsCategory === "fantasyPts") setStatsCategory("orangeCap"); }}
-              style={{
-                flex: 1, padding: "7px 0", borderRadius: 18, border: "none", cursor: "pointer", fontFamily: "inherit",
-                fontSize: "0.7rem", fontWeight: 600, transition: "all 0.18s ease",
-                background: statsFilter === f ? "var(--surface-3)" : "transparent",
-                color: statsFilter === f ? (f === "fantasy" ? "#22c55e" : f === "predictions" ? "#a78bfa" : "var(--text)") : "var(--text-3)",
-                boxShadow: statsFilter === f ? "0 1px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)" : "none",
-              }}>
-              {label}
-            </button>
-          ))}
-        </div>
-
-        {statsFilter !== "predictions" && (
-          <div data-no-swipe="true" style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 8, marginBottom: 12, marginLeft: -16, marginRight: -16, paddingLeft: 16, paddingRight: 16 }}>
-            {STAT_CATS.map(c => (
-              <button key={c.id} onClick={() => { setStatsCategory(c.id); setStatsExpanded(false); }} className={`stats-cat-btn ${statsCategory === c.id ? "active" : ""}`}>
-                {c.label}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {statsFilter === "predictions" ? (() => {
-          const PRED_OWNERS = ["rajveer","mombasa","mumbai","ponygoat"] as const;
-          const sortedMatches = [...liveMatches]
-            .filter((m: any) => m.homeTeamCode && m.awayTeamCode)
-            .sort((a: any, b: any) => {
-              if (a.dateTimeGMT && b.dateTimeGMT) return new Date(a.dateTimeGMT).getTime() - new Date(b.dateTimeGMT).getTime();
-              return (a.id || 0) - (b.id || 0);
-            })
-            .map((m: any, idx: number) => ({ ...m, matchNum: idx + 1 }));
-
-          const ownerScores: Record<string, number> = Object.fromEntries(PRED_OWNERS.map(id => [id, 0]));
-          sortedMatches.forEach((m: any) => {
-            if (m.matchNum <= 3 || !m.matchEnded) return;
-            const winner = getMatchWinner(m);
-            if (!winner || winner === "tie") return;
-            const preds = predictions[String(m.id)] || {};
-            PRED_OWNERS.forEach(id => { if (preds[id] === winner) ownerScores[id]++; });
-          });
-
-          const totalScorable = sortedMatches.filter((m: any) => m.matchNum > 3 && m.matchEnded).length;
-
-          return (
-            <>
-              {/* Score cards */}
-              {(() => {
-                const PRED_BG: Record<string, string> = {
-                  rajveer:  `${import.meta.env.BASE_URL}lb-bg-rajveer.jpeg`,
-                  mombasa:  `${import.meta.env.BASE_URL}lb-bg-mumbai.jpeg`,
-                  mumbai:   `${import.meta.env.BASE_URL}lb-bg-mombasa.jpeg`,
-                  ponygoat: `${import.meta.env.BASE_URL}lb-bg-ponygoat.jpeg`,
-                };
-                return (
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, marginBottom: 12 }}>
-                    {PRED_OWNERS.map(id => {
-                      const ft = FANTASY_TEAMS[id];
-                      return (
-                        <div key={id} style={{ position: "relative", border: `1px solid ${ft.color}33`, borderRadius: 10, padding: "10px 4px", textAlign: "center" as const, overflow: "hidden" }}>
-                          {/* Blurred team artwork background */}
-                          <div style={{
-                            position: "absolute", inset: -6, zIndex: 0,
-                            backgroundImage: `url(${PRED_BG[id]})`,
-                            backgroundSize: "cover", backgroundPosition: "center 30%",
-                            filter: "blur(14px) brightness(0.52) saturate(1.5)",
-                          }} />
-                          {/* Gradient overlay */}
-                          <div style={{
-                            position: "absolute", inset: 0, zIndex: 1,
-                            background: `linear-gradient(135deg, ${ft.color}28 0%, rgba(6,4,2,0.38) 100%)`,
-                          }} />
-                          {/* Content */}
-                          <div style={{ position: "relative", zIndex: 2 }}>
-                            <div style={{ display: "flex", justifyContent: "center", marginBottom: 6 }}>
-                              <div style={{ position: "relative", width: 36, height: 36, borderRadius: "50%", border: `2px solid ${ft.color}80`, overflow: "hidden", flexShrink: 0 }}>
-                                <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: ft.avatarPosition || "center center", display: "block" }} />
-                                <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "radial-gradient(circle, transparent 40%, rgba(8,12,20,0.7) 80%, rgba(8,12,20,0.9) 100%)" }} />
-                              </div>
-                            </div>
-                            <div style={{ fontSize: "1.3rem", fontWeight: 800, color: ft.color, lineHeight: 1, textShadow: "0 0 12px rgba(0,0,0,1), 0 2px 4px rgba(0,0,0,0.9)" }}>{ownerScores[id]}</div>
-                            <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.7)", marginTop: 2, textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>{ft.owner}</div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })()}
-
-              {/* Match table */}
-              {(() => {
-                const archiveMatches = sortedMatches.filter((m: any) => m.matchEnded);
-                const currentMatches = sortedMatches.filter((m: any) => !m.matchEnded);
-                const visibleCurrent = currentMatches.slice(0, predVisibleCount);
-                const hasMoreCurrent = currentMatches.length > predVisibleCount;
-
-                const tableHeader = (
-                  <div style={{ display: "grid", gridTemplateColumns: "34px 1fr repeat(4, 36px)", padding: "8px 12px", borderBottom: "1px solid var(--border)", background: "rgba(255,255,255,0.02)", alignItems: "center" }}>
-                    <div style={{ fontSize: "0.56rem", color: "var(--text-3)", fontWeight: 700, letterSpacing: "0.08em" }}>#</div>
-                    <div style={{ fontSize: "0.56rem", color: "var(--text-3)", fontWeight: 700, letterSpacing: "0.08em" }}>MATCH</div>
-                    {PRED_OWNERS.map(id => (
-                      <div key={id} style={{ fontSize: "0.56rem", color: FANTASY_TEAMS[id].color, fontWeight: 700, textAlign: "center" as const }}>
-                        {FANTASY_TEAMS[id].owner.slice(0,3).toUpperCase()}
-                      </div>
-                    ))}
-                  </div>
-                );
-
-                const renderRow = (m: any, isLast: boolean) => {
-                  const isNil = m.matchNum <= 3;
-                  const isDone = m.matchEnded;
-                  const isLive = m.matchStarted && !m.matchEnded;
-                  const isUpcoming = !m.matchStarted;
-                  const winner = isDone ? getMatchWinner(m) : null;
-                  const preds = predictions[String(m.id)] || {};
-                  const picksIn = !isNil ? PRED_OWNERS.filter(id => preds[id]).length : 0;
-                  return (
-                    <div key={m.id} style={{ display: "grid", gridTemplateColumns: "34px 1fr repeat(4, 36px)", padding: "8px 12px", borderBottom: isLast ? "none" : "1px solid var(--border)", alignItems: "center" }}>
-                      <div style={{ fontSize: "0.65rem", fontWeight: 700, color: isLive ? "var(--live)" : "var(--text-3)" }}>
-                        {m.matchNum === 999 ? "?" : `M${m.matchNum}`}
-                      </div>
-                      <div style={{ minWidth: 0 }}>
-                        <div style={{ fontSize: "0.68rem", fontWeight: 600, whiteSpace: "nowrap" as const }}>
-                          <span style={{ color: winner === m.homeTeamCode ? "#22c55e" : "var(--text-2)" }}>{m.homeTeamCode}</span>
-                          <span style={{ color: "var(--text-3)", padding: "0 3px", fontSize: "0.55rem" }}>vs</span>
-                          <span style={{ color: winner === m.awayTeamCode ? "#22c55e" : "var(--text-2)" }}>{m.awayTeamCode}</span>
-                        </div>
-                        {isNil && <div style={{ fontSize: "0.5rem", color: "var(--text-3)", fontStyle: "italic" }}>no predictions</div>}
-                        {isLive && <div style={{ fontSize: "0.5rem", color: "var(--live)" }}>● Live</div>}
-                        {isUpcoming && !isNil && picksIn > 0 && <div style={{ fontSize: "0.5rem", color: "var(--text-3)" }}>{picksIn}/4 picked</div>}
-                        {isUpcoming && !isNil && picksIn === 0 && <div style={{ fontSize: "0.5rem", color: "var(--text-3)" }}>open</div>}
-                      </div>
-                      {PRED_OWNERS.map(id => {
-                        if (isNil) return <div key={id} style={{ textAlign: "center" as const, fontSize: "0.6rem", color: "var(--text-3)" }}>—</div>;
-                        const pick = preds[id] || null;
-                        if (!pick) return (
-                          <div key={id} style={{ textAlign: "center" as const, fontSize: "0.65rem", color: "var(--text-3)" }}>
-                            {isUpcoming ? <span style={{ opacity: 0.4 }}>?</span> : "—"}
-                          </div>
-                        );
-                        const isCorrect = !!winner && winner !== "tie" && pick === winner;
-                        const isWrong = !!winner && winner !== "tie" && pick !== winner;
-                        const isPending = !isDone && !isLive;
-                        return (
-                          <div key={id} style={{ textAlign: "center" as const }}>
-                            <div style={{ fontSize: "0.58rem", fontWeight: 700, lineHeight: 1.2, color: isCorrect ? "#22c55e" : isWrong ? "#f87171" : isPending ? "var(--text-3)" : "var(--text-2)" }}>{pick}</div>
-                            {isCorrect && <div style={{ fontSize: "0.6rem", color: "#22c55e", lineHeight: 1 }}>✓</div>}
-                            {isWrong && <div style={{ fontSize: "0.6rem", color: "#f87171", lineHeight: 1 }}>✗</div>}
-                            {isLive && pick && <div style={{ fontSize: "0.48rem", color: "var(--text-3)", lineHeight: 1 }}>locked</div>}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  );
-                };
-
-                return (
-                  <>
-                    {/* Archive section — all completed matches */}
-                    {archiveMatches.length > 0 && (
-                      <div style={{ marginBottom: 10 }}>
-                        <button
-                          onClick={() => setPredArchiveOpen(o => !o)}
-                          style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: "transparent", border: "1px solid var(--border)", borderRadius: predArchiveOpen ? "10px 10px 0 0" : 10, padding: "7px 12px", cursor: "pointer", color: "var(--text-3)", fontSize: "0.65rem", fontFamily: "inherit", marginBottom: 0 }}>
-                          <span style={{ fontSize: "0.7rem" }}>{predArchiveOpen ? "▲" : "▼"}</span>
-                          {predArchiveOpen ? "Hide" : "Show"} {archiveMatches.length} completed match{archiveMatches.length !== 1 ? "es" : ""}
-                        </button>
-                        {predArchiveOpen && (
-                          <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderTop: "none", borderRadius: "0 0 10px 10px", overflow: "hidden", opacity: 0.55, marginBottom: 10 }}>
-                            {tableHeader}
-                            {archiveMatches.map((m: any, idx: number) => renderRow(m, idx === archiveMatches.length - 1))}
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Current / upcoming matches */}
-                    <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden", marginBottom: 4 }}>
-                      {tableHeader}
-                      {currentMatches.length === 0 && sortedMatches.length === 0 && (
-                        <div style={{ padding: "20px 12px", fontSize: "0.75rem", color: "var(--text-3)", textAlign: "center" as const }}>Matches loading...</div>
-                      )}
-                      {currentMatches.length === 0 && sortedMatches.length > 0 && (
-                        <div style={{ padding: "16px 12px", fontSize: "0.72rem", color: "var(--text-3)", textAlign: "center" as const }}>All matches completed — see archive above</div>
-                      )}
-                      {visibleCurrent.map((m: any, idx: number) => renderRow(m, idx === visibleCurrent.length - 1))}
-                    </div>
-                    {(hasMoreCurrent || predVisibleCount > 10) && (
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 2px 2px" }}>
-                        {predVisibleCount > 10 ? (
-                          <button onClick={() => setPredVisibleCount(c => Math.max(10, c - 10))}
-                            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", borderRadius: 20, padding: "5px 12px", cursor: "pointer", fontSize: "0.63rem", color: "var(--text-3)", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 4 }}>
-                            <span>↑</span><span>Less</span>
-                          </button>
-                        ) : <div />}
-                        <span style={{ fontSize: "0.58rem", color: "var(--text-3)" }}>
-                          {Math.min(predVisibleCount, currentMatches.length) + archiveMatches.length} of {sortedMatches.length}
-                        </span>
-                        {hasMoreCurrent ? (
-                          <button onClick={() => setPredVisibleCount(c => c + 10)}
-                            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", borderRadius: 20, padding: "5px 12px", cursor: "pointer", fontSize: "0.63rem", color: "var(--text-3)", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 4 }}>
-                            <span>More</span><span>↓</span>
-                          </button>
-                        ) : <div />}
-                      </div>
-                    )}
-
-                    <div style={{ fontSize: "0.58rem", color: "var(--text-3)", textAlign: "center" as const, padding: "2px 0 8px" }}>
-                      Matches 1–3 had no predictions · +1 for each correct pick · picks refresh every 30s
-                    </div>
-                  </>
-                );
-              })()}
-            </>
-          );
-        })() : (
-          <>
-            {cat === "fantasyPts" && (() => {
-              const fantasyPlayerMap = new Map<string, { color: string; owner: string }>();
-              Object.values(FANTASY_TEAMS).forEach(ft =>
-                ft.players.forEach((p) => fantasyPlayerMap.set(p.name, { color: ft.color, owner: ft.owner }))
-              );
-              const ranked = statsFilter === "fantasy"
-                ? Array.from(fantasyPlayerMap.entries())
-                    .map(([name, info]) => ({ name, pts: playerPoints[name] ?? 0, isFantasy: true, ...info }))
-                    .sort((a, b) => b.pts - a.pts)
-                : (() => {
-                    const seen = new Set<string>();
-                    const all: { name: string; pts: number; isFantasy: boolean; color: string; owner: string }[] = [];
-                    for (const entry of [...(iplStats?.orangeCap || []), ...(iplStats?.purpleCap || [])]) {
-                      if (seen.has(entry.name)) continue;
-                      seen.add(entry.name);
-                      const fi = fantasyPlayerMap.get(entry.name);
-                      all.push({ name: entry.name, pts: entry.fantasyPts ?? playerPoints[entry.name] ?? 0, isFantasy: !!fi, color: fi?.color ?? "var(--text-3)", owner: fi?.owner ?? "" });
-                    }
-                    return all.sort((a, b) => b.pts - a.pts);
-                  })();
-              const visible = fantasyPtsOpen ? ranked : ranked.slice(0, 10);
-              const rankColors = ["#d4a843", "#94a3b8", "#cd7c3a"];
-              return (
-                <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden", marginBottom: 12 }}>
-                  <div style={{ padding: "12px 14px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text)" }}>Most Fantasy Points</div>
-                    <div style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{ranked.length} players</div>
-                  </div>
-                  {visible.map((p, i) => (
-                    <div key={p.name} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderBottom: i < visible.length - 1 ? "1px solid var(--border)" : "none" }}>
-                      <div style={{ width: 18, textAlign: "center" as const, fontSize: "0.68rem", fontWeight: 700, color: i < 3 ? rankColors[i] : "var(--text-3)", flexShrink: 0 }}>{i + 1}</div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: "0.82rem", fontWeight: 500, color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
-                          {p.name}
-                        </div>
-                        {statsFilter === "fantasy" && p.isFantasy && <div style={{ fontSize: "0.58rem", color: p.color, marginTop: 1 }}>{p.owner}</div>}
-                      </div>
-                      <div style={{ fontSize: "1rem", fontWeight: 700, color: i === 0 ? "#d4a843" : i < 3 ? "var(--text)" : "var(--text-2)", flexShrink: 0 }}>{p.pts}</div>
-                      <div style={{ fontSize: "0.55rem", color: "var(--text-3)", flexShrink: 0, marginLeft: -4 }}>pts</div>
-                    </div>
-                  ))}
-                  {ranked.length > 10 && (
-                    <button onClick={() => setFantasyPtsOpen(x => !x)}
-                      style={{ width: "100%", padding: "11px 0", background: "transparent", border: "none", borderTop: "1px solid var(--border)", cursor: "pointer", fontSize: "0.68rem", color: "var(--text-3)", fontFamily: "inherit" }}>
-                      {fantasyPtsOpen ? "Show less" : `Show all ${ranked.length}`}
-                    </button>
-                  )}
-                </div>
-              );
-            })()}
-            {cat !== "fantasyPts" && !iplStats && statsLoading && (
-              <div style={{ color: "var(--text-3)", fontSize: "0.78rem", textAlign: "center" as const, padding: "24px 0" }}>Loading stats...</div>
-            )}
-            {cat !== "fantasyPts" && iplStats && entries.length === 0 && (
-              <div style={{ color: "var(--text-3)", fontSize: "0.78rem", textAlign: "center" as const, padding: "24px 0" }}>
-                {iplStats.matchesProcessed === 0 ? "Stats will appear once match innings data is synced." : `No ${statsFilter === "fantasy" ? "fantasy " : ""}players found.`}
-              </div>
-            )}
-            {cat !== "fantasyPts" && entries.length > 0 && (() => {
-              const visible = statsExpanded ? entries : entries.slice(0, 10);
-              const hasMore = entries.length > 10;
-              return (
-                <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden", marginBottom: 12 }}>
-                  <div style={{ padding: "12px 14px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text)" }}>
-                      {STAT_CATS.find(c => c.id === cat)?.sub}
-                    </div>
-                    <div style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{iplStats.matchesProcessed} matches</div>
-                  </div>
-                  {visible.map((e: any, i: number) => renderStatRow(e, i, cat))}
-                  {hasMore && (
-                    <button onClick={() => setStatsExpanded(x => !x)}
-                      style={{ width: "100%", padding: "11px 0", background: "transparent", border: "none", borderTop: "1px solid var(--border)", cursor: "pointer", fontSize: "0.68rem", color: "var(--text-3)", fontFamily: "inherit" }}>
-                      {statsExpanded ? `Show less` : `Show all ${entries.length}`}
-                    </button>
-                  )}
-                </div>
-              );
-            })()}
-            {cat !== "fantasyPts" && iplStats && (
-              <div style={{ fontSize: "0.6rem", color: "var(--text-3)", textAlign: "center" as const, padding: "4px 0" }}>
-                <span style={{ color: "#22c55e" }}>F</span> = in one of the 4 fantasy teams
-              </div>
-            )}
-          </>
-        )}
-      </div>
-    );
-  };
+  const renderStats = () => (
+    <StatsPage
+      statsCategory={statsCategory}
+      statsFilter={statsFilter}
+      statsExpanded={statsExpanded}
+      fantasyPtsOpen={fantasyPtsOpen}
+      predVisibleCount={predVisibleCount}
+      predArchiveOpen={predArchiveOpen}
+      iplStats={iplStats}
+      statsLoading={statsLoading}
+      liveMatches={liveMatches}
+      predictions={predictions}
+      playerPoints={playerPoints}
+      setStatsCategory={setStatsCategory}
+      setStatsFilter={setStatsFilter}
+      setStatsExpanded={setStatsExpanded}
+      setFantasyPtsOpen={setFantasyPtsOpen}
+      setPredVisibleCount={setPredVisibleCount}
+      setPredArchiveOpen={setPredArchiveOpen}
+    />
+  );
 
 
-  const renderAdmin = () => {
-    const abandonedSet = new Set(abandonedMatchIds);
-    const completedCount = liveMatches.filter((m: any) => m.matchEnded && !abandonedSet.has(String(m.id))).length;
-    const liveCount = liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded).length;
-    const scorecardTotal = completedCount + liveCount;
-    const scoredPlayerCount = Object.keys(playerPoints).length;
-    const totalPts = Object.values(playerPoints).reduce((s, v) => s + v, 0);
-
-    return (
-      <div>
-        <div className="sec-title">Admin</div>
-        <div className="stat-grid" style={{ marginBottom: 20 }}>
-          <div className="stat-card">
-            <div className="stat-val" style={{ color: "#22c55e" }}>{completedCount}</div>
-            <div className="stat-lbl">Completed</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-val" style={{ color: "var(--live)" }}>{liveCount}</div>
-            <div className="stat-lbl">Live now</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-val" style={{ color: "#60a5fa" }}>{processedMatches.length}</div>
-            <div className="stat-lbl">Scored</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-val" style={{ color: "#a855f7" }}>{scoredPlayerCount}</div>
-            <div className="stat-lbl">Players</div>
-          </div>
-        </div>
-        {/* PIN Management */}
-        <div style={{ background: "rgba(15,21,32,0.9)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: 16, marginBottom: 16 }}>
-          <div style={{ marginBottom: 14 }}>
-            <div style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase" as const, color: "#94a3b8" }}>
-              Change Passcode
-            </div>
-            <div style={{ fontSize: "0.65rem", color: "#475569", marginTop: 5 }}>
-              Your passcode must be exactly 4 digits and is used to log in to your account.{currentUser === "rajveer" ? " As commissioner, you can manage all members." : ""}
-            </div>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column" as const, gap: 2 }}>
-            {Object.values(FANTASY_TEAMS)
-              .filter(ft => currentUser === "rajveer" || ft.id === currentUser)
-              .map((ft, idx) => {
-                const isEditing = pinEditTarget === ft.id;
-                return (
-                  <div key={ft.id}>
-                    {/* divider between entries */}
-                    {idx > 0 && <div style={{ height: 1, background: "rgba(255,255,255,0.04)", margin: "10px 0" }} />}
-                    {isEditing ? (
-                      /* ── Edit mode: two-step expanded card ── */
-                      (<div style={{ padding: "4px 0 8px" }}>
-                        {/* User identity */}
-                        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-                          <span style={{ fontSize: "1.1rem" }}>{ft.emoji}</span>
-                          <div>
-                            <div style={{ fontSize: "0.72rem", fontWeight: 700, color: ft.color }}>{ft.owner}</div>
-                            <div style={{ fontSize: "0.6rem", color: "#475569" }}>{ft.name}</div>
-                          </div>
-                          {/* Step indicator */}
-                          <div style={{ marginLeft: "auto", display: "flex", gap: 5 }}>
-                            {["confirm","new"].map((s, si) => (
-                              <div key={s} style={{
-                                width: 18, height: 4, borderRadius: 2,
-                                background: (pinStep === "confirm" ? si === 0 : si === 1) ? ft.color : "rgba(255,255,255,0.1)",
-                                transition: "background 0.3s ease",
-                              }} />
-                            ))}
-                          </div>
-                        </div>
-                        {/* Step label */}
-                        <div style={{ fontSize: "0.62rem", color: "#52525b", textAlign: "center", marginBottom: 14, letterSpacing: "0.5px" }}>
-                          {pinStep === "confirm" ? "CONFIRM CURRENT PIN" : "ENTER NEW PIN"}
-                        </div>
-                        {/* Step 1 — confirm current PIN */}
-                        {pinStep === "confirm" && (() => {
-                          const val = pinConfirmVal;
-                          return (
-                            <div>
-                              <div style={{ position: "relative" }}>
-                                <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
-                                  {[0, 1, 2, 3].map(i => {
-                                    const char = val[i] || "";
-                                    const isActive = val.length === i;
-                                    return (
-                                      <div key={i} style={{
-                                        width: 48, height: 56,
-                                        display: "flex", alignItems: "center", justifyContent: "center",
-                                        border: `1.5px solid ${pinConfirmError ? "#f87171" : isActive ? ft.color : char ? `${ft.color}60` : "rgba(255,255,255,0.1)"}`,
-                                        borderRadius: 12,
-                                        background: pinConfirmError ? "rgba(248,113,113,0.08)" : char ? `${ft.color}12` : "rgba(255,255,255,0.03)",
-                                        fontSize: "1.6rem", color: pinConfirmError ? "#f87171" : ft.color,
-                                        transition: "all 0.15s ease",
-                                        boxShadow: isActive ? `0 0 0 3px ${ft.color}25` : "none",
-                                      }}>
-                                        {char ? "•" : ""}
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                                <input
-                                  type="text" inputMode="numeric" pattern="\d{4}" maxLength={4}
-                                  value={val}
-                                  onChange={e => { setPinConfirmVal(e.target.value.replace(/\D/g, "").slice(0, 4)); setPinConfirmError(false); }}
-                                  autoFocus
-                                  style={{ position: "absolute", inset: 0, opacity: 0, cursor: "text", width: "100%", height: "100%" }}
-                                />
-                              </div>
-                              {pinConfirmError && (
-                                <div style={{ textAlign: "center", color: "#f87171", fontSize: "0.62rem", marginTop: 10, letterSpacing: "0.3px" }}>
-                                  Incorrect PIN — try again
-                                </div>
-                              )}
-                              <div style={{ display: "flex", gap: 8, marginTop: 16, justifyContent: "center" }}>
-                                <button
-                                  onClick={() => handleConfirmOldPin(ft.id)}
-                                  disabled={val.length !== 4}
-                                  style={{
-                                    flex: 1, maxWidth: 130,
-                                    background: val.length === 4 ? `${ft.color}22` : "rgba(255,255,255,0.04)",
-                                    border: `1px solid ${val.length === 4 ? `${ft.color}60` : "rgba(255,255,255,0.07)"}`,
-                                    borderRadius: 10, padding: "9px 0", cursor: val.length === 4 ? "pointer" : "default",
-                                    color: val.length === 4 ? ft.color : "#3f3f46",
-                                    fontSize: "0.72rem", fontFamily: "inherit", fontWeight: 700, letterSpacing: "0.5px", transition: "all 0.15s ease",
-                                  }}>
-                                  Confirm →
-                                </button>
-                                <button
-                                  onClick={resetPinEdit}
-                                  style={{
-                                    flex: 1, maxWidth: 100, background: "transparent",
-                                    border: "1px solid rgba(255,255,255,0.07)",
-                                    borderRadius: 10, padding: "9px 0", cursor: "pointer",
-                                    color: "#52525b", fontSize: "0.72rem", fontFamily: "inherit", transition: "all 0.15s ease",
-                                  }}>
-                                  Cancel
-                                </button>
-                              </div>
-                            </div>
-                          );
-                        })()}
-                        {/* Step 2 — enter new PIN */}
-                        {pinStep === "new" && (() => {
-                          const val = pinEditVal;
-                          return (
-                            <div>
-                              <div style={{ position: "relative" }}>
-                                <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
-                                  {[0, 1, 2, 3].map(i => {
-                                    const char = val[i] || "";
-                                    const isActive = val.length === i;
-                                    return (
-                                      <div key={i} style={{
-                                        width: 48, height: 56,
-                                        display: "flex", alignItems: "center", justifyContent: "center",
-                                        border: `1.5px solid ${isActive ? ft.color : char ? `${ft.color}60` : "rgba(255,255,255,0.1)"}`,
-                                        borderRadius: 12,
-                                        background: char ? `${ft.color}12` : "rgba(255,255,255,0.03)",
-                                        fontSize: "1.6rem", color: ft.color,
-                                        transition: "all 0.15s ease",
-                                        boxShadow: isActive ? `0 0 0 3px ${ft.color}25` : "none",
-                                      }}>
-                                        {char ? "•" : ""}
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                                <input
-                                  type="text" inputMode="numeric" pattern="\d{4}" maxLength={4}
-                                  value={val}
-                                  onChange={e => setPinEditVal(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                                  autoFocus
-                                  style={{ position: "absolute", inset: 0, opacity: 0, cursor: "text", width: "100%", height: "100%" }}
-                                />
-                              </div>
-                              <div style={{ display: "flex", gap: 8, marginTop: 16, justifyContent: "center" }}>
-                                <button
-                                  onClick={() => handleSavePin(ft.id)}
-                                  disabled={val.length !== 4}
-                                  style={{
-                                    flex: 1, maxWidth: 120,
-                                    background: val.length === 4 ? `${ft.color}22` : "rgba(255,255,255,0.04)",
-                                    border: `1px solid ${val.length === 4 ? `${ft.color}60` : "rgba(255,255,255,0.07)"}`,
-                                    borderRadius: 10, padding: "9px 0", cursor: val.length === 4 ? "pointer" : "default",
-                                    color: val.length === 4 ? ft.color : "#3f3f46",
-                                    fontSize: "0.72rem", fontFamily: "inherit", fontWeight: 700, letterSpacing: "0.5px", transition: "all 0.15s ease",
-                                  }}>
-                                  Save PIN
-                                </button>
-                                <button
-                                  onClick={() => { setPinStep("confirm"); setPinEditVal(""); setPinConfirmError(false); }}
-                                  style={{
-                                    flex: 1, maxWidth: 100, background: "transparent",
-                                    border: "1px solid rgba(255,255,255,0.07)",
-                                    borderRadius: 10, padding: "9px 0", cursor: "pointer",
-                                    color: "#52525b", fontSize: "0.72rem", fontFamily: "inherit", transition: "all 0.15s ease",
-                                  }}>
-                                  ← Back
-                                </button>
-                              </div>
-                            </div>
-                          );
-                        })()}
-                      </div>)
-                    ) : (
-                      /* ── Idle row ── */
-                      (<div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <span style={{ fontSize: "1rem" }}>{ft.emoji}</span>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: "0.7rem", fontWeight: 600, color: ft.color }}>{ft.owner}</div>
-                          <div style={{ fontSize: "0.58rem", color: "#3f3f46" }}>{ft.name}</div>
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <span style={{ fontSize: "0.8rem", letterSpacing: "4px", color: "#27272a", fontFamily: "'Inter', sans-serif", lineHeight: 1 }}>••••</span>
-                          <button
-                            onClick={() => { setPinEditTarget(ft.id); setPinEditVal(""); setPinConfirmVal(""); setPinStep("confirm"); setPinConfirmError(false); }}
-                            style={{
-                              background: "transparent",
-                              border: `1px solid rgba(255,255,255,0.08)`,
-                              borderRadius: 8, padding: "5px 12px", cursor: "pointer",
-                              color: "#52525b", fontSize: "0.65rem", fontFamily: "inherit",
-                              fontWeight: 600, letterSpacing: "0.3px",
-                              transition: "border-color 0.15s, color 0.15s",
-                            }}
-                            onMouseEnter={e => { (e.target as HTMLButtonElement).style.borderColor = `${ft.color}50`; (e.target as HTMLButtonElement).style.color = ft.color; }}
-                            onMouseLeave={e => { (e.target as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.08)"; (e.target as HTMLButtonElement).style.color = "#52525b"; }}
-                          >
-                            Change
-                          </button>
-                        </div>
-                      </div>)
-                    )}
-                  </div>
-                );
-              })}
-          </div>
-        </div>
-        {currentUser === "rajveer" && <div style={{ background: "rgba(15,21,32,0.9)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: 16, marginBottom: 16 }}>
-          <div style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase" as const, color: "#94a3b8", marginBottom: 12 }}>
-            🤖 Auto-Points Engine
-          </div>
-          <div style={{ display: "flex", flexDirection: "column" as const, gap: 10 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem" }}>
-              <span style={{ color: "#64748b" }}>IPL schedule</span>
-              <span style={{ color: dataSources?.iplOfficial ? "#34d399" : "#475569" }}>
-                {dataSources?.iplOfficial ? `✓ ${dataSources.iplOfficial} matches` : "Loading..."}
-              </span>
-            </div>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem" }}>
-              <span style={{ color: "#64748b" }}>Scorecards fetched</span>
-              <span style={{ color: processedMatches.length > 0 ? "#34d399" : "#475569" }}>
-                {processedMatches.length > 0
-                  ? `✓ ${processedMatches.length} fetched${abandonedMatchIds.length > 0 ? `, ${abandonedMatchIds.length} abandoned` : ""}${liveCount > 0 ? ` (${liveCount} live)` : ""}`
-                  : scorecardTotal === 0 ? "No matches yet" : "Pending..."}
-              </span>
-            </div>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem" }}>
-              <span style={{ color: "#64748b" }}>AuctionRoom points engine</span>
-              <span style={{ color: pointsUpdating ? "#f59e0b" : pointsError ? "#ef4444" : pendingMatches > 0 ? "#f59e0b" : "#34d399" }}>
-                {pointsUpdating ? "⏳ Processing..." : pointsError ? `⚠ ${pointsError.slice(0, 40)}` : pendingMatches > 0 ? `⏳ ${pendingMatches} pending` : "✓ Active"}
-              </span>
-            </div>
-            {nextAttempt && (
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem" }}>
-                <span style={{ color: "#475569" }}>Rate limit — next attempt</span>
-                <span style={{ color: "#f59e0b" }}>{new Date(nextAttempt).toLocaleTimeString()}</span>
-              </div>
-            )}
-            {pointsLastUpdated && (
-              <div style={{ fontSize: "0.65rem", color: "#334155" }}>
-                Points last updated: {pointsLastUpdated.toLocaleTimeString()} · Auto-refreshes every 5 min
-              </div>
-            )}
-          </div>
-        </div>}
-        <div style={{ background: "rgba(15,21,32,0.9)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: 16, marginBottom: 16 }}>
-          <div
-            onClick={() => setAdminBreakdownOpen(o => !o)}
-            style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", marginBottom: adminBreakdownOpen ? 12 : 0 }}>
-            <span style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase" as const, color: "#94a3b8" }}>
-              📊 Player Points Breakdown
-            </span>
-            <span style={{ fontSize: "0.65rem", color: "#475569" }}>{adminBreakdownOpen ? "▲" : "▼"} {Object.keys(playerPoints).length} players</span>
-          </div>
-          {adminBreakdownOpen && Object.keys(playerPoints).length === 0 && (
-            <div style={{ color: "#334155", fontSize: "0.8rem", padding: "8px 0" }}>
-              {pointsLoading ? "⏳ Calculating points from scorecards..." : "Points will appear once matches complete and scorecards are processed."}
-            </div>
-          )}
-          {adminBreakdownOpen && Object.keys(playerPoints).length > 0 && Object.entries(playerPoints).sort((a, b) => b[1] - a[1]).map(([name, pts]) => {
-            const team = Object.values(FANTASY_TEAMS).find(t => t.players.some(p => p.name === name));
-            const isExp = expandedAdminPlayer === name;
-            const matches = playerMatchPoints[name] || [];
-            const isCap = Object.values(FANTASY_TEAMS).some(t => t.captain === name);
-            const isVC = Object.values(FANTASY_TEAMS).some(t => t.vc === name);
-            return (
-              <div key={name} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                <div
-                  onClick={() => setExpandedAdminPlayer(isExp ? null : name)}
-                  style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 0", cursor: "pointer" }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                      <span style={{ fontSize: "0.78rem", color: "#cbd5e1" }}>{name}</span>
-                      {isCap && <span style={{ fontSize: "0.52rem", fontWeight: 700, color: "#d4a843", background: "rgba(212,168,67,0.12)", borderRadius: 3, padding: "1px 4px" }}>C</span>}
-                      {isVC && <span style={{ fontSize: "0.52rem", fontWeight: 700, color: "#a1a1aa", background: "rgba(161,161,170,0.1)", borderRadius: 3, padding: "1px 4px" }}>VC</span>}
-                    </div>
-                    {team && <div style={{ fontSize: "0.6rem", color: "#475569", marginTop: 1 }}>{team.name} · {team.owner}</div>}
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <span style={{ fontFamily: "'Bebas Neue'", fontSize: "1.1rem", color: "#f97316", letterSpacing: "1px" }}>{pts}</span>
-                    {matches.length > 0 && <span style={{ fontSize: "0.6rem", color: "#475569" }}>{isExp ? "▲" : "▼"}</span>}
-                  </div>
-                </div>
-                {isExp && matches.length > 0 && (
-                  <div style={{ marginBottom: 8, padding: "8px 10px", background: "rgba(255,255,255,0.02)", borderRadius: 8, display: "flex", flexDirection: "column" as const, gap: 5 }}>
-                    {matches.map((m, i) => (
-                      <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.72rem" }}>
-                        <div>
-                          <span style={{ color: "var(--text-2)" }}>{m.label}</span>
-                          {m.source === "official" && <span style={{ marginLeft: 5, fontSize: "0.55rem", color: "#34d399", background: "rgba(52,211,153,0.1)", borderRadius: 3, padding: "1px 4px" }}>official</span>}
-                          {(m.source || "").includes("live") && <span style={{ marginLeft: 5, fontSize: "0.55rem", color: "#fbbf24", background: "rgba(251,191,36,0.1)", borderRadius: 3, padding: "1px 4px" }}>live</span>}
-                        </div>
-                        <span style={{ fontWeight: 700, color: m.pts > 0 ? "#f97316" : "var(--text-3)" }}>{m.pts > 0 ? "+" : ""}{m.pts}</span>
-                      </div>
-                    ))}
-                    <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", marginTop: 2, paddingTop: 5, display: "flex", justifyContent: "space-between", fontSize: "0.72rem", fontWeight: 700 }}>
-                      <span style={{ color: "var(--text-3)" }}>Total (raw)</span>
-                      <span style={{ color: "#f97316" }}>{matches.reduce((s, m) => s + m.pts, 0)}</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" as const }}>
-          <button className="btn-primary" onClick={() => { fetchLive(); fetchPoints(); }} disabled={liveLoading || pointsLoading}>
-            {(liveLoading || pointsLoading) ? <span className="spinner" /> : "🔄"} Refresh All
-          </button>
-          {currentUser === "rajveer" && <>
-            <button className="btn-primary" style={{ background: "rgba(96,165,250,0.1)", borderColor: "rgba(96,165,250,0.3)", color: "#60a5fa" }}
-              onClick={fetchPoints} disabled={pointsLoading}>
-              {pointsLoading ? <span className="spinner" /> : "⚡"} Fetch Points
-            </button>
-            <button className="btn-primary" style={{ background: "rgba(34,197,94,0.1)", borderColor: "rgba(34,197,94,0.3)", color: "#22c55e" }}
-              onClick={syncSupabase} disabled={supabaseSyncing}>
-              {supabaseSyncing ? <span className="spinner" /> : "🗄️"} Sync AuctionRoom
-            </button>
-            <button className="btn-primary" style={{ background: "rgba(168,85,247,0.1)", borderColor: "rgba(168,85,247,0.3)", color: "#a855f7" }}
-              onClick={prefetchS3Scorecards} disabled={s3Prefetching}>
-              {s3Prefetching ? <span className="spinner" /> : "📡"} Pre-fetch S3 Scorecards
-            </button>
-            <button className="btn-primary" style={{ background: "rgba(245,166,35,0.1)", borderColor: "rgba(245,166,35,0.3)", color: "var(--gold)" }}
-              onClick={refreshStatsCache} disabled={statsRefreshing}>
-              {statsRefreshing ? <span className="spinner" /> : "📊"} Refresh Stats (S3)
-            </button>
-            <button className="btn-danger" onClick={async () => {
-              if (confirm("Reset all cached points? Points will re-sync from AuctionRoom.")) {
-                await fetch("/api/ipl/points/reset", { method: "POST", headers: { "X-Owner-Id": "rajveer" } });
-                setPlayerPoints({});
-                setProcessedMatches([]);
-                setTimeout(fetchPoints, 500);
-              }
-            }}>🗑️ Reset Cache</button>
-          </>}
-        </div>
-        {supabaseSyncMsg && (
-          <div style={{ fontSize: "0.7rem", marginTop: 8, padding: "6px 10px", borderRadius: 8,
-            background: supabaseSyncMsg.startsWith("Sync failed") ? "rgba(239,68,68,0.1)" : "rgba(34,197,94,0.1)",
-            color: supabaseSyncMsg.startsWith("Sync failed") ? "#f87171" : "#4ade80",
-            border: `1px solid ${supabaseSyncMsg.startsWith("Sync failed") ? "rgba(239,68,68,0.2)" : "rgba(34,197,94,0.2)"}`,
-          }}>
-            {supabaseSyncMsg}
-          </div>
-        )}
-        {s3PrefetchResult && (
-          <div style={{ marginTop: 8, padding: "10px 12px", borderRadius: 10,
-            background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.2)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: s3PrefetchResult.foundIds.length > 0 ? 8 : 0 }}>
-              <span style={{ fontSize: "0.72rem", color: "#a855f7", fontWeight: 700 }}>
-                📡 S3 Scorecard Prefetch
-              </span>
-              <span style={{ fontSize: "0.72rem", color: "#94a3b8" }}>
-                <span style={{ color: "#4ade80" }}>✓ {s3PrefetchResult.found} found</span>
-                {" · "}
-                <span style={{ color: s3PrefetchResult.missing > 0 ? "#94a3b8" : "#4ade80" }}>{s3PrefetchResult.missing} not yet available</span>
-              </span>
-            </div>
-            {s3PrefetchResult.foundIds.length > 0 && (
-              <div style={{ fontSize: "0.6rem", color: "#64748b", lineHeight: 1.6 }}>
-                <span style={{ color: "#4ade80" }}>Found IDs: </span>
-                {s3PrefetchResult.foundIds.join(", ")}
-              </div>
-            )}
-            {s3PrefetchResult.missingIds.length > 0 && (
-              <div style={{ fontSize: "0.6rem", color: "#64748b", marginTop: 4, lineHeight: 1.6 }}>
-                <span style={{ color: "#94a3b8" }}>Not yet on S3: </span>
-                {s3PrefetchResult.missingIds.join(", ")}
-              </div>
-            )}
-          </div>
-        )}
-        {lastUpdated && (
-          <div style={{ fontSize: "0.65rem", color: "#334155", marginTop: 10 }}>
-            Schedule last updated: {lastUpdated.toLocaleTimeString()} · Total points tracked: {totalPts}
-          </div>
-        )}
-      </div>
-    );
-  };
+  const renderAdmin = () => (
+    <AdminPage
+      currentUser={currentUser!}
+      abandonedMatchIds={abandonedMatchIds}
+      liveMatches={liveMatches}
+      playerPoints={playerPoints}
+      processedMatches={processedMatches}
+      playerMatchPoints={playerMatchPoints}
+      pinEditTarget={pinEditTarget}
+      pinStep={pinStep}
+      pinConfirmVal={pinConfirmVal}
+      pinConfirmError={pinConfirmError}
+      pinEditVal={pinEditVal}
+      setPinEditTarget={setPinEditTarget}
+      setPinStep={setPinStep}
+      setPinConfirmVal={setPinConfirmVal}
+      setPinConfirmError={setPinConfirmError}
+      setPinEditVal={setPinEditVal}
+      handleConfirmOldPin={handleConfirmOldPin}
+      handleSavePin={handleSavePin}
+      resetPinEdit={resetPinEdit}
+      dataSources={dataSources}
+      pointsUpdating={pointsUpdating}
+      pointsError={pointsError}
+      pendingMatches={pendingMatches}
+      nextAttempt={nextAttempt}
+      pointsLastUpdated={pointsLastUpdated}
+      pointsLoading={pointsLoading}
+      adminBreakdownOpen={adminBreakdownOpen}
+      setAdminBreakdownOpen={setAdminBreakdownOpen}
+      expandedAdminPlayer={expandedAdminPlayer}
+      setExpandedAdminPlayer={setExpandedAdminPlayer}
+      liveLoading={liveLoading}
+      supabaseSyncing={supabaseSyncing}
+      s3Prefetching={s3Prefetching}
+      statsRefreshing={statsRefreshing}
+      supabaseSyncMsg={supabaseSyncMsg}
+      s3PrefetchResult={s3PrefetchResult}
+      lastUpdated={lastUpdated}
+      setPlayerPoints={setPlayerPoints}
+      setProcessedMatches={setProcessedMatches}
+      fetchLive={fetchLive}
+      fetchPoints={fetchPoints}
+      syncSupabase={syncSupabase}
+      prefetchS3Scorecards={prefetchS3Scorecards}
+      refreshStatsCache={refreshStatsCache}
+    />
+  );
 
   // Swipe gesture handlers (attached to the app wrapper)
   const handleSwipeStart = (e: React.TouchEvent) => {

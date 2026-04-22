@@ -19519,15 +19519,15 @@
         },
         {
           "name": "Lucknow Super Giants Inning 2",
-          "total": "16/3 (3.1 ov)",
+          "total": "40/3 (7.0 ov)",
           "batting": [
             {
               "name": "Mitchell Marsh",
-              "runs": 11,
-              "balls": 8,
-              "fours": 2,
-              "sixes": 0,
-              "sr": "137.50",
+              "runs": 24,
+              "balls": 18,
+              "fours": 3,
+              "sixes": 1,
+              "sr": "133.33",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -19567,11 +19567,11 @@
             },
             {
               "name": "Nicholas Pooran",
-              "runs": 4,
-              "balls": 1,
-              "fours": 1,
+              "runs": 14,
+              "balls": 14,
+              "fours": 3,
               "sixes": 0,
-              "sr": "400.00",
+              "sr": "100.00",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -19646,25 +19646,36 @@
           "bowling": [
             {
               "name": "Jofra Archer",
-              "overs": "2",
-              "maidens": 0,
+              "overs": "3",
+              "maidens": 1,
               "runs": 15,
               "wickets": 1,
-              "eco": "7.5",
+              "eco": "5",
               "wides": 1,
               "noBalls": 0,
-              "dots": 7
+              "dots": 13
             },
             {
               "name": "Nandre Burger",
-              "overs": "1.1",
+              "overs": "3",
               "maidens": 0,
-              "runs": 1,
+              "runs": 15,
               "wickets": 1,
-              "eco": "0.86",
+              "eco": "5",
               "wides": 0,
               "noBalls": 0,
-              "dots": 6
+              "dots": 11
+            },
+            {
+              "name": "Brijesh Sharma",
+              "overs": "1",
+              "maidens": 0,
+              "runs": 9,
+              "wickets": 0,
+              "eco": "9",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 3
             }
           ]
         }
