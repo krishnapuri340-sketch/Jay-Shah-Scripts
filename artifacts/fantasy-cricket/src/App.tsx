@@ -369,9 +369,7 @@ export default function App() {
   const [selectedAwardIdx, setSelectedAwardIdx] = useState(0);
   const [awardXiFilter, setAwardXiFilter] = useState<"all" | "xi">("all");
   const [chartXiFilter, setChartXiFilter] = useState<"all" | "xi">("all");
-  const [collapsedInnings, setCollapsedInnings] = useState<Set<string>>(new Set());
   const [openScoreRows, setOpenScoreRows] = useState<Set<string>>(new Set());
-  const [expandedMatchId, setExpandedMatchId] = useState<string | null>(null);
   const { scorecards, setScorecards, scorecardLoading, fetchScorecard } = useScorecard();
   const { standings, setStandings, standingsLoading, fetchStandings } = useStandings();
   const { iplStats, setIplStats, statsLoading, fetchStats } = useIplStats();
@@ -550,36 +548,6 @@ export default function App() {
       }
     } catch (_) {}
   };
-
-  const toggleMatch = (matchId: string, isCompleted: boolean, isLive = false) => {
-    if (expandedMatchId === matchId) {
-      setExpandedMatchId(null);
-    } else {
-      setExpandedMatchId(matchId);
-      // Collapse all innings by default so the user taps to open each one
-      setCollapsedInnings(prev => {
-        const n = new Set(prev);
-        n.add(`${matchId}-0`);
-        n.add(`${matchId}-1`);
-        n.add(`${matchId}-2`);
-        return n;
-      });
-      if (isCompleted || isLive) fetchScorecard(matchId);
-    }
-  };
-
-  // Auto-refresh scorecard every 30 s while a live match is expanded
-  useEffect(() => {
-    if (!expandedMatchId) return;
-    const liveIds = new Set(
-      liveMatches
-        .filter((m: any) => m.matchStarted && !m.matchEnded)
-        .map((m: any) => String(m.id))
-    );
-    if (!liveIds.has(expandedMatchId)) return;
-    const id = setInterval(() => fetchScorecard(expandedMatchId, true), 10_000);
-    return () => clearInterval(id);
-  }, [expandedMatchId, liveMatches]);
 
   useEffect(() => {
     if (!settingsOpen) return;

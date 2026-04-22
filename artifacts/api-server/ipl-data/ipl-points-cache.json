@@ -19519,7 +19519,7 @@
         },
         {
           "name": "Lucknow Super Giants Inning 2",
-          "total": "105/6 (15.3 ov)",
+          "total": "105/6 (15.5 ov)",
           "batting": [
             {
               "name": "Mitchell Marsh",
@@ -19601,13 +19601,13 @@
             {
               "name": "Mohammad Shami",
               "runs": 0,
-              "balls": 0,
+              "balls": 2,
               "fours": 0,
               "sixes": 0,
-              "sr": "-",
-              "dismissal": "",
-              "notOut": false,
-              "dnb": true
+              "sr": "0.00",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
             },
             {
               "name": "Mohsin Khan",
@@ -19668,14 +19668,14 @@
             },
             {
               "name": "Nandre Burger",
-              "overs": "3.3",
+              "overs": "3.5",
               "maidens": 0,
               "runs": 21,
               "wickets": 2,
-              "eco": "6",
+              "eco": "5.48",
               "wides": 0,
               "noBalls": 0,
-              "dots": 13
+              "dots": 15
             },
             {
               "name": "Brijesh Sharma",
