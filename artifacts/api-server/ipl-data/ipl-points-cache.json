@@ -19519,15 +19519,15 @@
         },
         {
           "name": "Lucknow Super Giants Inning 2",
-          "total": "16/3 (3.0 ov)",
+          "total": "16/3 (3.1 ov)",
           "batting": [
             {
               "name": "Mitchell Marsh",
               "runs": 11,
-              "balls": 7,
+              "balls": 8,
               "fours": 2,
               "sixes": 0,
-              "sr": "157.14",
+              "sr": "137.50",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -19657,14 +19657,14 @@
             },
             {
               "name": "Nandre Burger",
-              "overs": "1",
+              "overs": "1.1",
               "maidens": 0,
               "runs": 1,
               "wickets": 1,
-              "eco": "1",
+              "eco": "0.86",
               "wides": 0,
               "noBalls": 0,
-              "dots": 5
+              "dots": 6
             }
           ]
         }
