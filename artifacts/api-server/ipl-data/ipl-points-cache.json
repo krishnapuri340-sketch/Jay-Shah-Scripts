@@ -19519,15 +19519,15 @@
         },
         {
           "name": "Lucknow Super Giants Inning 2",
-          "total": "0/0 (0.2 ov)",
+          "total": "16/3 (3.0 ov)",
           "batting": [
             {
               "name": "Mitchell Marsh",
-              "runs": 0,
-              "balls": 2,
-              "fours": 0,
+              "runs": 11,
+              "balls": 7,
+              "fours": 2,
               "sixes": 0,
-              "sr": "0.00",
+              "sr": "157.14",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -19535,46 +19535,46 @@
             {
               "name": "Ayush Badoni",
               "runs": 0,
-              "balls": 0,
+              "balls": 1,
               "fours": 0,
               "sixes": 0,
-              "sr": "-",
-              "dismissal": "not out",
-              "notOut": true,
+              "sr": "0.00",
+              "dismissal": "run out ((Sub) Ravi Singh)",
+              "notOut": false,
               "dnb": false
             },
             {
               "name": "Rishabh Pant (c)",
               "runs": 0,
-              "balls": 0,
+              "balls": 3,
               "fours": 0,
               "sixes": 0,
-              "sr": "-",
-              "dismissal": "",
+              "sr": "0.00",
+              "dismissal": "c Dhruv Jurel b Nandre Burger",
               "notOut": false,
-              "dnb": true
+              "dnb": false
             },
             {
               "name": "Aiden Markram",
               "runs": 0,
-              "balls": 0,
+              "balls": 6,
               "fours": 0,
               "sixes": 0,
-              "sr": "-",
-              "dismissal": "",
+              "sr": "0.00",
+              "dismissal": "c Dhruv Jurel b Jofra Archer",
               "notOut": false,
-              "dnb": true
+              "dnb": false
             },
             {
               "name": "Nicholas Pooran",
-              "runs": 0,
-              "balls": 0,
-              "fours": 0,
+              "runs": 4,
+              "balls": 1,
+              "fours": 1,
               "sixes": 0,
-              "sr": "-",
-              "dismissal": "",
-              "notOut": false,
-              "dnb": true
+              "sr": "400.00",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
             },
             {
               "name": "Mukul Choudhary",
@@ -19646,14 +19646,25 @@
           "bowling": [
             {
               "name": "Jofra Archer",
-              "overs": "0.2",
+              "overs": "2",
               "maidens": 0,
-              "runs": 0,
-              "wickets": 0,
-              "eco": "0",
+              "runs": 15,
+              "wickets": 1,
+              "eco": "7.5",
+              "wides": 1,
+              "noBalls": 0,
+              "dots": 7
+            },
+            {
+              "name": "Nandre Burger",
+              "overs": "1",
+              "maidens": 0,
+              "runs": 1,
+              "wickets": 1,
+              "eco": "1",
               "wides": 0,
               "noBalls": 0,
-              "dots": 2
+              "dots": 5
             }
           ]
         }

@@ -2,7 +2,7 @@ import { Router, type IRouter } from "express";
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join } from "path";
 import { fileURLToPath } from "url";
-import { fetchMatchOverview, refreshLiveMatches } from "./ipl-points";
+import { fetchMatchOverview, refreshLiveMatches, getPointsHealthSnapshot } from "./ipl-points";
 
 // ── Shared data stores ────────────────────────────────────────────────────────
 // Anchor data directory to the bundle file location (dist/index.mjs).
@@ -109,19 +109,27 @@ async function savePredsToKV(data: PredStore): Promise<boolean> {
 }
 
 // Warm up predsCache from KV on startup — survives deployments.
+// Also runs a divergence check: file count vs KV count, warns if they disagree.
 loadPredsFromKV().then(async kv => {
+  const fileCount = Object.keys(predsCache).length;
   if (kv) {
+    const kvCount = Object.keys(kv).length;
     // Merge: KV is authoritative, local file fills any gaps (e.g. manual edits in git)
     predsCache = { ...predsCache, ...kv };
     savePreds(predsCache);
-    console.log("[preds] Loaded from Replit KV:", Object.keys(predsCache).length, "matches");
+    const merged = Object.keys(predsCache).length;
+    console.log(`[preds] Loaded from Replit KV: ${merged} matches (file=${fileCount}, kv=${kvCount})`);
+    if (Math.abs(fileCount - kvCount) > 0) {
+      console.warn(`[preds] DIVERGENCE: file has ${fileCount} matches, KV has ${kvCount}. Re-syncing KV with merged set (${merged}).`);
+      await savePredsToKV(predsCache);
+    }
   } else if (REPLIT_DB_URL) {
     // KV available but empty — seed it with local file so it persists future deploys
-    console.log("[preds] Seeding Replit KV with local predictions...");
+    console.log(`[preds] Seeding Replit KV with local predictions (${fileCount} matches)...`);
     const ok = await savePredsToKV(predsCache);
     console.log("[preds] Seeded Replit KV:", ok ? "ok" : "failed");
   } else {
-    console.log("[preds] Replit KV unavailable — using local file fallback");
+    console.warn(`[preds] Replit KV unavailable — using local file fallback only (${fileCount} matches in memory). DATA AT RISK ON RESTART.`);
   }
 }).catch(() => {});
 
@@ -397,7 +405,16 @@ router.get("/ipl/matches", async (req, res) => {
       // Stale — fire background refresh but respond immediately with old data
       doRefreshMatches().catch(() => {});
     }
-    if (cache) return res.json(cache.data);
+    if (cache) {
+      // ETag = cache timestamp (changes whenever doRefreshMatches replaces the cache)
+      const etag = `W/"m-${cache.timestamp}"`;
+      res.setHeader("ETag", etag);
+      res.setHeader("Cache-Control", "no-cache");
+      if (req.headers["if-none-match"] === etag) {
+        return res.status(304).end();
+      }
+      return res.json(cache.data);
+    }
     res.status(503).json({ error: "Match data loading, try again shortly", matches: [] });
   } catch (err: any) {
     req.log.error({ err }, "Failed to fetch IPL matches");
@@ -591,6 +608,38 @@ router.post("/ipl/pins/:userId", async (req, res) => {
   const savedToKV = await savePinToKV(userId, pin);
   console.log(`[pins] ${userId} PIN updated — Replit KV: ${savedToKV}`);
   return res.json({ ok: true, kv: savedToKV });
+});
+
+// ── Health detail endpoint ───────────────────────────────────────────────────
+// GET /api/health/detail — full system snapshot for the Admin tab and ops checks
+router.get("/health/detail", (_req, res) => {
+  const points = getPointsHealthSnapshot();
+  const matchesAgeMs = cache ? Date.now() - cache.timestamp : null;
+  const standingsAgeMs = standingsCache ? Date.now() - standingsCache.timestamp : null;
+  res.json({
+    ok: true,
+    timestamp: new Date().toISOString(),
+    matches: {
+      hasCache: !!cache,
+      cacheAgeMs: matchesAgeMs,
+      liveMatchIds: currentLiveIplIds,
+      completedMatchCount: completedMatchIds.size,
+    },
+    standings: {
+      hasCache: !!standingsCache,
+      cacheAgeMs: standingsAgeMs,
+    },
+    predictions: {
+      matchCount: Object.keys(predsCache).length,
+      kvAvailable: !!REPLIT_DB_URL,
+      sseClients: sseClients.size,
+    },
+    pins: {
+      userCount: Object.keys(pinsCache).length,
+      kvAvailable: !!REPLIT_DB_URL,
+    },
+    points,
+  });
 });
 
 export default router;

@@ -1288,6 +1288,18 @@ const FANTASY_TEAMS_EXPORT: Record<string, string[]> = {
 // ── Live match poller (called by ipl.ts every 30 s when a match is active) ───
 let liveRefreshInProgress = false;
 
+// ── Health snapshot: read-only view of internal state for /api/health/detail ──
+export function getPointsHealthSnapshot() {
+  return {
+    s3CacheSize: s3InningsCache.size,
+    statsLastRefresh: statsLastRefresh ? new Date(statsLastRefresh).toISOString() : null,
+    isLiveMatchActive,
+    processedMatchCount: Object.keys(pointsCache.processedMatches || {}).length,
+    pointsLastUpdated: pointsCache.lastUpdated || null,
+    cooldownMs: getCooldown(),
+  };
+}
+
 export async function refreshLiveMatches(liveIplIds: string[]): Promise<void> {
   if (liveIplIds.length === 0 || liveRefreshInProgress) return;
   liveRefreshInProgress = true;

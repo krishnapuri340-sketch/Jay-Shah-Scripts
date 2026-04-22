@@ -1,38 +1,11 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
+import InningsTable from "./components/InningsTable";
+import TeamBadge from "./components/TeamBadge";
+import HistoryPage from "./pages/History";
 import { FANTASY_TEAMS } from "./teams";
 import { applyMultiplier, getTeamData } from "./utils";
-import { IPL_COLORS, IPL_FULL_NAMES, ROLE_ICONS, ROLE_COLORS, IPL_TEAM_BADGE, SWIPEABLE_TABS, IPL_HISTORY } from "./constants";
+import { IPL_COLORS, IPL_FULL_NAMES, ROLE_ICONS, ROLE_COLORS, IPL_TEAM_BADGE, SWIPEABLE_TABS, IPL_HISTORY, ABBR_TO_TEAM, TEAM_LOGO_CDN } from "./constants";
 import LineupPreviewCard from "./LineupPreviewCard";
-
-// Wikipedia SVG-rendered transparent logos (clean crest, no circular badge frame)
-const TEAM_LOGO_CDN: Record<string, string> = {
-  CSK:  "https://upload.wikimedia.org/wikipedia/en/thumb/2/2b/Chennai_Super_Kings_Logo.svg/330px-Chennai_Super_Kings_Logo.svg.png",
-  MI:   "https://upload.wikimedia.org/wikipedia/en/thumb/c/cd/Mumbai_Indians_Logo.svg/330px-Mumbai_Indians_Logo.svg.png",
-  KKR:  "https://upload.wikimedia.org/wikipedia/en/thumb/4/4c/Kolkata_Knight_Riders_Logo.svg/330px-Kolkata_Knight_Riders_Logo.svg.png",
-  RCB:  "https://upload.wikimedia.org/wikipedia/en/thumb/d/d4/Royal_Challengers_Bengaluru_Logo.svg/330px-Royal_Challengers_Bengaluru_Logo.svg.png",
-  RR:   "https://upload.wikimedia.org/wikipedia/en/thumb/5/5c/This_is_the_logo_for_Rajasthan_Royals%2C_a_cricket_team_playing_in_the_Indian_Premier_League_%28IPL%29.svg/330px-This_is_the_logo_for_Rajasthan_Royals%2C_a_cricket_team_playing_in_the_Indian_Premier_League_%28IPL%29.svg.png",
-  SRH:  "https://upload.wikimedia.org/wikipedia/en/thumb/5/51/Sunrisers_Hyderabad_Logo.svg/330px-Sunrisers_Hyderabad_Logo.svg.png",
-  DC:   "https://upload.wikimedia.org/wikipedia/en/thumb/2/2f/Delhi_Capitals.svg/330px-Delhi_Capitals.svg.png",
-  PBKS: "https://upload.wikimedia.org/wikipedia/en/thumb/d/d4/Punjab_Kings_Logo.svg/330px-Punjab_Kings_Logo.svg.png",
-  GT:   "https://upload.wikimedia.org/wikipedia/en/thumb/0/09/Gujarat_Titans_Logo.svg/330px-Gujarat_Titans_Logo.svg.png",
-  LSG:  "https://upload.wikimedia.org/wikipedia/en/thumb/3/34/Lucknow_Super_Giants_Logo.svg/330px-Lucknow_Super_Giants_Logo.svg.png",
-  // Retired teams
-  DCH:  "https://upload.wikimedia.org/wikipedia/en/a/a6/HyderabadDeccanChargers.png",
-  DD:   "https://scores.iplt20.com/ipl/teamlogos/DD.png",
-  RPS:  "https://upload.wikimedia.org/wikipedia/en/9/9a/Rising_Pune_Supergiant.png",
-  GL:   "https://upload.wikimedia.org/wikipedia/en/c/c4/Gujarat_Lions.png",
-  PWI:  "https://upload.wikimedia.org/wikipedia/en/thumb/4/4a/Pune_Warriors_India_IPL_Logo.png/330px-Pune_Warriors_India_IPL_Logo.png",
-  KTK:  "https://upload.wikimedia.org/wikipedia/en/thumb/9/96/Kochi_Tuskers_Kerala_Logo.svg/330px-Kochi_Tuskers_Kerala_Logo.svg.png",
-  KXIP: "https://upload.wikimedia.org/wikipedia/en/thumb/d/d4/Punjab_Kings_Logo.svg/330px-Punjab_Kings_Logo.svg.png",
-};
-// Abbreviation → team name (for top-10 rows)
-const ABBR_TO_TEAM: Record<string, string> = {
-  RR:"Rajasthan Royals", CSK:"Chennai Super Kings", DCH:"Deccan Chargers",
-  KKR:"Kolkata Knight Riders", MI:"Mumbai Indians", SRH:"Sunrisers Hyderabad",
-  RCB:"Royal Challengers Bengaluru", RPS:"Rising Pune Supergiant", GT:"Gujarat Titans",
-  DC:"Delhi Capitals", DD:"Delhi Daredevils", PBKS:"Punjab Kings", KXIP:"Kings XI Punjab",
-  LSG:"Lucknow Super Giants", PWI:"Pune Warriors", GL:"Gujarat Lions",
-};
 const IPL_H2H: Record<string, [number, number]> = {
   "CSK-DC":[16,9],"CSK-GT":[3,4],"CSK-KKR":[18,11],"CSK-LSG":[5,4],"CSK-MI":[14,19],
   "CSK-PBKS":[19,11],"CSK-RCB":[18,13],"CSK-RR":[15,10],"CSK-SRH":[14,10],
@@ -162,28 +135,6 @@ function getMatchWinner(m: any): string | null {
   return null;
 }
 
-function TeamBadge({ name, size = 32 }: { name: string; size?: number }) {
-  const b = IPL_TEAM_BADGE[name] || IPL_TEAM_BADGE[ABBR_TO_TEAM[name]] || { abbr: name.slice(0,2).toUpperCase(), bg:"#444", fg:"#fff" };
-  const logoUrl = TEAM_LOGO_CDN[b.abbr];
-  const fs = b.abbr.length >= 4 ? size * 0.27 : b.abbr.length === 3 ? size * 0.3 : size * 0.35;
-  const [imgFailed, setImgFailed] = useState(false);
-  const showLogo = logoUrl && !imgFailed;
-  return (
-    <div style={{ width:size, height:size, borderRadius:"50%",
-      background: showLogo ? "transparent" : b.bg,
-      display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0,
-      border: showLogo ? "none" : "1.5px solid rgba(255,255,255,0.12)",
-      overflow:"hidden", position:"relative" }}>
-      {logoUrl && !imgFailed ? (
-        <img src={logoUrl} alt={b.abbr}
-          style={{ width: size, height: size, objectFit:"contain" }}
-          onError={() => setImgFailed(true)} />
-      ) : (
-        <span style={{ color:b.fg, fontSize:fs, fontWeight:800, letterSpacing:"-0.3px", lineHeight:1 }}>{b.abbr}</span>
-      )}
-    </div>
-  );
-}
 
 // ─── PIN login ───────────────────────────────────────────────────────────────
 const DEFAULT_PINS: Record<string, string> = { rajveer: "1111", mombasa: "2222", mumbai: "3333", ponygoat: "4444" };
@@ -1910,186 +1861,14 @@ export default function App() {
       .map(({ m }) => m)
   );
 
-  const renderHistory = () => {
-    const s = historyYear ? IPL_HISTORY.find(h => h.year === historyYear) : null;
-
-    // Trophy cabinet — titles per team, sorted desc
-    const titleMap: Record<string, number> = {};
-    IPL_HISTORY.forEach(h => { titleMap[h.champion] = (titleMap[h.champion] || 0) + 1; });
-    const titleBoard = Object.entries(titleMap).sort((a, b) => b[1] - a[1]);
-
-    return (
-      <div>
-        <div className="sec-title">IPL History</div>
-
-        {/* TROPHY CABINET — always visible above filters */}
-        {!s && (
-          <div className="hist-cabinet">
-            <div className="hist-cabinet-title">🏆 Trophy Cabinet</div>
-            <div className="hist-cabinet-rows">
-              {titleBoard.map(([team, count]) => {
-                const b = IPL_TEAM_BADGE[team] || { abbr: "?", bg: "#444", fg: "#fff" };
-                const barW = Math.round((count / titleBoard[0][1]) * 100);
-                const teamColor = b.bg === "#F5C518" ? "#a37e00" : b.bg;
-                return (
-                  <div key={team} className="hist-cabinet-row">
-                    <TeamBadge name={team} size={40} />
-                    <div className="hist-cabinet-info">
-                      <div className="hist-cabinet-name">{team}</div>
-                      <div className="hist-cabinet-bar-wrap">
-                        <div className="hist-cabinet-bar" style={{ width: `${barW}%`, background: teamColor, boxShadow: `0 0 6px ${teamColor}55` }} />
-                      </div>
-                    </div>
-                    <div className="hist-cabinet-count" style={{ color: teamColor, textShadow: `0 0 10px ${teamColor}44` }}>
-                      {count}x
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Year filter grid */}
-        {!s && (
-          <div className="hist-yr-grid" data-no-swipe="true">
-            <button
-              className={`hist-yr-btn all-btn${historyYear === null ? " active" : ""}`}
-              onClick={() => setHistoryYear(null)}
-            >All Seasons</button>
-            {IPL_HISTORY.map(h => (
-              <button
-                key={h.year}
-                className={`hist-yr-btn${historyYear === h.year ? " active" : ""}`}
-                style={historyYear === h.year ? { background: h.color + "22", borderColor: h.color, color: h.color } : {}}
-                onClick={() => setHistoryYear(h.year)}
-              >{h.year}</button>
-            ))}
-          </div>
-        )}
-
-        {/* DETAIL VIEW – single season */}
-        {s && (
-          <div>
-            {/* Back nav */}
-            <button className="hist-back-btn" onClick={() => setHistoryYear(null)}>
-              ← All Seasons
-            </button>
-            {/* Season hero — split champion/runner-up + awards grid */}
-            <div className="hist-hero" style={{ borderColor: s.color }}>
-              <div className="hist-hero-year" style={{ color: s.color }}>Season {s.season} · IPL {s.year}</div>
-              <div className="hist-hero-row">
-                <div className="hist-hero-card champion">
-                  <div className="hist-hero-card-label">🏆 Champions</div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
-                    <TeamBadge name={s.champion} size={36} />
-                    <div className="hist-hero-card-val" style={{ color: s.color }}>{s.champion}</div>
-                  </div>
-                </div>
-                <div className="hist-hero-card">
-                  <div className="hist-hero-card-label">🥈 Runner-up</div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
-                    <TeamBadge name={s.runnerUp} size={36} />
-                    <div className="hist-hero-card-val">{s.runnerUp}</div>
-                  </div>
-                </div>
-              </div>
-              <div className="hist-awards-grid">
-                <div className="hist-award-cell">
-                  <div className="hist-award-icon" style={{ filter: "hue-rotate(175deg) saturate(3) brightness(1.1)" }}>🧢</div>
-                  <div className="hist-award-lbl" style={{ color: "#f97316" }}>Orange Cap</div>
-                  <div className="hist-award-name">{s.orangeCap}</div>
-                  <div style={{ fontSize: "0.62rem", color: "#f97316", marginTop: 2, fontWeight: 700 }}>{s.orangeRuns} runs</div>
-                </div>
-                <div className="hist-award-cell">
-                  <div className="hist-award-icon" style={{ filter: "hue-rotate(25deg) saturate(4) brightness(0.5)" }}>🧢</div>
-                  <div className="hist-award-lbl" style={{ color: "#7c3aed" }}>Purple Cap</div>
-                  <div className="hist-award-name">{s.purpleCap}</div>
-                  <div style={{ fontSize: "0.62rem", color: "#7c3aed", marginTop: 2, fontWeight: 700 }}>{s.purpleWkts} wkts</div>
-                </div>
-                <div className="hist-award-cell">
-                  <div className="hist-award-icon">⭐</div>
-                  <div className="hist-award-lbl" style={{ color: "#d4a843" }}>MVP</div>
-                  <div className="hist-award-name">{s.mvp}</div>
-                  <div style={{ fontSize: "0.62rem", color: "#d4a843", marginTop: 2, fontWeight: 700 }}>Tournament</div>
-                </div>
-              </div>
-            </div>
-            {/* Top 10 — segmented toggle */}
-            <div style={{ marginTop: 16 }}>
-              {/* Segmented pill */}
-              <div style={{ display: "flex", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 22, padding: 3, marginBottom: 12, gap: 2 }}>
-                {([["bat", "Orange Cap", "hue-rotate(175deg) saturate(3) brightness(1.1)", "#f97316"] as const, ["bwl", "Purple Cap", "hue-rotate(25deg) saturate(4) brightness(0.5)", "#7c3aed"] as const]).map(([id, label, capFilter, activeColor]) => (
-                  <button key={id} onClick={() => setHistTop10Tab(id)}
-                    style={{
-                      flex: 1, padding: "7px 0", borderRadius: 18, border: "none", cursor: "pointer",
-                      fontFamily: "inherit", fontSize: "0.72rem", fontWeight: 600, transition: "all 0.18s ease",
-                      background: histTop10Tab === id ? "var(--surface-3)" : "transparent",
-                      color: histTop10Tab === id ? activeColor : "var(--text-3)",
-                      boxShadow: histTop10Tab === id ? "0 1px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)" : "none",
-                    }}>
-                    <span style={{ filter: histTop10Tab === id ? capFilter : "grayscale(1) opacity(0.4)" }}>🧢</span> {label}
-                  </button>
-                ))}
-              </div>
-              {/* Full-width list */}
-              <div style={{ background: "var(--surface)", borderRadius: "var(--radius-md)", border: "1px solid var(--border)", overflow: "hidden" }}>
-                {(histTop10Tab === "bat" ? s.topBat : s.topBwl).map((p, i) => {
-                  const accentColors = ["#d4a843", "#94a3b8", "#71717a"];
-                  const accentColor = i < 3 ? accentColors[i] : "var(--border)";
-                  return (
-                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderBottom: i < (histTop10Tab === "bat" ? s.topBat : s.topBwl).length - 1 ? "1px solid var(--border)" : "none", borderLeft: `4px solid ${accentColor}` }}>
-                      <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.9rem", fontWeight: 700, color: i < 3 ? accentColors[i] : "var(--text-3)", width: 18, textAlign: "center" as const, flexShrink: 0 }}>{i + 1}</span>
-                      <TeamBadge name={p.team} size={22} />
-                      <span style={{ flex: 1, fontSize: "0.82rem", fontWeight: 500, color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{p.name}</span>
-                      <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.05rem", fontWeight: 700, color: histTop10Tab === "bat" ? "#f97316" : "#7c3aed", flexShrink: 0 }}>{p.val}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ALL SEASONS compact list */}
-        {!s && IPL_HISTORY.map(h => {
-          const champAbbr = IPL_TEAM_BADGE[h.champion]?.abbr || h.champion;
-          const ruAbbr    = IPL_TEAM_BADGE[h.runnerUp]?.abbr  || h.runnerUp;
-          return (
-            <div key={h.year} className="hist-card" onClick={() => setHistoryYear(h.year)}
-              style={{ borderLeftColor: h.color }}>
-              {/* Year column */}
-              <div className="hist-card-left">
-                <div className="hist-card-year" style={{ color: h.color }}>{h.year}</div>
-                <div className="hist-card-sn">S{h.season}</div>
-              </div>
-              {/* Main content */}
-              <div className="hist-card-main">
-                {/* Champion row */}
-                <div className="hist-card-row">
-                  <TeamBadge name={h.champion} size={24} />
-                  <span className="hist-card-champ" style={{ color: h.color }}>{champAbbr}</span>
-                  <span className="hist-card-tag-winner">Champions</span>
-                </div>
-                {/* Runner-up row */}
-                <div className="hist-card-row" style={{ marginTop: 5 }}>
-                  <TeamBadge name={h.runnerUp} size={24} />
-                  <span className="hist-card-ru">{ruAbbr}</span>
-                  <span className="hist-card-tag-ru">Runner-up</span>
-                </div>
-                {/* Cap line */}
-                <div className="hist-card-caps">
-                  <span className="hist-cap-orange"><span style={{filter:"hue-rotate(175deg) saturate(3) brightness(1.1)"}}>🧢</span> {h.orangeCap.split(" ").slice(-1)[0]} {h.orangeRuns} runs</span>
-                  <span className="hist-cap-purple"><span style={{filter:"hue-rotate(25deg) saturate(4) brightness(0.5)"}}>🧢</span> {h.purpleCap.split(" ").slice(-1)[0]} {h.purpleWkts} wks</span>
-                </div>
-              </div>
-              <div className="hist-card-arrow">›</div>
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
+  const renderHistory = () => (
+    <HistoryPage
+      historyYear={historyYear}
+      setHistoryYear={setHistoryYear}
+      histTop10Tab={histTop10Tab}
+      setHistTop10Tab={setHistTop10Tab}
+    />
+  );
 
   const renderHome = () => {
     return (
@@ -3877,19 +3656,14 @@ export default function App() {
                       if (!sc && canExpand) fetchScorecard(matchIdStr);
                       setOpenScoreRows(prev => { const n = new Set(prev); n.has(rowKey) ? n.delete(rowKey) : n.add(rowKey); return n; });
                     };
-                    // Innings table helpers
-                    const findFtSR = (name: string) => {
+                    // Fantasy player check used by the InningsTable to bold + tag fantasy players
+                    const isFantasyPlayer = (name: string) => {
                       const norm = (v: string) => v.replace(/\s*\(.*?\)\s*/g, "").trim().toLowerCase();
                       const ALIASES: Record<string,string> = { "mohammad shami":"mohammed shami","md shami":"mohammed shami" };
                       const sn = ALIASES[norm(name)] ?? norm(name);
-                      for (const ft of Object.values(FANTASY_TEAMS)) { if (ft.players.some(p => norm(p.name) === sn)) return ft; }
-                      return null;
+                      for (const ft of Object.values(FANTASY_TEAMS)) { if (ft.players.some(p => norm(p.name) === sn)) return true; }
+                      return false;
                     };
-                    const COL_WSR = ["auto", 36, 28, 30, 28, 54] as const;
-                    const colGrpSR = (<colgroup><col style={{ width: COL_WSR[0] }} />{COL_WSR.slice(1).map((w,ci) => <col key={ci} style={{ width: w }} />)}</colgroup>);
-                    const tdN = (extra?: React.CSSProperties): React.CSSProperties => ({ textAlign:"right", paddingTop:5, paddingBottom:5, paddingLeft:2, paddingRight:5, ...extra });
-                    const thN = (extra?: React.CSSProperties): React.CSSProperties => ({ textAlign:"right", paddingTop:4, paddingBottom:4, paddingLeft:2, paddingRight:5, fontWeight:600, ...extra });
-                    const tblSt: React.CSSProperties = { width:"100%", borderCollapse:"collapse", fontSize:"0.68rem", tableLayout:"fixed" };
                     return (
                       <div key={i}>
                         {/* Score row */}
@@ -3921,75 +3695,7 @@ export default function App() {
                         {isRowOpen && (
                           <div style={{ marginBottom: 10 }}>
                             {isLoadingSc && !inn && <div style={{ color: "var(--text-3)", fontSize: "0.72rem", padding: "6px 0" }}>Loading…</div>}
-                            {inn && (
-                              <div className="inn-body" style={{ borderRadius: 10, border: "1px solid var(--border)" }}>
-                                {inn.batting?.length > 0 && (
-                                  <div style={{ overflowX: "auto" }}>
-                                    <table style={tblSt}>
-                                      {colGrpSR}
-                                      <thead><tr style={{ color: "var(--text-3)", borderBottom: "1px solid var(--border)" }}>
-                                        <th style={{ textAlign:"left", padding:"4px 6px", fontWeight:600 }}>Batter</th>
-                                        <th style={thN()}>R</th><th style={thN()}>B</th><th style={thN()}>4s</th><th style={thN()}>6s</th>
-                                        <th style={thN({ paddingRight:9 })}>SR</th>
-                                      </tr></thead>
-                                      <tbody>
-                                        {inn.batting.filter((b: any) => !b.dnb).map((b: any, bi: number) => {
-                                          const ft = findFtSR(b.name);
-                                          return (
-                                            <tr key={bi} style={{ borderBottom: "1px solid var(--border)" }}>
-                                              <td style={{ padding: "5px 0 5px 6px" }}>
-                                                <div style={{ display:"flex", alignItems:"center", gap:4 }}>
-                                                  <span style={{ color:"var(--text)", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", fontWeight: ft ? 600 : 400 }}>{b.name}{b.notOut ? "*" : ""}</span>
-                                                  {ft && <span style={{ fontSize:"0.5rem", fontWeight:800, color:"#22c55e", background:"#22c55e1a", borderRadius:3, padding:"0 3px", lineHeight:"1.5", flexShrink:0 }}>F</span>}
-                                                </div>
-                                                <div style={{ color:"var(--text-3)", fontSize:"0.58rem", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{b.dismissal}</div>
-                                              </td>
-                                              <td style={tdN({ color:"var(--text-2)" })}>{b.runs}</td>
-                                              <td style={tdN({ color:"var(--text-3)" })}>{b.balls}</td>
-                                              <td style={tdN({ color:"var(--text-3)" })}>{b.fours}</td>
-                                              <td style={tdN({ color:"var(--text-3)" })}>{b.sixes}</td>
-                                              <td style={tdN({ color:"var(--text-3)", fontSize:"0.62rem", paddingRight:9 })}>{parseFloat(b.sr).toFixed(1)}</td>
-                                            </tr>
-                                          );
-                                        })}
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                )}
-                                {inn.bowling?.length > 0 && (
-                                  <div style={{ marginTop:6, overflowX:"auto" }}>
-                                    <table style={tblSt}>
-                                      {colGrpSR}
-                                      <thead><tr style={{ color:"var(--text-3)", borderBottom:"1px solid var(--border)" }}>
-                                        <th style={{ textAlign:"left", padding:"4px 6px", fontWeight:600 }}>Bowler</th>
-                                        <th style={thN()}>O</th><th style={thN()}>M</th><th style={thN()}>R</th><th style={thN()}>W</th>
-                                        <th style={thN({ paddingRight:9 })}>ECO</th>
-                                      </tr></thead>
-                                      <tbody>
-                                        {inn.bowling.map((b: any, bi: number) => {
-                                          const ft = findFtSR(b.name);
-                                          return (
-                                            <tr key={bi} style={{ borderBottom:"1px solid var(--border)" }}>
-                                              <td style={{ padding:"5px 0 5px 6px", overflow:"hidden" }}>
-                                                <div style={{ display:"flex", alignItems:"center", gap:4, overflow:"hidden" }}>
-                                                  <span style={{ color:"var(--text)", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", fontWeight: ft ? 600 : 400 }}>{b.name}</span>
-                                                  {ft && <span style={{ fontSize:"0.5rem", fontWeight:800, color:"#22c55e", background:"#22c55e1a", borderRadius:3, padding:"0 3px", lineHeight:"1.5", flexShrink:0 }}>F</span>}
-                                                </div>
-                                              </td>
-                                              <td style={tdN({ color:"var(--text-3)" })}>{b.overs}</td>
-                                              <td style={tdN({ color:"var(--text-3)" })}>{b.maidens}</td>
-                                              <td style={tdN({ color:"var(--text-3)" })}>{b.runs}</td>
-                                              <td style={tdN({ color:"var(--text-2)" })}>{b.wickets}</td>
-                                              <td style={tdN({ color:"var(--text-3)", fontSize:"0.62rem", paddingRight:9 })}>{parseFloat(b.eco).toFixed(2)}</td>
-                                            </tr>
-                                          );
-                                        })}
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                )}
-                              </div>
-                            )}
+                            {inn && <InningsTable inning={inn} isFantasy={isFantasyPlayer} />}
                           </div>
                         )}
                       </div>
