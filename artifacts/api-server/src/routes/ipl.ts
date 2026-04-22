@@ -355,7 +355,7 @@ async function doRefreshMatches(): Promise<void> {
       },
       timestamp: Date.now(),
     };
-    // Track live IPL match IDs for CricAPI polling
+    // Track live IPL match IDs for S3 live polling
     currentLiveIplIds = allMatches
       .filter((m: any) => m.matchStarted && !m.matchEnded)
       .map((m: any) => m.id);
@@ -365,7 +365,7 @@ async function doRefreshMatches(): Promise<void> {
     for (const id of completedIds) {
       fetchMatchOverview(id, true).catch(() => {});
     }
-    // Pull fresh CricAPI scorecard for each live match
+    // Pull fresh S3 innings for each live match
     if (currentLiveIplIds.length > 0) {
       refreshLiveMatches(currentLiveIplIds).catch(() => {});
     }

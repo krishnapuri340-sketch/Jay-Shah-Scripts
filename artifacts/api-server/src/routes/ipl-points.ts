@@ -406,6 +406,25 @@ function processScorecard(scorecard: any[]): { players: Record<string, PlayerSta
   return { players, innings };
 }
 
+// Match a Supabase team label (e.g. "Mumbai Indians") to an S3 team name (e.g. "Mumbai Indians (MI)").
+// Also handles short codes like "MI" and partial matches.
+function teamNamesMatch(a: string, b: string): boolean {
+  if (!a || !b) return false;
+  const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const na = norm(a);
+  const nb = norm(b);
+  if (na === nb) return true;
+  // Check if one contains the other (handles "Mumbai Indians" ↔ "Mumbai Indians (MI)")
+  if (na.includes(nb) || nb.includes(na)) return true;
+  // Extract short code from parentheses e.g. "(MI)"
+  const codeMatch = (s: string) => { const m = s.match(/\(([A-Z]{2,4})\)/); return m ? m[1].toLowerCase() : ""; };
+  const ca = codeMatch(a);
+  const cb = codeMatch(b);
+  if (ca && (ca === nb || ca === cb)) return true;
+  if (cb && (cb === na || cb === ca)) return true;
+  return false;
+}
+
 // Derive fantasy points directly from pre-parsed InningData[] (e.g. from S3 innings feed).
 // Mirrors processScorecard logic but works on the already-normalised display format.
 function processInningsForPoints(
@@ -578,7 +597,7 @@ async function ensurePlayerIdMap(cache: PointsCache): Promise<void> {
   console.log(`[supabase] Player map ready: ${Object.keys(cache.playerIdMap).length} players`);
 }
 
-// Link every Supabase fixture to its IPL match ID, clear stale CricAPI points.
+// Link every Supabase fixture to its IPL match ID, clear stale live-fetch points.
 // Called during force-sync so the overwrite is immediate (not deferred to the next poll).
 async function linkSupabaseFixtures(cache: PointsCache): Promise<void> {
   try {
@@ -608,11 +627,11 @@ async function linkSupabaseFixtures(cache: PointsCache): Promise<void> {
 
   for (const fixture of Object.values(cache.supabaseScores || {})) {
     if (fixture.linkedIplId) {
-      // Still clear stale CricAPI points even for already-linked fixtures
+      // Still clear stale live-fetch points even for already-linked fixtures
       const pm = (cache.processedMatches || {})[fixture.linkedIplId];
       if (pm && Object.keys(pm.points || {}).length > 0) {
         cache.processedMatches[fixture.linkedIplId] = { ...pm, points: {} };
-        console.log(`[sync] Cleared stale CricAPI points for already-linked match ${fixture.linkedIplId}`);
+        console.log(`[sync] Cleared stale live-fetch points for already-linked match ${fixture.linkedIplId}`);
       }
       continue;
     }
@@ -631,7 +650,7 @@ async function linkSupabaseFixtures(cache: PointsCache): Promise<void> {
         const pm = (cache.processedMatches || {})[iplId];
         if (pm && Object.keys(pm.points || {}).length > 0) {
           cache.processedMatches[iplId] = { ...pm, points: {} };
-          console.log(`[sync] Cleared stale CricAPI points for ${iplId}`);
+          console.log(`[sync] Cleared stale live-fetch points for ${iplId}`);
         }
         break;
       }
@@ -711,7 +730,7 @@ router.get("/ipl/points", async (req, res) => {
       lastPointsCacheReload = Date.now();
     }
 
-    // ── Hybrid aggregation: Supabase (official) + CricAPI (live/fallback) ──
+    // ── Hybrid aggregation: Supabase (official) + S3 (live/fallback) ────────
     // Build the set of iplIds covered by Supabase using TWO methods to prevent
     // a race condition where the background job has synced Supabase scores but
     // hasn't yet written linkedIplId (causing both sources to be counted):
@@ -752,7 +771,7 @@ router.get("/ipl/points", async (req, res) => {
     // 1. Official Supabase scores for completed matches
     for (const fixtureData of Object.values(pointsCache.supabaseScores || {})
         .sort((a, b) => a.matchNumber - b.matchNumber)) {
-      // Look up playerStats from the linked CricAPI match if available
+      // Look up playerStats from the linked S3 processed match if available
       const linkedIplId = fixtureData.linkedIplId;
       const linkedMatchData = linkedIplId ? (pointsCache.processedMatches || {})[linkedIplId] : null;
       for (const [player, pts] of Object.entries(fixtureData.points || {})) {
@@ -819,7 +838,7 @@ router.get("/ipl/points", async (req, res) => {
       });
     }
 
-    // Run Supabase sync + CricAPI innings fetch in background
+    // Run Supabase sync + S3 innings refresh in background
     if (Date.now() - lastUpdateAttempt >= getCooldown()) {
       pointsUpdateInProgress = true;
       lastUpdateAttempt = Date.now();
@@ -833,7 +852,7 @@ router.get("/ipl/points", async (req, res) => {
           const changed = await syncAuctionRoomScores(cache);
           if (changed) { cache.lastUpdated = new Date().toISOString(); pointsCache = cache; saveCache(cache); }
 
-          // Step 2: Fetch schedule → populate metadata, link Supabase, run CricAPI for live/fallback
+          // Step 2: Fetch schedule → populate metadata, link Supabase, fetch S3 innings for display
           const scheduleRes = await fetch(
             "https://ipl-stats-sports-mechanic.s3.ap-south-1.amazonaws.com/ipl/feeds/284-matchschedule.js",
             { signal: AbortSignal.timeout(10000) }
@@ -881,18 +900,28 @@ router.get("/ipl/points", async (req, res) => {
                   if ((okAA || okAB) && (okBA || okBB)) {
                     fixture.linkedIplId = iplId;
                     console.log(`[supabase] Linked "${fixture.matchLabel}" → iplId ${iplId}`);
-                    // Clear any stale CricAPI points for this match — Supabase is authoritative
+                    // Clear any stale live-fetch points for this match — Supabase is authoritative
                     const pm = cache.processedMatches[iplId];
                     if (pm && Object.keys(pm.points || {}).length > 0) {
                       cache.processedMatches[iplId] = { ...pm, points: {} };
-                      console.log(`[supabase] Cleared stale CricAPI points for linked match ${iplId}`);
+                      console.log(`[supabase] Cleared stale live-fetch points for linked match ${iplId}`);
                     }
                     break;
                   }
                 }
               }
 
-              // 2c. Fill completed matches via S3 innings (free, official, no API credits)
+              // 2c. Update isLiveMatchActive from schedule (controls cooldown: 45s live vs 16min idle)
+              const liveMatches = allMatches.filter((m: any) => {
+                const s = String(m.MatchStatus || "").toLowerCase();
+                return s === "live" || s === "innings break" || s === "in progress";
+              });
+              isLiveMatchActive = liveMatches.length > 0;
+              if (isLiveMatchActive) {
+                console.log(`[bg] ${liveMatches.length} live match(es) detected — using short cooldown`);
+              }
+
+              // 2d. Fill completed matches via S3 innings (free, official, no API credits)
               const supabaseLinkedNow = new Set(
                 Object.values(cache.supabaseScores).map(f => f.linkedIplId).filter(Boolean) as string[]
               );
@@ -943,7 +972,7 @@ router.get("/ipl/points", async (req, res) => {
   }
 });
 
-// ── Playing XI cache (stable after toss, keyed by cricapi match ID) ──────────
+// ── Playing XI cache (stable after toss, keyed by IPL match ID) ─────────────
 const playing11Cache: Record<string, { names: string[]; fetched: number }> = {};
 const PLAYING11_CACHE_TTL = 30 * 60 * 1000; // 30 min
 
@@ -1059,7 +1088,7 @@ router.get("/ipl/playing11", async (req, res) => {
       }
     }
 
-    res.json({ inXI: confirmedFantasyNames, liveMatchesFound, matchCount: todayCricapiIds.length });
+    res.json({ inXI: confirmedFantasyNames, liveMatchesFound, matchCount: todayIplIds.length });
   } catch (e: any) {
     res.status(500).json({ error: e.message, inXI: [], liveMatchesFound: false });
   }
@@ -1179,7 +1208,7 @@ router.get("/ipl/scorecard/:matchId", async (req, res) => {
     saveCache(pointsCache);
   }
 
-  // Use IPL S3 data if available (more accurate); fall back to CricAPI innings
+  // Use live S3 innings if available; fall back to processed match cache
   const innings = s3Innings.length > 0 ? s3Innings : (cached?.innings || []);
   res.json({ matchId, overview, innings, hasScorecard: innings.length > 0 });
 });
@@ -1561,7 +1590,7 @@ router.post("/ipl/points/sync-supabase", async (req, res) => {
     const before = Object.keys(cache.supabaseScores || {}).length;
     const changed = await syncAuctionRoomScores(cache, true); // force=true: re-fetch ALL fixtures
     const after = Object.keys(cache.supabaseScores || {}).length;
-    // Immediately link fixtures → IPL IDs and clear stale CricAPI points so the
+    // Immediately link fixtures → IPL IDs and clear stale live-fetch points so the
     // overwrite is visible on the very next /api/ipl/points call, not just the next poll.
     await linkSupabaseFixtures(cache);
     cache.lastUpdated = new Date().toISOString();

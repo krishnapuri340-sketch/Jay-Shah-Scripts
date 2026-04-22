@@ -42,7 +42,7 @@ Primary application: IPL Fantasy Cricket Tracker for 4 teams (Rajveer Puri, Momb
 ### API Endpoints
 - `GET /api/ipl/matches` — Live match schedule (IPL S3, 8s live / 30s idle cache)
 - `GET /api/ipl/standings` — IPL points table (IPL S3, 60s cache)
-- `GET /api/ipl/points` — Fantasy points aggregated from CricAPI cache; triggers background update
+- `GET /api/ipl/points` — Fantasy points aggregated from Supabase + S3 cache; triggers background update
 - `GET /api/ipl/scorecard/:matchId` — Innings batting/bowling from cache + live S3 match overview
 - `GET /api/ipl/stats` — Aggregated season batting/bowling stats (Orange Cap, Purple Cap, Sixes, Fours, SR, Economy); each player tagged `isFantasy` if in any of the 4 fantasy teams
 ### Authentication (PIN Login)
