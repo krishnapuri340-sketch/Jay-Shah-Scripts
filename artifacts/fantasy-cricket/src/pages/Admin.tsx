@@ -65,6 +65,8 @@ export default function AdminPage(p: AdminPageProps) {
   const completedCount = liveMatches.filter((m: any) => m.matchEnded && !abandonedSet.has(String(m.id))).length;
   const liveCount = liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded).length;
   const totalPts = Object.values(playerPoints).reduce((s, v) => s + v, 0);
+  const isCommissioner = currentUser === "rajveer";
+  const anySyncing = liveLoading || pointsLoading || supabaseSyncing || s3Prefetching || statsRefreshing;
 
   return (
     <div>
@@ -73,7 +75,7 @@ export default function AdminPage(p: AdminPageProps) {
       {/* KPI tiles */}
       <div className="stat-grid" style={{ marginBottom: 20 }}>
         <div className="stat-card"><div className="stat-val" style={{ color: "#22c55e" }}>{completedCount}</div><div className="stat-lbl">Completed</div></div>
-        <div className="stat-card"><div className="stat-val" style={{ color: "var(--live)" }}>{liveCount}</div><div className="stat-lbl">Live now</div></div>
+        <div className="stat-card"><div className="stat-val" style={{ color: "var(--live)" }}>{liveCount}</div><div className="stat-lbl">Live</div></div>
         <div className="stat-card"><div className="stat-val" style={{ color: "#60a5fa" }}>{processedMatches.length}</div><div className="stat-lbl">Scored</div></div>
         <div className="stat-card"><div className="stat-val" style={{ color: "#a855f7" }}>{Object.keys(playerPoints).length}</div><div className="stat-lbl">Players</div></div>
       </div>
@@ -83,13 +85,13 @@ export default function AdminPage(p: AdminPageProps) {
         <div style={{ marginBottom: 14 }}>
           <div className="admin-section-title">Change Passcode</div>
           <div className="admin-section-sub">
-            Your passcode must be exactly 4 digits and is used to log in to your account.
-            {currentUser === "rajveer" ? " As commissioner, you can manage all members." : ""}
+            4-digit PIN used to log in.
+            {isCommissioner ? " As commissioner you can manage all members." : ""}
           </div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
           {Object.values(FANTASY_TEAMS)
-            .filter(ft => currentUser === "rajveer" || ft.id === currentUser)
+            .filter(ft => isCommissioner || ft.id === currentUser)
             .map((ft, idx) => {
               const isEditing = pinEditTarget === ft.id;
               return (
@@ -97,7 +99,6 @@ export default function AdminPage(p: AdminPageProps) {
                   {idx > 0 && <div className="admin-divider" />}
                   {isEditing ? (
                     <div style={{ padding: "4px 0 8px" }}>
-                      {/* Editing header */}
                       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
                         <span style={{ fontSize: "1.1rem" }}>{ft.emoji}</span>
                         <div>
@@ -115,7 +116,6 @@ export default function AdminPage(p: AdminPageProps) {
                       <div className="admin-pin-step-label">
                         {pinStep === "confirm" ? "CONFIRM CURRENT PIN" : "ENTER NEW PIN"}
                       </div>
-                      {/* PIN entry — confirm step */}
                       {pinStep === "confirm" && (() => {
                         const val = pinConfirmVal;
                         return (
@@ -166,7 +166,6 @@ export default function AdminPage(p: AdminPageProps) {
                           </div>
                         );
                       })()}
-                      {/* PIN entry — new step */}
                       {pinStep === "new" && (() => {
                         const val = pinEditVal;
                         return (
@@ -237,159 +236,134 @@ export default function AdminPage(p: AdminPageProps) {
         </div>
       </div>
 
-      {/* Auto-Points Engine */}
-      {currentUser === "rajveer" && (
-        <div className="admin-section">
-          <div className="admin-section-title" style={{ marginBottom: 12 }}>🤖 Auto-Points Engine</div>
-          <div className="admin-status-list">
-            <div className="admin-status-row">
-              <span className="admin-status-label">IPL schedule</span>
-              <span style={{ color: dataSources?.iplOfficial ? "#34d399" : "#475569" }}>
-                {dataSources?.iplOfficial ? `✓ ${dataSources.iplOfficial} matches` : "Loading..."}
-              </span>
-            </div>
-            <div className="admin-status-row">
-              <span className="admin-status-label">Scorecards fetched</span>
-              <span style={{ color: processedMatches.length > 0 ? "#34d399" : "#475569" }}>
-                {processedMatches.length > 0
-                  ? `✓ ${processedMatches.length} fetched${abandonedMatchIds.length > 0 ? `, ${abandonedMatchIds.length} abandoned` : ""}${liveCount > 0 ? ` (${liveCount} live)` : ""}`
-                  : completedCount === 0 ? "No matches yet" : "Pending..."}
-              </span>
-            </div>
-            <div className="admin-status-row">
-              <span className="admin-status-label">AuctionRoom points engine</span>
-              <span style={{ color: pointsUpdating ? "#f59e0b" : pointsError ? "#ef4444" : pendingMatches > 0 ? "#f59e0b" : "#34d399" }}>
-                {pointsUpdating ? "⏳ Processing..." : pointsError ? `⚠ ${pointsError.slice(0, 40)}` : pendingMatches > 0 ? `⏳ ${pendingMatches} pending` : "✓ Active"}
-              </span>
-            </div>
-            {nextAttempt && (
-              <div className="admin-status-rate">
-                <span style={{ color: "#475569" }}>Rate limit — next attempt</span>
-                <span style={{ color: "#f59e0b" }}>{new Date(nextAttempt).toLocaleTimeString()}</span>
+      {/* Commissioner-only sections */}
+      {isCommissioner && (
+        <>
+          {/* Data Status */}
+          <div className="admin-section">
+            <div className="admin-section-title" style={{ marginBottom: 12 }}>Data Status</div>
+            <div className="admin-status-list">
+              <div className="admin-status-row">
+                <span className="admin-status-label">IPL schedule</span>
+                <span style={{ color: dataSources?.iplOfficial ? "#34d399" : "#475569" }}>
+                  {dataSources?.iplOfficial ? `✓ ${dataSources.iplOfficial} matches` : "Loading..."}
+                </span>
               </div>
-            )}
+              <div className="admin-status-row">
+                <span className="admin-status-label">Scorecards</span>
+                <span style={{ color: processedMatches.length > 0 ? "#34d399" : "#475569" }}>
+                  {processedMatches.length > 0
+                    ? `✓ ${processedMatches.length} fetched${abandonedMatchIds.length > 0 ? `, ${abandonedMatchIds.length} abandoned` : ""}${liveCount > 0 ? ` · ${liveCount} live` : ""}`
+                    : completedCount === 0 ? "No matches yet" : "Pending..."}
+                </span>
+              </div>
+              <div className="admin-status-row">
+                <span className="admin-status-label">Points engine</span>
+                <span style={{ color: pointsUpdating ? "#f59e0b" : pointsError ? "#ef4444" : pendingMatches > 0 ? "#f59e0b" : "#34d399" }}>
+                  {pointsUpdating ? "⏳ Processing..." : pointsError ? `⚠ ${pointsError.slice(0, 40)}` : pendingMatches > 0 ? `⏳ ${pendingMatches} pending` : "✓ Active"}
+                </span>
+              </div>
+              {s3PrefetchResult && (
+                <div className="admin-status-row">
+                  <span className="admin-status-label">S3 scorecards</span>
+                  <span style={{ color: "#94a3b8" }}>
+                    <span style={{ color: "#4ade80" }}>✓ {s3PrefetchResult.found}</span>
+                    {s3PrefetchResult.missing > 0 && <span style={{ color: "#94a3b8" }}> · {s3PrefetchResult.missing} missing</span>}
+                  </span>
+                </div>
+              )}
+              {supabaseSyncMsg && (
+                <div className="admin-status-row">
+                  <span className="admin-status-label">Last sync</span>
+                  <span style={{ color: supabaseSyncMsg.startsWith("Sync failed") ? "#f87171" : "#34d399" }}>
+                    {supabaseSyncMsg.startsWith("Sync failed") ? "⚠ Failed" : "✓ " + supabaseSyncMsg}
+                  </span>
+                </div>
+              )}
+              {nextAttempt && (
+                <div className="admin-status-row">
+                  <span style={{ color: "#475569" }}>Rate limit — next attempt</span>
+                  <span style={{ color: "#f59e0b" }}>{new Date(nextAttempt).toLocaleTimeString()}</span>
+                </div>
+              )}
+            </div>
             {pointsLastUpdated && (
-              <div className="admin-status-sub">
+              <div className="admin-status-sub" style={{ marginTop: 8 }}>
                 Points last updated: {pointsLastUpdated.toLocaleTimeString()} · Auto-refreshes every 5 min
               </div>
             )}
           </div>
-        </div>
-      )}
 
-      {/* Player Points Breakdown */}
-      <div className="admin-section">
-        <div onClick={() => setAdminBreakdownOpen(o => !o)}
-          style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", marginBottom: adminBreakdownOpen ? 12 : 0 }}>
-          <span className="admin-section-title">📊 Player Points Breakdown</span>
-          <span style={{ fontSize: "0.65rem", color: "#475569" }}>{adminBreakdownOpen ? "▲" : "▼"} {Object.keys(playerPoints).length} players</span>
-        </div>
-        {adminBreakdownOpen && Object.keys(playerPoints).length === 0 && (
-          <div style={{ color: "#334155", fontSize: "0.8rem", padding: "8px 0" }}>
-            {pointsLoading ? "⏳ Calculating points from scorecards..." : "Points will appear once matches complete and scorecards are processed."}
-          </div>
-        )}
-        {adminBreakdownOpen && Object.keys(playerPoints).length > 0 && Object.entries(playerPoints).sort((a, b) => b[1] - a[1]).map(([name, pts]) => {
-          const team = Object.values(FANTASY_TEAMS).find(t => t.players.some(pp => pp.name === name));
-          const isExp = expandedAdminPlayer === name;
-          const matches = playerMatchPoints[name] || [];
-          const isCap = Object.values(FANTASY_TEAMS).some(t => t.captain === name);
-          const isVC  = Object.values(FANTASY_TEAMS).some(t => t.vc === name);
-          return (
-            <div key={name} className="admin-breakdown-row" onClick={() => setExpandedAdminPlayer(isExp ? null : name)}>
-              <div style={{ flex: 1 }}>
-                <div className="admin-breakdown-name">
-                  {name}
-                  {isCap && <span className="admin-breakdown-tag" style={{ color: "#d4a843", background: "rgba(212,168,67,0.12)" }}>C</span>}
-                  {isVC  && <span className="admin-breakdown-tag" style={{ color: "#a1a1aa", background: "rgba(161,161,170,0.1)" }}>VC</span>}
-                </div>
-                {team && <div className="admin-breakdown-team">{team.name} · {team.owner}</div>}
-                {isExp && matches.length > 0 && (
-                  <div className="admin-breakdown-match-panel">
-                    {matches.map((m, i) => (
-                      <div key={i} className="admin-breakdown-match-row">
-                        <div>
-                          <span style={{ color: "var(--text-2)" }}>{m.label}</span>
-                          {m.source === "official" && <span style={{ marginLeft: 5, fontSize: "0.55rem", color: "#34d399", background: "rgba(52,211,153,0.1)", borderRadius: 3, padding: "1px 4px" }}>official</span>}
-                          {(m.source || "").includes("live") && <span style={{ marginLeft: 5, fontSize: "0.55rem", color: "#fbbf24", background: "rgba(251,191,36,0.1)", borderRadius: 3, padding: "1px 4px" }}>live</span>}
-                        </div>
-                        <span style={{ fontWeight: 700, color: m.pts > 0 ? "#f97316" : "var(--text-3)" }}>{m.pts > 0 ? "+" : ""}{m.pts}</span>
-                      </div>
-                    ))}
-                    <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", marginTop: 2, paddingTop: 5, display: "flex", justifyContent: "space-between", fontSize: "0.72rem", fontWeight: 700 }}>
-                      <span style={{ color: "var(--text-3)" }}>Total (raw)</span>
-                      <span style={{ color: "#f97316" }}>{matches.reduce((s, m) => s + m.pts, 0)}</span>
+          {/* Player Points Breakdown */}
+          <div className="admin-section">
+            <div onClick={() => setAdminBreakdownOpen(o => !o)}
+              style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", marginBottom: adminBreakdownOpen ? 12 : 0 }}>
+              <span className="admin-section-title">Player Breakdown</span>
+              <span style={{ fontSize: "0.65rem", color: "#475569" }}>{adminBreakdownOpen ? "▲" : "▼"} {Object.keys(playerPoints).length} players</span>
+            </div>
+            {adminBreakdownOpen && Object.keys(playerPoints).length === 0 && (
+              <div style={{ color: "#334155", fontSize: "0.8rem", padding: "8px 0" }}>
+                {pointsLoading ? "⏳ Calculating points from scorecards..." : "Points will appear once matches complete and scorecards are processed."}
+              </div>
+            )}
+            {adminBreakdownOpen && Object.keys(playerPoints).length > 0 && Object.entries(playerPoints).sort((a, b) => b[1] - a[1]).map(([name, pts]) => {
+              const team = Object.values(FANTASY_TEAMS).find(t => t.players.some(pp => pp.name === name));
+              const isExp = expandedAdminPlayer === name;
+              const matches = playerMatchPoints[name] || [];
+              const isCap = Object.values(FANTASY_TEAMS).some(t => t.captain === name);
+              const isVC  = Object.values(FANTASY_TEAMS).some(t => t.vc === name);
+              return (
+                <div key={name} className="admin-breakdown-row" onClick={() => setExpandedAdminPlayer(isExp ? null : name)}>
+                  <div style={{ flex: 1 }}>
+                    <div className="admin-breakdown-name">
+                      {name}
+                      {isCap && <span className="admin-breakdown-tag" style={{ color: "#d4a843", background: "rgba(212,168,67,0.12)" }}>C</span>}
+                      {isVC  && <span className="admin-breakdown-tag" style={{ color: "#a1a1aa", background: "rgba(161,161,170,0.1)" }}>VC</span>}
                     </div>
+                    {team && <div className="admin-breakdown-team">{team.name} · {team.owner}</div>}
+                    {isExp && matches.length > 0 && (
+                      <div className="admin-breakdown-match-panel">
+                        {matches.map((m, i) => (
+                          <div key={i} className="admin-breakdown-match-row">
+                            <div>
+                              <span style={{ color: "var(--text-2)" }}>{m.label}</span>
+                              {m.source === "official" && <span style={{ marginLeft: 5, fontSize: "0.55rem", color: "#34d399", background: "rgba(52,211,153,0.1)", borderRadius: 3, padding: "1px 4px" }}>official</span>}
+                              {(m.source || "").includes("live") && <span style={{ marginLeft: 5, fontSize: "0.55rem", color: "#fbbf24", background: "rgba(251,191,36,0.1)", borderRadius: 3, padding: "1px 4px" }}>live</span>}
+                            </div>
+                            <span style={{ fontWeight: 700, color: m.pts > 0 ? "#f97316" : "var(--text-3)" }}>{m.pts > 0 ? "+" : ""}{m.pts}</span>
+                          </div>
+                        ))}
+                        <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", marginTop: 2, paddingTop: 5, display: "flex", justifyContent: "space-between", fontSize: "0.72rem", fontWeight: 700 }}>
+                          <span style={{ color: "var(--text-3)" }}>Total (raw)</span>
+                          <span style={{ color: "#f97316" }}>{matches.reduce((s, m) => s + m.pts, 0)}</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontFamily: "'Bebas Neue'", fontSize: "1.1rem", color: "#f97316", letterSpacing: "1px" }}>{pts}</span>
-                {matches.length > 0 && <span style={{ fontSize: "0.6rem", color: "#475569" }}>{isExp ? "▲" : "▼"}</span>}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Action buttons */}
-      <div className="admin-btn-row">
-        <button className="btn-primary" onClick={() => { fetchLive(); fetchPoints(); }} disabled={liveLoading || pointsLoading}>
-          {(liveLoading || pointsLoading) ? <span className="spinner" /> : "🔄"} Refresh All
-        </button>
-        {currentUser === "rajveer" && <>
-          <button className="btn-primary btn-primary-blue" onClick={fetchPoints} disabled={pointsLoading}>
-            {pointsLoading ? <span className="spinner" /> : "⚡"} Fetch Points
-          </button>
-          <button className="btn-primary btn-primary-green" onClick={syncSupabase} disabled={supabaseSyncing}>
-            {supabaseSyncing ? <span className="spinner" /> : "🗄️"} Sync AuctionRoom
-          </button>
-          <button className="btn-primary btn-primary-purple" onClick={prefetchS3Scorecards} disabled={s3Prefetching}>
-            {s3Prefetching ? <span className="spinner" /> : "📡"} Pre-fetch S3 Scorecards
-          </button>
-          <button className="btn-primary btn-primary-gold" onClick={refreshStatsCache} disabled={statsRefreshing}>
-            {statsRefreshing ? <span className="spinner" /> : "📊"} Refresh Stats (S3)
-          </button>
-          <button className="btn-danger" onClick={async () => {
-            if (confirm("Reset all cached points? Points will re-sync from AuctionRoom.")) {
-              await fetch("/api/ipl/points/reset", { method: "POST", headers: { "X-Owner-Id": "rajveer" } });
-              setPlayerPoints({});
-              setProcessedMatches([]);
-              setTimeout(fetchPoints, 500);
-            }
-          }}>🗑️ Reset Cache</button>
-        </>}
-      </div>
-
-      {/* Sync message */}
-      {supabaseSyncMsg && (
-        <div className={`admin-sync-msg ${supabaseSyncMsg.startsWith("Sync failed") ? "error" : "success"}`}>
-          {supabaseSyncMsg}
-        </div>
-      )}
-
-      {/* S3 prefetch result */}
-      {s3PrefetchResult && (
-        <div className="admin-s3-result">
-          <div className="admin-s3-result-header">
-            <span style={{ fontSize: "0.72rem", color: "#a855f7", fontWeight: 700 }}>📡 S3 Scorecard Prefetch</span>
-            <span style={{ fontSize: "0.72rem", color: "#94a3b8" }}>
-              <span style={{ color: "#4ade80" }}>✓ {s3PrefetchResult.found} found</span>
-              {" · "}
-              <span style={{ color: s3PrefetchResult.missing > 0 ? "#94a3b8" : "#4ade80" }}>{s3PrefetchResult.missing} not yet available</span>
-            </span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontFamily: "'Bebas Neue'", fontSize: "1.1rem", color: "#f97316", letterSpacing: "1px" }}>{pts}</span>
+                    {matches.length > 0 && <span style={{ fontSize: "0.6rem", color: "#475569" }}>{isExp ? "▲" : "▼"}</span>}
+                  </div>
+                </div>
+              );
+            })}
           </div>
-          {s3PrefetchResult.foundIds.length > 0 && (
-            <div className="admin-s3-result-ids">
-              <span style={{ color: "#4ade80" }}>Found IDs: </span>{s3PrefetchResult.foundIds.join(", ")}
-            </div>
-          )}
-          {s3PrefetchResult.missingIds.length > 0 && (
-            <div className="admin-s3-result-ids">
-              <span style={{ color: "#94a3b8" }}>Not yet on S3: </span>{s3PrefetchResult.missingIds.join(", ")}
-            </div>
-          )}
-        </div>
+
+          {/* Action buttons — consolidated */}
+          <div className="admin-btn-row">
+            <button className="btn-primary btn-primary-blue" onClick={() => { fetchLive(); fetchPoints(); syncSupabase(); prefetchS3Scorecards(); refreshStatsCache(); }} disabled={anySyncing}>
+              {anySyncing ? <span className="spinner" /> : "🔄"} Sync All
+            </button>
+            <button className="btn-danger" onClick={async () => {
+              if (confirm("Reset all cached points? They will re-sync from AuctionRoom.")) {
+                await fetch("/api/ipl/points/reset", { method: "POST", headers: { "X-Owner-Id": "rajveer" } });
+                setPlayerPoints({});
+                setProcessedMatches([]);
+                setTimeout(fetchPoints, 500);
+              }
+            }}>Reset Cache</button>
+          </div>
+        </>
       )}
 
       {lastUpdated && (
