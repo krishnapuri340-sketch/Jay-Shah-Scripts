@@ -20232,15 +20232,15 @@
     },
     "3c44e9f8-17ff-46f4-a5a5-0779fb52a863": {
       "points": {
-        "Vaibhav Suryavanshi": 2,
-        "Abhishek Sharma": 10,
-        "Travis Head": 34,
-        "Ishan Kishan": 199,
-        "Heinrich Klaasen": 74,
-        "Yashasvi Jaiswal": 5,
         "Dhruv Jurel": 15,
+        "Heinrich Klaasen": 74,
         "Riyan Parag": 52,
-        "Ravindra Jadeja": 75
+        "Ravindra Jadeja": 75,
+        "Vaibhav Suryavanshi": 2,
+        "Yashasvi Jaiswal": 5,
+        "Ishan Kishan": 199,
+        "Abhishek Sharma": 10,
+        "Travis Head": 34
       },
       "matchLabel": "Sunrisers Hyderabad vs Rajasthan Royals",
       "matchDate": "2026-04-13",
@@ -21024,7 +21024,7 @@
       "matchNumber": 70
     }
   },
-  "lastUpdated": "2026-04-22T18:51:09.516Z",
+  "lastUpdated": "2026-04-22T18:52:36.724Z",
   "cricapiMatchIds": {
     "2428": "12b5d808-d9ab-468e-bd25-a2c347f64bdc",
     "2467": "c5bf2a95-1855-463d-accf-9c1db88418cd",
