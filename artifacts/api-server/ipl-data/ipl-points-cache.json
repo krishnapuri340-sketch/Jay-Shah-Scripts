@@ -19519,7 +19519,7 @@
         },
         {
           "name": "Lucknow Super Giants Inning 2",
-          "total": "114/8 (17.0 ov)",
+          "total": "119/10 (18.0 ov)",
           "batting": [
             {
               "name": "Mitchell Marsh",
@@ -19611,19 +19611,19 @@
             },
             {
               "name": "Mayank Yadav",
-              "runs": 1,
-              "balls": 3,
-              "fours": 0,
+              "runs": 5,
+              "balls": 5,
+              "fours": 1,
               "sixes": 0,
-              "sr": "33.33",
-              "dismissal": "not out",
-              "notOut": true,
+              "sr": "100.00",
+              "dismissal": "c Dhruv Jurel b Jofra Archer",
+              "notOut": false,
               "dnb": false
             },
             {
               "name": "Digvesh Singh",
-              "runs": 1,
-              "balls": 1,
+              "runs": 2,
+              "balls": 2,
               "fours": 0,
               "sixes": 0,
               "sr": "100.00",
@@ -19634,13 +19634,13 @@
             {
               "name": "Mohsin Khan",
               "runs": 0,
-              "balls": 0,
+              "balls": 3,
               "fours": 0,
               "sixes": 0,
-              "sr": "-",
-              "dismissal": "",
+              "sr": "0.00",
+              "dismissal": "b Jofra Archer",
               "notOut": false,
-              "dnb": true
+              "dnb": false
             },
             {
               "name": "Prince Yadav",
@@ -19657,14 +19657,14 @@
           "bowling": [
             {
               "name": "Jofra Archer",
-              "overs": "3",
+              "overs": "4",
               "maidens": 1,
-              "runs": 15,
-              "wickets": 1,
+              "runs": 20,
+              "wickets": 3,
               "eco": "5",
               "wides": 1,
               "noBalls": 0,
-              "dots": 13
+              "dots": 17
             },
             {
               "name": "Nandre Burger",

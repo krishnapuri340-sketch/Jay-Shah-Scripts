@@ -1117,3 +1117,120 @@ body { background: var(--bg); }
 .hist-top10-val {
   font-family: 'Inter', sans-serif; font-size: 1.05rem; font-weight: 700; flex-shrink: 0;
 }
+
+/* Generic segmented pill (Stats filter, etc) */
+.seg-pill {
+  display: flex; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 22px; padding: 3px; margin-bottom: 12px; gap: 2px;
+}
+.seg-pill-btn {
+  flex: 1; padding: 7px 0; border-radius: 18px; border: none; cursor: pointer;
+  font-family: inherit; font-size: 0.7rem; font-weight: 600; transition: all 0.18s ease;
+  background: transparent; color: var(--text-3);
+}
+.seg-pill-btn.active {
+  background: var(--surface-3);
+  box-shadow: 0 1px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+/* Generic surface card with header (used by Stats list cards) */
+.stats-list-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; overflow: hidden; margin-bottom: 12px;
+}
+.stats-list-card-header {
+  padding: 12px 14px; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.stats-list-card-title { font-size: 0.8rem; font-weight: 600; color: var(--text); }
+.stats-list-card-meta  { font-size: 0.6rem; color: var(--text-3); }
+.stats-list-card-show-more {
+  width: 100%; padding: 11px 0; background: transparent; border: none;
+  border-top: 1px solid var(--border); cursor: pointer;
+  font-size: 0.68rem; color: var(--text-3); font-family: inherit;
+}
+
+/* Stat leaderboard row (used by renderStatRow) */
+.stat-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 14px; border-bottom: 1px solid var(--border);
+}
+.stat-row-rank {
+  width: 18px; text-align: center; font-family: 'Inter', sans-serif;
+  font-size: 0.9rem; font-weight: 700; flex-shrink: 0; color: var(--text-3);
+}
+.stat-row-body { flex: 1; min-width: 0; }
+.stat-row-name {
+  font-size: 0.82rem; font-weight: 500;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.stat-row-sub { font-size: 0.62rem; color: var(--text-3); margin-top: 1px; }
+.stat-row-val-wrap { text-align: right; flex-shrink: 0; }
+.stat-row-val {
+  font-family: 'Inter', sans-serif; font-size: 1.1rem; font-weight: 700;
+  letter-spacing: -0.03em; line-height: 1;
+}
+.stat-row-unit {
+  font-size: 0.55rem; color: var(--text-3); text-transform: uppercase;
+  letter-spacing: 0.08em; margin-top: 2px;
+}
+
+/* Fantasy tag and rows */
+.fantasy-tag {
+  margin-left: 5px; font-size: 0.58rem; font-weight: 800;
+  color: #22c55e; vertical-align: middle;
+}
+.fpts-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-bottom: 1px solid var(--border);
+}
+.fpts-row:last-child { border-bottom: none; }
+.fpts-rank {
+  width: 18px; text-align: center; font-size: 0.68rem; font-weight: 700;
+  flex-shrink: 0; color: var(--text-3);
+}
+.fpts-body { flex: 1; min-width: 0; }
+.fpts-name {
+  font-size: 0.82rem; font-weight: 500; color: var(--text);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.fpts-owner { font-size: 0.58rem; margin-top: 1px; }
+.fpts-val { font-size: 1rem; font-weight: 700; flex-shrink: 0; color: var(--text-2); }
+.fpts-unit { font-size: 0.55rem; color: var(--text-3); flex-shrink: 0; margin-left: -4px; }
+
+/* Stats loading / empty states */
+.stat-empty {
+  color: var(--text-3); font-size: 0.78rem; text-align: center; padding: 24px 0;
+}
+.stat-footnote {
+  font-size: 0.6rem; color: var(--text-3); text-align: center; padding: 4px 0;
+}
+
+/* Stats horizontal category scroller */
+.stats-cat-scroller {
+  display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px;
+  margin: 0 -16px 12px; padding-left: 16px; padding-right: 16px;
+}
+
+/* WhatIf — owner avatar selector (used 2x) */
+.wi-owner-grid { display: flex; gap: 6px; margin-bottom: 14px; }
+.wi-owner-btn {
+  flex: 1; border-radius: 10px; padding: 9px 4px; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  background: var(--surface); border: 1px solid var(--border);
+}
+.wi-owner-avatar {
+  width: 32px; height: 32px; border-radius: 50%; overflow: hidden;
+  flex-shrink: 0; border: 2px solid rgba(255,255,255,0.1);
+  transition: border-color 0.18s;
+}
+.wi-owner-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.wi-owner-name {
+  font-size: 0.55rem; font-weight: 700; color: var(--text-3);
+  letter-spacing: 0.06em; text-align: center;
+}
+.loading-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 16px; margin-bottom: 14px;
+  text-align: center; font-size: 0.72rem; color: var(--text-3);
+}

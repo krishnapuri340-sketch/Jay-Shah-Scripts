@@ -73,37 +73,34 @@ export default function WhatIfPage(props: WhatIfPageProps) {
     <div className="tab-view">
       <div className="sec-title">What If?</div>
 
-      <div style={{ display: "flex", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 22, padding: 3, marginBottom: 14, gap: 2 }}>
-        {([["swap", "Season Swap"], ["permatch", "Per Match"], ["intel", "Match Intel"]] as const).map(([id, label]) => (
-          <button key={id} onClick={() => setWiSection(id as "swap" | "permatch" | "intel")}
-            style={{
-              flex: 1, padding: "7px 0", borderRadius: 18, border: "none", cursor: "pointer",
-              fontFamily: "inherit", fontSize: "0.7rem", fontWeight: 600, transition: "all 0.18s",
-              background: wiSection === id ? "var(--surface-3)" : "transparent",
-              color: wiSection === id ? "var(--gold)" : "var(--text-3)",
-            }}>{label}</button>
-        ))}
+      <div className="seg-pill" style={{ marginBottom: 14 }}>
+        {([["swap", "Season Swap"], ["permatch", "Per Match"], ["intel", "Match Intel"]] as const).map(([id, label]) => {
+          const active = wiSection === id;
+          return (
+            <button key={id} onClick={() => setWiSection(id as "swap" | "permatch" | "intel")}
+              className={`seg-pill-btn${active ? " active" : ""}`}
+              style={active ? { color: "var(--gold)", boxShadow: "none" } : undefined}>
+              {label}
+            </button>
+          );
+        })}
       </div>
 
       {wiSection === "swap" && (
         <div>
-          <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
+          <div className="wi-owner-grid">
             {PRED_OWNERS.map(id => {
               const ft = FANTASY_TEAMS[id];
               const sel = wiTeamId === id;
               return (
                 <button key={id} onClick={() => { setWiTeamId(id); setAltCap(""); setAltVC(""); }}
-                  style={{
-                    flex: 1, background: sel ? ft.color + "22" : "var(--surface)",
-                    border: `1px solid ${sel ? ft.color + "88" : "var(--border)"}`,
-                    borderRadius: 10, padding: "9px 4px", cursor: "pointer",
-                    display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 5,
-                  }}>
-                  <div style={{ width: 32, height: 32, borderRadius: "50%", border: `2px solid ${sel ? ft.color : "rgba(255,255,255,0.1)"}`, overflow: "hidden", flexShrink: 0, transition: "border-color 0.18s" }}>
+                  className="wi-owner-btn"
+                  style={sel ? { background: ft.color + "22", borderColor: ft.color + "88" } : undefined}>
+                  <div className="wi-owner-avatar" style={sel ? { borderColor: ft.color } : undefined}>
                     <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner}
-                      style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: ft.avatarPosition || "center center", display: "block" }} />
+                      className="wi-owner-img" style={{ objectPosition: ft.avatarPosition || "center center" }} />
                   </div>
-                  <div style={{ fontSize: "0.55rem", fontWeight: 700, color: sel ? ft.color : "var(--text-3)", letterSpacing: "0.06em", textAlign: "center" as const }}>{ft.owner.toUpperCase()}</div>
+                  <div className="wi-owner-name" style={sel ? { color: ft.color } : undefined}>{ft.owner.toUpperCase()}</div>
                 </button>
               );
             })}
@@ -245,17 +242,19 @@ export default function WhatIfPage(props: WhatIfPageProps) {
 
         return (
           <div>
-            <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
+            <div className="wi-owner-grid">
               {PRED_OWNERS.map(id => {
                 const ft = FANTASY_TEAMS[id];
                 const sel = wiTeamId === id;
                 return (
                   <button key={id} onClick={() => { setWiTeamId(id); setExpandedWiMatch(null); }}
-                    style={{ flex: 1, background: sel ? ft.color + "22" : "var(--surface)", border: `1px solid ${sel ? ft.color + "88" : "var(--border)"}`, borderRadius: 10, padding: "9px 4px", cursor: "pointer", display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 5 }}>
-                    <div style={{ width: 32, height: 32, borderRadius: "50%", border: `2px solid ${sel ? ft.color : "rgba(255,255,255,0.1)"}`, overflow: "hidden", flexShrink: 0 }}>
-                      <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: ft.avatarPosition || "center center", display: "block" }} />
+                    className="wi-owner-btn"
+                    style={sel ? { background: ft.color + "22", borderColor: ft.color + "88" } : undefined}>
+                    <div className="wi-owner-avatar" style={sel ? { borderColor: ft.color } : undefined}>
+                      <img src={`${import.meta.env.BASE_URL}avatars/${ft.avatar}`} alt={ft.owner}
+                        className="wi-owner-img" style={{ objectPosition: ft.avatarPosition || "center center" }} />
                     </div>
-                    <div style={{ fontSize: "0.55rem", fontWeight: 700, color: sel ? ft.color : "var(--text-3)", letterSpacing: "0.06em", textAlign: "center" as const }}>{ft.owner.toUpperCase()}</div>
+                    <div className="wi-owner-name" style={sel ? { color: ft.color } : undefined}>{ft.owner.toUpperCase()}</div>
                   </button>
                 );
               })}

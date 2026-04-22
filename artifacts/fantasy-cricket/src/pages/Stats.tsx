@@ -18,34 +18,33 @@ function renderStatRow(entry: any, i: number, cat: string) {
   const accentColors = ["#d4a843", "#94a3b8", "#71717a"];
   const accentColor = i < 3 ? accentColors[i] : "var(--border)";
   const statColor = i === 0 ? "#d4a843" : i < 3 ? "var(--text)" : "var(--blue)";
+  const rankStyle = i < 3 ? { color: accentColors[i] } : undefined;
   return (
-    <div key={entry.name} style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 14px", borderBottom: "1px solid var(--border)", borderLeft: `4px solid ${accentColor}` }}>
-      <div style={{ width: 18, textAlign: "center" as const, fontFamily: "'Inter', sans-serif", fontSize: "0.9rem", fontWeight: 700, color: i < 3 ? accentColors[i] : "var(--text-3)", flexShrink: 0 }}>{i + 1}</div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: "0.82rem", fontWeight: 500, color: entry.isFantasy ? "var(--text)" : "var(--text-2)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+    <div key={entry.name} className="stat-row" style={{ borderLeft: `4px solid ${accentColor}` }}>
+      <div className="stat-row-rank" style={rankStyle}>{i + 1}</div>
+      <div className="stat-row-body">
+        <div className="stat-row-name" style={{ color: entry.isFantasy ? "var(--text)" : "var(--text-2)" }}>
           {entry.name}
-          {entry.isFantasy && <span style={{ marginLeft: 5, fontSize: "0.58rem", fontWeight: 800, color: "#22c55e", verticalAlign: "middle" }}>F</span>}
+          {entry.isFantasy && <span className="fantasy-tag">F</span>}
         </div>
         {cat === "catchesLeader" ? (
-          <div style={{ fontSize: "0.62rem", color: "var(--text-3)", marginTop: 1 }}>
-            Fantasy Pts: {entry.fantasyPts ?? 0}
-          </div>
+          <div className="stat-row-sub">Fantasy Pts: {entry.fantasyPts ?? 0}</div>
         ) : isBat ? (
-          <div style={{ fontSize: "0.62rem", color: "var(--text-3)", marginTop: 1 }}>
+          <div className="stat-row-sub">
             {cat === "orangeCap" && `HS: ${entry.hs} · SR: ${entry.sr} · ${entry.innings} inn`}
             {cat === "sixesLeader" && `Runs: ${entry.runs} · SR: ${entry.sr}`}
             {cat === "foursLeader" && `Runs: ${entry.runs} · SR: ${entry.sr}`}
             {cat === "srLeader" && `${entry.runs} off ${entry.balls}b · ${entry.innings} inn`}
           </div>
         ) : (
-          <div style={{ fontSize: "0.62rem", color: "var(--text-3)", marginTop: 1 }}>
+          <div className="stat-row-sub">
             {cat === "purpleCap" && `Best: ${entry.best} · Eco: ${entry.eco} · ${entry.innings} inn`}
             {cat === "ecoLeader" && `${entry.wickets}W · ${entry.overs} ov`}
           </div>
         )}
       </div>
-      <div style={{ textAlign: "right" as const, flexShrink: 0 }}>
-        <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.1rem", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1, color: statColor }}>
+      <div className="stat-row-val-wrap">
+        <div className="stat-row-val" style={{ color: statColor }}>
           {cat === "orangeCap" && entry.runs}
           {cat === "purpleCap" && entry.wickets}
           {cat === "sixesLeader" && entry.sixes}
@@ -54,7 +53,7 @@ function renderStatRow(entry: any, i: number, cat: string) {
           {cat === "srLeader" && entry.sr}
           {cat === "ecoLeader" && entry.eco}
         </div>
-        <div style={{ fontSize: "0.55rem", color: "var(--text-3)", textTransform: "uppercase" as const, letterSpacing: "0.08em", marginTop: 2 }}>
+        <div className="stat-row-unit">
           {cat === "orangeCap" && "runs"}
           {cat === "purpleCap" && "wkts"}
           {cat === "sixesLeader" && "sixes"}
@@ -103,23 +102,22 @@ export default function StatsPage(p: StatsPageProps) {
     <div>
       <div className="sec-title">IPL 2026 Stats</div>
 
-      <div style={{ display: "flex", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 22, padding: 3, marginBottom: 12, gap: 2 }}>
-        {([["all", "All IPL"], ["fantasy", "Fantasy"], ["predictions", "Predictions"]] as [string, string][]).map(([f, label]) => (
-          <button key={f} onClick={() => { setStatsFilter(f as any); setStatsExpanded(false); if (f !== "fantasy" && statsCategory === "fantasyPts") setStatsCategory("orangeCap"); }}
-            style={{
-              flex: 1, padding: "7px 0", borderRadius: 18, border: "none", cursor: "pointer", fontFamily: "inherit",
-              fontSize: "0.7rem", fontWeight: 600, transition: "all 0.18s ease",
-              background: statsFilter === f ? "var(--surface-3)" : "transparent",
-              color: statsFilter === f ? (f === "fantasy" ? "#22c55e" : f === "predictions" ? "#a78bfa" : "var(--text)") : "var(--text-3)",
-              boxShadow: statsFilter === f ? "0 1px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)" : "none",
-            }}>
-            {label}
-          </button>
-        ))}
+      <div className="seg-pill">
+        {([["all", "All IPL"], ["fantasy", "Fantasy"], ["predictions", "Predictions"]] as [string, string][]).map(([f, label]) => {
+          const active = statsFilter === f;
+          const activeColor = f === "fantasy" ? "#22c55e" : f === "predictions" ? "#a78bfa" : "var(--text)";
+          return (
+            <button key={f} onClick={() => { setStatsFilter(f as any); setStatsExpanded(false); if (f !== "fantasy" && statsCategory === "fantasyPts") setStatsCategory("orangeCap"); }}
+              className={`seg-pill-btn${active ? " active" : ""}`}
+              style={active ? { color: activeColor } : undefined}>
+              {label}
+            </button>
+          );
+        })}
       </div>
 
       {statsFilter !== "predictions" && (
-        <div data-no-swipe="true" style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 8, marginBottom: 12, marginLeft: -16, marginRight: -16, paddingLeft: 16, paddingRight: 16 }}>
+        <div data-no-swipe="true" className="stats-cat-scroller">
           {STAT_CATS.map(c => (
             <button key={c.id} onClick={() => { setStatsCategory(c.id); setStatsExpanded(false); }} className={`stats-cat-btn ${statsCategory === c.id ? "active" : ""}`}>
               {c.label}
@@ -337,27 +335,24 @@ export default function StatsPage(p: StatsPageProps) {
             const visible = fantasyPtsOpen ? ranked : ranked.slice(0, 10);
             const rankColors = ["#d4a843", "#94a3b8", "#cd7c3a"];
             return (
-              <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden", marginBottom: 12 }}>
-                <div style={{ padding: "12px 14px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text)" }}>Most Fantasy Points</div>
-                  <div style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{ranked.length} players</div>
+              <div className="stats-list-card">
+                <div className="stat-card-header">
+                  <div className="stat-card-title">Most Fantasy Points</div>
+                  <div className="stat-card-meta">{ranked.length} players</div>
                 </div>
                 {visible.map((pp, i) => (
-                  <div key={pp.name} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderBottom: i < visible.length - 1 ? "1px solid var(--border)" : "none" }}>
-                    <div style={{ width: 18, textAlign: "center" as const, fontSize: "0.68rem", fontWeight: 700, color: i < 3 ? rankColors[i] : "var(--text-3)", flexShrink: 0 }}>{i + 1}</div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: "0.82rem", fontWeight: 500, color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
-                        {pp.name}
-                      </div>
-                      {statsFilter === "fantasy" && pp.isFantasy && <div style={{ fontSize: "0.58rem", color: pp.color, marginTop: 1 }}>{pp.owner}</div>}
+                  <div key={pp.name} className="fpts-row" style={i === visible.length - 1 ? { borderBottom: "none" } : undefined}>
+                    <div className="fpts-rank" style={i < 3 ? { color: rankColors[i] } : undefined}>{i + 1}</div>
+                    <div className="fpts-body">
+                      <div className="fpts-name">{pp.name}</div>
+                      {statsFilter === "fantasy" && pp.isFantasy && <div className="fpts-owner" style={{ color: pp.color }}>{pp.owner}</div>}
                     </div>
-                    <div style={{ fontSize: "1rem", fontWeight: 700, color: i === 0 ? "#d4a843" : i < 3 ? "var(--text)" : "var(--text-2)", flexShrink: 0 }}>{pp.pts}</div>
-                    <div style={{ fontSize: "0.55rem", color: "var(--text-3)", flexShrink: 0, marginLeft: -4 }}>pts</div>
+                    <div className="fpts-val" style={{ color: i === 0 ? "#d4a843" : i < 3 ? "var(--text)" : "var(--text-2)" }}>{pp.pts}</div>
+                    <div className="fpts-unit">pts</div>
                   </div>
                 ))}
                 {ranked.length > 10 && (
-                  <button onClick={() => setFantasyPtsOpen(x => !x)}
-                    style={{ width: "100%", padding: "11px 0", background: "transparent", border: "none", borderTop: "1px solid var(--border)", cursor: "pointer", fontSize: "0.68rem", color: "var(--text-3)", fontFamily: "inherit" }}>
+                  <button onClick={() => setFantasyPtsOpen(x => !x)} className="stat-card-show-more">
                     {fantasyPtsOpen ? "Show less" : `Show all ${ranked.length}`}
                   </button>
                 )}
@@ -365,10 +360,10 @@ export default function StatsPage(p: StatsPageProps) {
             );
           })()}
           {cat !== "fantasyPts" && !iplStats && statsLoading && (
-            <div style={{ color: "var(--text-3)", fontSize: "0.78rem", textAlign: "center" as const, padding: "24px 0" }}>Loading stats...</div>
+            <div className="stat-empty">Loading stats...</div>
           )}
           {cat !== "fantasyPts" && iplStats && entries.length === 0 && (
-            <div style={{ color: "var(--text-3)", fontSize: "0.78rem", textAlign: "center" as const, padding: "24px 0" }}>
+            <div className="stat-empty">
               {iplStats.matchesProcessed === 0 ? "Stats will appear once match innings data is synced." : `No ${statsFilter === "fantasy" ? "fantasy " : ""}players found.`}
             </div>
           )}
@@ -376,17 +371,14 @@ export default function StatsPage(p: StatsPageProps) {
             const visible = statsExpanded ? entries : entries.slice(0, 10);
             const hasMore = entries.length > 10;
             return (
-              <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden", marginBottom: 12 }}>
-                <div style={{ padding: "12px 14px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text)" }}>
-                    {STAT_CATS.find(c => c.id === cat)?.sub}
-                  </div>
-                  <div style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{iplStats.matchesProcessed} matches</div>
+              <div className="stats-list-card">
+                <div className="stat-card-header">
+                  <div className="stat-card-title">{STAT_CATS.find(c => c.id === cat)?.sub}</div>
+                  <div className="stat-card-meta">{iplStats.matchesProcessed} matches</div>
                 </div>
                 {visible.map((e: any, i: number) => renderStatRow(e, i, cat))}
                 {hasMore && (
-                  <button onClick={() => setStatsExpanded((x: boolean) => !x)}
-                    style={{ width: "100%", padding: "11px 0", background: "transparent", border: "none", borderTop: "1px solid var(--border)", cursor: "pointer", fontSize: "0.68rem", color: "var(--text-3)", fontFamily: "inherit" }}>
+                  <button onClick={() => setStatsExpanded((x: boolean) => !x)} className="stat-card-show-more">
                     {statsExpanded ? `Show less` : `Show all ${entries.length}`}
                   </button>
                 )}
@@ -394,7 +386,7 @@ export default function StatsPage(p: StatsPageProps) {
             );
           })()}
           {cat !== "fantasyPts" && iplStats && (
-            <div style={{ fontSize: "0.6rem", color: "var(--text-3)", textAlign: "center" as const, padding: "4px 0" }}>
+            <div className="stat-footnote">
               <span style={{ color: "#22c55e" }}>F</span> = in one of the 4 fantasy teams
             </div>
           )}
