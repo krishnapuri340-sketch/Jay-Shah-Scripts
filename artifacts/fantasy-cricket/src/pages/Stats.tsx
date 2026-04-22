@@ -1,6 +1,6 @@
 import React from "react";
 import { FANTASY_TEAMS } from "../teams";
-import { getMatchWinner } from "../utils";
+import { getMatchWinner, predictNextMatch } from "../utils";
 
 export const STAT_CATS = [
   { id: "fantasyPts", label: "Fantasy Pts", sub: "Most Fantasy Points" },
@@ -145,23 +145,16 @@ export default function StatsPage(p: StatsPageProps) {
           PRED_OWNERS.forEach(id => { if (preds[id] === winner) ownerScores[id]++; });
         });
 
-        // AI: picks the team with the better win rate entering each match (home team on equal).
-        // We replay matches in order, updating the running record AFTER each completed game.
-        const _teamW: Record<string, number> = {};
-        const _teamG: Record<string, number> = {};
+        // Match Intel: use the same predictNextMatch function shown on Home & Fixtures
         const aiPicks: Record<string | number, string | null> = {};
         let aiScore = 0;
         for (const m of sortedMatches) {
           if (m.matchNum <= 3 || !m.homeTeamCode || !m.awayTeamCode) continue;
-          const { homeTeamCode: h, awayTeamCode: a } = m;
-          const hRate = (_teamG[h] || 0) > 0 ? (_teamW[h] || 0) / _teamG[h] : 0;
-          const aRate = (_teamG[a] || 0) > 0 ? (_teamW[a] || 0) / _teamG[a] : 0;
-          aiPicks[m.id] = hRate >= aRate ? h : a; // home advantage on equal form
-          if (m.matchEnded) {
+          const { pick } = predictNextMatch(m.homeTeamCode, m.awayTeamCode);
+          aiPicks[m.id] = pick;
+          if (m.matchEnded && pick) {
             const w = getMatchWinner(m);
-            if (w && w !== "tie") { _teamW[w] = (_teamW[w] || 0) + 1; if (aiPicks[m.id] === w) aiScore++; }
-            _teamG[h] = (_teamG[h] || 0) + 1;
-            _teamG[a] = (_teamG[a] || 0) + 1;
+            if (w && w !== "tie" && pick === w) aiScore++;
           }
         }
         const aiEligible = sortedMatches.filter((m: any) => m.matchNum > 3 && m.matchEnded && getMatchWinner(m) && getMatchWinner(m) !== "tie").length;
@@ -219,8 +212,8 @@ export default function StatsPage(p: StatsPageProps) {
                   <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 10, padding: "9px 14px" }}>
                     <div style={{ flexShrink: 0, width: 32, height: 32, borderRadius: "50%", background: "rgba(139,92,246,0.2)", border: "1.5px solid rgba(139,92,246,0.5)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1rem" }}>⚡</div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: "0.62rem", fontWeight: 700, color: "#a78bfa", letterSpacing: "0.08em", textTransform: "uppercase" as const }}>AI Match Intel</div>
-                      <div style={{ fontSize: "0.54rem", color: "var(--text-3)", marginTop: 1 }}>Picks by current season form · home advantage on draw</div>
+                      <div style={{ fontSize: "0.62rem", fontWeight: 700, color: "#a78bfa", letterSpacing: "0.08em", textTransform: "uppercase" as const }}>Match Intel</div>
+                      <div style={{ fontSize: "0.54rem", color: "var(--text-3)", marginTop: 1 }}>H2H records + squad strength · "too close" = no pick</div>
                     </div>
                     <div style={{ textAlign: "right" as const, flexShrink: 0 }}>
                       <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "#a78bfa", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{aiScore}<span style={{ fontSize: "0.65rem", fontWeight: 500, color: "var(--text-3)" }}>/{aiEligible}</span></div>
