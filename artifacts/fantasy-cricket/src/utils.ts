@@ -145,3 +145,5 @@ export function predictNextMatch(homeCode: string, awayCode: string): { pick: st
 
   return { pick, reason, homeW: homeScore, awayW: awayScore };
 }
+
+export const rankLabel = (i: number) => i === 0 ? "first" : i === 1 ? "second" : i === 2 ? "third" : "";
