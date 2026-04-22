@@ -433,12 +433,12 @@ export default function HomePage(props: HomePageProps) {
           );
 
           // ─ Per-team aggregated batting/bowling/fielding stats ─
-          type TeamAggEntry = { runs: number; balls: number; sixes: number; fours: number; wickets: number; catches: number; ducks: number; price: number; captainPts: number; vcPts: number };
+          type TeamAggEntry = { runs: number; balls: number; sixes: number; fours: number; wickets: number; catches: number; ducks: number; dots: number; price: number; captainPts: number; vcPts: number };
           const buildTeamAgg = (xiOnly: boolean): Record<string, TeamAggEntry> => {
             const agg: Record<string, TeamAggEntry> = {};
             for (const [tid, ft] of Object.entries(FANTASY_TEAMS)) {
               const top11Set = xiOnly ? getTeamData(tid, playerPoints).top11 : null;
-              let runs = 0, balls = 0, sixes = 0, fours = 0, wickets = 0, catches = 0, ducks = 0, price = 0, captainPts = 0, vcPts = 0;
+              let runs = 0, balls = 0, sixes = 0, fours = 0, wickets = 0, catches = 0, ducks = 0, dots = 0, price = 0, captainPts = 0, vcPts = 0;
               for (const player of ft.players) {
                 if (top11Set && !top11Set.has(player.name)) continue;
                 price += player.price ?? 0;
@@ -454,10 +454,11 @@ export default function HomePage(props: HomePageProps) {
                   fours += e.stats.fours ?? 0;
                   wickets += e.stats.wickets ?? 0;
                   catches += (e.stats.catches ?? 0) + (e.stats.runOuts ?? 0) + (e.stats.stumpings ?? 0);
+                  dots += e.stats.dots ?? 0;
                   if (e.stats.duck) ducks++;
                 }
               }
-              agg[tid] = { runs, balls, sixes, fours, wickets, catches, ducks, price, captainPts, vcPts };
+              agg[tid] = { runs, balls, sixes, fours, wickets, catches, ducks, dots, price, captainPts, vcPts };
             }
             return agg;
           };
@@ -526,6 +527,10 @@ export default function HomePage(props: HomePageProps) {
             {
               emoji: "💎", label: "Best Value",
               rows: tids.map(tid => { const tot = teamScores.find(s => s.id === tid)?.total ?? 0; const v = activeAgg[tid].price > 0 ? tot / activeAgg[tid].price : 0; return { teamId: tid, value: v, display: `${v.toFixed(1)} pts/cr` }; }).sort((a, b) => b.value - a.value),
+            },
+            {
+              emoji: "🟣", label: "Dot Ball Kings",
+              rows: tids.map(tid => ({ teamId: tid, value: activeAgg[tid].dots, display: `${activeAgg[tid].dots} dots` })).sort((a, b) => b.value - a.value),
             },
             {
               emoji: "📊", label: "Most Consistent",
