@@ -19516,6 +19516,146 @@
               "dots": 5
             }
           ]
+        },
+        {
+          "name": "Lucknow Super Giants Inning 2",
+          "total": "0/0 (0.2 ov)",
+          "batting": [
+            {
+              "name": "Mitchell Marsh",
+              "runs": 0,
+              "balls": 2,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "0.00",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Ayush Badoni",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Rishabh Pant (c)",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Aiden Markram",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Nicholas Pooran",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Mukul Choudhary",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Mohammad Shami",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Mohsin Khan",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Prince Yadav",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Digvesh Singh",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Mayank Yadav",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            }
+          ],
+          "bowling": [
+            {
+              "name": "Jofra Archer",
+              "overs": "0.2",
+              "maidens": 0,
+              "runs": 0,
+              "wickets": 0,
+              "eco": "0",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 2
+            }
+          ]
         }
       ],
       "playerStats": {}
