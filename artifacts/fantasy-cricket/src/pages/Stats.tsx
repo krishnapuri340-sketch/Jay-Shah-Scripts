@@ -1,6 +1,6 @@
 import React from "react";
 import { FANTASY_TEAMS } from "../teams";
-import { getMatchWinner, predictNextMatch } from "../utils";
+import { getMatchWinner } from "../utils";
 
 export const STAT_CATS = [
   { id: "fantasyPts", label: "Fantasy Pts", sub: "Most Fantasy Points" },
@@ -145,19 +145,6 @@ export default function StatsPage(p: StatsPageProps) {
           PRED_OWNERS.forEach(id => { if (preds[id] === winner) ownerScores[id]++; });
         });
 
-        // Match Intel: use the same predictNextMatch function shown on Home & Fixtures
-        const aiPicks: Record<string | number, string | null> = {};
-        let aiScore = 0;
-        for (const m of sortedMatches) {
-          if (m.matchNum <= 3 || !m.homeTeamCode || !m.awayTeamCode) continue;
-          const { pick } = predictNextMatch(m.homeTeamCode, m.awayTeamCode);
-          aiPicks[m.id] = pick;
-          if (m.matchEnded && pick) {
-            const w = getMatchWinner(m);
-            if (w && w !== "tie" && pick === w) aiScore++;
-          }
-        }
-        const aiEligible = sortedMatches.filter((m: any) => m.matchNum > 3 && m.matchEnded && getMatchWinner(m) && getMatchWinner(m) !== "tie").length;
 
         return (
           <>
@@ -201,33 +188,6 @@ export default function StatsPage(p: StatsPageProps) {
               );
             })()}
 
-            {/* AI Match Intel strip */}
-            {(() => {
-              const aiAcc = aiEligible > 0 ? Math.round((aiScore / aiEligible) * 100) : 0;
-              const aiRank = [...PRED_OWNERS].filter(id => ownerScores[id] > aiScore).length + 1;
-              const rankLabel = aiRank === 1 ? "1st" : aiRank === 2 ? "2nd" : aiRank === 3 ? "3rd" : `${aiRank}th`;
-              return (
-                <div style={{ position: "relative", marginBottom: 10, borderRadius: 10, overflow: "hidden", border: "1px solid rgba(139,92,246,0.35)", background: "rgba(139,92,246,0.07)" }}>
-                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(100deg, rgba(139,92,246,0.12) 0%, rgba(99,102,241,0.06) 100%)", pointerEvents: "none" }} />
-                  <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 10, padding: "9px 14px" }}>
-                    <div style={{ flexShrink: 0, width: 32, height: 32, borderRadius: "50%", background: "rgba(139,92,246,0.2)", border: "1.5px solid rgba(139,92,246,0.5)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1rem" }}>⚡</div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: "0.62rem", fontWeight: 700, color: "#a78bfa", letterSpacing: "0.08em", textTransform: "uppercase" as const }}>Match Intel</div>
-                      <div style={{ fontSize: "0.54rem", color: "var(--text-3)", marginTop: 1 }}>H2H records + squad strength · "too close" = no pick</div>
-                    </div>
-                    <div style={{ textAlign: "right" as const, flexShrink: 0 }}>
-                      <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "#a78bfa", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{aiScore}<span style={{ fontSize: "0.65rem", fontWeight: 500, color: "var(--text-3)" }}>/{aiEligible}</span></div>
-                      <div style={{ fontSize: "0.54rem", color: "var(--text-3)", marginTop: 2 }}>{aiAcc}% · {rankLabel} place</div>
-                    </div>
-                  </div>
-                  {/* accuracy bar */}
-                  <div style={{ height: 2, background: "rgba(139,92,246,0.15)" }}>
-                    <div style={{ height: "100%", width: `${aiAcc}%`, background: "linear-gradient(90deg, #7c3aed, #a78bfa)", transition: "width 0.4s ease", borderRadius: 2 }} />
-                  </div>
-                </div>
-              );
-            })()}
-
             {(() => {
               const archiveMatches = sortedMatches.filter((m: any) => m.matchEnded);
               const currentMatches = sortedMatches.filter((m: any) => !m.matchEnded);
@@ -235,7 +195,7 @@ export default function StatsPage(p: StatsPageProps) {
               const hasMoreCurrent = currentMatches.length > predVisibleCount;
 
               const tableHeader = (
-                <div style={{ display: "grid", gridTemplateColumns: "34px 1fr repeat(4, 36px) 28px", padding: "8px 12px", borderBottom: "1px solid var(--border)", background: "rgba(255,255,255,0.02)", alignItems: "center" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "34px 1fr repeat(4, 36px)", padding: "8px 12px", borderBottom: "1px solid var(--border)", background: "rgba(255,255,255,0.02)", alignItems: "center" }}>
                   <div style={{ fontSize: "0.56rem", color: "var(--text-3)", fontWeight: 700, letterSpacing: "0.08em" }}>#</div>
                   <div style={{ fontSize: "0.56rem", color: "var(--text-3)", fontWeight: 700, letterSpacing: "0.08em" }}>MATCH</div>
                   {PRED_OWNERS.map(id => (
@@ -243,7 +203,6 @@ export default function StatsPage(p: StatsPageProps) {
                       {FANTASY_TEAMS[id].owner.slice(0,3).toUpperCase()}
                     </div>
                   ))}
-                  <div style={{ fontSize: "0.56rem", color: "#a78bfa", fontWeight: 700, textAlign: "center" as const }}>⚡</div>
                 </div>
               );
 
@@ -255,11 +214,8 @@ export default function StatsPage(p: StatsPageProps) {
                 const winner = isDone ? getMatchWinner(m) : null;
                 const preds = predictions[String(m.id)] || {};
                 const picksIn = !isNil ? PRED_OWNERS.filter(id => preds[id]).length : 0;
-                const aiPick = isNil ? null : (aiPicks[m.id] ?? null);
-                const aiCorrect = !!winner && winner !== "tie" && aiPick === winner;
-                const aiWrong = !!winner && winner !== "tie" && !!aiPick && aiPick !== winner;
                 return (
-                  <div key={m.id} style={{ display: "grid", gridTemplateColumns: "34px 1fr repeat(4, 36px) 28px", padding: "8px 12px", borderBottom: isLast ? "none" : "1px solid var(--border)", alignItems: "center" }}>
+                  <div key={m.id} style={{ display: "grid", gridTemplateColumns: "34px 1fr repeat(4, 36px)", padding: "8px 12px", borderBottom: isLast ? "none" : "1px solid var(--border)", alignItems: "center" }}>
                     <div style={{ fontSize: "0.65rem", fontWeight: 700, color: isLive ? "var(--live)" : "var(--text-3)" }}>
                       {m.matchNum === 999 ? "?" : `M${m.matchNum}`}
                     </div>
@@ -294,18 +250,6 @@ export default function StatsPage(p: StatsPageProps) {
                         </div>
                       );
                     })}
-                    {/* AI column */}
-                    {isNil ? (
-                      <div style={{ textAlign: "center" as const, fontSize: "0.6rem", color: "var(--text-3)" }}>—</div>
-                    ) : !aiPick ? (
-                      <div style={{ textAlign: "center" as const, fontSize: "0.6rem", color: "rgba(167,139,250,0.3)" }}>?</div>
-                    ) : (
-                      <div style={{ textAlign: "center" as const }}>
-                        <div style={{ fontSize: "0.52rem", fontWeight: 700, lineHeight: 1.2, color: aiCorrect ? "#22c55e" : aiWrong ? "#f87171" : "#a78bfa" }}>{aiPick}</div>
-                        {aiCorrect && <div style={{ fontSize: "0.55rem", color: "#22c55e", lineHeight: 1 }}>✓</div>}
-                        {aiWrong && <div style={{ fontSize: "0.55rem", color: "#f87171", lineHeight: 1 }}>✗</div>}
-                      </div>
-                    )}
                   </div>
                 );
               };
