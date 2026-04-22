@@ -354,6 +354,9 @@ export default function AdminPage(p: AdminPageProps) {
             <button className="btn-primary btn-primary-blue" onClick={() => { fetchLive(); fetchPoints(); syncSupabase(); prefetchS3Scorecards(); refreshStatsCache(); }} disabled={anySyncing}>
               {anySyncing ? <span className="spinner" /> : "🔄"} Sync All
             </button>
+            <button className="btn-primary btn-primary-green" onClick={syncSupabase} disabled={supabaseSyncing}>
+              {supabaseSyncing ? <span className="spinner" /> : "🗄️"} AuctionRoom
+            </button>
             <button className="btn-danger" onClick={async () => {
               if (confirm("Reset all cached points? They will re-sync from AuctionRoom.")) {
                 await fetch("/api/ipl/points/reset", { method: "POST", headers: { "X-Owner-Id": "rajveer" } });
