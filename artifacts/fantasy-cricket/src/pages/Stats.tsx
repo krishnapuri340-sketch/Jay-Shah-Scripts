@@ -336,9 +336,9 @@ export default function StatsPage(p: StatsPageProps) {
             const rankColors = ["#d4a843", "#94a3b8", "#cd7c3a"];
             return (
               <div className="stats-list-card">
-                <div className="stat-card-header">
-                  <div className="stat-card-title">Most Fantasy Points</div>
-                  <div className="stat-card-meta">{ranked.length} players</div>
+                <div className="stats-list-card-header">
+                  <div className="stats-list-card-title">Most Fantasy Points</div>
+                  <div className="stats-list-card-meta">{ranked.length} players</div>
                 </div>
                 {visible.map((pp, i) => (
                   <div key={pp.name} className="fpts-row" style={i === visible.length - 1 ? { borderBottom: "none" } : undefined}>
@@ -352,7 +352,7 @@ export default function StatsPage(p: StatsPageProps) {
                   </div>
                 ))}
                 {ranked.length > 10 && (
-                  <button onClick={() => setFantasyPtsOpen(x => !x)} className="stat-card-show-more">
+                  <button onClick={() => setFantasyPtsOpen(x => !x)} className="stats-list-card-show-more">
                     {fantasyPtsOpen ? "Show less" : `Show all ${ranked.length}`}
                   </button>
                 )}
@@ -372,13 +372,13 @@ export default function StatsPage(p: StatsPageProps) {
             const hasMore = entries.length > 10;
             return (
               <div className="stats-list-card">
-                <div className="stat-card-header">
-                  <div className="stat-card-title">{STAT_CATS.find(c => c.id === cat)?.sub}</div>
-                  <div className="stat-card-meta">{iplStats.matchesProcessed} matches</div>
+                <div className="stats-list-card-header">
+                  <div className="stats-list-card-title">{STAT_CATS.find(c => c.id === cat)?.sub}</div>
+                  <div className="stats-list-card-meta">{iplStats.matchesProcessed} matches</div>
                 </div>
                 {visible.map((e: any, i: number) => renderStatRow(e, i, cat))}
                 {hasMore && (
-                  <button onClick={() => setStatsExpanded((x: boolean) => !x)} className="stat-card-show-more">
+                  <button onClick={() => setStatsExpanded((x: boolean) => !x)} className="stats-list-card-show-more">
                     {statsExpanded ? `Show less` : `Show all ${entries.length}`}
                   </button>
                 )}
