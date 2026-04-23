@@ -331,24 +331,23 @@ function PlayerRow({
           }}>{p.role}</span>
 
           {p.isNew ? (
-            // Slot breakdown: frozen pts from released player + M34+ scorecard pts
+            // "↩ Head · 364pts frozen + 38pts M34+"
             <span style={{ fontSize: "0.46rem", color: "var(--text-3)", fontVariantNumeric: "tabular-nums" }}>
+              {p.replacedName && (
+                <span style={{ color: "rgba(255,100,100,0.65)", fontStyle: "italic", marginRight: 4 }}>
+                  ↩ {p.replacedName.split(" ").pop()} ·
+                </span>
+              )}
               <span style={{ color: "rgba(255,255,255,0.45)" }}>{frozenPts}</span>
-              <span style={{ color: "var(--text-3)" }}> frozen</span>
+              <span style={{ color: "var(--text-3)" }}>pts frozen</span>
               {liveGain > 0
-                ? <span> + <span style={{ color: "#2ecc8f" }}>{liveGain}</span> M{RA_FROM_MATCH}+</span>
-                : <span style={{ color: "var(--text-3)" }}> + 0 M{RA_FROM_MATCH}+</span>
+                ? <span> + <span style={{ color: "#2ecc8f" }}>{liveGain}</span>pts M{RA_FROM_MATCH}+</span>
+                : <span style={{ color: "var(--text-3)" }}> + 0pts M{RA_FROM_MATCH}+</span>
               }
             </span>
           ) : (
             <span style={{ fontSize: "0.48rem", color: "var(--text-3)", fontVariantNumeric: "tabular-nums" }}>
               {p.slotPts} pts
-            </span>
-          )}
-
-          {p.replacedName && (
-            <span style={{ fontSize: "0.44rem", color: "rgba(255,100,100,0.65)", fontStyle: "italic" }}>
-              ↩ {p.replacedName.split(" ").pop()}
             </span>
           )}
         </div>
