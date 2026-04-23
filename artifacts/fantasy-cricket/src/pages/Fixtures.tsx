@@ -253,7 +253,7 @@ export default function FixturesPage({
 
               const isHome = teamFilter.size > 0 ? teamFilter.has(m.homeTeamCode) : null;
               return (
-                <div key={m.id} className="match-card">
+                <div key={m.id} className={`match-card${isLive ? " is-live" : ""}`}>
                   {/* Stadium backdrop */}
                   <div style={{
                     position: "absolute", inset: -4, zIndex: 0,
