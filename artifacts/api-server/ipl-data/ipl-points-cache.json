@@ -19720,15 +19720,15 @@
       "innings": [
         {
           "name": "Chennai Super Kings Inning 1",
-          "total": "62/1 (4.3 ov)",
+          "total": "64/1 (5.0 ov)",
           "batting": [
             {
               "name": "Sanju Samson",
-              "runs": 30,
-              "balls": 13,
+              "runs": 31,
+              "balls": 14,
               "fours": 4,
               "sixes": 2,
-              "sr": "230.77",
+              "sr": "221.43",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -19746,11 +19746,11 @@
             },
             {
               "name": "Sarfaraz Khan",
-              "runs": 5,
-              "balls": 2,
+              "runs": 6,
+              "balls": 4,
               "fours": 1,
               "sixes": 0,
-              "sr": "250.00",
+              "sr": "150.00",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -19847,14 +19847,14 @@
           "bowling": [
             {
               "name": "Jasprit Bumrah",
-              "overs": "1.3",
+              "overs": "2",
               "maidens": 0,
-              "runs": 17,
+              "runs": 19,
               "wickets": 0,
-              "eco": "11.33",
+              "eco": "9.5",
               "wides": 0,
               "noBalls": 1,
-              "dots": 5
+              "dots": 6
             },
             {
               "name": "Hardik Pandya",

@@ -1912,7 +1912,8 @@ export default function App() {
         </div>
 
         <nav className="nav">
-          <div className="nav-inner">
+          <div className="nav-inner" style={{ "--nav-idx": Math.max(0, TABS.findIndex(t => t.id === tab)) } as React.CSSProperties}>
+            <div className="nav-indicator" />
             {TABS.map(t => {
               const isActive = tab === t.id;
               return (
