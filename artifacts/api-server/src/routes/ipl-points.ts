@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join } from "path";
 import { fileURLToPath } from "url";
+import { sendPushToAll } from "./push";
 
 const router: IRouter = Router();
 
@@ -1311,6 +1312,8 @@ export function getOwnerLabels(): Record<string, string> { return OWNER_LABELS; 
 
 // ── Live match poller (called by ipl.ts every 30 s when a match is active) ───
 let liveRefreshInProgress = false;
+// key: `${iplId}-${inningsIndex}` → set of dismissed batsman names already notified
+const prevDismissals = new Map<string, Set<string>>();
 
 // ── Health snapshot: read-only view of internal state for /api/health/detail ──
 export function getPointsHealthSnapshot() {
@@ -1350,6 +1353,39 @@ export async function refreshLiveMatches(liveIplIds: string[]): Promise<void> {
             : matchData;
           console.log(`[live-poll] Match ${iplId} S3 updated: ${s3Innings.length} innings, ${Object.keys(matchData.points).length} pts`);
           saveCache(pointsCache);
+
+          // ── Wicket notifications ────────────────────────────────────────────
+          // Check the live (last) innings for newly dismissed batsmen
+          const liveInnIdx = matchData.innings.length - 1;
+          const liveInn = matchData.innings[liveInnIdx];
+          if (liveInn) {
+            const dismissKey = `${iplId}-${liveInnIdx}`;
+            const prevSet = prevDismissals.get(dismissKey) || new Set<string>();
+
+            const nowDismissed = liveInn.batting.filter(
+              b => !b.notOut && !b.dnb && b.dismissal && b.dismissal.trim().length > 0
+            );
+            const newFalls = nowDismissed.filter(b => !prevSet.has(b.name));
+
+            for (const b of newFalls) {
+              const totalDown = nowDismissed.length;
+              const teamName = liveInn.name.replace(" Innings", "").trim();
+              // Current score from innings total e.g. "45/3 (6.3 Ov)"
+              const scoreStr = liveInn.total ? ` · ${teamName} ${liveInn.total}` : "";
+              const dismissalShort = b.dismissal.length > 50
+                ? b.dismissal.slice(0, 50) + "…"
+                : b.dismissal;
+              sendPushToAll({
+                title: `🎯 Wicket! ${teamName} ${totalDown} down${scoreStr}`,
+                body: `${b.name} out for ${b.runs} (${b.balls}b) · ${dismissalShort}`,
+                tag: `wicket-${iplId}-${liveInnIdx}-${totalDown}`,
+                url: "/",
+              }).catch(() => {});
+            }
+
+            // Update tracker with all currently dismissed batsmen
+            prevDismissals.set(dismissKey, new Set(nowDismissed.map(b => b.name)));
+          }
         }
       } catch (_) {}
     }
