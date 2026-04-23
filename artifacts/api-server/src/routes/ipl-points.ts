@@ -240,7 +240,11 @@ function normalizeName(name: string): string {
     // Yuzvendra Chahal — some feeds omit the 'z': "Yuvendra"
     .replace(/yuzvendra/g, "yuvendra")
     // T Natarajan — some feeds use full first name "Thangarasu"
-    .replace(/thangarasu/g, "t");
+    .replace(/thangarasu/g, "t")
+    // Nitish Kumar Reddy — some feeds omit the middle name "Kumar"
+    .replace(/nitish kumar reddy/g, "nitish reddy")
+    // Vijaykumar Vyshak — some feeds use initial "V Vyshak"
+    .replace(/vijaykumar/g, "v");
 }
 
 function namesMatch(a: string, b: string): boolean {
@@ -386,27 +390,37 @@ function processInningsForPoints(
 
 
 // Derived from App.tsx FANTASY_TEAMS — all 4 fantasy team rosters combined
+// Updated after April 23 2026 re-auction: new acquisitions appended
 const FANTASY_PLAYER_NAMES = [
-  // Rajveer Puri
+  // Rajveer Puri (original)
   "Rajat Patidar", "Axar Patel", "Shubman Gill", "Jos Buttler", "Yuzvendra Chahal",
   "Jacob Bethell", "Bhuvneshwar Kumar", "Shreyas Iyer", "Cameron Green", "Nicholas Pooran",
   "Phil Salt", "Krunal Pandya", "Priyansh Arya", "Vaibhav Suryavanshi", "Dhruv Jurel",
   "Mohammed Shami", "Tim David", "Deepak Chahar",
-  // Mombasa K
+  // Mombasa K (original)
   "Jitesh Sharma", "Varun Chakravarthy", "Marco Jansen", "Arshdeep Singh", "Shivam Dube",
   "Riyan Parag", "Abhishek Sharma", "Prabhsimran Singh", "Nehal Wadhera", "Shimron Hetmyer",
   "Sai Sudharsan", "Will Jacks", "Prasidh Krishna", "Aiden Markram", "Rashid Khan",
   "Ajinkya Rahane", "Trent Boult", "Tilak Varma",
-  // Mumbai Ma
+  // Mumbai Ma (original)
   "Rishabh Pant", "Dewald Brevis", "Rohit Sharma", "Sherfane Rutherford", "Rinku Singh",
   "Heinrich Klaasen", "Nitish Rana", "Ruturaj Gaikwad", "Lungi Ngidi", "Mohammed Siraj",
   "Harshal Patel", "Tristan Stubbs", "Sanju Samson", "Prashant Veer", "Ishan Kishan",
   "Hardik Pandya", "Finn Allen", "Venkatesh Iyer",
-  // PonyGoat
+  // PonyGoat (original)
   "Marcus Stoinis", "Yashasvi Jaiswal", "Tim Seifert", "Virat Kohli", "Shashank Singh",
   "Sunil Narine", "Suryakumar Yadav", "Jasprit Bumrah", "Ravindra Jadeja", "Travis Head",
   "KL Rahul", "Ryan Rickelton", "Mitchell Marsh", "Khaleel Ahmed", "Kuldeep Yadav",
   "Washington Sundar", "T Natarajan",
+  // ── Re-auction acquisitions (April 23, 2026 — M34+ only) ──────────────────
+  // PonyGoat acquired
+  "Ayush Badoni", "Pathum Nissanka", "Cooper Connolly", "Quinton de Kock", "Anshul Kamboj",
+  // Rajveer acquired
+  "Jofra Archer", "Devdutt Padikkal", "Nitish Kumar Reddy", "Kagiso Rabada",
+  // Mumbai acquired
+  "Vijaykumar Vyshak", "Sakib Hussain", "Josh Hazlewood", "Ravi Bishnoi", "Sarfaraz Khan",
+  // Mombasa acquired
+  "Sameer Rizvi", "Jamie Overton", "Naman Dhir",
 ];
 
 // IPL 2026 team assignments — used to skip fantasy players whose team isn't in a given match
@@ -415,39 +429,44 @@ const PLAYER_TEAMS: Record<string, string> = {
   "Rajat Patidar": "rcb", "Phil Salt": "rcb", "Tim David": "rcb",
   "Bhuvneshwar Kumar": "rcb", "Krunal Pandya": "rcb", "Jacob Bethell": "rcb",
   "Jitesh Sharma": "rcb", "Venkatesh Iyer": "rcb", "Virat Kohli": "rcb",
+  "Devdutt Padikkal": "rcb", "Josh Hazlewood": "rcb",
   // GT
   "Shubman Gill": "gt", "Jos Buttler": "gt", "Sai Sudharsan": "gt",
   "Mohammed Siraj": "gt", "Prasidh Krishna": "gt", "Rashid Khan": "gt",
-  "Washington Sundar": "gt",
+  "Washington Sundar": "gt", "Kagiso Rabada": "gt",
   // RR
   "Vaibhav Suryavanshi": "rr", "Dhruv Jurel": "rr",
   "Riyan Parag": "rr", "Shimron Hetmyer": "rr", "Yashasvi Jaiswal": "rr",
-  "Ravindra Jadeja": "rr",
+  "Ravindra Jadeja": "rr", "Jofra Archer": "rr", "Ravi Bishnoi": "rr",
   // PBKS
   "Yuzvendra Chahal": "pbks", "Shreyas Iyer": "pbks", "Arshdeep Singh": "pbks", "Priyansh Arya": "pbks",
   "Marco Jansen": "pbks", "Prabhsimran Singh": "pbks", "Nehal Wadhera": "pbks",
   "Marcus Stoinis": "pbks", "Shashank Singh": "pbks",
+  "Cooper Connolly": "pbks", "Vijaykumar Vyshak": "pbks",
   // MI
   "Rohit Sharma": "mi", "Jasprit Bumrah": "mi", "Hardik Pandya": "mi",
   "Sherfane Rutherford": "mi", "Will Jacks": "mi", "Trent Boult": "mi",
   "Tilak Varma": "mi", "Suryakumar Yadav": "mi", "Ryan Rickelton": "mi",
-  "Deepak Chahar": "mi",
+  "Deepak Chahar": "mi", "Quinton de Kock": "mi", "Naman Dhir": "mi",
   // SRH
   "Travis Head": "srh", "Abhishek Sharma": "srh", "Ishan Kishan": "srh",
   "Heinrich Klaasen": "srh", "Harshal Patel": "srh",
+  "Nitish Kumar Reddy": "srh", "Sakib Hussain": "srh",
   // CSK
   "Sanju Samson": "csk", "Ruturaj Gaikwad": "csk", "Shivam Dube": "csk",
   "Dewald Brevis": "csk", "Prashant Veer": "csk", "Khaleel Ahmed": "csk",
+  "Anshul Kamboj": "csk", "Sarfaraz Khan": "csk", "Jamie Overton": "csk",
   // DC
   "Axar Patel": "dc", "KL Rahul": "dc", "Kuldeep Yadav": "dc",
   "Nitish Rana": "dc", "Lungi Ngidi": "dc", "Tristan Stubbs": "dc", "T Natarajan": "dc",
+  "Pathum Nissanka": "dc", "Sameer Rizvi": "dc",
   // KKR
   "Sunil Narine": "kkr", "Rinku Singh": "kkr", "Cameron Green": "kkr",
   "Varun Chakravarthy": "kkr", "Ajinkya Rahane": "kkr", "Finn Allen": "kkr",
   "Tim Seifert": "kkr",
   // LSG
   "Nicholas Pooran": "lsg", "Mohammed Shami": "lsg", "Aiden Markram": "lsg",
-  "Rishabh Pant": "lsg", "Mitchell Marsh": "lsg",
+  "Rishabh Pant": "lsg", "Mitchell Marsh": "lsg", "Ayush Badoni": "lsg",
 };
 
 let pointsUpdateInProgress = false;
