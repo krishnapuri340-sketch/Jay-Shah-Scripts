@@ -62,7 +62,17 @@ export default function HomePage(props: HomePageProps) {
             <div style={{ position: "relative", zIndex: 2, display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10, marginBottom: 12 }}>
               {/* Left: timer */}
               <div>
-                <div className="countdown-timer">{countdown.text}</div>
+                <div className="countdown-timer">
+                  {countdown.text.split("").map((ch, i) =>
+                    /\d/.test(ch) ? (
+                      <span key={i} className="countdown-digit-wrap">
+                        <span key={`${i}-${ch}`} className="countdown-digit">{ch}</span>
+                      </span>
+                    ) : (
+                      <span key={i} className="countdown-sep">{ch}</span>
+                    )
+                  )}
+                </div>
                 <div className="countdown-label">next match</div>
               </div>
               {/* Right: team logos + venue */}

@@ -381,6 +381,27 @@ body { background: var(--bg); }
   font-family: 'Inter', sans-serif;
   font-size: 1.85rem; font-weight: 500; color: var(--gold);
   letter-spacing: 0.01em; line-height: 1; min-width: 84px; flex-shrink: 0;
+  display: flex; align-items: flex-end; gap: 0;
+}
+.countdown-digit-wrap {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  height: 1em;
+}
+@keyframes digitSlideIn {
+  from { opacity: 0; transform: translateY(45%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.countdown-digit {
+  display: block;
+  animation: digitSlideIn 0.16s var(--ease-out) both;
+}
+.countdown-sep {
+  display: inline-block;
+  opacity: 0.45;
+  margin: 0 1px;
+  align-self: flex-end;
 }
 .countdown-label { font-size: 0.54rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); font-weight: 600; margin-top: 4px; }
 .countdown-match { font-size: 0.85rem; font-weight: 600; color: var(--text); line-height: 1.4; }
