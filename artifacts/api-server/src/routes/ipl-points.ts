@@ -1337,8 +1337,8 @@ router.post("/ipl/stats/refresh", async (req, res) => {
     res.status(403).json({ error: "commissioner only" });
     return;
   }
-  // IP rate-limit: max 3 forced refreshes per IP per hour
-  const ip = (req.headers["x-forwarded-for"] as string || req.socket.remoteAddress || "").split(",")[0].trim();
+  // IP rate-limit: max 3 forced refreshes per IP per hour (req.ip respects trust proxy)
+  const ip = req.ip || req.socket.remoteAddress || "unknown";
   if (!checkIpRateLimit(`stats-refresh:${ip}`, 60 * 60 * 1000, 3)) {
     res.status(429).json({ error: "rate limit exceeded — try again later" });
     return;
@@ -1513,8 +1513,8 @@ router.post("/ipl/points/sync-supabase", async (req, res) => {
     res.status(403).json({ error: "league members only" });
     return;
   }
-  // IP rate-limit: max 5 syncs per IP per hour
-  const ip = (req.headers["x-forwarded-for"] as string || req.socket.remoteAddress || "").split(",")[0].trim();
+  // IP rate-limit: max 5 syncs per IP per hour (req.ip respects trust proxy)
+  const ip = req.ip || req.socket.remoteAddress || "unknown";
   if (!checkIpRateLimit(`sync-supabase:${ip}`, 60 * 60 * 1000, 5)) {
     res.status(429).json({ error: "rate limit exceeded — try again later" });
     return;

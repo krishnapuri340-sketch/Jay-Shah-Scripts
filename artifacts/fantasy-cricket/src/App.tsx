@@ -651,7 +651,9 @@ export default function App() {
 
   const fetchPins = async () => {
     try {
-      const res = await fetch("/api/ipl/pins", { headers: { "X-Owner-Id": "rajveer" } });
+      const res = await fetch("/api/ipl/pins", {
+        headers: { "X-Owner-Id": "rajveer", "X-Owner-Pin": userPins["rajveer"] || "" },
+      });
       if (res.ok) {
         const serverPins = await res.json();
         const merged = { ...DEFAULT_PINS, ...serverPins };

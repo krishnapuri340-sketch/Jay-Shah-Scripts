@@ -675,9 +675,14 @@ function ownerOnly(req: any, res: any): boolean {
   return true;
 }
 
-// GET /api/ipl/pins → returns all PINs (admin only), refreshed from Replit KV
+// GET /api/ipl/pins → returns all PINs (commissioner only, PIN-verified)
 router.get("/ipl/pins", async (req, res) => {
-  if (!ownerOnly(req, res)) return;
+  const ownerId = req.headers["x-owner-id"] as string;
+  const ownerPin = req.headers["x-owner-pin"] as string;
+  if (!verifyOwnerPin(ownerId, ownerPin) || ownerId !== "rajveer") {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
   const kv = await loadAllPinsFromKV();
   if (kv) { pinsCache = { ...pinsCache, ...kv }; saveServerPins(pinsCache); }
   res.json(pinsCache);
@@ -685,7 +690,7 @@ router.get("/ipl/pins", async (req, res) => {
 
 // POST /api/ipl/pins/validate → { userId, pin } — validate PIN (rate-limited)
 router.post("/ipl/pins/validate", async (req, res) => {
-  const ip = String(req.headers["x-forwarded-for"] || req.socket.remoteAddress || "unknown");
+  const ip = String(req.ip || req.socket.remoteAddress || "unknown");
   if (!checkRateLimit(ip)) return res.status(429).json({ error: "Too many attempts — try again in a minute" });
   const { userId, pin } = req.body as { userId?: string; pin?: string };
   if (!userId || !pin) return res.status(400).json({ error: "userId and pin required" });

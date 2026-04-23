@@ -6,6 +6,12 @@ import { logger } from "./lib/logger";
 
 const app: Express = express();
 
+// Trust the first hop proxy (Replit's ingress). This makes req.ip reflect the
+// real client IP from X-Forwarded-For rather than the proxy's IP, which is
+// required for correct per-IP rate limiting. Only set to '1' so we only trust
+// the closest upstream proxy and ignore any user-injected X-Forwarded-For hops.
+app.set("trust proxy", 1);
+
 app.use(
   pinoHttp({
     logger,
