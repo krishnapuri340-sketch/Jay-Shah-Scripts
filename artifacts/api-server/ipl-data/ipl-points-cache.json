@@ -19720,7 +19720,7 @@
       "innings": [
         {
           "name": "Chennai Super Kings Inning 1",
-          "total": "90/2 (7.5 ov)",
+          "total": "91/2 (8.0 ov)",
           "batting": [
             {
               "name": "Sanju Samson",
@@ -19757,11 +19757,11 @@
             },
             {
               "name": "Shivam Dube",
-              "runs": 4,
-              "balls": 6,
+              "runs": 5,
+              "balls": 7,
               "fours": 0,
               "sixes": 0,
-              "sr": "66.67",
+              "sr": "71.43",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -19891,11 +19891,11 @@
             },
             {
               "name": "Ashwani Kumar",
-              "overs": "0.5",
+              "overs": "1",
               "maidens": 0,
-              "runs": 7,
+              "runs": 8,
               "wickets": 0,
-              "eco": "8.4",
+              "eco": "8",
               "wides": 0,
               "noBalls": 0,
               "dots": 1
