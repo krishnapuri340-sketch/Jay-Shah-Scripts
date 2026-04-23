@@ -19784,7 +19784,7 @@
               "fours": 0,
               "sixes": 2,
               "sr": "94.74",
-              "dismissal": "c Mitchell Santner b Jasprit Bumrah",
+              "dismissal": "c (Sub) Mitchell Santner b Jasprit Bumrah",
               "notOut": false,
               "dnb": false
             },
@@ -19921,6 +19921,223 @@
               "wides": 0,
               "noBalls": 0,
               "dots": 5
+            }
+          ]
+        },
+        {
+          "name": "Mumbai Indians Inning 2",
+          "total": "102/9 (18.0 ov)",
+          "batting": [
+            {
+              "name": "Quinton De Kock",
+              "runs": 7,
+              "balls": 10,
+              "fours": 0,
+              "sixes": 1,
+              "sr": "70.00",
+              "dismissal": "b Mukesh Choudhary",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Danish Malewar",
+              "runs": 0,
+              "balls": 1,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "0.00",
+              "dismissal": "c Sanju Samson b Akeal Hosein",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Naman Dhir",
+              "runs": 0,
+              "balls": 3,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "0.00",
+              "dismissal": "b Akeal Hosein",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Surya Kumar Yadav",
+              "runs": 36,
+              "balls": 30,
+              "fours": 5,
+              "sixes": 0,
+              "sr": "120.00",
+              "dismissal": "c Sarfaraz Khan b Akeal Hosein",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Tilak Varma",
+              "runs": 37,
+              "balls": 29,
+              "fours": 5,
+              "sixes": 0,
+              "sr": "127.59",
+              "dismissal": "b Akeal Hosein",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Hardik Pandya",
+              "runs": 1,
+              "balls": 2,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "50.00",
+              "dismissal": "c Mukesh Choudhary b Noor Ahmad",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Sherfane Rutherford",
+              "runs": 0,
+              "balls": 1,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "0.00",
+              "dismissal": "c Anshul Kamboj b Noor Ahmad",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Shardul Thakur",
+              "runs": 6,
+              "balls": 12,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "50.00",
+              "dismissal": "c Dewald Brevis b Anshul Kamboj",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Krish Bhagat",
+              "runs": 7,
+              "balls": 15,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "46.67",
+              "dismissal": "c Gurjapneet Singh b Jamie Overton",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Ashwani Kumar",
+              "runs": 0,
+              "balls": 4,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "0.00",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Jasprit Bumrah",
+              "runs": 1,
+              "balls": 1,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "100.00",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "AM Ghazanfar",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Mitchell Santner",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            }
+          ],
+          "bowling": [
+            {
+              "name": "Akeal Hosein",
+              "overs": "4",
+              "maidens": 1,
+              "runs": 17,
+              "wickets": 4,
+              "eco": "4.25",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 14
+            },
+            {
+              "name": "Mukesh Choudhary",
+              "overs": "4",
+              "maidens": 0,
+              "runs": 31,
+              "wickets": 1,
+              "eco": "7.75",
+              "wides": 3,
+              "noBalls": 0,
+              "dots": 11
+            },
+            {
+              "name": "Anshul Kamboj",
+              "overs": "3",
+              "maidens": 0,
+              "runs": 10,
+              "wickets": 1,
+              "eco": "3.33",
+              "wides": 1,
+              "noBalls": 0,
+              "dots": 12
+            },
+            {
+              "name": "Noor Ahmad",
+              "overs": "4",
+              "maidens": 0,
+              "runs": 24,
+              "wickets": 2,
+              "eco": "6",
+              "wides": 1,
+              "noBalls": 0,
+              "dots": 9
+            },
+            {
+              "name": "Jamie Overton",
+              "overs": "2",
+              "maidens": 0,
+              "runs": 14,
+              "wickets": 1,
+              "eco": "7",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 5
+            },
+            {
+              "name": "Gurjapneet Singh",
+              "overs": "1",
+              "maidens": 0,
+              "runs": 5,
+              "wickets": 0,
+              "eco": "5",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 2
             }
           ]
         }
