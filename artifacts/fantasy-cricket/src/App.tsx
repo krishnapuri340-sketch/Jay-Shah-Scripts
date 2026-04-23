@@ -578,7 +578,10 @@ export default function App() {
     setSupabaseSyncing(true);
     setSupabaseSyncMsg(null);
     try {
-      const res = await fetch("/api/ipl/points/sync-supabase", { method: "POST" });
+      const res = await fetch("/api/ipl/points/sync-supabase", {
+        method: "POST",
+        headers: { "X-Owner-Id": currentUser || "" },
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `Server error ${res.status}`);
       const msg = data.changed
@@ -899,7 +902,10 @@ export default function App() {
     if (lbRefreshing) return;
     setLbRefreshing(true);
     try {
-      await fetch("/api/ipl/points/sync-supabase", { method: "POST" });
+      await fetch("/api/ipl/points/sync-supabase", {
+        method: "POST",
+        headers: { "X-Owner-Id": currentUser || "" },
+      });
     } catch (_) {}
     try {
       await Promise.all([

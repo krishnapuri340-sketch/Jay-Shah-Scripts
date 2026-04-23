@@ -451,7 +451,8 @@ const PLAYER_TEAMS: Record<string, string> = {
 
 let pointsUpdateInProgress = false;
 let lastUpdateAttempt = 0;
-let lastForceSyncAt = 0; // guards the open force-sync endpoint (30 s cooldown)
+let lastForceSyncAt = 0; // guards the force-sync endpoint (5-min cooldown)
+const VALID_OWNER_IDS = new Set(["rajveer", "mombasa", "mumbai", "ponygoat"]);
 let isLiveMatchActive = false; // dynamically tracks if any IPL match is currently live
 const LIVE_COOLDOWN_MS  = 45 * 1000;       // 45 s during live matches (safe for 2000/day limit)
 const IDLE_COOLDOWN_MS  = 16 * 60 * 1000; // 16 min when idle
@@ -967,6 +968,10 @@ router.get("/ipl/playing11", async (req, res) => {
 // Completed matches: cached indefinitely (result never changes)
 // Live matches: cached 30 s (score updates frequently)
 const summaryCache = new Map<string, { data: any; timestamp: number; isCompleted: boolean }>();
+// Negative cache: matchIds that returned no innings data — refreshes after 60 s
+const s3MissCache = new Map<string, number>();
+const MISS_CACHE_TTL = 60_000;
+const MATCHID_RE = /^\d{1,8}$/;
 
 const s3InningsCache = new Map<string, { data: InningData[]; timestamp: number; isCompleted: boolean }>();
 
@@ -1055,6 +1060,20 @@ export async function fetchMatchOverview(matchId: string, isCompleted: boolean):
 
 router.get("/ipl/scorecard/:matchId", async (req, res) => {
   const { matchId } = req.params;
+
+  // Reject non-numeric or suspiciously long match IDs immediately
+  if (!MATCHID_RE.test(matchId)) {
+    res.status(400).json({ error: "invalid matchId" });
+    return;
+  }
+
+  // Negative-cache: don't hit upstream again for a recently confirmed miss
+  const missAt = s3MissCache.get(matchId);
+  if (missAt && Date.now() - missAt < MISS_CACHE_TTL) {
+    res.json({ matchId, overview: null, innings: [], hasScorecard: false });
+    return;
+  }
+
   const cached = pointsCache.processedMatches[matchId];
   const isCompleted = !!cached;
 
@@ -1073,6 +1092,12 @@ router.get("/ipl/scorecard/:matchId", async (req, res) => {
 
   // Use live S3 innings if available; fall back to processed match cache
   const innings = s3Innings.length > 0 ? s3Innings : (cached?.innings || []);
+
+  // Negative-cache: record the miss so rapid re-requests don't hit upstream again
+  if (innings.length === 0 && !overview) {
+    s3MissCache.set(matchId, Date.now());
+  }
+
   res.json({ matchId, overview, innings, hasScorecard: innings.length > 0 });
 });
 
@@ -1280,6 +1305,11 @@ router.get("/ipl/stats", (_req, res) => {
 
 // Admin: force re-fetch all innings from S3 and rebuild stats cache
 router.post("/ipl/stats/refresh", async (req, res) => {
+  const ownerId = req.headers["x-owner-id"] as string;
+  if (ownerId !== "rajveer") {
+    res.status(403).json({ error: "commissioner only" });
+    return;
+  }
   try {
     const result = await doRefreshAllStats(true);
     res.json({ ok: true, ...result, matchesInCache: s3InningsCache.size });
@@ -1441,11 +1471,17 @@ router.post("/ipl/points/reset", async (req, res) => {
   res.json({ ok: true });
 });
 
-// POST /api/ipl/points/sync-supabase — force an immediate Supabase AuctionRoom sync (anyone, 30 s cooldown)
+// POST /api/ipl/points/sync-supabase — force an immediate Supabase AuctionRoom sync (owner only, 5-min cooldown)
 router.post("/ipl/points/sync-supabase", async (req, res) => {
+  const ownerId = req.headers["x-owner-id"] as string;
+  if (!ownerId || !VALID_OWNER_IDS.has(ownerId)) {
+    res.status(403).json({ error: "league members only" });
+    return;
+  }
   const now = Date.now();
-  if (now - lastForceSyncAt < 30_000) {
-    const retryIn = Math.ceil((lastForceSyncAt + 30_000 - now) / 1000);
+  const SYNC_COOLDOWN = 5 * 60 * 1000; // 5 minutes
+  if (now - lastForceSyncAt < SYNC_COOLDOWN) {
+    const retryIn = Math.ceil((lastForceSyncAt + SYNC_COOLDOWN - now) / 1000);
     return res.json({ ok: true, skipped: true, retryIn, changed: false, fixturesBefore: 0, fixturesAfter: 0 });
   }
   lastForceSyncAt = now;
