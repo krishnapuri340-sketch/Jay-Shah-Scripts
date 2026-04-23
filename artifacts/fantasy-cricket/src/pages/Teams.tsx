@@ -519,9 +519,9 @@ export default function TeamsPage(props: TeamsPageProps) {
                         if (xi11thPts === null) return <div style={{ fontSize: "0.44rem", color: "var(--text-3)", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" as const, marginTop: 2, opacity: 0.5 }}>bench</div>;
                         const gap = Math.round((xi11thPts - p.adj) * 10) / 10;
                         const gapStr = Number.isInteger(gap) ? String(gap) : gap.toFixed(1);
-                        const gapColor = gap <= 5 ? "#f87171" : gap <= 20 ? "rgba(239,68,68,0.75)" : "rgba(239,68,68,0.4)";
+                        const gapColor = "#f87171";
                         return (
-                          <div style={{ fontSize: "0.43rem", color: gapColor, fontWeight: 700, letterSpacing: "0.03em", marginTop: 3, lineHeight: 1, opacity: gap > 40 ? 0.55 : 1, whiteSpace: "nowrap" as const }}>
+                          <div style={{ fontSize: "0.43rem", color: gapColor, fontWeight: 700, letterSpacing: "0.03em", marginTop: 3, lineHeight: 1, whiteSpace: "nowrap" as const }}>
                             {gap > 0 ? `↑${gapStr} to XI` : "≈ #11"}
                           </div>
                         );
