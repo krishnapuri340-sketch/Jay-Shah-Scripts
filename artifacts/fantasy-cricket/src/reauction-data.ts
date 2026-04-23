@@ -114,7 +114,7 @@ const mumbai: RaTeam = {
     { name: "Vijaykumar Vyshak",  role: "BWL", ipl: "KKR",  price: 4,    isNew: true, frozenPts: 187, preAuctionOffset: 276, replacedName: "Finn Allen" },
     { name: "Sakib Hussain",      role: "AR",  ipl: "DC",   price: 2,    isNew: true, frozenPts: 61,  preAuctionOffset: 290, replacedName: "Venkatesh Iyer" },
     { name: "Josh Hazlewood",     role: "BWL", ipl: "RCB",  price: 4,    isNew: true, frozenPts: 97,  preAuctionOffset: 180, replacedName: "Prashant Veer" },
-    { name: "Ravi Bishnoi",       role: "BWL", ipl: "LSG",  price: 7,    isNew: true, frozenPts: 209, preAuctionOffset: 488, replacedName: "Nitish Rana" },
+    { name: "Ravi Bishnoi",       role: "BWL", ipl: "RR",   price: 7,    isNew: true, frozenPts: 209, preAuctionOffset: 488, replacedName: "Nitish Rana" },
     { name: "Sarfaraz Khan",      role: "BAT", ipl: "DC",   price: 3,    isNew: true, frozenPts: 34,  preAuctionOffset: 390, replacedName: "Harshal Patel" },
   ],
 };
