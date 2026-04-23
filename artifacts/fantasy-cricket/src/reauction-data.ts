@@ -53,7 +53,7 @@ const ponygoat: RaTeam = {
     { name: "Ayush Badoni",       role: "BAT", ipl: "LSG",  price: 3,    isNew: true, frozenPts: 0,   preAuctionOffset: 294, replacedName: undefined },
     { name: "Pathum Nissanka",    role: "BAT", ipl: "DC",   price: 2,    isNew: true, frozenPts: 127, preAuctionOffset: 300, replacedName: "Marcus Stoinis" },
     { name: "Cooper Connolly",    role: "AR",  ipl: "PBKS", price: 2.5,  isNew: true, frozenPts: 305, preAuctionOffset: 465, replacedName: "Suryakumar Yadav" },
-    { name: "Quinton de Kock",    role: "WK",  ipl: "LSG",  price: 3.5,  isNew: true, frozenPts: 170, preAuctionOffset: 282, replacedName: "Khaleel Ahmed" },
+    { name: "Quinton de Kock",    role: "WK",  ipl: "MI",   price: 3.5,  isNew: true, frozenPts: 170, preAuctionOffset: 282, replacedName: "Khaleel Ahmed" },
     { name: "Anshul Kamboj",      role: "BWL", ipl: "CSK",  price: 3.8,  isNew: true, frozenPts: 297, preAuctionOffset: 689, replacedName: "Ryan Rickelton" },
   ],
 };
