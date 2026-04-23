@@ -391,9 +391,12 @@ async function doRefreshMatches(): Promise<void> {
         const nowLive = m.matchStarted && !m.matchEnded;
         const nowEnded = !!m.matchEnded;
 
+        const nowScoreCount = Array.isArray(m.score) ? m.score.length : 0;
+
         if (prev) {
           const wentLive = !prev.started && nowLive;
           const wentEnded = !prev.ended && nowEnded;
+          const inningsBreak = nowLive && (prev as any).scoreCount < 2 && nowScoreCount >= 2;
 
           if (wentLive) {
             const home = m.homeTeamCode || "";
@@ -402,6 +405,25 @@ async function doRefreshMatches(): Promise<void> {
               title: `🏏 ${home} vs ${away} — LIVE`,
               body: m.toss ? `${m.toss}` : "Match has started — good luck!",
               tag: `live-${m.id}`,
+              url: "/",
+            }).catch(() => {});
+          }
+
+          if (inningsBreak) {
+            const inn1Summary = m.score?.[0]?.summary || "";
+            const inn1Team = m.score?.[0]?.inning?.replace(" Innings", "") || (m.homeTeamCode || "");
+            const inn2Team = m.score?.[1]?.inning?.replace(" Innings", "") || (m.awayTeamCode || "");
+            // Extract runs from summary like "186/5 (20.0 Ov)" → "186"
+            const runsMatch = inn1Summary.match(/^(\d+)/);
+            const runs = runsMatch ? parseInt(runsMatch[1]) : null;
+            const target = runs !== null ? runs + 1 : null;
+            const body = target
+              ? `${inn1Team} set ${target} · ${inn2Team} need ${target} to win`
+              : `${inn1Team}: ${inn1Summary} · ${inn2Team} to bat`;
+            sendPushToAll({
+              title: `⚡ Innings Break`,
+              body,
+              tag: `innings-${m.id}`,
               url: "/",
             }).catch(() => {});
           }
@@ -442,12 +464,13 @@ async function doRefreshMatches(): Promise<void> {
           }
         }
 
-        prevMatchStates.set(m.id, { started: m.matchStarted, ended: nowEnded });
+        prevMatchStates.set(m.id, { started: m.matchStarted, ended: nowEnded, scoreCount: nowScoreCount });
       }
     } else {
       // Bootstrap: seed state without firing notifications
       for (const m of allMatches) {
-        prevMatchStates.set(m.id, { started: m.matchStarted, ended: !!m.matchEnded });
+        const sc = Array.isArray(m.score) ? m.score.length : 0;
+        prevMatchStates.set(m.id, { started: m.matchStarted, ended: !!m.matchEnded, scoreCount: sc });
       }
       pushBootstrapDone = true;
     }

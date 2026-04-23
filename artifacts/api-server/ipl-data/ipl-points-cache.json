@@ -19720,15 +19720,15 @@
       "innings": [
         {
           "name": "Chennai Super Kings Inning 1",
-          "total": "166/5 (17.0 ov)",
+          "total": "207/6 (20.0 ov)",
           "batting": [
             {
               "name": "Sanju Samson",
-              "runs": 78,
-              "balls": 43,
-              "fours": 8,
-              "sixes": 4,
-              "sr": "181.40",
+              "runs": 101,
+              "balls": 54,
+              "fours": 10,
+              "sixes": 6,
+              "sr": "187.04",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -19790,8 +19790,19 @@
             },
             {
               "name": "Jamie Overton",
-              "runs": 1,
-              "balls": 1,
+              "runs": 15,
+              "balls": 7,
+              "fours": 2,
+              "sixes": 1,
+              "sr": "214.29",
+              "dismissal": "c Naman Dhir b Ashwani Kumar",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Akeal Hosein",
+              "runs": 2,
+              "balls": 2,
               "fours": 0,
               "sixes": 0,
               "sr": "100.00",
@@ -19847,13 +19858,13 @@
           "bowling": [
             {
               "name": "Jasprit Bumrah",
-              "overs": "3",
+              "overs": "4",
               "maidens": 0,
-              "runs": 21,
+              "runs": 31,
               "wickets": 1,
-              "eco": "7",
+              "eco": "7.75",
               "wides": 0,
-              "noBalls": 1,
+              "noBalls": 2,
               "dots": 10
             },
             {
@@ -19891,25 +19902,25 @@
             },
             {
               "name": "Ashwani Kumar",
-              "overs": "3",
+              "overs": "4",
               "maidens": 0,
-              "runs": 22,
-              "wickets": 1,
-              "eco": "7.33",
-              "wides": 0,
+              "runs": 37,
+              "wickets": 2,
+              "eco": "9.25",
+              "wides": 1,
               "noBalls": 0,
-              "dots": 5
+              "dots": 8
             },
             {
               "name": "Krish Bhagat",
-              "overs": "1",
+              "overs": "2",
               "maidens": 0,
-              "runs": 15,
+              "runs": 31,
               "wickets": 0,
-              "eco": "15",
+              "eco": "15.5",
               "wides": 0,
               "noBalls": 0,
-              "dots": 2
+              "dots": 5
             }
           ]
         }
