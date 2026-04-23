@@ -1,4 +1,5 @@
 import React from "react";
+import { useTheme } from "../hooks/useTheme";
 import InningsTable from "../components/InningsTable";
 import { FANTASY_TEAMS } from "../teams";
 import { getMatchWinner, getH2H, fmtDate, fmtTime, getMatchNum, predictNextMatch, predictFirstInningsTotal } from "../utils";
@@ -63,6 +64,8 @@ export default function FixturesPage({
   fetchScorecard,
   saveLocalPreds,
 }: FixturesPageProps) {
+  const theme = useTheme();
+  const isLight = theme === "light";
     const grouped = liveMatches.reduce((acc: Record<string, any[]>, m: any) => {
       const d = m.date || (m.dateTimeGMT || "").split("T")[0] || "Unknown";
       if (!acc[d]) acc[d] = [];
@@ -276,13 +279,17 @@ export default function FixturesPage({
                     position: "absolute", inset: -4, zIndex: 0,
                     backgroundImage: `url(${import.meta.env.BASE_URL}match-bg.jpeg)`,
                     backgroundSize: "cover", backgroundPosition: "center 35%",
-                    filter: `blur(3px) brightness(${isLive ? 0.28 : 0.24}) saturate(${isLive ? 1.0 : 0.7})`,
+                    filter: isLight
+                      ? `blur(3px) brightness(0.9) saturate(${isLive ? 0.5 : 0.35})`
+                      : `blur(3px) brightness(${isLive ? 0.28 : 0.24}) saturate(${isLive ? 1.0 : 0.7})`,
                   }} />
                   <div style={{
                     position: "absolute", inset: 0, zIndex: 1,
-                    background: isLive
-                      ? "linear-gradient(160deg, rgba(6,4,3,0.64) 0%, rgba(4,3,2,0.72) 100%)"
-                      : "linear-gradient(160deg, rgba(6,4,3,0.68) 0%, rgba(4,3,2,0.76) 100%)",
+                    background: isLight
+                      ? "linear-gradient(160deg, rgba(240,230,210,0.82) 0%, rgba(245,235,218,0.88) 100%)"
+                      : isLive
+                        ? "linear-gradient(160deg, rgba(6,4,3,0.64) 0%, rgba(4,3,2,0.72) 100%)"
+                        : "linear-gradient(160deg, rgba(6,4,3,0.68) 0%, rgba(4,3,2,0.76) 100%)",
                   }} />
                   <div style={{ position: "relative", zIndex: 2 }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>

@@ -1,4 +1,5 @@
 import React from "react";
+import { useTheme } from "../hooks/useTheme";
 import { TEAM_LOGO_CDN, IPL_COLORS, VENUE_AVG } from "../constants";
 import { FANTASY_TEAMS } from "../teams";
 import {
@@ -41,6 +42,8 @@ export default function HomePage(props: HomePageProps) {
     selectedAwardIdx, setSelectedAwardIdx, awardXiFilter, setAwardXiFilter,
     playerMatchPoints,
   } = props;
+  const theme = useTheme();
+  const isLight = theme === "light";
 
     return (
       <div>
@@ -52,12 +55,14 @@ export default function HomePage(props: HomePageProps) {
               position: "absolute", inset: -6, zIndex: 0,
               backgroundImage: `url(${import.meta.env.BASE_URL}countdown-bg.jpeg)`,
               backgroundSize: "cover", backgroundPosition: "center 40%",
-              filter: "blur(10px) brightness(0.38) saturate(1.2)",
+              filter: isLight ? "blur(10px) brightness(0.88) saturate(0.5)" : "blur(10px) brightness(0.38) saturate(1.2)",
             }} />
             {/* Warm amber vignette */}
             <div style={{
               position: "absolute", inset: 0, zIndex: 1,
-              background: "linear-gradient(160deg, rgba(245,166,35,0.12) 0%, rgba(6,4,2,0.6) 60%, rgba(6,4,2,0.75) 100%)",
+              background: isLight
+                ? "linear-gradient(160deg, rgba(220,195,155,0.55) 0%, rgba(235,220,195,0.78) 60%, rgba(240,228,208,0.88) 100%)"
+                : "linear-gradient(160deg, rgba(245,166,35,0.12) 0%, rgba(6,4,2,0.6) 60%, rgba(6,4,2,0.75) 100%)",
             }} />
             <div style={{ position: "relative", zIndex: 2, display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10, marginBottom: 12 }}>
               {/* Left: timer */}
@@ -200,8 +205,8 @@ export default function HomePage(props: HomePageProps) {
                   <div key={m.id} className="match-card" style={{ marginBottom: 8, cursor: "pointer" }}
                     onClick={() => { setTab("fixtures"); setMatchFilter("live"); }}>
                     {/* Stadium backdrop */}
-                    <div style={{ position: "absolute", inset: -4, zIndex: 0, backgroundImage: `url(${import.meta.env.BASE_URL}match-bg.jpeg)`, backgroundSize: "cover", backgroundPosition: "center 35%", filter: "blur(3px) brightness(0.28) saturate(1.0)" }} />
-                    <div style={{ position: "absolute", inset: 0, zIndex: 1, background: "linear-gradient(160deg, rgba(6,4,3,0.64) 0%, rgba(4,3,2,0.72) 100%)" }} />
+                    <div style={{ position: "absolute", inset: -4, zIndex: 0, backgroundImage: `url(${import.meta.env.BASE_URL}match-bg.jpeg)`, backgroundSize: "cover", backgroundPosition: "center 35%", filter: isLight ? "blur(3px) brightness(0.9) saturate(0.45)" : "blur(3px) brightness(0.28) saturate(1.0)" }} />
+                    <div style={{ position: "absolute", inset: 0, zIndex: 1, background: isLight ? "linear-gradient(160deg, rgba(240,230,210,0.82) 0%, rgba(245,235,218,0.88) 100%)" : "linear-gradient(160deg, rgba(6,4,3,0.64) 0%, rgba(4,3,2,0.72) 100%)" }} />
                     <div style={{ position: "relative", zIndex: 2 }}>
                       {/* Header row */}
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
@@ -313,14 +318,16 @@ export default function HomePage(props: HomePageProps) {
                     position: "absolute", inset: -6, zIndex: 0,
                     backgroundImage: `url(${LB_BG[s.id]})`,
                     backgroundSize: "cover", backgroundPosition: "center 30%",
-                    filter: "blur(32px) brightness(0.72) saturate(1.4)",
+                    filter: isLight ? "blur(32px) brightness(0.92) saturate(0.65)" : "blur(32px) brightness(0.72) saturate(1.4)",
                     transform: "translateZ(0)",
                     willChange: "filter",
                   }} />
                   {/* Glass scrim */}
                   <div style={{
                     position: "absolute", inset: 0, zIndex: 1,
-                    background: `linear-gradient(135deg, ${s.team.color}18 0%, rgba(9,9,11,0.18) 100%)`,
+                    background: isLight
+                      ? `linear-gradient(135deg, ${s.team.color}22 0%, rgba(245,240,228,0.14) 100%)`
+                      : `linear-gradient(135deg, ${s.team.color}18 0%, rgba(9,9,11,0.18) 100%)`,
                   }} />
                   <div className="lb-accent" style={{ background: s.team.color, zIndex: 2, position: "relative" }} />
                   <div className="lb-inner" style={{ position: "relative", zIndex: 2 }}>
@@ -328,22 +335,22 @@ export default function HomePage(props: HomePageProps) {
                     <div className="lb-info">
                       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                         <div className={`lb-name ${i === 0 ? "first" : ""}`}
-                          style={{ textShadow: "0 1px 6px rgba(0,0,0,1), 0 0 20px rgba(0,0,0,0.8)" }}>
+                          style={{ textShadow: isLight ? "none" : "0 1px 6px rgba(0,0,0,1), 0 0 20px rgba(0,0,0,0.8)" }}>
                           {s.team.name}
                         </div>
                       </div>
                       <div className="lb-meta">
-                        {s.team.owner} · <span style={{ color: "#d4a843" }}>C:</span> {s.team.captain} · <span style={{ color: "rgba(255,255,255,0.45)" }}>VC:</span> {s.team.vc}
+                        {s.team.owner} · <span style={{ color: "#d4a843" }}>C:</span> {s.team.captain} · <span style={{ color: isLight ? "var(--text-3)" : "rgba(255,255,255,0.45)" }}>VC:</span> {s.team.vc}
                       </div>
                     </div>
                     <div style={{ textAlign: "right", flexShrink: 0 }}>
                       <div className="lb-pts first opacity-[1] bg-[transparent]"
-                        style={{ color: Object.keys(playerPoints).length === 0 ? "var(--text-3)" : s.team.color, textShadow: Object.keys(playerPoints).length === 0 ? "none" : `0 0 12px ${s.team.color}66` }}>
+                        style={{ color: Object.keys(playerPoints).length === 0 ? "var(--text-3)" : s.team.color, textShadow: Object.keys(playerPoints).length === 0 || isLight ? "none" : `0 0 12px ${s.team.color}66` }}>
                         {Object.keys(playerPoints).length === 0 ? "—" : s.total}
                       </div>
-                      <div className="lb-pts-label" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>pts</div>
+                      <div className="lb-pts-label" style={{ textShadow: isLight ? "none" : "0 1px 4px rgba(0,0,0,0.9)" }}>pts</div>
                       {i > 0 && Object.keys(playerPoints).length > 0 && (
-                        <div style={{ fontSize: "0.58rem", color: gap === 0 ? "var(--text-3)" : "#f87171", textShadow: "0 1px 4px rgba(0,0,0,0.9)", fontWeight: 600, marginTop: 1 }}>
+                        <div style={{ fontSize: "0.58rem", color: gap === 0 ? "var(--text-3)" : "#f87171", textShadow: isLight ? "none" : "0 1px 4px rgba(0,0,0,0.9)", fontWeight: 600, marginTop: 1 }}>
                           {`−${gap}`}
                         </div>
                       )}
