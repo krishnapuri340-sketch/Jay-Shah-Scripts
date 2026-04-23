@@ -19720,7 +19720,7 @@
       "innings": [
         {
           "name": "Chennai Super Kings Inning 1",
-          "total": "72/2 (5.4 ov)",
+          "total": "73/2 (5.5 ov)",
           "batting": [
             {
               "name": "Sanju Samson",
@@ -19756,18 +19756,18 @@
               "dnb": false
             },
             {
-              "name": "Dewald Brevis",
-              "runs": 0,
-              "balls": 0,
+              "name": "Shivam Dube",
+              "runs": 1,
+              "balls": 1,
               "fours": 0,
               "sixes": 0,
-              "sr": "-",
-              "dismissal": "",
-              "notOut": false,
-              "dnb": true
+              "sr": "100.00",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
             },
             {
-              "name": "Shivam Dube",
+              "name": "Dewald Brevis",
               "runs": 0,
               "balls": 0,
               "fours": 0,
@@ -19880,11 +19880,11 @@
             },
             {
               "name": "Mitchell Santner",
-              "overs": "0.4",
+              "overs": "0.5",
               "maidens": 0,
-              "runs": 8,
+              "runs": 9,
               "wickets": 1,
-              "eco": "12",
+              "eco": "10.8",
               "wides": 0,
               "noBalls": 0,
               "dots": 2
