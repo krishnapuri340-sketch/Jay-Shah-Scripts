@@ -19720,15 +19720,15 @@
       "innings": [
         {
           "name": "Chennai Super Kings Inning 1",
-          "total": "117/3 (10.3 ov)",
+          "total": "126/4 (11.3 ov)",
           "batting": [
             {
               "name": "Sanju Samson",
-              "runs": 53,
-              "balls": 26,
+              "runs": 56,
+              "balls": 29,
               "fours": 6,
               "sixes": 3,
-              "sr": "203.85",
+              "sr": "193.10",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -19768,25 +19768,25 @@
             },
             {
               "name": "Dewald Brevis",
-              "runs": 17,
-              "balls": 9,
-              "fours": 0,
+              "runs": 21,
+              "balls": 11,
+              "fours": 1,
               "sixes": 2,
-              "sr": "188.89",
-              "dismissal": "not out",
-              "notOut": true,
+              "sr": "190.91",
+              "dismissal": "c Jasprit Bumrah b Ashwani Kumar",
+              "notOut": false,
               "dnb": false
             },
             {
               "name": "Kartik Sharma",
-              "runs": 0,
-              "balls": 0,
+              "runs": 1,
+              "balls": 1,
               "fours": 0,
               "sixes": 0,
-              "sr": "-",
-              "dismissal": "",
-              "notOut": false,
-              "dnb": true
+              "sr": "100.00",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
             },
             {
               "name": "Jamie Overton",
@@ -19880,25 +19880,25 @@
             },
             {
               "name": "Mitchell Santner",
-              "overs": "2",
+              "overs": "2.3",
               "maidens": 0,
-              "runs": 24,
+              "runs": 28,
               "wickets": 1,
-              "eco": "12",
-              "wides": 1,
+              "eco": "11.2",
+              "wides": 2,
               "noBalls": 0,
               "dots": 5
             },
             {
               "name": "Ashwani Kumar",
-              "overs": "1.3",
+              "overs": "2",
               "maidens": 0,
-              "runs": 14,
-              "wickets": 0,
-              "eco": "9.33",
+              "runs": 19,
+              "wickets": 1,
+              "eco": "9.5",
               "wides": 0,
               "noBalls": 0,
-              "dots": 1
+              "dots": 2
             }
           ]
         }
