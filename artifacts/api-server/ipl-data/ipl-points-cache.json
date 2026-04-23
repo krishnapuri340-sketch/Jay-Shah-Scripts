@@ -19720,7 +19720,7 @@
       "innings": [
         {
           "name": "Chennai Super Kings Inning 1",
-          "total": "73/2 (6.0 ov)",
+          "total": "74/2 (6.2 ov)",
           "batting": [
             {
               "name": "Sanju Samson",
@@ -19757,11 +19757,11 @@
             },
             {
               "name": "Shivam Dube",
-              "runs": 1,
-              "balls": 1,
+              "runs": 2,
+              "balls": 3,
               "fours": 0,
               "sixes": 0,
-              "sr": "100.00",
+              "sr": "66.67",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -19869,14 +19869,14 @@
             },
             {
               "name": "AM Ghazanfar",
-              "overs": "1",
+              "overs": "1.2",
               "maidens": 0,
-              "runs": 6,
+              "runs": 7,
               "wickets": 1,
-              "eco": "6",
+              "eco": "5.25",
               "wides": 0,
               "noBalls": 0,
-              "dots": 3
+              "dots": 4
             },
             {
               "name": "Mitchell Santner",

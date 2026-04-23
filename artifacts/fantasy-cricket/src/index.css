@@ -244,8 +244,8 @@ body { background: var(--bg); }
 .nav-indicator {
   position: absolute;
   top: 0;
-  left: calc(var(--nav-idx, 0) * ((100% - 16px) / 6) + (100% - 16px) / 12 - 18px);
-  width: 52px;
+  left: calc(var(--nav-idx, 0) * ((100% - 16px) / 6) + (100% - 16px) / 12 - 22px);
+  width: 60px;
   height: 2.5px;
   background: var(--gold);
   border-radius: 0 0 3px 3px;
