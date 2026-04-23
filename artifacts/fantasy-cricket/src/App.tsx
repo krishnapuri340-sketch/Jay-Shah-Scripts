@@ -1810,7 +1810,7 @@ export default function App() {
     />
   );
 
-  const renderWhatIf = () => <ReAuctionPage playerPoints={playerPoints} />;
+  const renderWhatIf = () => <ReAuctionPage playerPoints={playerPoints} playerMatchPoints={playerMatchPoints} />;
 
   const renderStats = () => (
     <StatsPage

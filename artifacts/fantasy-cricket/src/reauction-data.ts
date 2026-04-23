@@ -155,14 +155,39 @@ export const RA_TEAM_ORDER = ["rajveer", "mombasa", "mumbai", "ponygoat"] as con
 
 // ── Score helpers ─────────────────────────────────────────────────────────────
 
-/** Effective points for a single re-auction player slot */
-export function raSlotPts(p: RaPlayer, livePoints: Record<string, number> | null | undefined): number {
-  const pts = livePoints ?? {};
-  const live = pts[p.name] || 0;
-  if (!p.isNew) return live;
+// Match 34 is the first match after the April 23 re-auction
+export const RA_FROM_MATCH = 34;
+
+export type PlayerMatchEntry = { matchNum: number; pts: number; label?: string };
+export type PlayerMatchPoints = Record<string, PlayerMatchEntry[]>;
+
+/**
+ * Live points earned by a new player from M34 onwards (post-auction only).
+ */
+export function raNewPlayerLivePts(
+  name: string,
+  matchPoints: PlayerMatchPoints | null | undefined,
+): number {
+  const entries = matchPoints?.[name] ?? [];
+  return entries
+    .filter(e => e.matchNum >= RA_FROM_MATCH)
+    .reduce((s, e) => s + e.pts, 0);
+}
+
+/**
+ * Effective slot points:
+ *   Unchanged player → full season total (playerPoints)
+ *   New player       → frozenPts + live pts from M34+ (from scorecard data)
+ */
+export function raSlotPts(
+  p: RaPlayer,
+  playerPoints: Record<string, number> | null | undefined,
+  matchPoints: PlayerMatchPoints | null | undefined,
+): number {
+  if (!p.isNew) return (playerPoints ?? {})[p.name] || 0;
   const frozen = p.frozenPts ?? 0;
-  const offset = p.preAuctionOffset ?? 0;
-  return frozen + Math.max(0, live - offset);
+  const live = raNewPlayerLivePts(p.name, matchPoints);
+  return frozen + live;
 }
 
 /** Apply captain/VC multiplier (same as main scoring) */
@@ -173,16 +198,21 @@ export function raAdjPts(raw: number, isCap: boolean, isVC: boolean): number {
 }
 
 /** Compute a team's re-auction score (top-11 after adjustments) */
-export function raTeamScore(teamId: string, livePoints: Record<string, number> | null | undefined): {
+export function raTeamScore(
+  teamId: string,
+  playerPoints: Record<string, number> | null | undefined,
+  matchPoints: PlayerMatchPoints | null | undefined,
+): {
   total: number;
   top11: Set<string>;
-  players: Array<RaPlayer & { slotPts: number; adjPts: number }>;
+  players: Array<RaPlayer & { slotPts: number; adjPts: number; liveGain: number }>;
 } {
   const team = RA_TEAMS[teamId];
   const scored = team.players.map(p => {
-    const slotPts = raSlotPts(p, livePoints);
+    const slotPts = raSlotPts(p, playerPoints, matchPoints);
+    const liveGain = p.isNew ? raNewPlayerLivePts(p.name, matchPoints) : 0;
     const adj = raAdjPts(slotPts, p.name === team.captain, p.name === team.vc);
-    return { ...p, slotPts, adjPts: adj };
+    return { ...p, slotPts, adjPts: adj, liveGain };
   }).sort((a, b) => b.adjPts - a.adjPts);
 
   const top11Set = new Set(scored.slice(0, 11).map(p => p.name));

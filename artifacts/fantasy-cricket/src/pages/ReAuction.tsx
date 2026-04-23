@@ -1,26 +1,27 @@
 import React, { useMemo, useState } from "react";
-import { RA_TEAMS, RA_TEAM_ORDER, raTeamScore, REAUCTION_DATE, type RaPlayer, type RaTeam } from "../reauction-data";
+import { RA_TEAMS, RA_TEAM_ORDER, raTeamScore, REAUCTION_DATE, RA_FROM_MATCH, type RaPlayer, type RaTeam, type PlayerMatchPoints } from "../reauction-data";
 import { FANTASY_TEAMS } from "../teams";
 import { IPL_COLORS, ROLE_COLORS, TEAM_LOGO_CDN } from "../constants";
 
 export interface ReAuctionPageProps {
   playerPoints: Record<string, number>;
+  playerMatchPoints: PlayerMatchPoints;
 }
 
 const OWNER_ORDER = RA_TEAM_ORDER;
 
-export default function ReAuctionPage({ playerPoints }: ReAuctionPageProps) {
+export default function ReAuctionPage({ playerPoints, playerMatchPoints }: ReAuctionPageProps) {
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
 
-  // Compute each team's re-auction score
+  // Compute each team's re-auction score using scorecard data from M34+
   const teamScores = useMemo(
     () =>
       OWNER_ORDER.map(id => {
-        const { total, top11, players } = raTeamScore(id, playerPoints);
+        const { total, top11, players } = raTeamScore(id, playerPoints, playerMatchPoints);
         const ft = FANTASY_TEAMS[id];
         return { id, total, top11, players, ft };
       }).sort((a, b) => b.total - a.total),
-    [playerPoints]
+    [playerPoints, playerMatchPoints]
   );
 
   const activeTeam = selectedTeam ?? teamScores[0]?.id;
@@ -163,7 +164,6 @@ export default function ReAuctionPage({ playerPoints }: ReAuctionPageProps) {
           raTeam={raTeam}
           top11={activeData.top11}
           players={activeData.players}
-          playerPoints={playerPoints}
           teamColor={FANTASY_TEAMS[activeTeam!].color}
           captain={raTeam.captain}
           vc={raTeam.vc}
@@ -179,14 +179,13 @@ interface RosterCardProps {
   teamId: string;
   raTeam: RaTeam;
   top11: Set<string>;
-  players: Array<RaPlayer & { slotPts: number; adjPts: number }>;
-  playerPoints: Record<string, number>;
+  players: Array<RaPlayer & { slotPts: number; adjPts: number; liveGain: number }>;
   teamColor: string;
   captain: string;
   vc: string;
 }
 
-function RosterCard({ top11, players, playerPoints, teamColor, captain, vc }: RosterCardProps) {
+function RosterCard({ top11, players, teamColor, captain, vc }: RosterCardProps) {
   const [showBench, setShowBench] = useState(false);
 
   const xi = players.filter(p => top11.has(p.name));
@@ -220,7 +219,7 @@ function RosterCard({ top11, players, playerPoints, teamColor, captain, vc }: Ro
         marginBottom: 10,
       }}>
         {xi.map(p => (
-          <PlayerRow key={p.name} p={p} playerPoints={playerPoints}
+          <PlayerRow key={p.name} p={p}
             isCap={p.name === captain} isVC={p.name === vc} teamColor={teamColor} />
         ))}
       </div>
@@ -244,7 +243,7 @@ function RosterCard({ top11, players, playerPoints, teamColor, captain, vc }: Ro
       {showBench && (
         <div className="players-grid" style={{ opacity: 0.65 }}>
           {bench.map(p => (
-            <PlayerRow key={p.name} p={p} playerPoints={playerPoints}
+            <PlayerRow key={p.name} p={p}
               isCap={false} isVC={false} teamColor={teamColor} />
           ))}
         </div>
@@ -265,22 +264,19 @@ function StatChip({ label, value, color }: { label: string; value: number; color
 // ─── Player Row ───────────────────────────────────────────────────────────────
 
 function PlayerRow({
-  p, playerPoints, isCap, isVC, teamColor,
+  p, isCap, isVC, teamColor,
 }: {
-  p: RaPlayer & { slotPts: number; adjPts: number };
-  playerPoints: Record<string, number>;
+  p: RaPlayer & { slotPts: number; adjPts: number; liveGain: number };
   isCap: boolean;
   isVC: boolean;
   teamColor: string;
 }) {
   const iplColor = IPL_COLORS[p.ipl] || "rgba(255,255,255,0.15)";
   const roleColor = ROLE_COLORS[p.role] || "var(--text-3)";
-  const liveRaw = playerPoints[p.name] || 0;
 
-  // For new players: show frozen portion vs live gain
+  // For new players: frozenPts + liveGain (actual M34+ scorecard pts)
   const frozenPts = p.frozenPts ?? 0;
-  const offset = p.preAuctionOffset ?? 0;
-  const liveGain = p.isNew ? Math.max(0, liveRaw - offset) : 0;
+  const liveGain = p.liveGain ?? 0;
 
   return (
     <div className="player-card"
@@ -335,18 +331,18 @@ function PlayerRow({
           }}>{p.role}</span>
 
           {p.isNew ? (
-            // Slot breakdown: frozen + live gain
+            // Slot breakdown: frozen pts from released player + M34+ scorecard pts
             <span style={{ fontSize: "0.46rem", color: "var(--text-3)", fontVariantNumeric: "tabular-nums" }}>
               <span style={{ color: "rgba(255,255,255,0.45)" }}>{frozenPts}</span>
               <span style={{ color: "var(--text-3)" }}> frozen</span>
               {liveGain > 0
-                ? <span> + <span style={{ color: "#2ecc8f" }}>{liveGain}</span> live</span>
-                : <span style={{ color: "var(--text-3)" }}> + 0 live</span>
+                ? <span> + <span style={{ color: "#2ecc8f" }}>{liveGain}</span> M{RA_FROM_MATCH}+</span>
+                : <span style={{ color: "var(--text-3)" }}> + 0 M{RA_FROM_MATCH}+</span>
               }
             </span>
           ) : (
             <span style={{ fontSize: "0.48rem", color: "var(--text-3)", fontVariantNumeric: "tabular-nums" }}>
-              {liveRaw} pts
+              {p.slotPts} pts
             </span>
           )}
 
