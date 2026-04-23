@@ -4,6 +4,7 @@ import { join } from "path";
 import { fileURLToPath } from "url";
 import { fetchMatchOverview, refreshLiveMatches, getPointsHealthSnapshot, getMatchTeamPoints } from "./ipl-points";
 import { sendPushToAll } from "./push";
+import { createSession, getSessionUser, requireSession, requireCommissioner } from "../lib/sessions";
 
 // ── Shared data stores ────────────────────────────────────────────────────────
 // Anchor data directory to the bundle file location (dist/index.mjs).
@@ -584,13 +585,17 @@ router.get("/ipl/standings", async (req, res) => {
   }
 });
 
-// GET /api/ipl/predictions → returns all picks
-router.get("/ipl/predictions", (_req, res) => {
+// GET /api/ipl/predictions → returns all picks (authenticated users only)
+router.get("/ipl/predictions", (req, res) => {
+  if (!requireSession(req, res)) return;
   res.json(predsCache);
 });
 
-// GET /api/ipl/predictions/stream → SSE push channel
+// GET /api/ipl/predictions/stream → SSE push channel (authenticated users only)
+// Token passed as ?token=<session-token> query param (EventSource cannot set headers)
 router.get("/ipl/predictions/stream", (req, res) => {
+  const userId = getSessionUser(req);
+  if (!userId) return res.status(401).json({ error: "Authentication required" });
   res.set({
     "Content-Type": "text/event-stream",
     "Cache-Control": "no-cache",
@@ -612,17 +617,23 @@ const VALID_OWNER_IDS = new Set(["rajveer", "mombasa", "mumbai", "ponygoat"]);
 
 // POST /api/ipl/predictions/:matchId → { ownerId, pick }
 router.post("/ipl/predictions/:matchId", (req, res) => {
+  const sessionUserId = requireSession(req, res);
+  if (!sessionUserId) return;
   const { matchId } = req.params;
-  const { ownerId, pick, requesterId } = req.body as { ownerId?: string; pick?: string | null; requesterId?: string };
+  const { ownerId, pick } = req.body as { ownerId?: string; pick?: string | null };
   if (!matchId || !ownerId) return res.status(400).json({ error: "matchId and ownerId required" });
   if (!VALID_OWNER_IDS.has(ownerId)) return res.status(400).json({ error: "Invalid ownerId" });
-  const isAdmin = requesterId === "rajveer" || ownerId === "rajveer";
-  // Block prediction changes for completed matches (admin bypass allowed)
-  if (!isAdmin && completedMatchIds.has(matchId)) {
+  const isCommissioner = sessionUserId === "rajveer";
+  // Non-commissioner users can only edit their own prediction rows
+  if (!isCommissioner && ownerId !== sessionUserId) {
+    return res.status(403).json({ error: "You can only edit your own predictions" });
+  }
+  // Block prediction changes for completed matches (commissioner bypass allowed)
+  if (!isCommissioner && completedMatchIds.has(matchId)) {
     return res.status(403).json({ error: "Match already completed — predictions are locked" });
   }
-  // Block prediction changes once a match has started (admin bypass allowed)
-  if (!isAdmin && currentLiveIplIds.includes(matchId)) {
+  // Block prediction changes once a match has started (commissioner bypass allowed)
+  if (!isCommissioner && currentLiveIplIds.includes(matchId)) {
     return res.status(403).json({ error: "Match is live — predictions are locked" });
   }
   // Validate pick against the two teams actually playing in this match
@@ -668,11 +679,7 @@ setInterval(() => {
 }, 5 * 60_000);
 
 function ownerOnly(req: any, res: any): boolean {
-  if (req.headers["x-owner-id"] !== "rajveer") {
-    res.status(403).json({ error: "Forbidden" });
-    return false;
-  }
-  return true;
+  return requireCommissioner(req, res);
 }
 
 // GET /api/ipl/pins → returns all PINs (commissioner only, PIN-verified)
@@ -699,7 +706,8 @@ router.post("/ipl/pins/validate", async (req, res) => {
   if (kv) { pinsCache = { ...pinsCache, ...kv }; saveServerPins(pinsCache); }
   const correct = pinsCache[userId];
   if (!correct || pin !== correct) return res.status(401).json({ error: "Invalid PIN" });
-  return res.json({ ok: true, userId });
+  const token = createSession(userId);
+  return res.json({ ok: true, userId, token });
 });
 
 // POST /api/ipl/pins/:userId → { pin, oldPin } — update one user's PIN (admin only; oldPin required)

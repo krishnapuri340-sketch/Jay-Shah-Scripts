@@ -3,7 +3,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join } from "path";
 import { fileURLToPath } from "url";
 import { sendPushToAll } from "./push";
-import { verifyOwnerPin } from "./ipl";
+import { requireCommissioner, requireSession } from "../lib/sessions";
 
 const router: IRouter = Router();
 
@@ -1354,15 +1354,10 @@ router.get("/ipl/stats", (_req, res) => {
   res.json(buildStatsResponse());
 });
 
-// Admin: force re-fetch all innings from S3 and rebuild stats cache (commissioner + PIN)
+// Admin: force re-fetch all innings from S3 and rebuild stats cache (commissioner only)
 router.post("/ipl/stats/refresh", async (req, res) => {
-  const ownerId = req.headers["x-owner-id"] as string;
-  const ownerPin = req.headers["x-owner-pin"] as string;
-  if (ownerId !== "rajveer" || !verifyOwnerPin(ownerId, ownerPin)) {
-    res.status(403).json({ error: "commissioner only" });
-    return;
-  }
-  // IP rate-limit: max 3 forced refreshes per IP per hour (req.ip respects trust proxy)
+  if (!requireCommissioner(req, res)) return;
+  // IP rate-limit: max 3 forced refreshes per IP per hour
   const ip = req.ip || req.socket.remoteAddress || "unknown";
   if (!checkIpRateLimit(`stats-refresh:${ip}`, 60 * 60 * 1000, 3)) {
     res.status(429).json({ error: "rate limit exceeded — try again later" });
@@ -1484,7 +1479,7 @@ export async function refreshLiveMatches(liveIplIds: string[]): Promise<void> {
 
 // POST /api/ipl/scorecard/prefetch-s3 — prefetch IPL S3 innings for all known match IDs (admin only)
 router.post("/ipl/scorecard/prefetch-s3", async (req, res) => {
-  if (req.headers["x-owner-id"] !== "rajveer") return res.status(403).json({ error: "Forbidden" });
+  if (!requireCommissioner(req, res)) return;
 
   const allIds = Object.keys(pointsCache.matchMetadata || {});
   if (allIds.length === 0) return res.json({ ok: true, found: 0, missing: 0, foundIds: [], missingIds: [] });
@@ -1518,7 +1513,7 @@ router.post("/ipl/scorecard/prefetch-s3", async (req, res) => {
 });
 
 router.post("/ipl/points/reset", async (req, res) => {
-  if (req.headers["x-owner-id"] !== "rajveer") return res.status(403).json({ error: "Forbidden" });
+  if (!requireCommissioner(req, res)) return;
   pointsCache = {
     seriesId: null, processedMatches: {},
     supabaseScores: {}, playerIdMap: {}, matchMetadata: {},
@@ -1530,15 +1525,10 @@ router.post("/ipl/points/reset", async (req, res) => {
 });
 
 // POST /api/ipl/points/sync-supabase — force an immediate Supabase AuctionRoom sync
-// Requires a valid league-member PIN. 5-min global cooldown + per-IP rate limit.
+// Requires an authenticated league member session. 5-min global cooldown + per-IP rate limit.
 router.post("/ipl/points/sync-supabase", async (req, res) => {
-  const ownerId = req.headers["x-owner-id"] as string;
-  const ownerPin = req.headers["x-owner-pin"] as string;
-  if (!VALID_OWNER_IDS.has(ownerId) || !verifyOwnerPin(ownerId, ownerPin)) {
-    res.status(403).json({ error: "league members only" });
-    return;
-  }
-  // IP rate-limit: max 5 syncs per IP per hour (req.ip respects trust proxy)
+  if (!requireSession(req, res)) return;
+  // IP rate-limit: max 5 syncs per IP per hour
   const ip = req.ip || req.socket.remoteAddress || "unknown";
   if (!checkIpRateLimit(`sync-supabase:${ip}`, 60 * 60 * 1000, 5)) {
     res.status(429).json({ error: "rate limit exceeded — try again later" });

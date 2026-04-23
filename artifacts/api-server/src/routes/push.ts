@@ -3,6 +3,7 @@ import webpush from "web-push";
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join } from "path";
 import { fileURLToPath } from "url";
+import { requireCommissioner } from "../lib/sessions";
 
 const router: IRouter = Router();
 
@@ -103,8 +104,7 @@ router.get("/ipl/push/status", (_req: Request, res: Response) => {
 });
 
 router.post("/ipl/push/toggle", (req: Request, res: Response) => {
-  const ownerId = req.headers["x-owner-id"] as string;
-  if (ownerId !== "rajveer") { res.status(403).json({ error: "commissioner only" }); return; }
+  if (!requireCommissioner(req, res)) return;
   notifEnabled = typeof req.body.enabled === "boolean" ? req.body.enabled : !notifEnabled;
   savePrefs();
   console.log(`[push] Notifications ${notifEnabled ? "enabled" : "disabled"} by commissioner`);
@@ -112,8 +112,7 @@ router.post("/ipl/push/toggle", (req: Request, res: Response) => {
 });
 
 router.post("/ipl/push/test", async (req: Request, res: Response) => {
-  const ownerId = req.headers["x-owner-id"] as string;
-  if (ownerId !== "rajveer") { res.status(403).json({ error: "commissioner only" }); return; }
+  if (!requireCommissioner(req, res)) return;
   await sendPushToAll({
     title: "🏏 Test Notification",
     body: "Push notifications are working for IPL Fantasy 2026!",

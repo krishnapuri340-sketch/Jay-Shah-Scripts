@@ -15,6 +15,7 @@ import { usePredictions, saveLocalPreds } from "./hooks/usePredictions";
 import { useScorecard } from "./hooks/useScorecard";
 import { useLiveMatches } from "./hooks/useLiveMatches";
 import { useFantasyPoints } from "./hooks/useFantasyPoints";
+import { getAuthToken, setAuthToken, clearAuthToken, authHeaders, authStreamUrl } from "./lib/auth";
 
 // ─── PIN login ───────────────────────────────────────────────────────────────
 const DEFAULT_PINS: Record<string, string> = { rajveer: "1111", mombasa: "2222", mumbai: "3333", ponygoat: "4444" };
@@ -418,7 +419,7 @@ export default function App() {
   const [pinConfirmError, setPinConfirmError] = useState(false);
   const resetPinEdit = () => { setPinEditTarget(null); setPinEditVal(""); setPinConfirmVal(""); setPinStep("confirm"); setPinConfirmError(false); };
   const handleLogin = (userId: string) => { localStorage.setItem("ipl-current-user", userId); setCurrentUser(userId); setTab("home"); };
-  const handleLogout = () => { localStorage.removeItem("ipl-current-user"); setCurrentUser(null); };
+  const handleLogout = () => { localStorage.removeItem("ipl-current-user"); clearAuthToken(); setCurrentUser(null); };
   const handleValidate = async (userId: string, pin: string): Promise<boolean> => {
     try {
       const res = await fetch("/api/ipl/pins/validate", {
@@ -426,11 +427,14 @@ export default function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId, pin }),
       });
-      if (res.ok) { handleLogin(userId); return true; }
+      if (res.ok) {
+        const data = await res.json();
+        if (data.token) setAuthToken(data.token);
+        handleLogin(userId);
+        return true;
+      }
       return false;
     } catch {
-      // Fallback to locally cached PINs if server is unreachable
-      if (pin === userPins[userId]) { handleLogin(userId); return true; }
       return false;
     }
   };
@@ -458,7 +462,7 @@ export default function App() {
     try {
       await fetch(`/api/ipl/pins/${encodeURIComponent(uid)}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-Owner-Id": "rajveer" },
+        headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify({ pin: pinEditVal, oldPin: savedOld }),
       });
     } catch (_) {}
@@ -556,7 +560,7 @@ export default function App() {
     try {
       const res = await fetch("/api/ipl/push/toggle", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-Owner-Id": currentUser || "" },
+        headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify({ enabled }),
       });
       const data = await res.json();
@@ -568,7 +572,7 @@ export default function App() {
     try {
       await fetch("/api/ipl/push/test", {
         method: "POST",
-        headers: { "X-Owner-Id": currentUser || "" },
+        headers: { ...authHeaders() },
       });
     } catch (_) {}
   };
@@ -603,7 +607,7 @@ export default function App() {
     try {
       const res = await fetch("/api/ipl/scorecard/prefetch-s3", {
         method: "POST",
-        headers: { "X-Owner-Id": "rajveer" },
+        headers: { ...authHeaders() },
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `Server error ${res.status}`);
@@ -618,10 +622,7 @@ export default function App() {
     if (statsRefreshing) return;
     setStatsRefreshing(true);
     try {
-      await fetch("/api/ipl/stats/refresh", {
-        method: "POST",
-        headers: { "X-Owner-Id": "rajveer", "X-Owner-Pin": userPins["rajveer"] || "" },
-      });
+      await fetch("/api/ipl/stats/refresh", { method: "POST", headers: { ...authHeaders() } });
       await fetchStats();
     } catch (_) {}
     setStatsRefreshing(false);
@@ -651,9 +652,7 @@ export default function App() {
 
   const fetchPins = async () => {
     try {
-      const res = await fetch("/api/ipl/pins", {
-        headers: { "X-Owner-Id": "rajveer", "X-Owner-Pin": userPins["rajveer"] || "" },
-      });
+      const res = await fetch("/api/ipl/pins", { headers: { ...authHeaders() } });
       if (res.ok) {
         const serverPins = await res.json();
         const merged = { ...DEFAULT_PINS, ...serverPins };
@@ -738,7 +737,7 @@ export default function App() {
   const [sseGen, setSseGen] = useState(0);
   useEffect(() => {
     if (!currentUser) return;
-    const es = new EventSource("/api/ipl/predictions/stream");
+    const es = new EventSource(authStreamUrl("/api/ipl/predictions/stream"));
     es.onmessage = (e) => {
       try {
         const data = JSON.parse(e.data) as Record<string, Record<string, string | null>>;
@@ -928,7 +927,7 @@ export default function App() {
         fetch("/api/ipl/standings").then(r => r.ok ? r.json() : null).then(data => {
           if (data) setStandings(data.standings || data);
         }),
-        fetch("/api/ipl/predictions").then(r => r.ok ? r.json() : null).then(data => {
+        fetch("/api/ipl/predictions", { headers: authHeaders() }).then(r => r.ok ? r.json() : null).then(data => {
           if (data) { setPredictions(data); saveLocalPreds(data); }
         }),
         fetch("/api/ipl/stats").then(r => r.ok ? r.json() : null).then(data => {

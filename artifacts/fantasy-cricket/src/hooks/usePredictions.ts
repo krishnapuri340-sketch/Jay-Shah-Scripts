@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef } from "react";
+import { authHeaders } from "../lib/auth";
 
 const PRED_CACHE_KEY = "ipl-predictions-2026";
 
@@ -20,7 +21,7 @@ export function usePredictions() {
     if (Date.now() - lastPredSaveRef.current < 8000) return;
     const fetchStartedAt = Date.now();
     try {
-      const res = await fetch("/api/ipl/predictions");
+      const res = await fetch("/api/ipl/predictions", { headers: authHeaders() });
       if (res.ok) {
         const server: PredictionsMap = await res.json();
         if (Date.now() - lastPredSaveRef.current < 8000) return;

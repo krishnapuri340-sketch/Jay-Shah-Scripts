@@ -1,5 +1,6 @@
 import React from "react";
 import { FANTASY_TEAMS } from "../teams";
+import { authHeaders } from "../lib/auth";
 
 export interface AdminPageProps {
   currentUser: string;
@@ -466,7 +467,7 @@ export default function AdminPage(p: AdminPageProps) {
             </button>
             <button className="btn-danger" onClick={async () => {
               if (confirm("Reset all cached points? They will re-sync from AuctionRoom.")) {
-                await fetch("/api/ipl/points/reset", { method: "POST", headers: { "X-Owner-Id": "rajveer" } });
+                await fetch("/api/ipl/points/reset", { method: "POST", headers: { ...authHeaders() } });
                 setPlayerPoints({});
                 setProcessedMatches([]);
                 setTimeout(fetchPoints, 500);
