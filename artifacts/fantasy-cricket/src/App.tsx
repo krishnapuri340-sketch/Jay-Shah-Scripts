@@ -18,10 +18,8 @@ import { useFantasyPoints } from "./hooks/useFantasyPoints";
 import { getAuthToken, setAuthToken, clearAuthToken, authHeaders, authStreamUrl } from "./lib/auth";
 
 // ─── PIN login ───────────────────────────────────────────────────────────────
-const DEFAULT_PINS: Record<string, string> = { rajveer: "1111", mombasa: "2222", mumbai: "3333", ponygoat: "4444" };
-function loadPins(): Record<string, string> {
-  try { return { ...DEFAULT_PINS, ...JSON.parse(localStorage.getItem("ipl-pins-2026") || "{}") }; } catch { return { ...DEFAULT_PINS }; }
-}
+// PINs are server-authoritative; never stored as defaults in client code.
+// The commissioner fetches the current list via GET /api/ipl/pins (session-gated).
 function savePins(p: Record<string, string>) { localStorage.setItem("ipl-pins-2026", JSON.stringify(p)); }
 
 function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string) => Promise<boolean> }) {
@@ -411,7 +409,7 @@ export default function App() {
   const refreshFnRef = useRef(() => {});
   const [countdown, setCountdown] = useState<{ text: string; matchName: string; venue?: string; homeTeam?: string; awayTeam?: string } | null>(null);
   const [currentUser, setCurrentUser] = useState<string | null>(() => localStorage.getItem("ipl-current-user"));
-  const [userPins, setUserPins] = useState<Record<string, string>>(loadPins);
+  const [userPins, setUserPins] = useState<Record<string, string>>({});
   const [pinEditTarget, setPinEditTarget] = useState<string | null>(null);
   const [pinEditVal, setPinEditVal] = useState("");
   const [pinConfirmVal, setPinConfirmVal] = useState("");
@@ -449,8 +447,8 @@ export default function App() {
       if (res.ok) { setPinStep("new"); setPinConfirmError(false); }
       else { setPinConfirmError(true); setPinConfirmVal(""); }
     } catch {
-      if (pinConfirmVal === userPins[uid]) { setPinStep("new"); setPinConfirmError(false); }
-      else { setPinConfirmError(true); setPinConfirmVal(""); }
+      // No offline fallback — PIN validation is always server-authoritative
+      setPinConfirmError(true); setPinConfirmVal("");
     }
   };
   const handleSavePin = async (uid: string) => {
@@ -584,7 +582,7 @@ export default function App() {
     try {
       const res = await fetch("/api/ipl/points/sync-supabase", {
         method: "POST",
-        headers: { "X-Owner-Id": currentUser || "", "X-Owner-Pin": userPins[currentUser || ""] || "" },
+        headers: { ...authHeaders() },
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `Server error ${res.status}`);
@@ -655,9 +653,8 @@ export default function App() {
       const res = await fetch("/api/ipl/pins", { headers: { ...authHeaders() } });
       if (res.ok) {
         const serverPins = await res.json();
-        const merged = { ...DEFAULT_PINS, ...serverPins };
-        setUserPins(merged);
-        savePins(merged);
+        setUserPins(serverPins);
+        savePins(serverPins);
       }
     } catch (_) {}
   };
@@ -908,7 +905,7 @@ export default function App() {
     try {
       await fetch("/api/ipl/points/sync-supabase", {
         method: "POST",
-        headers: { "X-Owner-Id": currentUser || "", "X-Owner-Pin": userPins[currentUser || ""] || "" },
+        headers: { ...authHeaders() },
       });
     } catch (_) {}
     try {

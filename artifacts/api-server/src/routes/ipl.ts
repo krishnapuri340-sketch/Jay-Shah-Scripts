@@ -1,4 +1,5 @@
 import { Router, type IRouter } from "express";
+import { randomInt } from "crypto";
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join } from "path";
 import { fileURLToPath } from "url";
@@ -38,11 +39,22 @@ function broadcastPredictions() {
 }
 
 const PINS_FILE = join(_dataDir, "ipl-pins.json");
-const DEFAULT_PINS: Record<string, string> = { rajveer: "1111", mombasa: "2222", mumbai: "3333", ponygoat: "4444" };
+// Ordered list of the four league members — used for first-run bootstrap only.
+const OWNER_IDS = ["rajveer", "mombasa", "mumbai", "ponygoat"];
 type PinStore = Record<string, string>;
 function loadServerPins(): PinStore {
-  try { if (existsSync(PINS_FILE)) return { ...DEFAULT_PINS, ...JSON.parse(readFileSync(PINS_FILE, "utf8")) }; } catch {}
-  return { ...DEFAULT_PINS };
+  try {
+    if (existsSync(PINS_FILE)) {
+      const stored = JSON.parse(readFileSync(PINS_FILE, "utf8")) as PinStore;
+      // Only trust entries that look like 4-digit PINs (avoids ingesting stale defaults)
+      const filtered: PinStore = {};
+      for (const [uid, pin] of Object.entries(stored)) {
+        if (/^\d{4,}$/.test(pin)) filtered[uid] = pin;
+      }
+      if (Object.keys(filtered).length) return filtered;
+    }
+  } catch {}
+  return {};
 }
 function saveServerPins(data: PinStore) {
   try { writeFileSync(PINS_FILE, JSON.stringify(data)); } catch {}
@@ -158,11 +170,12 @@ async function loadAllPinsFromKV(): Promise<PinStore | null> {
   try {
     const keys = await kvList(PIN_KEY_PREFIX);
     if (!keys.length) return null;
-    const store: PinStore = { ...DEFAULT_PINS };
+    const store: PinStore = {};
     await Promise.all(keys.map(async key => {
       const userId = key.slice(PIN_KEY_PREFIX.length);
       const val = await kvGet(key);
-      if (val !== null) store[userId] = val;
+      // Only accept entries that look like valid PINs (at least 4 digits)
+      if (val !== null && /^\d{4,}$/.test(val)) store[userId] = val;
     }));
     return store;
   } catch { return null; }
@@ -175,15 +188,32 @@ async function savePinToKV(userId: string, pin: string): Promise<boolean> {
 // Warm up pinsCache from Replit KV on startup (non-blocking).
 // If KV is empty, seed it with the current local pins so they survive future deploys.
 loadAllPinsFromKV().then(async kv => {
-  if (kv) {
+  if (kv && Object.keys(kv).length) {
     pinsCache = { ...pinsCache, ...kv };
     saveServerPins(pinsCache);
     console.log("[pins] Loaded from Replit KV:", Object.keys(kv).join(", "));
   } else if (REPLIT_DB_URL) {
-    // KV available but empty — seed it with local pins so they survive the next deploy
-    console.log("[pins] Seeding Replit KV with current PINs...");
-    await Promise.all(Object.entries(pinsCache).map(([uid, pin]) => savePinToKV(uid, pin)));
-    console.log("[pins] Seeded Replit KV:", Object.keys(pinsCache).join(", "));
+    if (Object.keys(pinsCache).length) {
+      // Local file had valid PIN data (e.g., migrated from old deployment) — push to KV
+      console.log("[pins] Seeding Replit KV with local PINs...");
+      await Promise.all(Object.entries(pinsCache).map(([uid, pin]) => savePinToKV(uid, pin)));
+      console.log("[pins] Seeded Replit KV:", Object.keys(pinsCache).join(", "));
+    } else {
+      // Fresh deployment with no prior PIN data — generate cryptographically random PINs.
+      // Log them once so the commissioner can distribute them; members should change after first login.
+      const fresh: PinStore = {};
+      for (const uid of OWNER_IDS) {
+        fresh[uid] = String(randomInt(1000, 10000)); // 1000–9999, always 4 digits
+      }
+      pinsCache = fresh;
+      saveServerPins(pinsCache);
+      await Promise.all(Object.entries(pinsCache).map(([uid, pin]) => savePinToKV(uid, pin)));
+      console.log("[pins] ⚠️  FIRST-RUN BOOTSTRAP — generated random PINs:");
+      for (const [uid, pin] of Object.entries(pinsCache)) {
+        console.log(`[pins]   ${uid}: ${pin}`);
+      }
+      console.log("[pins] Share these with league members. Each member can change their PIN after first login.");
+    }
   } else {
     console.log("[pins] Replit KV unavailable — using local fallback");
   }
@@ -682,16 +712,11 @@ function ownerOnly(req: any, res: any): boolean {
   return requireCommissioner(req, res);
 }
 
-// GET /api/ipl/pins → returns all PINs (commissioner only, PIN-verified)
+// GET /api/ipl/pins → returns all PINs (commissioner-only, session-verified)
 router.get("/ipl/pins", async (req, res) => {
-  const ownerId = req.headers["x-owner-id"] as string;
-  const ownerPin = req.headers["x-owner-pin"] as string;
-  if (!verifyOwnerPin(ownerId, ownerPin) || ownerId !== "rajveer") {
-    res.status(403).json({ error: "Forbidden" });
-    return;
-  }
+  if (!requireCommissioner(req, res)) return;
   const kv = await loadAllPinsFromKV();
-  if (kv) { pinsCache = { ...pinsCache, ...kv }; saveServerPins(pinsCache); }
+  if (kv && Object.keys(kv).length) { pinsCache = { ...pinsCache, ...kv }; saveServerPins(pinsCache); }
   res.json(pinsCache);
 });
 

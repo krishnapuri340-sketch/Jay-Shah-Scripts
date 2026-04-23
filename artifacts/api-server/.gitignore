@@ -1,0 +1,5 @@
+dist/
+node_modules/
+
+# Runtime data — never commit, server bootstraps from Replit KV
+ipl-data/ipl-pins.json
