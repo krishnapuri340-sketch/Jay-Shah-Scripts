@@ -5,7 +5,7 @@ import StatsPage from "./pages/Stats";
 import { FANTASY_TEAMS } from "./teams";
 import { applyMultiplier, getTeamData } from "./utils";
 import { IPL_COLORS, SWIPEABLE_TABS, TEAM_LOGO_CDN } from "./constants";
-import WhatIfPage from "./pages/WhatIf";
+import ReAuctionPage from "./pages/ReAuction";
 import FixturesPage from "./pages/Fixtures";
 import TeamsPage from "./pages/Teams";
 import HomePage from "./pages/Home";
@@ -254,7 +254,7 @@ const TABS = [
   { id: "fixtures", label: "Matches"      },
   { id: "stats",    label: "Stats"        },
   { id: "history",  label: "History"      },
-  { id: "whatif",   label: "What If"      },
+  { id: "whatif",   label: "Re-Auction"   },
 ];
 
 const NAV_ICON: Record<string, React.ReactElement> = {
@@ -1810,26 +1810,7 @@ export default function App() {
     />
   );
 
-  const renderWhatIf = () => (
-    <WhatIfPage
-      wiSection={wiSection}
-      wiTeamId={wiTeamId}
-      altCap={altCap}
-      altVC={altVC}
-      perMatchCaps={perMatchCaps}
-      expandedWiMatch={expandedWiMatch}
-      playerMatchPoints={playerMatchPoints}
-      liveMatches={liveMatches}
-      playerPoints={playerPoints}
-      teamScores={teamScores}
-      setWiSection={setWiSection}
-      setWiTeamId={setWiTeamId}
-      setAltCap={setAltCap}
-      setAltVC={setAltVC}
-      setPerMatchCaps={setPerMatchCaps}
-      setExpandedWiMatch={setExpandedWiMatch}
-    />
-  );
+  const renderWhatIf = () => <ReAuctionPage />;
 
   const renderStats = () => (
     <StatsPage
