@@ -84,7 +84,7 @@ const rajveer: RaTeam = {
     { name: "Jofra Archer",       role: "BWL", ipl: "RR",   price: 8,    isNew: true, frozenPts: 388, preAuctionOffset: 613, replacedName: "Cameron Green" },
     { name: "Devdutt Padikkal",   role: "BAT", ipl: "KKR",  price: 4,    isNew: true, frozenPts: 0,   preAuctionOffset: 369, replacedName: "Jacob Bethell" },
     { name: "Nitish Kumar Reddy", role: "AR",  ipl: "SRH",  price: 6,    isNew: true, frozenPts: 167, preAuctionOffset: 510, replacedName: "Nicholas Pooran" },
-    { name: "Kagiso Rabada",      role: "BWL", ipl: "KKR",  price: 7,    isNew: true, frozenPts: 84,  preAuctionOffset: 553, replacedName: "Deepak Chahar" },
+    { name: "Kagiso Rabada",      role: "BWL", ipl: "GT",   price: 7,    isNew: true, frozenPts: 84,  preAuctionOffset: 553, replacedName: "Deepak Chahar" },
   ],
 };
 
