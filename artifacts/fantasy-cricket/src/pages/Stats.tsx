@@ -10,12 +10,11 @@ export const STAT_CATS = [
   { id: "foursLeader", label: "Fours", sub: "Most Fours" },
   { id: "dotsLeader", label: "Dot Balls", sub: "Most Dots Bowled" },
   { id: "catchesLeader", label: "Catches", sub: "Most Catches" },
-  { id: "srLeader", label: "Strike Rate", sub: "Min 10 balls" },
   { id: "ecoLeader", label: "Economy", sub: "Min 2 overs" },
 ] as const;
 
 function renderStatRow(entry: any, i: number, cat: string) {
-  const isBat = ["orangeCap", "sixesLeader", "foursLeader", "srLeader"].includes(cat);
+  const isBat = ["orangeCap", "sixesLeader", "foursLeader"].includes(cat);
   const accentColors = ["#d4a843", "#94a3b8", "#71717a"];
   const accentColor = i < 3 ? accentColors[i] : "var(--border)";
   const statColor = i === 0 ? "#d4a843" : i < 3 ? "var(--text)" : "var(--blue)";

@@ -1225,7 +1225,7 @@ body { background: var(--bg); }
 
 /* Stats horizontal category scroller */
 .stats-cat-scroller {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 12px;
 }
 
 /* WhatIf — owner avatar selector (used 2x) */
