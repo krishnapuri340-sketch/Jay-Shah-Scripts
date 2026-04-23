@@ -19720,15 +19720,15 @@
       "innings": [
         {
           "name": "Chennai Super Kings Inning 1",
-          "total": "147/4 (14.2 ov)",
+          "total": "165/4 (16.4 ov)",
           "batting": [
             {
               "name": "Sanju Samson",
-              "runs": 61,
-              "balls": 35,
-              "fours": 6,
-              "sixes": 3,
-              "sr": "174.29",
+              "runs": 78,
+              "balls": 43,
+              "fours": 8,
+              "sixes": 4,
+              "sr": "181.40",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -19779,11 +19779,11 @@
             },
             {
               "name": "Kartik Sharma",
-              "runs": 17,
-              "balls": 12,
+              "runs": 18,
+              "balls": 18,
               "fours": 0,
               "sixes": 2,
-              "sr": "141.67",
+              "sr": "100.00",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -19847,14 +19847,14 @@
           "bowling": [
             {
               "name": "Jasprit Bumrah",
-              "overs": "2",
+              "overs": "2.4",
               "maidens": 0,
-              "runs": 19,
+              "runs": 20,
               "wickets": 0,
-              "eco": "9.5",
+              "eco": "7.5",
               "wides": 0,
               "noBalls": 1,
-              "dots": 6
+              "dots": 9
             },
             {
               "name": "Hardik Pandya",
@@ -19869,14 +19869,14 @@
             },
             {
               "name": "AM Ghazanfar",
-              "overs": "3.2",
+              "overs": "4",
               "maidens": 0,
-              "runs": 23,
+              "runs": 25,
               "wickets": 2,
-              "eco": "6.9",
+              "eco": "6.25",
               "wides": 0,
               "noBalls": 0,
-              "dots": 5
+              "dots": 7
             },
             {
               "name": "Mitchell Santner",
@@ -19899,6 +19899,17 @@
               "wides": 0,
               "noBalls": 0,
               "dots": 5
+            },
+            {
+              "name": "Krish Bhagat",
+              "overs": "1",
+              "maidens": 0,
+              "runs": 15,
+              "wickets": 0,
+              "eco": "15",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 2
             }
           ]
         }

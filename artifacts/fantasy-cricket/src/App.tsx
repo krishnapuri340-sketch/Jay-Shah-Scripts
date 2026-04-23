@@ -464,6 +464,115 @@ export default function App() {
     } catch (_) {}
   };
 
+  // ── Push notifications ──────────────────────────────────────────────────────
+  const [pushSupported, setPushSupported] = useState(false);
+  const [pushSubscribed, setPushSubscribed] = useState(false);
+  const [pushEnabled, setPushEnabled] = useState(true);
+  const [pushSubscriberCount, setPushSubscriberCount] = useState(0);
+  const [notifPermission, setNotifPermission] = useState<NotificationPermission | null>(null);
+  const [pushSubscribing, setPushSubscribing] = useState(false);
+  const pushSubRef = useRef<PushSubscription | null>(null);
+
+  function urlBase64ToUint8Array(base64String: string): Uint8Array {
+    const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+    const raw = atob(base64);
+    return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+  }
+
+  useEffect(() => {
+    const supported = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+    setPushSupported(supported);
+    if (supported) setNotifPermission(Notification.permission);
+  }, []);
+
+  useEffect(() => {
+    if (!currentUser) return;
+    fetch("/api/ipl/push/status").then(r => r.json()).then(d => {
+      setPushEnabled(d.enabled ?? true);
+      setPushSubscriberCount(d.subscriberCount ?? 0);
+    }).catch(() => {});
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (!pushSupported || !currentUser) return;
+    navigator.serviceWorker.ready.then(reg => {
+      reg.pushManager.getSubscription().then(sub => {
+        pushSubRef.current = sub;
+        setPushSubscribed(!!sub);
+      });
+    }).catch(() => {});
+  }, [pushSupported, currentUser]);
+
+  const subscribePush = async () => {
+    if (!pushSupported || pushSubscribing) return;
+    setPushSubscribing(true);
+    try {
+      const perm = await Notification.requestPermission();
+      setNotifPermission(perm);
+      if (perm !== "granted") { setPushSubscribing(false); return; }
+      const vapidRes = await fetch("/api/ipl/push/vapid-public");
+      const { publicKey } = await vapidRes.json();
+      const reg = await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(publicKey),
+      });
+      pushSubRef.current = sub;
+      const saveRes = await fetch("/api/ipl/push/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...sub.toJSON(), userId: currentUser }),
+      });
+      const data = await saveRes.json();
+      setPushSubscribed(true);
+      setPushSubscriberCount(data.count ?? 0);
+    } catch (e) {
+      console.warn("[push] Subscribe failed:", e);
+    }
+    setPushSubscribing(false);
+  };
+
+  const unsubscribePush = async () => {
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.getSubscription();
+      if (sub) {
+        const endpoint = sub.endpoint;
+        await sub.unsubscribe();
+        await fetch("/api/ipl/push/unsubscribe", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ endpoint }),
+        });
+      }
+      pushSubRef.current = null;
+      setPushSubscribed(false);
+      setPushSubscriberCount(c => Math.max(0, c - 1));
+    } catch (e) { console.warn("[push] Unsubscribe failed:", e); }
+  };
+
+  const togglePushEnabled = async (enabled: boolean) => {
+    try {
+      const res = await fetch("/api/ipl/push/toggle", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Owner-Id": currentUser || "" },
+        body: JSON.stringify({ enabled }),
+      });
+      const data = await res.json();
+      setPushEnabled(data.enabled);
+    } catch (_) {}
+  };
+
+  const testPush = async () => {
+    try {
+      await fetch("/api/ipl/push/test", {
+        method: "POST",
+        headers: { "X-Owner-Id": currentUser || "" },
+      });
+    } catch (_) {}
+  };
+
   const syncSupabase = async () => {
     if (supabaseSyncing) return;
     setSupabaseSyncing(true);
@@ -1774,6 +1883,16 @@ export default function App() {
       syncSupabase={syncSupabase}
       prefetchS3Scorecards={prefetchS3Scorecards}
       refreshStatsCache={refreshStatsCache}
+      pushSupported={pushSupported}
+      pushSubscribed={pushSubscribed}
+      pushEnabled={pushEnabled}
+      pushSubscriberCount={pushSubscriberCount}
+      notifPermission={notifPermission}
+      pushSubscribing={pushSubscribing}
+      onSubscribePush={subscribePush}
+      onUnsubscribePush={unsubscribePush}
+      onTogglePushEnabled={togglePushEnabled}
+      onTestPush={testPush}
     />
   );
 

@@ -46,6 +46,17 @@ export interface AdminPageProps {
   syncSupabase: () => void;
   prefetchS3Scorecards: () => void;
   refreshStatsCache: () => void;
+  // Push notifications
+  pushSupported: boolean;
+  pushSubscribed: boolean;
+  pushEnabled: boolean;
+  pushSubscriberCount: number;
+  notifPermission: NotificationPermission | null;
+  pushSubscribing: boolean;
+  onSubscribePush: () => void;
+  onUnsubscribePush: () => void;
+  onTogglePushEnabled: (enabled: boolean) => void;
+  onTestPush: () => void;
 }
 
 export default function AdminPage(p: AdminPageProps) {
@@ -59,6 +70,8 @@ export default function AdminPage(p: AdminPageProps) {
     liveLoading, supabaseSyncing, s3Prefetching, statsRefreshing,
     supabaseSyncMsg, s3PrefetchResult, lastUpdated,
     setPlayerPoints, setProcessedMatches, fetchLive, fetchPoints, syncSupabase, prefetchS3Scorecards, refreshStatsCache,
+    pushSupported, pushSubscribed, pushEnabled, pushSubscriberCount, notifPermission,
+    pushSubscribing, onSubscribePush, onUnsubscribePush, onTogglePushEnabled, onTestPush,
   } = p;
 
   const abandonedSet = new Set(abandonedMatchIds);
@@ -233,6 +246,100 @@ export default function AdminPage(p: AdminPageProps) {
                 </div>
               );
             })}
+        </div>
+      </div>
+
+      {/* Notifications */}
+      <div className="admin-section">
+        <div style={{ marginBottom: 14 }}>
+          <div className="admin-section-title">Notifications</div>
+          <div className="admin-section-sub">
+            Get push alerts when a match goes live, the result, and your team's points.
+            {!pushSupported && " Install the app to your home screen to enable notifications."}
+          </div>
+        </div>
+
+        {/* Device subscription toggle */}
+        <div className="admin-status-list">
+          <div className="admin-status-row" style={{ alignItems: "center" }}>
+            <span className="admin-status-label">This device</span>
+            <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              {!pushSupported && (
+                <span style={{ fontSize: "0.68rem", color: "#475569" }}>Install app first</span>
+              )}
+              {pushSupported && notifPermission === "denied" && (
+                <span style={{ fontSize: "0.68rem", color: "#f87171" }}>Blocked — enable in Settings</span>
+              )}
+              {pushSupported && notifPermission !== "denied" && (
+                pushSubscribed ? (
+                  <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: "0.68rem", color: "#34d399" }}>✓ Active</span>
+                    <button
+                      onClick={onUnsubscribePush}
+                      style={{ fontSize: "0.62rem", padding: "3px 9px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.04)", color: "#71717a", cursor: "pointer" }}>
+                      Turn off
+                    </button>
+                  </span>
+                ) : (
+                  <button
+                    onClick={onSubscribePush}
+                    disabled={pushSubscribing}
+                    style={{
+                      fontSize: "0.68rem", padding: "5px 14px", borderRadius: 8,
+                      border: "1px solid rgba(212,168,67,0.4)", background: pushSubscribing ? "rgba(212,168,67,0.06)" : "rgba(212,168,67,0.12)",
+                      color: pushSubscribing ? "#71717a" : "#d4a843", cursor: pushSubscribing ? "default" : "pointer",
+                      fontWeight: 600, display: "flex", alignItems: "center", gap: 6,
+                    }}>
+                    {pushSubscribing ? <span className="spinner" /> : "🔔"} Enable Notifications
+                  </button>
+                )
+              )}
+            </span>
+          </div>
+
+          {/* Commissioner: global toggle + stats */}
+          {isCommissioner && (
+            <>
+              <div className="admin-divider" />
+              <div className="admin-status-row" style={{ alignItems: "center" }}>
+                <span className="admin-status-label">Global toggle</span>
+                <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontSize: "0.68rem", color: pushEnabled ? "#34d399" : "#71717a" }}>
+                    {pushEnabled ? "Enabled" : "Paused"}
+                  </span>
+                  <button
+                    onClick={() => onTogglePushEnabled(!pushEnabled)}
+                    style={{
+                      fontSize: "0.62rem", padding: "3px 9px", borderRadius: 6,
+                      border: `1px solid ${pushEnabled ? "rgba(239,68,68,0.3)" : "rgba(52,211,153,0.3)"}`,
+                      background: pushEnabled ? "rgba(239,68,68,0.06)" : "rgba(52,211,153,0.06)",
+                      color: pushEnabled ? "#f87171" : "#34d399", cursor: "pointer",
+                    }}>
+                    {pushEnabled ? "Pause all" : "Resume all"}
+                  </button>
+                </span>
+              </div>
+              <div className="admin-status-row">
+                <span className="admin-status-label">Subscribers</span>
+                <span style={{ color: pushSubscriberCount > 0 ? "#34d399" : "#475569", fontSize: "0.68rem" }}>
+                  {pushSubscriberCount} device{pushSubscriberCount !== 1 ? "s" : ""}
+                </span>
+              </div>
+              <div className="admin-status-row" style={{ justifyContent: "flex-end", paddingTop: 4 }}>
+                <button
+                  onClick={onTestPush}
+                  disabled={pushSubscriberCount === 0}
+                  style={{
+                    fontSize: "0.62rem", padding: "4px 12px", borderRadius: 7,
+                    border: "1px solid rgba(96,165,250,0.3)", background: "rgba(96,165,250,0.07)",
+                    color: pushSubscriberCount === 0 ? "#334155" : "#60a5fa",
+                    cursor: pushSubscriberCount === 0 ? "default" : "pointer",
+                  }}>
+                  Send test push
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
 

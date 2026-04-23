@@ -1294,6 +1294,21 @@ const FANTASY_TEAMS_EXPORT: Record<string, string[]> = {
   ponygoat: ["Marcus Stoinis","Yashasvi Jaiswal","Tim Seifert","Virat Kohli","Shashank Singh","Sunil Narine","Suryakumar Yadav","Jasprit Bumrah","Ravindra Jadeja","Travis Head","KL Rahul","Ryan Rickelton","Mitchell Marsh","Khaleel Ahmed","Kuldeep Yadav","Washington Sundar","T Natarajan"],
 };
 
+// ── Per-match team points lookup (used by push notifications) ─────────────────
+const OWNER_LABELS: Record<string, string> = { rajveer: "Raj", mombasa: "Rahul", mumbai: "Smeet", ponygoat: "Deb" };
+
+export function getMatchTeamPoints(iplId: string): Record<string, number> | null {
+  const match = pointsCache.processedMatches[iplId];
+  if (!match || Object.keys(match.points || {}).length === 0) return null;
+  const totals: Record<string, number> = {};
+  for (const [teamId, players] of Object.entries(FANTASY_TEAMS_EXPORT)) {
+    totals[teamId] = players.reduce((sum, p) => sum + (match.points[p] || 0), 0);
+  }
+  return totals;
+}
+
+export function getOwnerLabels(): Record<string, string> { return OWNER_LABELS; }
+
 // ── Live match poller (called by ipl.ts every 30 s when a match is active) ───
 let liveRefreshInProgress = false;
 

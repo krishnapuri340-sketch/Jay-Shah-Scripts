@@ -2,7 +2,8 @@ import { Router, type IRouter } from "express";
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join } from "path";
 import { fileURLToPath } from "url";
-import { fetchMatchOverview, refreshLiveMatches, getPointsHealthSnapshot } from "./ipl-points";
+import { fetchMatchOverview, refreshLiveMatches, getPointsHealthSnapshot, getMatchTeamPoints } from "./ipl-points";
+import { sendPushToAll } from "./push";
 
 // ── Shared data stores ────────────────────────────────────────────────────────
 // Anchor data directory to the bundle file location (dist/index.mjs).
@@ -328,6 +329,11 @@ let matchesRefreshing = false;
 let currentLiveIplIds: string[] = []; // updated by each doRefreshMatches run
 let completedMatchIds = new Set<string>(); // updated by each doRefreshMatches run
 
+// ── Push notification state tracking ──────────────────────────────────────────
+const prevMatchStates = new Map<string, { started: boolean; ended: boolean }>();
+const pendingPointsTimers = new Map<string, ReturnType<typeof setTimeout>>();
+let pushBootstrapDone = false; // skip first run so we don't push on server restart
+
 async function doRefreshMatches(): Promise<void> {
   if (matchesRefreshing) return;
   matchesRefreshing = true;
@@ -376,6 +382,74 @@ async function doRefreshMatches(): Promise<void> {
     // Pull fresh S3 innings for each live match
     if (currentLiveIplIds.length > 0) {
       refreshLiveMatches(currentLiveIplIds).catch(() => {});
+    }
+
+    // ── Push notifications on match state transitions ─────────────────────────
+    if (pushBootstrapDone) {
+      for (const m of allMatches) {
+        const prev = prevMatchStates.get(m.id);
+        const nowLive = m.matchStarted && !m.matchEnded;
+        const nowEnded = !!m.matchEnded;
+
+        if (prev) {
+          const wentLive = !prev.started && nowLive;
+          const wentEnded = !prev.ended && nowEnded;
+
+          if (wentLive) {
+            const home = m.homeTeamCode || "";
+            const away = m.awayTeamCode || "";
+            sendPushToAll({
+              title: `🏏 ${home} vs ${away} — LIVE`,
+              body: m.toss ? `${m.toss}` : "Match has started — good luck!",
+              tag: `live-${m.id}`,
+              url: "/",
+            }).catch(() => {});
+          }
+
+          if (wentEnded) {
+            const resultText = typeof m.status === "string" && m.status.length > 2
+              ? m.status
+              : "Match complete";
+            sendPushToAll({
+              title: `✅ ${m.homeTeamCode || ""} vs ${m.awayTeamCode || ""} — Result`,
+              body: resultText,
+              tag: `result-${m.id}`,
+              url: "/",
+            }).catch(() => {});
+
+            // Schedule delayed points push (90 s — gives supabase time to sync)
+            if (!pendingPointsTimers.has(m.id)) {
+              const matchId = String(m.id);
+              const matchLabel = `${m.homeTeamCode || ""} vs ${m.awayTeamCode || ""}`;
+              const timer = setTimeout(async () => {
+                pendingPointsTimers.delete(matchId);
+                try {
+                  const teamPts = getMatchTeamPoints(matchId);
+                  if (!teamPts) return;
+                  const sorted = Object.entries(teamPts).sort((a, b) => b[1] - a[1]);
+                  const LABELS: Record<string, string> = { rajveer: "Raj", mombasa: "Rahul", mumbai: "Smeet", ponygoat: "Deb" };
+                  const body = sorted.map(([id, pts]) => `${LABELS[id] || id} +${pts}`).join(" · ");
+                  await sendPushToAll({
+                    title: `📊 ${matchLabel} — Points Settled`,
+                    body,
+                    tag: `pts-${matchId}`,
+                    url: "/",
+                  });
+                } catch (_) {}
+              }, 90_000);
+              pendingPointsTimers.set(m.id, timer);
+            }
+          }
+        }
+
+        prevMatchStates.set(m.id, { started: m.matchStarted, ended: nowEnded });
+      }
+    } else {
+      // Bootstrap: seed state without firing notifications
+      for (const m of allMatches) {
+        prevMatchStates.set(m.id, { started: m.matchStarted, ended: !!m.matchEnded });
+      }
+      pushBootstrapDone = true;
     }
   } catch (_) {
     // silently retain old cache on error
