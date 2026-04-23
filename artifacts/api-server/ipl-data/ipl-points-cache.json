@@ -19720,7 +19720,7 @@
       "innings": [
         {
           "name": "Chennai Super Kings Inning 1",
-          "total": "132/4 (13.1 ov)",
+          "total": "145/4 (14.0 ov)",
           "batting": [
             {
               "name": "Sanju Samson",
@@ -19779,11 +19779,11 @@
             },
             {
               "name": "Kartik Sharma",
-              "runs": 3,
-              "balls": 6,
+              "runs": 16,
+              "balls": 11,
               "fours": 0,
-              "sixes": 0,
-              "sr": "50.00",
+              "sixes": 2,
+              "sr": "145.45",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -19880,14 +19880,14 @@
             },
             {
               "name": "Mitchell Santner",
-              "overs": "3.1",
+              "overs": "4",
               "maidens": 0,
-              "runs": 31,
+              "runs": 44,
               "wickets": 1,
-              "eco": "9.79",
+              "eco": "11",
               "wides": 2,
               "noBalls": 0,
-              "dots": 6
+              "dots": 8
             },
             {
               "name": "Ashwani Kumar",
