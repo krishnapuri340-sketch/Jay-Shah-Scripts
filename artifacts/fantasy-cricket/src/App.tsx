@@ -371,7 +371,7 @@ export default function App() {
   const { standings, setStandings, standingsLoading, fetchStandings } = useStandings();
   const { iplStats, setIplStats, statsLoading, fetchStats } = useIplStats();
   const [statsFilter, setStatsFilter] = useState<"all" | "fantasy" | "predictions">("all");
-  const [statsCategory, setStatsCategory] = useState<"fantasyPts" | "orangeCap" | "purpleCap" | "sixesLeader" | "foursLeader" | "catchesLeader" | "ecoLeader" | "dotsLeader">("fantasyPts");
+  const [statsCategory, setStatsCategory] = useState<"fantasyPts" | "orangeCap" | "purpleCap" | "sixesLeader" | "foursLeader" | "catchesLeader" | "srLeader" | "ecoLeader" | "dotsLeader">("fantasyPts");
   const [statsExpanded, setStatsExpanded] = useState(false);
   const [predArchiveOpen, setPredArchiveOpen] = useState(false);
   const [fantasyPtsOpen, setFantasyPtsOpen] = useState(false);

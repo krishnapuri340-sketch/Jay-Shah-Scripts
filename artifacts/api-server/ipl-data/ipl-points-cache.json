@@ -19720,15 +19720,15 @@
       "innings": [
         {
           "name": "Chennai Super Kings Inning 1",
-          "total": "103/3 (9.1 ov)",
+          "total": "94/3 (8.4 ov)",
           "batting": [
             {
               "name": "Sanju Samson",
-              "runs": 47,
-              "balls": 23,
+              "runs": 46,
+              "balls": 22,
               "fours": 5,
               "sixes": 3,
-              "sr": "204.35",
+              "sr": "209.09",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -19768,11 +19768,11 @@
             },
             {
               "name": "Dewald Brevis",
-              "runs": 9,
-              "balls": 4,
+              "runs": 2,
+              "balls": 2,
               "fours": 0,
-              "sixes": 1,
-              "sr": "225.00",
+              "sixes": 0,
+              "sr": "100.00",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -19869,23 +19869,23 @@
             },
             {
               "name": "AM Ghazanfar",
-              "overs": "3",
+              "overs": "2.4",
               "maidens": 0,
-              "runs": 21,
+              "runs": 19,
               "wickets": 2,
-              "eco": "7",
+              "eco": "7.13",
               "wides": 0,
               "noBalls": 0,
               "dots": 5
             },
             {
               "name": "Mitchell Santner",
-              "overs": "1.1",
+              "overs": "1",
               "maidens": 0,
-              "runs": 16,
+              "runs": 9,
               "wickets": 1,
-              "eco": "13.71",
-              "wides": 1,
+              "eco": "9",
+              "wides": 0,
               "noBalls": 0,
               "dots": 3
             },
