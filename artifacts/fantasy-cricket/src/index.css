@@ -246,9 +246,9 @@ body { background: var(--bg); }
   top: 0;
   left: calc(var(--nav-idx, 0) * ((100% - 16px) / 6) + (100% - 16px) / 12 - 14px);
   width: 44px;
-  height: 18px;
-  background: rgba(232,184,75,0.22);
-  border-radius: 0 0 10px 10px;
+  height: 2.5px;
+  background: var(--gold);
+  border-radius: 0 0 3px 3px;
   transition: left 0.25s var(--ease-out);
   pointer-events: none;
 }
