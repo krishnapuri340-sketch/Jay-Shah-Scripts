@@ -19720,7 +19720,7 @@
       "innings": [
         {
           "name": "Chennai Super Kings Inning 1",
-          "total": "64/1 (5.0 ov)",
+          "total": "68/1 (5.1 ov)",
           "batting": [
             {
               "name": "Sanju Samson",
@@ -19746,11 +19746,11 @@
             },
             {
               "name": "Sarfaraz Khan",
-              "runs": 6,
-              "balls": 4,
-              "fours": 1,
+              "runs": 10,
+              "balls": 5,
+              "fours": 2,
               "sixes": 0,
-              "sr": "150.00",
+              "sr": "200.00",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -19877,6 +19877,17 @@
               "wides": 0,
               "noBalls": 0,
               "dots": 3
+            },
+            {
+              "name": "Mitchell Santner",
+              "overs": "0.1",
+              "maidens": 0,
+              "runs": 4,
+              "wickets": 0,
+              "eco": "24",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 0
             }
           ]
         }
