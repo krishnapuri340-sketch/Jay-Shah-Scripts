@@ -19714,6 +19714,174 @@
         }
       ],
       "playerStats": {}
+    },
+    "2473": {
+      "points": {},
+      "innings": [
+        {
+          "name": "Chennai Super Kings Inning 1",
+          "total": "62/1 (4.3 ov)",
+          "batting": [
+            {
+              "name": "Sanju Samson",
+              "runs": 30,
+              "balls": 13,
+              "fours": 4,
+              "sixes": 2,
+              "sr": "230.77",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Ruturaj Gaikwad",
+              "runs": 22,
+              "balls": 14,
+              "fours": 3,
+              "sixes": 1,
+              "sr": "157.14",
+              "dismissal": "c Tilak Varma b AM Ghazanfar",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Sarfaraz Khan",
+              "runs": 5,
+              "balls": 2,
+              "fours": 1,
+              "sixes": 0,
+              "sr": "250.00",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Dewald Brevis",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Shivam Dube",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Kartik Sharma",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Jamie Overton",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Noor Ahmad",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Anshul Kamboj",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Gurjapneet Singh",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Mukesh Choudhary",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            }
+          ],
+          "bowling": [
+            {
+              "name": "Jasprit Bumrah",
+              "overs": "1.3",
+              "maidens": 0,
+              "runs": 17,
+              "wickets": 0,
+              "eco": "11.33",
+              "wides": 0,
+              "noBalls": 1,
+              "dots": 5
+            },
+            {
+              "name": "Hardik Pandya",
+              "overs": "2",
+              "maidens": 0,
+              "runs": 38,
+              "wickets": 0,
+              "eco": "19",
+              "wides": 2,
+              "noBalls": 1,
+              "dots": 4
+            },
+            {
+              "name": "AM Ghazanfar",
+              "overs": "1",
+              "maidens": 0,
+              "runs": 6,
+              "wickets": 1,
+              "eco": "6",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 3
+            }
+          ]
+        }
+      ],
+      "playerStats": {}
     }
   },
   "supabaseScores": {
@@ -20346,6 +20514,23 @@
       "matchDate": "2026-04-20",
       "matchNumber": 30,
       "linkedIplId": "2470"
+    },
+    "759418d0-2480-41cc-b20a-f576f53c8d4b": {
+      "points": {
+        "Suryakumar Yadav": 4,
+        "Sherfane Rutherford": 4,
+        "Ruturaj Gaikwad": 4,
+        "Shivam Dube": 4,
+        "Sanju Samson": 4,
+        "Hardik Pandya": 4,
+        "Jasprit Bumrah": 4,
+        "Dewald Brevis": 4,
+        "Tilak Varma": 4
+      },
+      "matchLabel": "Mumbai Indians vs Chennai Super Kings",
+      "matchDate": "2026-04-23",
+      "matchNumber": 33,
+      "linkedIplId": "2473"
     }
   },
   "playerIdMap": {
@@ -21024,7 +21209,7 @@
       "matchNumber": 70
     }
   },
-  "lastUpdated": "2026-04-22T19:21:01.154Z",
+  "lastUpdated": "2026-04-23T13:37:06.541Z",
   "cricapiMatchIds": {
     "2428": "12b5d808-d9ab-468e-bd25-a2c347f64bdc",
     "2467": "c5bf2a95-1855-463d-accf-9c1db88418cd",

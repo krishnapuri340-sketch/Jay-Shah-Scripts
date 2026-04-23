@@ -668,12 +668,12 @@ body { background: var(--bg); }
 /* === MISC === */
 .divider { height: 1px; background: var(--border); margin: 24px 0; }
 
-/* === TAB FADE ANIMATION === */
-.tab-content { animation: tabFadeIn 0.12s ease-out; }
-@keyframes tabFadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+/* === TAB SLIDE ANIMATION === */
+@keyframes tabSlideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
 }
+.tab-content { animation: tabSlideUp 0.18s var(--ease-out) both; }
 .notice {
   background: var(--gold-deep);
   border: 1px solid rgba(232,184,75,0.2);
