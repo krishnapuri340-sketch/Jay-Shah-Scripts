@@ -3,7 +3,7 @@ import webpush from "web-push";
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join } from "path";
 import { fileURLToPath } from "url";
-import { requireCommissioner, requireSession } from "../lib/sessions";
+import { requireCommissioner, requireSession, isCommissioner } from "../lib/sessions";
 
 const router: IRouter = Router();
 
@@ -196,7 +196,7 @@ router.delete("/ipl/push/unsubscribe", (req: Request, res: Response) => {
   // Only remove subscriptions belonging to the authenticated user (or commissioner)
   const before = subscriptions.length;
   subscriptions = subscriptions.filter(s =>
-    s.endpoint !== endpoint || (s.userId !== userId && userId !== "rajveer")
+    s.endpoint !== endpoint || (s.userId !== userId && !isCommissioner(userId))
   );
   if (subscriptions.length < before) saveSubs();
   res.json({ ok: true, count: subscriptions.length });

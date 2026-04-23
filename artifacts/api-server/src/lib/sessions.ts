@@ -50,9 +50,16 @@ export function requireSession(req: any, res: any): string | null {
   return userId;
 }
 
+// The commissioner is the single admin account for this league.
+const COMMISSIONER_ID = "rajveer";
+
+export function isCommissioner(userId: string | null): boolean {
+  return userId === COMMISSIONER_ID;
+}
+
 export function requireCommissioner(req: any, res: any): boolean {
   const userId = getSessionUser(req);
-  if (userId !== "rajveer") {
+  if (!isCommissioner(userId)) {
     res.status(403).json({ error: "Forbidden" });
     return false;
   }
