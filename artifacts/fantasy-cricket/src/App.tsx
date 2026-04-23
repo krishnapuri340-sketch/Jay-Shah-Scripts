@@ -523,8 +523,8 @@ export default function App() {
       pushSubRef.current = sub;
       const saveRes = await fetch("/api/ipl/push/subscribe", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...sub.toJSON(), userId: currentUser }),
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: JSON.stringify(sub.toJSON()),
       });
       const data = await saveRes.json();
       setPushSubscribed(true);
@@ -544,7 +544,7 @@ export default function App() {
         await sub.unsubscribe();
         await fetch("/api/ipl/push/unsubscribe", {
           method: "DELETE",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", ...authHeaders() },
           body: JSON.stringify({ endpoint }),
         });
       }
