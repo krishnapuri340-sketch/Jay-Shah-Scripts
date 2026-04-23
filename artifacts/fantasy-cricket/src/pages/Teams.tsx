@@ -447,6 +447,10 @@ export default function TeamsPage(props: TeamsPageProps) {
               }}>VC</span>
             );
 
+            // The "bubble" player — lowest scorer who made it into the XI.
+            // Bench players are compared against this threshold.
+            const xi11thPts = xi.length >= 11 ? xi[10].adj : xi.length > 0 ? xi[xi.length - 1].adj : null;
+
             const renderPlayer = (p: typeof xi[0], isBench: boolean) => {
               const isExp = expandedPlayer === p.name;
               const { isLiveNow, isUpcoming, isDimmed } = getPlayerState(p.name, p.ipl);
@@ -511,9 +515,17 @@ export default function TeamsPage(props: TeamsPageProps) {
                       }}>{p.adj}</div>
                       {isCap && <div className="player-pts-raw" style={{ color: "#d4a843" }}>×2</div>}
                       {isVC && <div className="player-pts-raw" style={{ color: "#9e8e7e" }}>×1.5</div>}
-                      {isBench && !isCap && !isVC && (
-                        <div style={{ fontSize: "0.44rem", color: "var(--text-3)", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" as const, marginTop: 2, opacity: 0.5 }}>bench</div>
-                      )}
+                      {isBench && (() => {
+                        if (xi11thPts === null) return <div style={{ fontSize: "0.44rem", color: "var(--text-3)", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" as const, marginTop: 2, opacity: 0.5 }}>bench</div>;
+                        const gap = Math.round((xi11thPts - p.adj) * 10) / 10;
+                        const gapStr = Number.isInteger(gap) ? String(gap) : gap.toFixed(1);
+                        const gapColor = gap <= 5 ? "#fbbf24" : gap <= 20 ? "rgba(251,146,60,0.8)" : "var(--text-3)";
+                        return (
+                          <div style={{ fontSize: "0.43rem", color: gapColor, fontWeight: 700, letterSpacing: "0.03em", marginTop: 3, lineHeight: 1, opacity: gap > 40 ? 0.55 : 1, whiteSpace: "nowrap" as const }}>
+                            {gap > 0 ? `↑${gapStr} to XI` : "≈ #11"}
+                          </div>
+                        );
+                      })()}
                       {!isBench && !isCap && !isVC && p.adj > 0 && (
                         <div style={{ fontSize: "0.44rem", color: t.color, opacity: 0.55, fontWeight: 600, letterSpacing: "0.06em", marginTop: 2 }}>pts</div>
                       )}
