@@ -8,10 +8,10 @@ export const STAT_CATS = [
   { id: "purpleCap", label: "Purple Cap", sub: "Most Wickets" },
   { id: "sixesLeader", label: "Sixes", sub: "Most Sixes" },
   { id: "foursLeader", label: "Fours", sub: "Most Fours" },
+  { id: "dotsLeader", label: "Dot Balls", sub: "Most Dots Bowled" },
   { id: "catchesLeader", label: "Catches", sub: "Most Catches" },
   { id: "srLeader", label: "Strike Rate", sub: "Min 10 balls" },
   { id: "ecoLeader", label: "Economy", sub: "Min 2 overs" },
-  { id: "dotsLeader", label: "Dot Balls", sub: "Most Dots Bowled" },
 ] as const;
 
 function renderStatRow(entry: any, i: number, cat: string) {
