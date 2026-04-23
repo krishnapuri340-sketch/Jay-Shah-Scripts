@@ -115,7 +115,7 @@ const mumbai: RaTeam = {
     { name: "Sakib Hussain",      role: "AR",  ipl: "DC",   price: 2,    isNew: true, frozenPts: 61,  preAuctionOffset: 290, replacedName: "Venkatesh Iyer" },
     { name: "Josh Hazlewood",     role: "BWL", ipl: "RCB",  price: 4,    isNew: true, frozenPts: 97,  preAuctionOffset: 180, replacedName: "Prashant Veer" },
     { name: "Ravi Bishnoi",       role: "BWL", ipl: "RR",   price: 7,    isNew: true, frozenPts: 209, preAuctionOffset: 488, replacedName: "Nitish Rana" },
-    { name: "Sarfaraz Khan",      role: "BAT", ipl: "DC",   price: 3,    isNew: true, frozenPts: 34,  preAuctionOffset: 390, replacedName: "Harshal Patel" },
+    { name: "Sarfaraz Khan",      role: "BAT", ipl: "CSK",  price: 3,    isNew: true, frozenPts: 34,  preAuctionOffset: 390, replacedName: "Harshal Patel" },
   ],
 };
 
@@ -142,7 +142,7 @@ const mombasa: RaTeam = {
     // ── Acquired ─────────────────────────────────────────────────────────────
     { name: "Shimron Hetmyer",    role: "BAT", ipl: "RR",   price: 3.5,  isNew: true, frozenPts: 0,   preAuctionOffset: 160, replacedName: "Will Jacks" },
     { name: "Travis Head",        role: "BAT", ipl: "SRH",  price: 11.5, isNew: true, frozenPts: 302, preAuctionOffset: 364, replacedName: "Shivam Dube" },
-    { name: "Sameer Rizvi",       role: "BAT", ipl: "CSK",  price: 4,    isNew: true, frozenPts: 94,  preAuctionOffset: 411, replacedName: "Nehal Wadhera" },
+    { name: "Sameer Rizvi",       role: "BAT", ipl: "DC",   price: 4,    isNew: true, frozenPts: 94,  preAuctionOffset: 411, replacedName: "Nehal Wadhera" },
     { name: "Suryakumar Yadav",   role: "BAT", ipl: "MI",   price: 20.5, isNew: true, frozenPts: 258, preAuctionOffset: 305, replacedName: "Varun Chakravarthy" },
     { name: "Shivam Dube",        role: "AR",  ipl: "CSK",  price: 10,   isNew: true, frozenPts: 69,  preAuctionOffset: 302, replacedName: "Trent Boult" },
     { name: "Jamie Overton",      role: "AR",  ipl: "CSK",  price: 5,    isNew: true, frozenPts: 160, preAuctionOffset: 616, replacedName: "Shimron Hetmyer" },
