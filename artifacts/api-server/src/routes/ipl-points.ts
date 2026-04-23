@@ -459,6 +459,31 @@ const VALID_OWNER_IDS = new Set(["rajveer", "mombasa", "mumbai", "ponygoat"]);
 // When non-empty, scorecard requests for unknown IDs are rejected without hitting S3.
 const knownMatchIds = new Set<string>();
 
+// Warm the allowlist shortly after server start by fetching just the IPL
+// schedule (no innings data). This ensures the scorecard allowlist is active
+// immediately, not only after the first full stats-refresh cycle.
+async function warmKnownMatchIds(): Promise<void> {
+  try {
+    const r = await fetch(
+      `${S3_FEEDS_BASE}/${IPL_COMP_ID}-matchschedule.js`,
+      { signal: AbortSignal.timeout(12_000) },
+    );
+    if (!r.ok) return;
+    const schedule = JSON.parse(stripJsonp(await r.text()));
+    const matches: any[] = schedule?.Matchsummary ?? [];
+    let added = 0;
+    for (const m of matches) {
+      const id = String(m?.MatchID ?? "").trim();
+      if (id && !knownMatchIds.has(id)) { knownMatchIds.add(id); added++; }
+    }
+    console.log(`[scorecard-allowlist] Startup warm: ${added} IDs added (total ${knownMatchIds.size})`);
+  } catch (_) {
+    console.warn("[scorecard-allowlist] Startup warm failed — allowlist will fill on first stats refresh");
+  }
+}
+// Non-blocking: run after the event loop is ready so startup latency is unaffected.
+setImmediate(() => warmKnownMatchIds().catch(() => {}));
+
 // Per-IP rate limiter for expensive admin endpoints.
 // Tracks request timestamps per IP; prunes stale entries each check.
 const ipRateLimits = new Map<string, number[]>();
