@@ -2,8 +2,6 @@ import React from "react";
 import { FANTASY_TEAMS } from "../teams";
 
 export interface AdminPageProps {
-  theme: "dark" | "light";
-  toggleTheme: () => void;
   currentUser: string;
   abandonedMatchIds: string[];
   liveMatches: any[];
@@ -52,7 +50,6 @@ export interface AdminPageProps {
 
 export default function AdminPage(p: AdminPageProps) {
   const {
-    theme, toggleTheme,
     currentUser, abandonedMatchIds, liveMatches, playerPoints, processedMatches, playerMatchPoints,
     pinEditTarget, pinStep, pinConfirmVal, pinConfirmError, pinEditVal,
     setPinEditTarget, setPinStep, setPinConfirmVal, setPinConfirmError, setPinEditVal,
@@ -81,28 +78,6 @@ export default function AdminPage(p: AdminPageProps) {
         <div className="stat-card"><div className="stat-val" style={{ color: "var(--live)" }}>{liveCount}</div><div className="stat-lbl">Live</div></div>
         <div className="stat-card"><div className="stat-val" style={{ color: "#60a5fa" }}>{processedMatches.length}</div><div className="stat-lbl">Scored</div></div>
         <div className="stat-card"><div className="stat-val" style={{ color: "#a855f7" }}>{Object.keys(playerPoints).length}</div><div className="stat-lbl">Players</div></div>
-      </div>
-
-      {/* Appearance */}
-      <div className="admin-section" style={{ marginBottom: 16 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div>
-            <div className="admin-section-title" style={{ marginBottom: 2 }}>Appearance</div>
-            <div className="admin-section-sub">{theme === "dark" ? "Dark mode" : "Light mode (beige)"}</div>
-          </div>
-          <button
-            onClick={toggleTheme}
-            style={{
-              display: "flex", alignItems: "center", gap: 8, background: "var(--surface-3)",
-              border: "1.5px solid var(--border-2)", borderRadius: 24, padding: "6px 14px 6px 10px",
-              cursor: "pointer", color: "var(--text)", fontSize: "0.78rem", fontWeight: 600,
-              transition: "background 0.2s, border-color 0.2s",
-            }}
-          >
-            <span style={{ fontSize: "1rem", lineHeight: 1 }}>{theme === "dark" ? "🌙" : "☀️"}</span>
-            {theme === "dark" ? "Dark" : "Light"}
-          </button>
-        </div>
       </div>
 
       {/* PIN Management */}
