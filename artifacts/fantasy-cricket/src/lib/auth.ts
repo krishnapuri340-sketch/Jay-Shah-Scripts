@@ -23,3 +23,13 @@ export function authStreamUrl(baseUrl: string): string {
   const sep = baseUrl.includes("?") ? "&" : "?";
   return `${baseUrl}${sep}token=${encodeURIComponent(token)}`;
 }
+
+export function dispatchSessionExpired(): void {
+  window.dispatchEvent(new CustomEvent("ipl:session-expired"));
+}
+
+export async function fetchAuthed(url: string, opts: RequestInit = {}): Promise<Response> {
+  const res = await fetch(url, { ...opts, headers: { ...authHeaders(), ...(opts.headers || {}) } });
+  if (res.status === 401) dispatchSessionExpired();
+  return res;
+}

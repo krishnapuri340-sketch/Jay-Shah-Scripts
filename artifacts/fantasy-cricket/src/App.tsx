@@ -15,7 +15,7 @@ import { usePredictions, saveLocalPreds } from "./hooks/usePredictions";
 import { useScorecard } from "./hooks/useScorecard";
 import { useLiveMatches } from "./hooks/useLiveMatches";
 import { useFantasyPoints } from "./hooks/useFantasyPoints";
-import { getAuthToken, setAuthToken, clearAuthToken, authHeaders, authStreamUrl } from "./lib/auth";
+import { getAuthToken, setAuthToken, clearAuthToken, authHeaders, authStreamUrl, fetchAuthed } from "./lib/auth";
 
 // ─── PIN login ───────────────────────────────────────────────────────────────
 // PINs are server-authoritative; never stored as defaults in client code.
@@ -418,6 +418,13 @@ export default function App() {
   const resetPinEdit = () => { setPinEditTarget(null); setPinEditVal(""); setPinConfirmVal(""); setPinStep("confirm"); setPinConfirmError(false); };
   const handleLogin = (userId: string) => { localStorage.setItem("ipl-current-user", userId); setCurrentUser(userId); setTab("home"); };
   const handleLogout = () => { localStorage.removeItem("ipl-current-user"); clearAuthToken(); setCurrentUser(null); };
+
+  // When any API call returns 401 (server restarted, session wiped), force re-login
+  useEffect(() => {
+    const onExpired = () => { clearAuthToken(); localStorage.removeItem("ipl-current-user"); setCurrentUser(null); };
+    window.addEventListener("ipl:session-expired", onExpired);
+    return () => window.removeEventListener("ipl:session-expired", onExpired);
+  }, []);
   const handleValidate = async (userId: string, pin: string): Promise<boolean> => {
     try {
       const res = await fetch("/api/ipl/pins/validate", {
@@ -924,8 +931,8 @@ export default function App() {
         fetch("/api/ipl/standings").then(r => r.ok ? r.json() : null).then(data => {
           if (data) setStandings(data.standings || data);
         }),
-        fetch("/api/ipl/predictions", { headers: authHeaders() }).then(r => r.ok ? r.json() : null).then(data => {
-          if (data) { setPredictions(data); saveLocalPreds(data); }
+        fetchAuthed("/api/ipl/predictions").then(r => r.ok ? r.json() : (loadLocalPreds())).then(data => {
+          if (data && Object.keys(data).length) { setPredictions(data); if (data) saveLocalPreds(data); }
         }),
         fetch("/api/ipl/stats").then(r => r.ok ? r.json() : null).then(data => {
           if (data) setIplStats(data);

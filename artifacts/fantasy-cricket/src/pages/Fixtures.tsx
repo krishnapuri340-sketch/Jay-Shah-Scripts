@@ -3,7 +3,7 @@ import InningsTable from "../components/InningsTable";
 import { FANTASY_TEAMS } from "../teams";
 import { getMatchWinner, getH2H, fmtDate, fmtTime, getMatchNum, predictNextMatch, predictFirstInningsTotal } from "../utils";
 import { IPL_COLORS, TEAM_LOGO_CDN, VENUE_AVG } from "../constants";
-import { authHeaders } from "../lib/auth";
+import { authHeaders, fetchAuthed } from "../lib/auth";
 
 interface FixturesPageProps {
   liveMatches: any[];
@@ -487,9 +487,9 @@ export default function FixturesPage({
                                               return updated;
                                             });
                                             setPredSaveState(s => ({ ...s, [saveKey]: "saving" }));
-                                            fetch(`/api/ipl/predictions/${encodeURIComponent(matchIdStr)}`, {
+                                            fetchAuthed(`/api/ipl/predictions/${encodeURIComponent(matchIdStr)}`, {
                                               method: "POST",
-                                              headers: { "Content-Type": "application/json", ...authHeaders() },
+                                              headers: { "Content-Type": "application/json" },
                                               body: JSON.stringify({ ownerId, pick: newPick }),
                                             }).then(r => r.json()).then(d => {
                                               if (d.predictions) {

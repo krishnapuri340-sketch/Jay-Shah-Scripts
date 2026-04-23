@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from "react";
-import { authHeaders } from "../lib/auth";
+import { fetchAuthed } from "../lib/auth";
 
 const PRED_CACHE_KEY = "ipl-predictions-2026";
 
@@ -21,13 +21,17 @@ export function usePredictions() {
     if (Date.now() - lastPredSaveRef.current < 8000) return;
     const fetchStartedAt = Date.now();
     try {
-      const res = await fetch("/api/ipl/predictions", { headers: authHeaders() });
+      const res = await fetchAuthed("/api/ipl/predictions");
       if (res.ok) {
         const server: PredictionsMap = await res.json();
         if (Date.now() - lastPredSaveRef.current < 8000) return;
         if (fetchStartedAt < lastPredSaveRef.current) return;
         saveLocalPreds(server);
         setPredictions(server);
+      } else {
+        // On 401 or any error, show locally cached predictions so the UI isn't blank
+        const local = loadLocalPreds();
+        if (Object.keys(local).length > 0) setPredictions(local);
       }
     } catch (_) {
       const local = loadLocalPreds();
