@@ -19720,7 +19720,7 @@
       "innings": [
         {
           "name": "Chennai Super Kings Inning 1",
-          "total": "165/4 (16.4 ov)",
+          "total": "166/5 (17.0 ov)",
           "batting": [
             {
               "name": "Sanju Samson",
@@ -19780,24 +19780,24 @@
             {
               "name": "Kartik Sharma",
               "runs": 18,
-              "balls": 18,
+              "balls": 19,
               "fours": 0,
               "sixes": 2,
-              "sr": "100.00",
-              "dismissal": "not out",
-              "notOut": true,
+              "sr": "94.74",
+              "dismissal": "c Mitchell Santner b Jasprit Bumrah",
+              "notOut": false,
               "dnb": false
             },
             {
               "name": "Jamie Overton",
-              "runs": 0,
-              "balls": 0,
+              "runs": 1,
+              "balls": 1,
               "fours": 0,
               "sixes": 0,
-              "sr": "-",
-              "dismissal": "",
-              "notOut": false,
-              "dnb": true
+              "sr": "100.00",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
             },
             {
               "name": "Noor Ahmad",
@@ -19847,14 +19847,14 @@
           "bowling": [
             {
               "name": "Jasprit Bumrah",
-              "overs": "2.4",
+              "overs": "3",
               "maidens": 0,
-              "runs": 20,
-              "wickets": 0,
-              "eco": "7.5",
+              "runs": 21,
+              "wickets": 1,
+              "eco": "7",
               "wides": 0,
               "noBalls": 1,
-              "dots": 9
+              "dots": 10
             },
             {
               "name": "Hardik Pandya",
