@@ -306,6 +306,14 @@ const buildMatchPreviews = (matches: any[]) =>
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function App() {
+  const [theme, setTheme] = useState<"dark" | "light">(() => (localStorage.getItem("fcTheme") as "dark" | "light") || "dark");
+  useEffect(() => {
+    if (theme === "light") { document.documentElement.classList.add("light"); }
+    else { document.documentElement.classList.remove("light"); }
+    localStorage.setItem("fcTheme", theme);
+  }, [theme]);
+  const toggleTheme = () => setTheme(t => t === "dark" ? "light" : "dark");
+
   const [tab, setTab] = useState("home");
   const [wiSection, setWiSection] = useState<"swap" | "permatch" | "intel">("swap");
   const [wiTeamId, setWiTeamId] = useState("rajveer");
@@ -1730,6 +1738,8 @@ export default function App() {
 
   const renderAdmin = () => (
     <AdminPage
+      theme={theme}
+      toggleTheme={toggleTheme}
       currentUser={currentUser!}
       abandonedMatchIds={abandonedMatchIds}
       liveMatches={liveMatches}
