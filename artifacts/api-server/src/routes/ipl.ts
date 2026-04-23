@@ -190,7 +190,9 @@ async function savePinToKV(userId: string, pin: string): Promise<boolean> {
 loadAllPinsFromKV().then(async kv => {
   if (kv && Object.keys(kv).length) {
     pinsCache = { ...pinsCache, ...kv };
-    saveServerPins(pinsCache);
+    // Do NOT write back to local file here — KV is authoritative on startup.
+    // Writing back would persist predictable old defaults if they were still in KV.
+    // The local file is only updated when a user explicitly changes their PIN.
     console.log("[pins] Loaded from Replit KV:", Object.keys(kv).join(", "));
   } else if (REPLIT_DB_URL) {
     if (Object.keys(pinsCache).length) {
