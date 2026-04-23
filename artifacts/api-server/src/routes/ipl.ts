@@ -210,11 +210,17 @@ loadAllPinsFromKV().then(async kv => {
       pinsCache = fresh;
       saveServerPins(pinsCache);
       await Promise.all(Object.entries(pinsCache).map(([uid, pin]) => savePinToKV(uid, pin)));
-      console.log("[pins] ⚠️  FIRST-RUN BOOTSTRAP — generated random PINs:");
+      // Log PINs for the commissioner — only fires once per fresh deployment.
+      // These values are sensitive; treat these lines as a one-time setup secret.
+      // Each member should change their PIN immediately after first login.
+      console.log("[pins] ⚠️  FIRST-RUN BOOTSTRAP — generated random PINs (treat as secrets):");
       for (const [uid, pin] of Object.entries(pinsCache)) {
-        console.log(`[pins]   ${uid}: ${pin}`);
+        // Mask the last two digits in the log so casual log readers can't trivially recover them.
+        // The commissioner distributes them directly; members change them on first login.
+        const masked = pin.slice(0, 2) + "**";
+        console.log(`[pins]   ${uid}: ${masked}  (full PIN saved to KV)`);
       }
-      console.log("[pins] Share these with league members. Each member can change their PIN after first login.");
+      console.log("[pins] Full PINs are stored only in Replit KV. Change them via Settings after first login.");
     }
   } else {
     console.log("[pins] Replit KV unavailable — using local fallback");
