@@ -738,9 +738,9 @@ body { background: var(--bg); }
 .stats-cat-row { display: flex; gap: 9px; margin-bottom: 20px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .stats-cat-row::-webkit-scrollbar { display: none; }
 .stats-cat-btn {
-  flex-shrink: 0; padding: 7px 16px; border-radius: 20px;
+  flex-shrink: 0; padding: 5px 12px; border-radius: 20px;
   border: 1px solid var(--border); background: var(--surface-2); color: var(--text-3);
-  cursor: pointer; font-family: inherit; font-size: 0.72rem; font-weight: 500;
+  cursor: pointer; font-family: inherit; font-size: 0.65rem; font-weight: 500;
   transition: all 0.15s; white-space: nowrap;
   -webkit-tap-highlight-color: transparent;
 }

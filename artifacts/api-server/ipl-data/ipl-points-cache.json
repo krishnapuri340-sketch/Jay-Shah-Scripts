@@ -19720,7 +19720,7 @@
       "innings": [
         {
           "name": "Chennai Super Kings Inning 1",
-          "total": "91/3 (8.1 ov)",
+          "total": "92/3 (8.2 ov)",
           "batting": [
             {
               "name": "Sanju Samson",
@@ -19768,14 +19768,14 @@
             },
             {
               "name": "Dewald Brevis",
-              "runs": 0,
-              "balls": 0,
+              "runs": 1,
+              "balls": 1,
               "fours": 0,
               "sixes": 0,
-              "sr": "-",
-              "dismissal": "",
-              "notOut": false,
-              "dnb": true
+              "sr": "100.00",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
             },
             {
               "name": "Kartik Sharma",
@@ -19869,11 +19869,11 @@
             },
             {
               "name": "AM Ghazanfar",
-              "overs": "2.1",
+              "overs": "2.2",
               "maidens": 0,
-              "runs": 16,
+              "runs": 17,
               "wickets": 2,
-              "eco": "7.38",
+              "eco": "7.29",
               "wides": 0,
               "noBalls": 0,
               "dots": 5
