@@ -48,6 +48,15 @@ function saveServerPins(data: PinStore) {
 }
 let pinsCache: PinStore = loadServerPins();
 
+// Server-side credential check: used by other route modules (ipl-points, push) to
+// validate requests that claim to come from a specific owner. Returns true only when
+// the ownerId is a known league member AND the supplied pin matches the server record.
+export function verifyOwnerPin(ownerId: string, pin: string): boolean {
+  if (!ownerId || !pin) return false;
+  const stored = pinsCache[ownerId];
+  return stored !== undefined && stored === pin;
+}
+
 // ── Replit KV persistence (PINs + Predictions) ───────────────────────────────
 // REPLIT_DB_URL is automatically available in both dev and deployed environments.
 // Data written here survives restarts, new deployments, and server restarts.

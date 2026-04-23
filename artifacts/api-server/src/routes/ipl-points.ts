@@ -3,6 +3,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join } from "path";
 import { fileURLToPath } from "url";
 import { sendPushToAll } from "./push";
+import { verifyOwnerPin } from "./ipl";
 
 const router: IRouter = Router();
 
@@ -453,6 +454,22 @@ let pointsUpdateInProgress = false;
 let lastUpdateAttempt = 0;
 let lastForceSyncAt = 0; // guards the force-sync endpoint (5-min cooldown)
 const VALID_OWNER_IDS = new Set(["rajveer", "mombasa", "mumbai", "ponygoat"]);
+
+// Known match IDs from the IPL schedule — populated on first stats refresh.
+// When non-empty, scorecard requests for unknown IDs are rejected without hitting S3.
+const knownMatchIds = new Set<string>();
+
+// Per-IP rate limiter for expensive admin endpoints.
+// Tracks request timestamps per IP; prunes stale entries each check.
+const ipRateLimits = new Map<string, number[]>();
+function checkIpRateLimit(ip: string, windowMs: number, maxCalls: number): boolean {
+  const now = Date.now();
+  const times = (ipRateLimits.get(ip) || []).filter(t => now - t < windowMs);
+  if (times.length >= maxCalls) return false;
+  times.push(now);
+  ipRateLimits.set(ip, times);
+  return true;
+}
 let isLiveMatchActive = false; // dynamically tracks if any IPL match is currently live
 const LIVE_COOLDOWN_MS  = 45 * 1000;       // 45 s during live matches (safe for 2000/day limit)
 const IDLE_COOLDOWN_MS  = 16 * 60 * 1000; // 16 min when idle
@@ -1067,6 +1084,12 @@ router.get("/ipl/scorecard/:matchId", async (req, res) => {
     return;
   }
 
+  // Allowlist check: if the schedule has been loaded, reject IDs not in it
+  if (knownMatchIds.size > 0 && !knownMatchIds.has(matchId)) {
+    res.status(404).json({ error: "unknown match" });
+    return;
+  }
+
   // Negative-cache: don't hit upstream again for a recently confirmed miss
   const missAt = s3MissCache.get(matchId);
   if (missAt && Date.now() - missAt < MISS_CACHE_TTL) {
@@ -1120,6 +1143,9 @@ async function doRefreshAllStats(force = false): Promise<{ matchesFetched: numbe
     if (!schedRes.ok) return { matchesFetched: 0, errors: 1 };
     const schedData = JSON.parse(stripJsonp(await schedRes.text()));
     const allMatches: any[] = schedData?.Matchsummary || [];
+    // Populate the allowlist with every known IPL match ID (completed + upcoming + live)
+    allMatches.map((m: any) => String(m?.MatchID || "")).filter(Boolean)
+      .forEach(id => knownMatchIds.add(id));
     const completedIds: string[] = allMatches
       .filter((m: any) => {
         const s = String(m?.MatchStatus || "").toLowerCase();
@@ -1303,11 +1329,18 @@ router.get("/ipl/stats", (_req, res) => {
   res.json(buildStatsResponse());
 });
 
-// Admin: force re-fetch all innings from S3 and rebuild stats cache
+// Admin: force re-fetch all innings from S3 and rebuild stats cache (commissioner + PIN)
 router.post("/ipl/stats/refresh", async (req, res) => {
   const ownerId = req.headers["x-owner-id"] as string;
-  if (ownerId !== "rajveer") {
+  const ownerPin = req.headers["x-owner-pin"] as string;
+  if (ownerId !== "rajveer" || !verifyOwnerPin(ownerId, ownerPin)) {
     res.status(403).json({ error: "commissioner only" });
+    return;
+  }
+  // IP rate-limit: max 3 forced refreshes per IP per hour
+  const ip = (req.headers["x-forwarded-for"] as string || req.socket.remoteAddress || "").split(",")[0].trim();
+  if (!checkIpRateLimit(`stats-refresh:${ip}`, 60 * 60 * 1000, 3)) {
+    res.status(429).json({ error: "rate limit exceeded — try again later" });
     return;
   }
   try {
@@ -1471,15 +1504,23 @@ router.post("/ipl/points/reset", async (req, res) => {
   res.json({ ok: true });
 });
 
-// POST /api/ipl/points/sync-supabase — force an immediate Supabase AuctionRoom sync (owner only, 5-min cooldown)
+// POST /api/ipl/points/sync-supabase — force an immediate Supabase AuctionRoom sync
+// Requires a valid league-member PIN. 5-min global cooldown + per-IP rate limit.
 router.post("/ipl/points/sync-supabase", async (req, res) => {
   const ownerId = req.headers["x-owner-id"] as string;
-  if (!ownerId || !VALID_OWNER_IDS.has(ownerId)) {
+  const ownerPin = req.headers["x-owner-pin"] as string;
+  if (!VALID_OWNER_IDS.has(ownerId) || !verifyOwnerPin(ownerId, ownerPin)) {
     res.status(403).json({ error: "league members only" });
     return;
   }
+  // IP rate-limit: max 5 syncs per IP per hour
+  const ip = (req.headers["x-forwarded-for"] as string || req.socket.remoteAddress || "").split(",")[0].trim();
+  if (!checkIpRateLimit(`sync-supabase:${ip}`, 60 * 60 * 1000, 5)) {
+    res.status(429).json({ error: "rate limit exceeded — try again later" });
+    return;
+  }
   const now = Date.now();
-  const SYNC_COOLDOWN = 5 * 60 * 1000; // 5 minutes
+  const SYNC_COOLDOWN = 5 * 60 * 1000; // 5 minutes global cooldown
   if (now - lastForceSyncAt < SYNC_COOLDOWN) {
     const retryIn = Math.ceil((lastForceSyncAt + SYNC_COOLDOWN - now) / 1000);
     return res.json({ ok: true, skipped: true, retryIn, changed: false, fixturesBefore: 0, fixturesAfter: 0 });

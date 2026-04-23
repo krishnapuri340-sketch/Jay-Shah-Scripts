@@ -580,7 +580,7 @@ export default function App() {
     try {
       const res = await fetch("/api/ipl/points/sync-supabase", {
         method: "POST",
-        headers: { "X-Owner-Id": currentUser || "" },
+        headers: { "X-Owner-Id": currentUser || "", "X-Owner-Pin": userPins[currentUser || ""] || "" },
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `Server error ${res.status}`);
@@ -618,7 +618,10 @@ export default function App() {
     if (statsRefreshing) return;
     setStatsRefreshing(true);
     try {
-      await fetch("/api/ipl/stats/refresh", { method: "POST", headers: { "X-Owner-Id": "rajveer" } });
+      await fetch("/api/ipl/stats/refresh", {
+        method: "POST",
+        headers: { "X-Owner-Id": "rajveer", "X-Owner-Pin": userPins["rajveer"] || "" },
+      });
       await fetchStats();
     } catch (_) {}
     setStatsRefreshing(false);
@@ -904,7 +907,7 @@ export default function App() {
     try {
       await fetch("/api/ipl/points/sync-supabase", {
         method: "POST",
-        headers: { "X-Owner-Id": currentUser || "" },
+        headers: { "X-Owner-Id": currentUser || "", "X-Owner-Pin": userPins[currentUser || ""] || "" },
       });
     } catch (_) {}
     try {
