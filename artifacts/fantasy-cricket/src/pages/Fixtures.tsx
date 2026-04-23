@@ -6,6 +6,7 @@ import { IPL_COLORS, TEAM_LOGO_CDN, VENUE_AVG } from "../constants";
 
 interface FixturesPageProps {
   liveMatches: any[];
+  liveLoading: boolean;
   standings: any[];
   matchFilter: "live" | "upcoming" | "completed" | "all";
   teamFilter: Set<string>;
@@ -35,6 +36,7 @@ interface FixturesPageProps {
 
 export default function FixturesPage({
   liveMatches,
+  liveLoading,
   standings,
   matchFilter,
   teamFilter,
@@ -230,7 +232,22 @@ export default function FixturesPage({
           })}
         </div>
         {apiError && <div className="notice" style={{ background: "rgba(239,68,68,0.08)", borderColor: "rgba(239,68,68,0.2)", color: "#f87171", marginBottom: 12 }}>{apiError}</div>}
-        {filteredMatches.length === 0 && (
+        {liveMatches.length === 0 && liveLoading && (
+          <div>
+            {[0,1,2].map(i => (
+              <div key={i} className="skel-match-card">
+                <div className="skel" style={{ height: 11, width: "35%", borderRadius: 4 }} />
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <div className="skel" style={{ height: 28, flex: 1, borderRadius: 5 }} />
+                  <div className="skel" style={{ height: 10, width: 18, borderRadius: 4 }} />
+                  <div className="skel" style={{ height: 28, flex: 1, borderRadius: 5 }} />
+                </div>
+                <div className="skel" style={{ height: 9, width: "55%", borderRadius: 4 }} />
+              </div>
+            ))}
+          </div>
+        )}
+        {filteredMatches.length === 0 && liveMatches.length > 0 && (
           <div style={{ textAlign: "center" as const, color: "var(--text-3)", fontSize: "0.78rem", padding: "32px 0" }}>
             {teamFilter.size > 0 ? `No ${activeFilter === "all" ? "" : activeFilter + " "}${fixtureHomeAwayFilter !== "all" ? fixtureHomeAwayFilter + " " : ""}matches for ${Array.from(teamFilter).join(" / ")}` : activeFilter === "live" ? "No live matches right now" : activeFilter === "upcoming" ? "No upcoming matches" : "No matches"}
           </div>

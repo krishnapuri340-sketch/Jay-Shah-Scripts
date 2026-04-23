@@ -364,7 +364,22 @@ export default function StatsPage(p: StatsPageProps) {
             );
           })()}
           {cat !== "fantasyPts" && !iplStats && statsLoading && (
-            <div className="stat-empty">Loading stats...</div>
+            <div className="stats-list-card">
+              <div className="stats-list-card-header">
+                <div className="skel" style={{ height: 12, width: "48%", borderRadius: 5 }} />
+                <div className="skel" style={{ height: 10, width: 52, borderRadius: 5 }} />
+              </div>
+              {[0,1,2,3,4,5].map(i => (
+                <div key={i} className="skel-stat-row">
+                  <div className="skel" style={{ width: 22, height: 22, borderRadius: 4, flexShrink: 0 }} />
+                  <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
+                    <div className="skel" style={{ height: 12, width: `${52 + (i % 3) * 14}%`, borderRadius: 4 }} />
+                    <div className="skel" style={{ height: 9, width: `${36 + (i % 2) * 12}%`, borderRadius: 4 }} />
+                  </div>
+                  <div className="skel" style={{ width: 36, height: 14, borderRadius: 4, flexShrink: 0 }} />
+                </div>
+              ))}
+            </div>
           )}
           {cat !== "fantasyPts" && iplStats && entries.length === 0 && (
             <div className="stat-empty">

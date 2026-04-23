@@ -1655,6 +1655,7 @@ export default function App() {
   const renderFixtures = () => (
     <FixturesPage
       liveMatches={liveMatches}
+      liveLoading={liveLoading}
       standings={standings}
       matchFilter={matchFilter}
       teamFilter={teamFilter}

@@ -287,6 +287,20 @@ export default function HomePage(props: HomePageProps) {
             mumbai:   `${import.meta.env.BASE_URL}lb-bg-mombasa.jpeg`,
             ponygoat: `${import.meta.env.BASE_URL}lb-bg-ponygoat.jpeg`,
           };
+          if (teamScores.length === 0) return (
+            <div>
+              {[0,1,2,3].map(i => (
+                <div key={i} className="skel-lb-card">
+                  <div className="skel" style={{ width: 30, height: 30, borderRadius: "50%", flexShrink: 0 }} />
+                  <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 8 }}>
+                    <div className="skel" style={{ height: 13, width: "52%" }} />
+                    <div className="skel" style={{ height: 9, width: "78%" }} />
+                  </div>
+                  <div className="skel" style={{ width: 38, height: 22, flexShrink: 0 }} />
+                </div>
+              ))}
+            </div>
+          );
           const leaderTotal = teamScores[0]?.total ?? 0;
           return (
             <div>
