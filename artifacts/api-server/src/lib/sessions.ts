@@ -8,9 +8,80 @@ interface Session {
 const sessions = new Map<string, Session>();
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 
+const REPLIT_DB_URL = process.env.REPLIT_DB_URL;
+const SESSION_KV_PREFIX = "session_";
+
+async function kvGet(key: string): Promise<string | null> {
+  if (!REPLIT_DB_URL) return null;
+  try {
+    const res = await fetch(`${REPLIT_DB_URL}/${encodeURIComponent(key)}`, { signal: AbortSignal.timeout(6000) });
+    if (!res.ok) return null;
+    return await res.text();
+  } catch { return null; }
+}
+
+async function kvSet(key: string, value: string): Promise<void> {
+  if (!REPLIT_DB_URL) return;
+  try {
+    await fetch(REPLIT_DB_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
+      signal: AbortSignal.timeout(6000),
+    });
+  } catch {}
+}
+
+async function kvDelete(key: string): Promise<void> {
+  if (!REPLIT_DB_URL) return;
+  try {
+    await fetch(`${REPLIT_DB_URL}/${encodeURIComponent(key)}`, {
+      method: "DELETE",
+      signal: AbortSignal.timeout(6000),
+    });
+  } catch {}
+}
+
+async function kvList(prefix: string): Promise<string[]> {
+  if (!REPLIT_DB_URL) return [];
+  try {
+    const res = await fetch(`${REPLIT_DB_URL}?prefix=${encodeURIComponent(prefix)}`, { signal: AbortSignal.timeout(6000) });
+    if (!res.ok) return [];
+    const text = await res.text();
+    return text.split("\n").map(k => k.trim()).filter(Boolean);
+  } catch { return []; }
+}
+
+// Load all sessions from KV into memory on startup
+(async () => {
+  try {
+    const keys = await kvList(SESSION_KV_PREFIX);
+    let loaded = 0;
+    await Promise.all(keys.map(async (key) => {
+      const raw = await kvGet(key);
+      if (!raw) return;
+      try {
+        const session: Session = JSON.parse(raw);
+        if (!session.userId || !session.createdAt) return;
+        if (Date.now() - session.createdAt > SESSION_TTL_MS) {
+          kvDelete(key).catch(() => {}); // prune expired
+          return;
+        }
+        const token = key.slice(SESSION_KV_PREFIX.length);
+        sessions.set(token, session);
+        loaded++;
+      } catch {}
+    }));
+    if (loaded > 0) console.log(`[sessions] Restored ${loaded} session(s) from KV`);
+  } catch {}
+})();
+
 export function createSession(userId: string): string {
   const token = randomBytes(32).toString("hex");
-  sessions.set(token, { userId, createdAt: Date.now() });
+  const session: Session = { userId, createdAt: Date.now() };
+  sessions.set(token, session);
+  // Persist to KV non-blocking — in-memory is the source of truth for this process
+  kvSet(`${SESSION_KV_PREFIX}${token}`, JSON.stringify(session)).catch(() => {});
   return token;
 }
 
@@ -19,6 +90,7 @@ export function getSession(token: string): Session | null {
   if (!session) return null;
   if (Date.now() - session.createdAt > SESSION_TTL_MS) {
     sessions.delete(token);
+    kvDelete(`${SESSION_KV_PREFIX}${token}`).catch(() => {});
     return null;
   }
   return session;
@@ -26,6 +98,7 @@ export function getSession(token: string): Session | null {
 
 export function deleteSession(token: string): void {
   sessions.delete(token);
+  kvDelete(`${SESSION_KV_PREFIX}${token}`).catch(() => {});
 }
 
 export function getSessionUser(req: any): string | null {
@@ -66,9 +139,13 @@ export function requireCommissioner(req: any, res: any): boolean {
   return true;
 }
 
+// Hourly cleanup: expire old sessions from memory and KV
 setInterval(() => {
   const now = Date.now();
   for (const [token, session] of sessions.entries()) {
-    if (now - session.createdAt > SESSION_TTL_MS) sessions.delete(token);
+    if (now - session.createdAt > SESSION_TTL_MS) {
+      sessions.delete(token);
+      kvDelete(`${SESSION_KV_PREFIX}${token}`).catch(() => {});
+    }
   }
 }, 60 * 60 * 1000);

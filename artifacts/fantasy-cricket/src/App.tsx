@@ -15,7 +15,7 @@ import { usePredictions, saveLocalPreds } from "./hooks/usePredictions";
 import { useScorecard } from "./hooks/useScorecard";
 import { useLiveMatches } from "./hooks/useLiveMatches";
 import { useFantasyPoints } from "./hooks/useFantasyPoints";
-import { getAuthToken, setAuthToken, clearAuthToken, authHeaders, authStreamUrl, fetchAuthed } from "./lib/auth";
+import { getAuthToken, setAuthToken, clearAuthToken, authHeaders, authStreamUrl, fetchAuthed, dispatchSessionExpired } from "./lib/auth";
 
 // ─── PIN login ───────────────────────────────────────────────────────────────
 // PINs are server-authoritative; never stored as defaults in client code.
@@ -752,7 +752,10 @@ export default function App() {
       } catch {}
     };
     es.onerror = () => {
-      console.warn("[SSE] prediction stream error — browser will reconnect automatically");
+      if (es.readyState === EventSource.CLOSED) {
+        // Permanently closed (e.g. 401) — dispatch session-expired so the app re-logs in
+        dispatchSessionExpired();
+      }
     };
     return () => es.close();
   }, [currentUser, sseGen]);

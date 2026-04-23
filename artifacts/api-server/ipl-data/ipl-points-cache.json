@@ -20639,19 +20639,19 @@
     "0993ac1a-1f2b-4e38-99f4-4790e5ecacc1": {
       "points": {
         "Jitesh Sharma": 18,
-        "Virat Kohli": 90,
-        "Suryakumar Yadav": 71,
-        "Rajat Patidar": 127,
-        "Sherfane Rutherford": 149,
-        "Krunal Pandya": 48,
-        "Phil Salt": 162,
-        "Ryan Rickelton": 79,
-        "Hardik Pandya": 136,
-        "Jasprit Bumrah": 16,
-        "Tim David": 76,
-        "Tilak Varma": 13,
-        "Bhuvneshwar Kumar": 24,
         "Rohit Sharma": 39,
+        "Phil Salt": 162,
+        "Virat Kohli": 90,
+        "Rajat Patidar": 127,
+        "Tim David": 76,
+        "Krunal Pandya": 48,
+        "Bhuvneshwar Kumar": 24,
+        "Ryan Rickelton": 79,
+        "Suryakumar Yadav": 71,
+        "Tilak Varma": 13,
+        "Hardik Pandya": 136,
+        "Sherfane Rutherford": 149,
+        "Jasprit Bumrah": 16,
         "Trent Boult": 46
       },
       "matchLabel": "Mumbai Indians vs Royal Challengers Bengaluru",
@@ -21470,7 +21470,7 @@
       "matchNumber": 70
     }
   },
-  "lastUpdated": "2026-04-23T18:21:29.851Z",
+  "lastUpdated": "2026-04-23T22:13:10.516Z",
   "cricapiMatchIds": {
     "2428": "12b5d808-d9ab-468e-bd25-a2c347f64bdc",
     "2467": "c5bf2a95-1855-463d-accf-9c1db88418cd",
