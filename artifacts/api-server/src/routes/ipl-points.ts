@@ -1354,6 +1354,35 @@ router.get("/ipl/stats", (_req, res) => {
   res.json(buildStatsResponse());
 });
 
+router.get("/ipl/stats/miss-of-season", (_req, res) => {
+  const stats = buildStatsResponse();
+  const fantasy = new Set(FANTASY_PLAYER_NAMES.map(name => normalizeName(name)));
+  const rows = [
+    ...(stats.orangeCap || []),
+    ...(stats.purpleCap || []),
+    ...(stats.sixesLeader || []),
+    ...(stats.foursLeader || []),
+    ...(stats.catchesLeader || []),
+    ...(stats.srLeader || []),
+    ...(stats.ecoLeader || []),
+    ...(stats.dotsLeader || []),
+  ] as any[];
+  const bestByName = new Map<string, any>();
+  for (const row of rows) {
+    const name = row?.name ? String(row.name) : "";
+    if (!name) continue;
+    const key = normalizeName(name);
+    if (fantasy.has(key)) continue;
+    const pts = Number(row.fantasyPts || 0);
+    const existing = bestByName.get(key);
+    if (!existing || pts > Number(existing.fantasyPts || 0)) bestByName.set(key, row);
+  }
+  const top = [...bestByName.values()]
+    .sort((a, b) => (b.fantasyPts || 0) - (a.fantasyPts || 0))
+    .slice(0, 20);
+  res.json({ ok: true, players: top });
+});
+
 // Admin: force re-fetch all innings from S3 and rebuild stats cache (commissioner only)
 router.post("/ipl/stats/refresh", async (req, res) => {
   if (!requireCommissioner(req, res)) return;
