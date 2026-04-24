@@ -503,7 +503,7 @@ function PlayerRow({
                   <div key={bdKey} style={{ opacity: 0.5, marginBottom: isLast ? 0 : 6, paddingBottom: isLast ? 0 : 6, borderBottom: isLast ? "none" : "1px solid rgba(255,255,255,0.05)" }}>
                     <div onClick={(e) => { e.stopPropagation(); if (s) onToggleBd(bdKey); }}
                       style={{ display: "flex", alignItems: "center", gap: 6, cursor: s ? "pointer" : "default", WebkitTapHighlightColor: "transparent", padding: "2px 0" }}>
-                      <span style={{ fontSize: "0.5rem", fontWeight: 700, color: "var(--text-3)", background: "rgba(255,255,255,0.06)", borderRadius: 4, padding: "1px 4px", flexShrink: 0 }}>
+                      <span style={{ fontSize: "0.5rem", fontWeight: 700, color: "#34d399", background: "rgba(52,211,153,0.12)", borderRadius: 4, padding: "1px 4px", flexShrink: 0 }}>
                         M{entry.matchNum}
                       </span>
                       <span style={{ fontSize: "0.44rem", fontWeight: 700, color: "rgba(255,100,100,0.7)", background: "rgba(255,100,100,0.08)", borderRadius: 3, padding: "1px 4px", flexShrink: 0 }}>
