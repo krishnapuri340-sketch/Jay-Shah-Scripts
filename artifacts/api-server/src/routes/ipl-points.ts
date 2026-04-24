@@ -3,7 +3,26 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join } from "path";
 import { fileURLToPath } from "url";
 import { sendPushToAll } from "./push";
-import { requireCommissioner, requireSession } from "../lib/sessions";
+
+const TEAM_NAME_TO_CODE: Record<string, string> = {
+  "Rajasthan Royals": "RR", "Chennai Super Kings": "CSK", "Mumbai Indians": "MI",
+  "Kolkata Knight Riders": "KKR", "Sunrisers Hyderabad": "SRH",
+  "Royal Challengers Bengaluru": "RCB", "Royal Challengers Bangalore": "RCB",
+  "Delhi Capitals": "DC", "Punjab Kings": "PBKS",
+  "Lucknow Super Giants": "LSG", "Gujarat Titans": "GT",
+};
+const TEAM_LOGO_SERVER: Record<string, string> = {
+  CSK:  "https://upload.wikimedia.org/wikipedia/en/thumb/2/2b/Chennai_Super_Kings_Logo.svg/330px-Chennai_Super_Kings_Logo.svg.png",
+  MI:   "https://upload.wikimedia.org/wikipedia/en/thumb/c/cd/Mumbai_Indians_Logo.svg/330px-Mumbai_Indians_Logo.svg.png",
+  KKR:  "https://upload.wikimedia.org/wikipedia/en/thumb/4/4c/Kolkata_Knight_Riders_Logo.svg/330px-Kolkata_Knight_Riders_Logo.svg.png",
+  RCB:  "https://upload.wikimedia.org/wikipedia/en/thumb/d/d4/Royal_Challengers_Bengaluru_Logo.svg/330px-Royal_Challengers_Bengaluru_Logo.svg.png",
+  RR:   "https://upload.wikimedia.org/wikipedia/en/thumb/5/5c/This_is_the_logo_for_Rajasthan_Royals%2C_a_cricket_team_playing_in_the_Indian_Premier_League_%28IPL%29.svg/330px-This_is_the_logo_for_Rajasthan_Royals%2C_a_cricket_team_playing_in_the_Indian_Premier_League_%28IPL%29.svg.png",
+  SRH:  "https://upload.wikimedia.org/wikipedia/en/thumb/5/51/Sunrisers_Hyderabad_Logo.svg/330px-Sunrisers_Hyderabad_Logo.svg.png",
+  DC:   "https://upload.wikimedia.org/wikipedia/en/thumb/2/2f/Delhi_Capitals.svg/330px-Delhi_Capitals.svg.png",
+  PBKS: "https://upload.wikimedia.org/wikipedia/en/thumb/d/d4/Punjab_Kings_Logo.svg/330px-Punjab_Kings_Logo.svg.png",
+  GT:   "https://upload.wikimedia.org/wikipedia/en/thumb/0/09/Gujarat_Titans_Logo.svg/330px-Gujarat_Titans_Logo.svg.png",
+  LSG:  "https://upload.wikimedia.org/wikipedia/en/thumb/3/34/Lucknow_Super_Giants_Logo.svg/330px-Lucknow_Super_Giants_Logo.svg.png",
+};
 
 const router: IRouter = Router();
 
@@ -515,7 +534,7 @@ function checkIpRateLimit(ip: string, windowMs: number, maxCalls: number): boole
   return true;
 }
 let isLiveMatchActive = false; // dynamically tracks if any IPL match is currently live
-const LIVE_COOLDOWN_MS  = 45 * 1000;       // 45 s during live matches (safe for 2000/day limit)
+const LIVE_COOLDOWN_MS  = 45 * 1000;       // 45 s during live matches (S3/IPL feed, no API quota)
 const IDLE_COOLDOWN_MS  = 16 * 60 * 1000; // 16 min when idle
 const getCooldown = () => isLiveMatchActive ? LIVE_COOLDOWN_MS : IDLE_COOLDOWN_MS;
 let pointsCache: PointsCache = loadCache();
@@ -1501,16 +1520,18 @@ export async function refreshLiveMatches(liveIplIds: string[]): Promise<void> {
             for (const b of newFalls) {
               const totalDown = nowDismissed.length;
               const teamName = liveInn.name.replace(" Innings", "").trim();
-              // Current score from innings total e.g. "45/3 (6.3 Ov)"
-              const scoreStr = liveInn.total ? ` · ${teamName} ${liveInn.total}` : "";
-              const dismissalShort = b.dismissal.length > 50
-                ? b.dismissal.slice(0, 50) + "…"
+              const teamCode = TEAM_NAME_TO_CODE[teamName] || teamName;
+              const scoreStr = liveInn.total ? ` · ${liveInn.total}` : "";
+              const lastName = b.name.split(" ").slice(-1)[0];
+              const dismissalShort = b.dismissal.length > 60
+                ? b.dismissal.slice(0, 60) + "…"
                 : b.dismissal;
               sendPushToAll({
-                title: `🎯 Wicket! ${teamName} ${totalDown} down${scoreStr}`,
-                body: `${b.name} out for ${b.runs} (${b.balls}b) · ${dismissalShort}`,
+                title: `🎯 Wicket — ${teamCode} ${totalDown} down${scoreStr}`,
+                body: `${lastName} out ${b.runs}(${b.balls}b) · ${dismissalShort}`,
                 tag: `wicket-${iplId}-${liveInnIdx}-${totalDown}`,
                 url: "/",
+                image: TEAM_LOGO_SERVER[teamCode],
               }).catch(() => {});
             }
 

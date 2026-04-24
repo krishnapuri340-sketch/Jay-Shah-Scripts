@@ -130,6 +130,7 @@ export async function sendPushToAll(payload: {
   body: string;
   tag?: string;
   url?: string;
+  image?: string;
 }): Promise<void> {
   if (!notifEnabled || subscriptions.length === 0) return;
   const dead: string[] = [];

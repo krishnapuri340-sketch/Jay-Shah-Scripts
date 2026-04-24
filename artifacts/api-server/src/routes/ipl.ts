@@ -7,6 +7,22 @@ import { fetchMatchOverview, refreshLiveMatches, getPointsHealthSnapshot, getMat
 import { sendPushToAll } from "./push";
 import { createSession, getSessionUser, requireSession, requireCommissioner } from "../lib/sessions";
 
+const TEAM_LOGO: Record<string, string> = {
+  CSK:  "https://upload.wikimedia.org/wikipedia/en/thumb/2/2b/Chennai_Super_Kings_Logo.svg/330px-Chennai_Super_Kings_Logo.svg.png",
+  MI:   "https://upload.wikimedia.org/wikipedia/en/thumb/c/cd/Mumbai_Indians_Logo.svg/330px-Mumbai_Indians_Logo.svg.png",
+  KKR:  "https://upload.wikimedia.org/wikipedia/en/thumb/4/4c/Kolkata_Knight_Riders_Logo.svg/330px-Kolkata_Knight_Riders_Logo.svg.png",
+  RCB:  "https://upload.wikimedia.org/wikipedia/en/thumb/d/d4/Royal_Challengers_Bengaluru_Logo.svg/330px-Royal_Challengers_Bengaluru_Logo.svg.png",
+  RR:   "https://upload.wikimedia.org/wikipedia/en/thumb/5/5c/This_is_the_logo_for_Rajasthan_Royals%2C_a_cricket_team_playing_in_the_Indian_Premier_League_%28IPL%29.svg/330px-This_is_the_logo_for_Rajasthan_Royals%2C_a_cricket_team_playing_in_the_Indian_Premier_League_%28IPL%29.svg.png",
+  SRH:  "https://upload.wikimedia.org/wikipedia/en/thumb/5/51/Sunrisers_Hyderabad_Logo.svg/330px-Sunrisers_Hyderabad_Logo.svg.png",
+  DC:   "https://upload.wikimedia.org/wikipedia/en/thumb/2/2f/Delhi_Capitals.svg/330px-Delhi_Capitals.svg.png",
+  PBKS: "https://upload.wikimedia.org/wikipedia/en/thumb/d/d4/Punjab_Kings_Logo.svg/330px-Punjab_Kings_Logo.svg.png",
+  GT:   "https://upload.wikimedia.org/wikipedia/en/thumb/0/09/Gujarat_Titans_Logo.svg/330px-Gujarat_Titans_Logo.svg.png",
+  LSG:  "https://upload.wikimedia.org/wikipedia/en/thumb/3/34/Lucknow_Super_Giants_Logo.svg/330px-Lucknow_Super_Giants_Logo.svg.png",
+};
+
+const RANK_EMOJI = ["🥇", "🥈", "🥉", "4️⃣"];
+const OWNER_LABELS: Record<string, string> = { rajveer: "Raj", mombasa: "Rahul", mumbai: "Smeet", ponygoat: "Deb" };
+
 // ── Shared data stores ────────────────────────────────────────────────────────
 // Anchor data directory to the bundle file location (dist/index.mjs).
 // import.meta.url is preserved by esbuild and resolves to the actual output file,
@@ -449,61 +465,73 @@ async function doRefreshMatches(): Promise<void> {
           if (wentLive) {
             const home = m.homeTeamCode || "";
             const away = m.awayTeamCode || "";
+            const tossBody = m.toss
+              ? m.toss.replace(/^.*won the toss and elected to/, "🪙 Won toss ·").replace(/^.*won the toss and chose to/, "🪙 Won toss ·")
+              : "Match is underway — good luck! 🤞";
             sendPushToAll({
-              title: `🏏 ${home} vs ${away} — LIVE`,
-              body: m.toss ? `${m.toss}` : "Match has started — good luck!",
+              title: `🏏 ${home} vs ${away} · Live Now`,
+              body: tossBody,
               tag: `live-${m.id}`,
               url: "/",
+              image: TEAM_LOGO[home] || TEAM_LOGO[away],
             }).catch(() => {});
           }
 
           if (inningsBreak) {
+            const home = m.homeTeamCode || "";
+            const away = m.awayTeamCode || "";
             const inn1Summary = m.score?.[0]?.summary || "";
-            const inn1Team = m.score?.[0]?.inning?.replace(" Innings", "") || (m.homeTeamCode || "");
-            const inn2Team = m.score?.[1]?.inning?.replace(" Innings", "") || (m.awayTeamCode || "");
-            // Extract runs from summary like "186/5 (20.0 Ov)" → "186"
+            const inn1Code = m.score?.[0]?.inning?.replace(" Innings", "").trim() || home;
+            const inn2Code = m.score?.[1]?.inning?.replace(" Innings", "").trim() || away;
             const runsMatch = inn1Summary.match(/^(\d+)/);
             const runs = runsMatch ? parseInt(runsMatch[1]) : null;
             const target = runs !== null ? runs + 1 : null;
             const body = target
-              ? `${inn1Team} set ${target} · ${inn2Team} need ${target} to win`
-              : `${inn1Team}: ${inn1Summary} · ${inn2Team} to bat`;
+              ? `${inn1Code} ${inn1Summary} · ${inn2Code} need ${target} to win`
+              : `${inn1Code}: ${inn1Summary} · ${inn2Code} to bat`;
             sendPushToAll({
-              title: `⚡ Innings Break`,
+              title: `⚡ Innings Break · ${home} vs ${away}`,
               body,
               tag: `innings-${m.id}`,
               url: "/",
+              image: TEAM_LOGO[home] || TEAM_LOGO[away],
             }).catch(() => {});
           }
 
           if (wentEnded) {
+            const home = m.homeTeamCode || "";
+            const away = m.awayTeamCode || "";
             const resultText = typeof m.status === "string" && m.status.length > 2
               ? m.status
               : "Match complete";
             sendPushToAll({
-              title: `✅ ${m.homeTeamCode || ""} vs ${m.awayTeamCode || ""} — Result`,
+              title: `🏆 ${home} vs ${away} · Full Time`,
               body: resultText,
               tag: `result-${m.id}`,
               url: "/",
+              image: TEAM_LOGO[home] || TEAM_LOGO[away],
             }).catch(() => {});
 
-            // Schedule delayed points push (90 s — gives supabase time to sync)
+            // Schedule delayed points push (90 s — gives Supabase time to sync)
             if (!pendingPointsTimers.has(m.id)) {
               const matchId = String(m.id);
-              const matchLabel = `${m.homeTeamCode || ""} vs ${m.awayTeamCode || ""}`;
+              const matchLabel = `${home} vs ${away}`;
+              const homeLogo = TEAM_LOGO[home] || TEAM_LOGO[away];
               const timer = setTimeout(async () => {
                 pendingPointsTimers.delete(matchId);
                 try {
                   const teamPts = getMatchTeamPoints(matchId);
                   if (!teamPts) return;
                   const sorted = Object.entries(teamPts).sort((a, b) => b[1] - a[1]);
-                  const LABELS: Record<string, string> = { rajveer: "Raj", mombasa: "Rahul", mumbai: "Smeet", ponygoat: "Deb" };
-                  const body = sorted.map(([id, pts]) => `${LABELS[id] || id} +${pts}`).join(" · ");
+                  const body = sorted
+                    .map(([id, pts], i) => `${RANK_EMOJI[i] || ""} ${OWNER_LABELS[id] || id} +${pts}`)
+                    .join("  ·  ");
                   await sendPushToAll({
-                    title: `📊 ${matchLabel} — Points Settled`,
+                    title: `📊 Fantasy Points In · ${matchLabel}`,
                     body,
                     tag: `pts-${matchId}`,
                     url: "/",
+                    image: homeLogo,
                   });
                 } catch (_) {}
               }, 90_000);
