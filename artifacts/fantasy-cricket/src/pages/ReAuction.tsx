@@ -416,7 +416,7 @@ function PlayerRow({
                 <span style={{ color: "rgba(255,255,255,0.45)" }}>{frozenPts}</span>
                 <span style={{ color: "var(--text-3)" }}>pts frozen</span>
                 {liveGain > 0
-                  ? <span> + <span style={{ color: "#2ecc8f" }}>{liveGain}</span>pts M{RA_FROM_MATCH}+</span>
+                  ? <span> + <span style={{ color: "rgba(255,255,255,0.45)" }}>{liveGain}</span>pts M{RA_FROM_MATCH}+</span>
                   : <span style={{ color: "var(--text-3)" }}> + 0pts M{RA_FROM_MATCH}+</span>
                 }
               </span>
