@@ -251,10 +251,10 @@ const PULL_THRESHOLD = 72;
 const TABS = [
   { id: "home",     label: "Leaderboard" },
   { id: "teams",    label: "Teams"        },
+  { id: "whatif",   label: "Re-Auction"   },
   { id: "fixtures", label: "Matches"      },
   { id: "stats",    label: "Stats"        },
   { id: "history",  label: "History"      },
-  { id: "whatif",   label: "Re-Auction"   },
 ];
 
 const NAV_ICON: Record<string, React.ReactElement> = {
