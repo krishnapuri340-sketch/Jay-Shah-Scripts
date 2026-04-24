@@ -560,7 +560,7 @@ function PlayerRow({
                   <div key={ei} style={{ marginBottom: ei < matchPoints.length - 1 ? 6 : 0, paddingBottom: ei < matchPoints.length - 1 ? 6 : 0, borderBottom: ei < matchPoints.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none" }}>
                     <div onClick={(e) => { e.stopPropagation(); if (s) onToggleBd(bdKey); }}
                       style={{ display: "flex", alignItems: "center", gap: 6, cursor: s ? "pointer" : "default", WebkitTapHighlightColor: "transparent", padding: "2px 0" }}>
-                      <span style={{ fontSize: "0.5rem", fontWeight: 700, color: isPostAuction ? teamColor : "var(--text-3)", background: isPostAuction ? teamColor + "22" : "rgba(255,255,255,0.06)", borderRadius: 4, padding: "1px 4px", flexShrink: 0 }}>
+                      <span style={{ fontSize: "0.5rem", fontWeight: 700, color: isPostAuction ? "#34d399" : "var(--text-3)", background: isPostAuction ? "rgba(52,211,153,0.12)" : "rgba(255,255,255,0.06)", borderRadius: 4, padding: "1px 4px", flexShrink: 0 }}>
                         M{entry.matchNum}
                       </span>
                       <span style={{ fontSize: "0.65rem", color: "var(--text-2)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{entry.label}</span>
