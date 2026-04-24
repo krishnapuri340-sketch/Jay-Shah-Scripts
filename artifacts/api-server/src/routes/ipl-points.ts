@@ -1467,40 +1467,69 @@ function wicketBanter(lastName: string, runs: number, balls: number, teamCode: s
   const dis = dismissal.length > 60 ? dismissal.slice(0, 60) + "…" : dismissal;
   if (runs === 0) {
     return {
-      title: `Duck! ${teamCode} ${totalDown} down`,
+      title: pickOne([
+        `Duck! ${teamCode} ${totalDown} down`,
+        `Golden duck — ${teamCode} in trouble`,
+        `Out for nothing. ${teamCode} ${totalDown} down`,
+      ]),
       body: pickOne([
-        `${lastName} walks back without troubling the scorers. Ouch.`,
-        `Zero. Nada. Zilch. ${lastName} gone for a golden duck.`,
-        `${lastName} out first ball — someone put the bat away.`,
+        `${lastName} walks back without troubling the scorers. Absolutely brutal.`,
+        `Zero. Nada. Zilch. ${lastName} gone for a golden duck. Someone hide the bat.`,
+        `${lastName} out first ball — did he even see it? ${teamCode} fans in shock.`,
+        `The scoreboard did not move for ${lastName}. Painful viewing.`,
+        `Nought. ${lastName} out for a duck. ${teamCode} need a miracle.`,
+        `${lastName} gone for 0. That's a fantasy points disaster right there.`,
       ]),
     };
   }
   if (runs < 20) {
     return {
-      title: `Gone early — ${teamCode} ${totalDown} down`,
+      title: pickOne([
+        `Gone early — ${teamCode} ${totalDown} down`,
+        `${lastName} departs for ${runs} — pressure on`,
+        `Early blow for ${teamCode}`,
+      ]),
       body: pickOne([
         `${lastName} out for a scratchy ${runs}(${balls}b). Not his day. ${dis}`,
-        `${lastName} departs for ${runs} — ${teamCode} need someone to step up.`,
-        `${runs}(${balls}b) and walking. ${dis}`,
+        `${lastName} departs for ${runs} — ${teamCode} desperately need someone to step up.`,
+        `${runs}(${balls}b) and walking back to the pavilion. ${dis}`,
+        `Couldn't get going. ${lastName} out for ${runs} off ${balls}. ${dis}`,
+        `${lastName} barely warmed up before getting out for ${runs}. ${teamCode} wobbling.`,
+        `${runs} runs, ${balls} balls, and gone. ${dis} — rough one.`,
       ]),
     };
   }
   if (runs < 50) {
     return {
-      title: `${lastName} out for ${runs} — ${teamCode} ${totalDown} down`,
+      title: pickOne([
+        `${lastName} out for ${runs} — ${teamCode} ${totalDown} down`,
+        `Wicket! ${lastName} gone for ${runs}`,
+        `${teamCode} lose another — ${lastName} departs`,
+      ]),
       body: pickOne([
         `Had a start but threw it away. ${runs}(${balls}b) · ${dis}`,
-        `${lastName} out for ${runs}, classic top-order collapse energy. ${dis}`,
-        `${dis} — ${runs}(${balls}b). ${teamCode} fans holding their heads.`,
+        `${lastName} out for ${runs} — classic top-order collapse energy. ${dis}`,
+        `${dis} — ${runs}(${balls}b). ${teamCode} fans burying their faces in their hands.`,
+        `Looked good for a big one and then… ${runs}(${balls}b). ${dis}`,
+        `${lastName} built a platform then handed it back. ${runs} off ${balls}. Infuriating.`,
+        `That's a start wasted. ${lastName} gone for ${runs}(${balls}b). ${dis}`,
+        `${teamCode} needed more. ${lastName} out for ${runs}. Not ideal.`,
       ]),
     };
   }
   return {
-    title: `Big wicket! ${lastName} gone for ${runs}`,
+    title: pickOne([
+      `Big wicket! ${lastName} gone for ${runs}`,
+      `${lastName} out after a belter — ${runs} runs`,
+      `${teamCode} lose their key man — ${lastName} gone`,
+    ]),
     body: pickOne([
       `After a brilliant ${runs}(${balls}b), ${lastName} has to go. ${dis}`,
       `${lastName} out for ${runs} — what an innings though! ${teamCode} ${totalDown} down.`,
-      `${dis} · ${runs}(${balls}b). ${lastName} can hold his head high.`,
+      `${dis} · ${runs}(${balls}b). ${lastName} can hold his head high, the rest of ${teamCode} less so.`,
+      `${runs} off ${balls} balls is a proper knock — but ${lastName} is gone. Game on.`,
+      `Standing ovation for ${lastName} — ${runs}(${balls}b). But ${teamCode} are now exposed.`,
+      `That's the match-defining wicket. ${lastName} departs for ${runs}(${balls}b). ${dis}`,
     ]),
   };
 }
@@ -1508,31 +1537,53 @@ function wicketBanter(lastName: string, runs: number, balls: number, teamCode: s
 function milestoneBanter(lastName: string, runs: number, balls: number, milestone: 50 | 100): { title: string; body: string } {
   if (milestone === 100) {
     return {
-      title: `Century! ${lastName} raises the bat`,
+      title: pickOne([
+        `Century! ${lastName} raises the bat`,
+        `Three figures! ${lastName} is unstoppable`,
+        `100 up for ${lastName} — what a knock`,
+      ]),
       body: pickOne([
-        `${runs}(${balls}b)! Pure T20 masterclass — eyes on your fantasy points.`,
-        `${lastName} goes to three figures off ${balls} balls. Ridiculous.`,
-        `${runs} runs and counting — ${lastName} is on another planet right now.`,
+        `${runs}(${balls}b)! Pure T20 masterclass — check your fantasy points, this is huge.`,
+        `${lastName} goes to three figures off ${balls} balls. Absolutely ridiculous.`,
+        `${runs} runs and still going — ${lastName} is on another planet right now.`,
+        `A hundred in T20 cricket. ${lastName} making it look easy off ${balls} balls.`,
+        `${lastName} brings up the ton! ${runs}(${balls}b) — the crowd is going absolutely mental.`,
+        `Fantasy owners rejoice. ${lastName} with a sensational ${runs}(${balls}b). Chef's kiss.`,
       ]),
     };
   }
   return {
-    title: `Fifty! ${lastName} brings up the half-century`,
+    title: pickOne([
+      `Fifty! ${lastName} brings up the half-century`,
+      `Half ton for ${lastName} — looking dangerous`,
+      `50 up for ${lastName}! Eyes on this one`,
+    ]),
     body: pickOne([
-      `${runs}(${balls}b) and looking dangerous. Keep an eye on your fantasy team.`,
-      `${lastName} reaches 50 off ${balls}. The crowd loves it.`,
+      `${runs}(${balls}b) and looking very dangerous. Keep an eye on your fantasy team.`,
+      `${lastName} reaches 50 off ${balls}. The crowd is loving every bit of this.`,
       `Half-century for ${lastName}! ${runs}(${balls}b) — watch him go.`,
+      `${lastName} is in the zone. ${runs} off ${balls} balls and not done yet.`,
+      `Fifty up and the bowlers have no answers. ${lastName} on ${runs}(${balls}b).`,
+      `${lastName} brings up a brilliant fifty. Fantasy points are cooking. ${runs}(${balls}b).`,
+      `That's 50 for ${lastName} and it barely felt like it. ${runs}(${balls}b) — class.`,
     ]),
   };
 }
 
 function fivewicketBanter(lastName: string, wickets: number, runs: number, overs: string): { title: string; body: string } {
   return {
-    title: `${wickets}-wicket haul! ${lastName} is on fire`,
+    title: pickOne([
+      `${wickets}-wicket haul! ${lastName} is on fire`,
+      `${lastName} running riot — ${wickets} wickets`,
+      `${wickets} down to ${lastName}! Unplayable`,
+    ]),
     body: pickOne([
-      `${wickets}/${runs} off ${overs} overs. Someone stop this man.`,
-      `${lastName} on a rampage — ${wickets}/${runs}. Unreal stuff.`,
-      `${wickets} wickets for ${lastName}! The batting order is in chaos.`,
+      `${wickets}/${runs} off ${overs} overs. Someone needs to stop this man immediately.`,
+      `${lastName} on an absolute rampage — ${wickets}/${runs}. The batting order is in tatters.`,
+      `${wickets} wickets for ${lastName}! This is not cricket, this is an execution.`,
+      `${overs} overs, ${runs} runs, ${wickets} wickets. ${lastName} putting on a masterclass.`,
+      `${lastName} has turned up to work today. ${wickets}/${runs} — brutal, clinical, brilliant.`,
+      `The batters have absolutely no idea. ${lastName} with ${wickets}/${runs} off ${overs}.`,
     ]),
   };
 }
