@@ -3,6 +3,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join } from "path";
 import { fileURLToPath } from "url";
 import { sendPushToAll } from "./push";
+import { requireSession, requireCommissioner } from "../lib/sessions";
 
 const TEAM_NAME_TO_CODE: Record<string, string> = {
   "Rajasthan Royals": "RR", "Chennai Super Kings": "CSK", "Mumbai Indians": "MI",
