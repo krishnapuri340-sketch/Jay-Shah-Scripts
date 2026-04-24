@@ -10,6 +10,27 @@ export interface ReAuctionPageProps {
 
 const OWNER_ORDER = RA_TEAM_ORDER;
 
+const TEAM_ABBREV: Record<string, string> = {
+  "Rajasthan Royals": "RR",
+  "Chennai Super Kings": "CSK",
+  "Mumbai Indians": "MI",
+  "Kolkata Knight Riders": "KKR",
+  "Sunrisers Hyderabad": "SRH",
+  "Royal Challengers Bengaluru": "RCB",
+  "Royal Challengers Bangalore": "RCB",
+  "Delhi Capitals": "DC",
+  "Punjab Kings": "PBKS",
+  "Lucknow Super Giants": "LSG",
+  "Gujarat Titans": "GT",
+};
+
+function abbrevLabel(label: string): string {
+  return label.replace(
+    /Rajasthan Royals|Chennai Super Kings|Mumbai Indians|Kolkata Knight Riders|Sunrisers Hyderabad|Royal Challengers Bengaluru|Royal Challengers Bangalore|Delhi Capitals|Punjab Kings|Lucknow Super Giants|Gujarat Titans/g,
+    m => TEAM_ABBREV[m] ?? m
+  );
+}
+
 export default function ReAuctionPage({ playerPoints, playerMatchPoints }: ReAuctionPageProps) {
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
 
@@ -509,7 +530,7 @@ function PlayerRow({
                       <span style={{ fontSize: "0.44rem", fontWeight: 700, color: "rgba(255,100,100,0.7)", background: "rgba(255,100,100,0.08)", borderRadius: 3, padding: "1px 4px", flexShrink: 0 }}>
                         {p.replacedName?.split(" ").slice(-1)[0]}
                       </span>
-                      <span style={{ fontSize: "0.65rem", color: "var(--text-3)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{entry.label}</span>
+                      <span style={{ fontSize: "0.65rem", color: "var(--text-3)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{abbrevLabel(entry.label)}</span>
                       <span style={{ width: 5, height: 5, borderRadius: "50%", background: entry.source === "official" ? "#34d399" : "#fbbf24", flexShrink: 0 }} />
                       <span style={{ fontSize: "0.92rem", fontWeight: 700, color: "var(--text-3)", minWidth: 26, textAlign: "right" as const }}>{entry.pts}</span>
                       {s && (
@@ -563,7 +584,7 @@ function PlayerRow({
                       <span style={{ fontSize: "0.5rem", fontWeight: 700, color: isPostAuction ? "#34d399" : "var(--text-3)", background: isPostAuction ? "rgba(52,211,153,0.12)" : "rgba(255,255,255,0.06)", borderRadius: 4, padding: "1px 4px", flexShrink: 0 }}>
                         M{entry.matchNum}
                       </span>
-                      <span style={{ fontSize: "0.65rem", color: "var(--text-2)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{entry.label}</span>
+                      <span style={{ fontSize: "0.65rem", color: "var(--text-2)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{abbrevLabel(entry.label)}</span>
                       <span style={{ width: 5, height: 5, borderRadius: "50%", background: entry.source === "official" ? "#34d399" : "#fbbf24", flexShrink: 0 }} />
                       <span style={{ fontSize: "0.92rem", fontWeight: 700, color: entry.pts > 0 ? "var(--text)" : "var(--text-3)", minWidth: 26, textAlign: "right" as const }}>
                         {entry.pts}
