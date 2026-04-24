@@ -226,6 +226,7 @@ function RosterCard({ top11, players, teamColor, captain, vc, playerMatchPoints 
           <PlayerRow key={p.name} p={p}
             isCap={p.name === captain} isVC={p.name === vc} teamColor={teamColor}
             matchPoints={playerMatchPoints[p.name] || []}
+            replacedMatchPoints={p.replacedName ? (playerMatchPoints[p.replacedName] || []).filter(e => e.matchNum < RA_FROM_MATCH) : []}
             isExpanded={expandedPlayer === p.name}
             expandedBdMatches={expandedBdMatches}
             onToggle={() => setExpandedPlayer(expandedPlayer === p.name ? null : p.name)}
@@ -256,6 +257,7 @@ function RosterCard({ top11, players, teamColor, captain, vc, playerMatchPoints 
             <PlayerRow key={p.name} p={p}
               isCap={false} isVC={false} teamColor={teamColor}
               matchPoints={playerMatchPoints[p.name] || []}
+              replacedMatchPoints={p.replacedName ? (playerMatchPoints[p.replacedName] || []).filter(e => e.matchNum < RA_FROM_MATCH) : []}
               isExpanded={expandedPlayer === p.name}
               expandedBdMatches={expandedBdMatches}
               onToggle={() => setExpandedPlayer(expandedPlayer === p.name ? null : p.name)}
@@ -277,18 +279,71 @@ function StatChip({ label, value, color }: { label: string; value: number; color
   );
 }
 
+// ─── Scoring lines helper ─────────────────────────────────────────────────────
+
+function buildScoringLines(s: any): { label: string; pts: number; color: string }[] {
+  const lines: { label: string; pts: number; color: string }[] = [];
+  if (!s) return lines;
+  lines.push({ label: "Playing XI", pts: 4, color: "#64748b" });
+  if (s.runs > 0) lines.push({ label: `${s.runs} runs (${s.balls}b)`, pts: s.runs, color: "#f97316" });
+  if (s.fours > 0) lines.push({ label: `${s.fours} fours`, pts: s.fours * 4, color: "#fb923c" });
+  if (s.sixes > 0) lines.push({ label: `${s.sixes} sixes`, pts: s.sixes * 6, color: "#fbbf24" });
+  if (s.duck) lines.push({ label: "Duck", pts: -2, color: "#ef4444" });
+  const r = s.runs, b = s.balls;
+  if (r >= 100) lines.push({ label: "Century bonus", pts: 16, color: "#34d399" });
+  else if (r >= 75) lines.push({ label: "75+ bonus", pts: 12, color: "#34d399" });
+  else if (r >= 50) lines.push({ label: "50+ bonus", pts: 8, color: "#34d399" });
+  else if (r >= 25) lines.push({ label: "25+ bonus", pts: 4, color: "#34d399" });
+  if (b >= 10 || r >= 20) {
+    const sr = b > 0 ? (r / b) * 100 : 0;
+    if (sr > 190) lines.push({ label: `SR ${sr.toFixed(0)} bonus`, pts: 8, color: "#34d399" });
+    else if (sr > 170) lines.push({ label: `SR ${sr.toFixed(0)} bonus`, pts: 6, color: "#34d399" });
+    else if (sr > 150) lines.push({ label: `SR ${sr.toFixed(0)} bonus`, pts: 4, color: "#34d399" });
+    else if (sr >= 130) lines.push({ label: `SR ${sr.toFixed(0)} bonus`, pts: 2, color: "#34d399" });
+    else if (sr >= 70 && sr <= 100) lines.push({ label: `SR ${sr.toFixed(0)} penalty`, pts: -2, color: "#ef4444" });
+    else if (sr >= 60 && sr < 70) lines.push({ label: `SR ${sr.toFixed(0)} penalty`, pts: -4, color: "#ef4444" });
+    else if (sr >= 50 && sr < 60) lines.push({ label: `SR ${sr.toFixed(0)} penalty`, pts: -6, color: "#ef4444" });
+  }
+  if (s.wickets > 0) lines.push({ label: `${s.wickets} wkt${s.wickets > 1 ? "s" : ""}`, pts: s.wickets * 30, color: "#60a5fa" });
+  if (s.lbwBowled > 0) lines.push({ label: `${s.lbwBowled} LBW/Bowled`, pts: s.lbwBowled * 8, color: "#60a5fa" });
+  if (s.dots > 0) lines.push({ label: `${s.dots} dots`, pts: s.dots * 2, color: "#818cf8" });
+  if (s.maidens > 0) lines.push({ label: `${s.maidens} maiden${s.maidens > 1 ? "s" : ""}`, pts: s.maidens * 12, color: "#818cf8" });
+  const w = s.wickets;
+  if (w >= 5) lines.push({ label: "5-wkt haul", pts: 16, color: "#34d399" });
+  else if (w >= 4) lines.push({ label: "4-wkt haul", pts: 12, color: "#34d399" });
+  else if (w >= 3) lines.push({ label: "3-wkt haul", pts: 8, color: "#34d399" });
+  const overs = s.ballsBowled / 6;
+  if (overs >= 2) {
+    const eco = s.runsConceded / overs;
+    if (eco < 5) lines.push({ label: `Eco ${eco.toFixed(1)}`, pts: 8, color: "#34d399" });
+    else if (eco < 6) lines.push({ label: `Eco ${eco.toFixed(1)}`, pts: 6, color: "#34d399" });
+    else if (eco <= 7) lines.push({ label: `Eco ${eco.toFixed(1)}`, pts: 4, color: "#34d399" });
+    else if (eco <= 8) lines.push({ label: `Eco ${eco.toFixed(1)}`, pts: 2, color: "#34d399" });
+    else if (eco >= 10 && eco <= 11) lines.push({ label: `Eco ${eco.toFixed(1)}`, pts: -2, color: "#ef4444" });
+    else if (eco > 11 && eco <= 12) lines.push({ label: `Eco ${eco.toFixed(1)}`, pts: -4, color: "#ef4444" });
+    else if (eco > 12) lines.push({ label: `Eco ${eco.toFixed(1)}`, pts: -6, color: "#ef4444" });
+  }
+  if (s.catches > 0) lines.push({ label: `${s.catches} catch${s.catches > 1 ? "es" : ""}`, pts: s.catches * 8, color: "#a78bfa" });
+  if (s.catches >= 3) lines.push({ label: "3+ catch bonus", pts: 4, color: "#a78bfa" });
+  if (s.runOuts > 0) lines.push({ label: `${s.runOuts} run out${s.runOuts > 1 ? "s" : ""}`, pts: s.runOuts * 10, color: "#a78bfa" });
+  if ((s as any).sharedRunOuts > 0) lines.push({ label: `${(s as any).sharedRunOuts} shared RO`, pts: (s as any).sharedRunOuts * 5, color: "#a78bfa" });
+  if (s.stumpings > 0) lines.push({ label: `${s.stumpings} stumping${s.stumpings > 1 ? "s" : ""}`, pts: s.stumpings * 12, color: "#a78bfa" });
+  return lines;
+}
+
 // ─── Player Row ───────────────────────────────────────────────────────────────
 
 type MatchEntry = { matchNum: number; pts: number; label: string; source?: string; stats?: any };
 
 function PlayerRow({
-  p, isCap, isVC, teamColor, matchPoints, isExpanded, expandedBdMatches, onToggle, onToggleBd,
+  p, isCap, isVC, teamColor, matchPoints, replacedMatchPoints, isExpanded, expandedBdMatches, onToggle, onToggleBd,
 }: {
   p: RaPlayer & { slotPts: number; adjPts: number; liveGain: number };
   isCap: boolean;
   isVC: boolean;
   teamColor: string;
   matchPoints: MatchEntry[];
+  replacedMatchPoints: MatchEntry[];
   isExpanded: boolean;
   expandedBdMatches: Set<string>;
   onToggle: () => void;
@@ -415,102 +470,114 @@ function PlayerRow({
               style={{ background: "rgba(255,255,255,0.05)", border: "none", color: "var(--text-3)", cursor: "pointer", fontSize: "0.7rem", padding: "3px 7px", borderRadius: 6, lineHeight: 1 }}>✕</button>
           </div>
 
-          {matchPoints.length === 0 ? (
+          {matchPoints.length === 0 && replacedMatchPoints.length === 0 ? (
             <div style={{ color: "var(--text-3)", fontSize: "0.72rem", textAlign: "center" as const, padding: "10px 0" }}>No match data yet</div>
           ) : (
-            matchPoints.map((entry, ei) => {
-              const s = entry.stats;
-              const bdKey = `${p.name}-${ei}`;
-              const isEntryOpen = expandedBdMatches.has(bdKey);
-              const isPostAuction = entry.matchNum >= RA_FROM_MATCH;
-
-              const lines: { label: string; pts: number; color: string }[] = [];
-              if (s) {
-                lines.push({ label: "Playing XI", pts: 4, color: "#64748b" });
-                if (s.runs > 0) lines.push({ label: `${s.runs} runs (${s.balls}b)`, pts: s.runs, color: "#f97316" });
-                if (s.fours > 0) lines.push({ label: `${s.fours} fours`, pts: s.fours * 4, color: "#fb923c" });
-                if (s.sixes > 0) lines.push({ label: `${s.sixes} sixes`, pts: s.sixes * 6, color: "#fbbf24" });
-                if (s.duck) lines.push({ label: "Duck", pts: -2, color: "#ef4444" });
-                const r = s.runs, b = s.balls;
-                if (r >= 100) lines.push({ label: "Century bonus", pts: 16, color: "#34d399" });
-                else if (r >= 75) lines.push({ label: "75+ bonus", pts: 12, color: "#34d399" });
-                else if (r >= 50) lines.push({ label: "50+ bonus", pts: 8, color: "#34d399" });
-                else if (r >= 25) lines.push({ label: "25+ bonus", pts: 4, color: "#34d399" });
-                if (b >= 10 || r >= 20) {
-                  const sr = b > 0 ? (r / b) * 100 : 0;
-                  if (sr > 190) lines.push({ label: `SR ${sr.toFixed(0)} bonus`, pts: 8, color: "#34d399" });
-                  else if (sr > 170) lines.push({ label: `SR ${sr.toFixed(0)} bonus`, pts: 6, color: "#34d399" });
-                  else if (sr > 150) lines.push({ label: `SR ${sr.toFixed(0)} bonus`, pts: 4, color: "#34d399" });
-                  else if (sr >= 130) lines.push({ label: `SR ${sr.toFixed(0)} bonus`, pts: 2, color: "#34d399" });
-                  else if (sr >= 70 && sr <= 100) lines.push({ label: `SR ${sr.toFixed(0)} penalty`, pts: -2, color: "#ef4444" });
-                  else if (sr >= 60 && sr < 70) lines.push({ label: `SR ${sr.toFixed(0)} penalty`, pts: -4, color: "#ef4444" });
-                  else if (sr >= 50 && sr < 60) lines.push({ label: `SR ${sr.toFixed(0)} penalty`, pts: -6, color: "#ef4444" });
-                }
-                if (s.wickets > 0) lines.push({ label: `${s.wickets} wkt${s.wickets > 1 ? "s" : ""}`, pts: s.wickets * 30, color: "#60a5fa" });
-                if (s.lbwBowled > 0) lines.push({ label: `${s.lbwBowled} LBW/Bowled`, pts: s.lbwBowled * 8, color: "#60a5fa" });
-                if (s.dots > 0) lines.push({ label: `${s.dots} dots`, pts: s.dots * 2, color: "#818cf8" });
-                if (s.maidens > 0) lines.push({ label: `${s.maidens} maiden${s.maidens > 1 ? "s" : ""}`, pts: s.maidens * 12, color: "#818cf8" });
-                const w = s.wickets;
-                if (w >= 5) lines.push({ label: "5-wkt haul", pts: 16, color: "#34d399" });
-                else if (w >= 4) lines.push({ label: "4-wkt haul", pts: 12, color: "#34d399" });
-                else if (w >= 3) lines.push({ label: "3-wkt haul", pts: 8, color: "#34d399" });
-                const overs = s.ballsBowled / 6;
-                if (overs >= 2) {
-                  const eco = s.runsConceded / overs;
-                  if (eco < 5) lines.push({ label: `Eco ${eco.toFixed(1)}`, pts: 8, color: "#34d399" });
-                  else if (eco < 6) lines.push({ label: `Eco ${eco.toFixed(1)}`, pts: 6, color: "#34d399" });
-                  else if (eco <= 7) lines.push({ label: `Eco ${eco.toFixed(1)}`, pts: 4, color: "#34d399" });
-                  else if (eco <= 8) lines.push({ label: `Eco ${eco.toFixed(1)}`, pts: 2, color: "#34d399" });
-                  else if (eco >= 10 && eco <= 11) lines.push({ label: `Eco ${eco.toFixed(1)}`, pts: -2, color: "#ef4444" });
-                  else if (eco > 11 && eco <= 12) lines.push({ label: `Eco ${eco.toFixed(1)}`, pts: -4, color: "#ef4444" });
-                  else if (eco > 12) lines.push({ label: `Eco ${eco.toFixed(1)}`, pts: -6, color: "#ef4444" });
-                }
-                if (s.catches > 0) lines.push({ label: `${s.catches} catch${s.catches > 1 ? "es" : ""}`, pts: s.catches * 8, color: "#a78bfa" });
-                if (s.catches >= 3) lines.push({ label: "3+ catch bonus", pts: 4, color: "#a78bfa" });
-                if (s.runOuts > 0) lines.push({ label: `${s.runOuts} run out${s.runOuts > 1 ? "s" : ""}`, pts: s.runOuts * 10, color: "#a78bfa" });
-                if ((s as any).sharedRunOuts > 0) lines.push({ label: `${(s as any).sharedRunOuts} shared RO`, pts: (s as any).sharedRunOuts * 5, color: "#a78bfa" });
-                if (s.stumpings > 0) lines.push({ label: `${s.stumpings} stumping${s.stumpings > 1 ? "s" : ""}`, pts: s.stumpings * 12, color: "#a78bfa" });
-              }
-              const computed = lines.reduce((a, l) => a + l.pts, 0);
-              const diff = s ? entry.pts - computed : 0;
-
-              return (
-                <div key={ei} style={{ marginBottom: ei < matchPoints.length - 1 ? 6 : 0, paddingBottom: ei < matchPoints.length - 1 ? 6 : 0, borderBottom: ei < matchPoints.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none" }}>
-                  <div onClick={(e) => { e.stopPropagation(); if (s) onToggleBd(bdKey); }}
-                    style={{ display: "flex", alignItems: "center", gap: 6, cursor: s ? "pointer" : "default", WebkitTapHighlightColor: "transparent", padding: "2px 0" }}>
-                    <span style={{ fontSize: "0.5rem", fontWeight: 700, color: isPostAuction ? teamColor : "var(--text-3)", background: isPostAuction ? teamColor + "22" : "rgba(255,255,255,0.06)", borderRadius: 4, padding: "1px 4px", flexShrink: 0 }}>
-                      M{entry.matchNum}
-                    </span>
-                    <span style={{ fontSize: "0.65rem", color: "var(--text-2)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{entry.label}</span>
-                    <span style={{ width: 5, height: 5, borderRadius: "50%", background: entry.source === "official" ? "#34d399" : "#fbbf24", flexShrink: 0 }} />
-                    <span style={{ fontSize: "0.92rem", fontWeight: 700, color: entry.pts > 0 ? "var(--text)" : "var(--text-3)", minWidth: 26, textAlign: "right" as const }}>
-                      {entry.pts}
-                    </span>
-                    {s && (
-                      <svg width="8" height="5" viewBox="0 0 10 6" fill="none" style={{ flexShrink: 0, transition: "transform 0.18s", transform: isEntryOpen ? "rotate(180deg)" : "rotate(0deg)" }}>
-                        <path d="M1 1l4 4 4-4" stroke="var(--text-3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    )}
-                  </div>
-                  {isEntryOpen && s && lines.length > 0 && (
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr auto", rowGap: 1, columnGap: 10, padding: "6px 8px", background: "rgba(255,255,255,0.02)", borderRadius: 7, marginTop: 4 }}>
-                      {lines.map((line, li) => (
-                        <React.Fragment key={li}>
-                          <span style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{line.label}</span>
-                          <span style={{ fontSize: "0.6rem", fontWeight: 600, color: line.pts >= 0 ? line.color : "#ef4444", textAlign: "right" as const }}>{line.pts > 0 ? "+" : ""}{line.pts}</span>
-                        </React.Fragment>
-                      ))}
-                      {Math.abs(diff) > 0 && (
-                        <React.Fragment>
-                          <span style={{ fontSize: "0.6rem", color: "var(--text-3)", fontStyle: "italic" as const }}>other</span>
-                          <span style={{ fontSize: "0.6rem", fontWeight: 600, color: diff >= 0 ? "#a78bfa" : "#ef4444", textAlign: "right" as const }}>{diff > 0 ? "+" : ""}{diff}</span>
-                        </React.Fragment>
+            <>
+              {/* ── Old player rows (pre-auction) ────────────────────────── */}
+              {replacedMatchPoints.map((entry, ei) => {
+                const s = entry.stats;
+                const bdKey = `OLD-${p.name}-${ei}`;
+                const isEntryOpen = expandedBdMatches.has(bdKey);
+                const lines = buildScoringLines(s);
+                const computed = lines.reduce((a, l) => a + l.pts, 0);
+                const diff = s ? entry.pts - computed : 0;
+                const isLast = ei === replacedMatchPoints.length - 1;
+                return (
+                  <div key={bdKey} style={{ opacity: 0.5, marginBottom: isLast ? 0 : 6, paddingBottom: isLast ? 0 : 6, borderBottom: isLast ? "none" : "1px solid rgba(255,255,255,0.05)" }}>
+                    <div onClick={(e) => { e.stopPropagation(); if (s) onToggleBd(bdKey); }}
+                      style={{ display: "flex", alignItems: "center", gap: 6, cursor: s ? "pointer" : "default", WebkitTapHighlightColor: "transparent", padding: "2px 0" }}>
+                      <span style={{ fontSize: "0.5rem", fontWeight: 700, color: "var(--text-3)", background: "rgba(255,255,255,0.06)", borderRadius: 4, padding: "1px 4px", flexShrink: 0 }}>
+                        M{entry.matchNum}
+                      </span>
+                      <span style={{ fontSize: "0.44rem", fontWeight: 700, color: "rgba(255,100,100,0.7)", background: "rgba(255,100,100,0.08)", borderRadius: 3, padding: "1px 4px", flexShrink: 0 }}>
+                        {p.replacedName?.split(" ").slice(-1)[0]}
+                      </span>
+                      <span style={{ fontSize: "0.65rem", color: "var(--text-3)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{entry.label}</span>
+                      <span style={{ width: 5, height: 5, borderRadius: "50%", background: entry.source === "official" ? "#34d399" : "#fbbf24", flexShrink: 0 }} />
+                      <span style={{ fontSize: "0.92rem", fontWeight: 700, color: "var(--text-3)", minWidth: 26, textAlign: "right" as const }}>{entry.pts}</span>
+                      {s && (
+                        <svg width="8" height="5" viewBox="0 0 10 6" fill="none" style={{ flexShrink: 0, transition: "transform 0.18s", transform: isEntryOpen ? "rotate(180deg)" : "rotate(0deg)" }}>
+                          <path d="M1 1l4 4 4-4" stroke="var(--text-3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
                       )}
                     </div>
-                  )}
+                    {isEntryOpen && s && lines.length > 0 && (
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr auto", rowGap: 1, columnGap: 10, padding: "6px 8px", background: "rgba(255,255,255,0.02)", borderRadius: 7, marginTop: 4 }}>
+                        {lines.map((line, li) => (
+                          <React.Fragment key={li}>
+                            <span style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{line.label}</span>
+                            <span style={{ fontSize: "0.6rem", fontWeight: 600, color: line.pts >= 0 ? line.color : "#ef4444", textAlign: "right" as const }}>{line.pts > 0 ? "+" : ""}{line.pts}</span>
+                          </React.Fragment>
+                        ))}
+                        {Math.abs(diff) > 0 && (
+                          <React.Fragment>
+                            <span style={{ fontSize: "0.6rem", color: "var(--text-3)", fontStyle: "italic" as const }}>other</span>
+                            <span style={{ fontSize: "0.6rem", fontWeight: 600, color: diff >= 0 ? "#a78bfa" : "#ef4444", textAlign: "right" as const }}>{diff > 0 ? "+" : ""}{diff}</span>
+                          </React.Fragment>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+
+              {/* ── Re-Auction divider ───────────────────────────────────── */}
+              {p.isNew && replacedMatchPoints.length > 0 && matchPoints.length > 0 && (
+                <div style={{ display: "flex", alignItems: "center", gap: 6, margin: "8px 0", opacity: 0.7 }}>
+                  <div style={{ flex: 1, height: 1, background: `linear-gradient(to right, transparent, ${teamColor}60)` }} />
+                  <span style={{ fontSize: "0.44rem", fontWeight: 800, letterSpacing: "0.07em", color: teamColor, textTransform: "uppercase" as const }}>↩ Re-Auction · M{RA_FROM_MATCH}+</span>
+                  <div style={{ flex: 1, height: 1, background: `linear-gradient(to left, transparent, ${teamColor}60)` }} />
                 </div>
-              );
-            })
+              )}
+
+              {/* ── New / current player rows ────────────────────────────── */}
+              {matchPoints.map((entry, ei) => {
+                const s = entry.stats;
+                const bdKey = `${p.name}-${ei}`;
+                const isEntryOpen = expandedBdMatches.has(bdKey);
+                const isPostAuction = entry.matchNum >= RA_FROM_MATCH;
+                const lines = buildScoringLines(s);
+                const computed = lines.reduce((a, l) => a + l.pts, 0);
+                const diff = s ? entry.pts - computed : 0;
+                return (
+                  <div key={ei} style={{ marginBottom: ei < matchPoints.length - 1 ? 6 : 0, paddingBottom: ei < matchPoints.length - 1 ? 6 : 0, borderBottom: ei < matchPoints.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none" }}>
+                    <div onClick={(e) => { e.stopPropagation(); if (s) onToggleBd(bdKey); }}
+                      style={{ display: "flex", alignItems: "center", gap: 6, cursor: s ? "pointer" : "default", WebkitTapHighlightColor: "transparent", padding: "2px 0" }}>
+                      <span style={{ fontSize: "0.5rem", fontWeight: 700, color: isPostAuction ? teamColor : "var(--text-3)", background: isPostAuction ? teamColor + "22" : "rgba(255,255,255,0.06)", borderRadius: 4, padding: "1px 4px", flexShrink: 0 }}>
+                        M{entry.matchNum}
+                      </span>
+                      <span style={{ fontSize: "0.65rem", color: "var(--text-2)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{entry.label}</span>
+                      <span style={{ width: 5, height: 5, borderRadius: "50%", background: entry.source === "official" ? "#34d399" : "#fbbf24", flexShrink: 0 }} />
+                      <span style={{ fontSize: "0.92rem", fontWeight: 700, color: entry.pts > 0 ? "var(--text)" : "var(--text-3)", minWidth: 26, textAlign: "right" as const }}>
+                        {entry.pts}
+                      </span>
+                      {s && (
+                        <svg width="8" height="5" viewBox="0 0 10 6" fill="none" style={{ flexShrink: 0, transition: "transform 0.18s", transform: isEntryOpen ? "rotate(180deg)" : "rotate(0deg)" }}>
+                          <path d="M1 1l4 4 4-4" stroke="var(--text-3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      )}
+                    </div>
+                    {isEntryOpen && s && lines.length > 0 && (
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr auto", rowGap: 1, columnGap: 10, padding: "6px 8px", background: "rgba(255,255,255,0.02)", borderRadius: 7, marginTop: 4 }}>
+                        {lines.map((line, li) => (
+                          <React.Fragment key={li}>
+                            <span style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{line.label}</span>
+                            <span style={{ fontSize: "0.6rem", fontWeight: 600, color: line.pts >= 0 ? line.color : "#ef4444", textAlign: "right" as const }}>{line.pts > 0 ? "+" : ""}{line.pts}</span>
+                          </React.Fragment>
+                        ))}
+                        {Math.abs(diff) > 0 && (
+                          <React.Fragment>
+                            <span style={{ fontSize: "0.6rem", color: "var(--text-3)", fontStyle: "italic" as const }}>other</span>
+                            <span style={{ fontSize: "0.6rem", fontWeight: 600, color: diff >= 0 ? "#a78bfa" : "#ef4444", textAlign: "right" as const }}>{diff > 0 ? "+" : ""}{diff}</span>
+                          </React.Fragment>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </>
           )}
 
           <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", marginTop: 10, paddingTop: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
