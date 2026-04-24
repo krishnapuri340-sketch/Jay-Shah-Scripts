@@ -444,7 +444,7 @@ function PlayerRow({
         {/* Points column */}
         <div style={{ textAlign: "right" as const, flexShrink: 0 }}>
           <div style={{ fontSize: "1rem", fontWeight: 800, color: p.isNew ? teamColor : "var(--text)", fontVariantNumeric: "tabular-nums", lineHeight: 1 }}>
-            {p.adjPts.toFixed(1)}
+            {p.adjPts % 1 === 0 ? Math.round(p.adjPts) : p.adjPts.toFixed(1)}
           </div>
           {(isCap || isVC) && (
             <div style={{ fontSize: "0.42rem", color: "var(--text-3)", marginTop: 1 }}>
@@ -600,7 +600,7 @@ function PlayerRow({
             <span style={{ fontSize: "0.62rem", color: "var(--text-3)" }}>
               {isCap ? `${p.slotPts} raw · × 2 (Captain)` : isVC ? `${p.slotPts} raw · × 1.5 (VC)` : "Total"}
             </span>
-            <span style={{ fontSize: "1rem", fontWeight: 700, color: p.isNew ? teamColor : "var(--text)" }}>{p.adjPts.toFixed(1)} pts</span>
+            <span style={{ fontSize: "1rem", fontWeight: 700, color: p.isNew ? teamColor : "var(--text)" }}>{p.adjPts % 1 === 0 ? Math.round(p.adjPts) : p.adjPts.toFixed(1)} pts</span>
           </div>
         </div>
       )}
