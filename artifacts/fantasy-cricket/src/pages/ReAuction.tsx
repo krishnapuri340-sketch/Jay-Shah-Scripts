@@ -49,7 +49,7 @@ export default function ReAuctionPage({ playerPoints, playerMatchPoints }: ReAuc
         </div>
         {teamScores.map((ts, idx) => {
           const isFirst = idx === 0;
-          const gap = idx > 0 ? teamScores[0].total - ts.total : 0;
+          const gap = idx > 0 ? (teamScores[0].total - ts.total).toFixed(1) : 0;
           const rankColors = ["#d4a843", "#aab4c2", "#cd7f32", "var(--text-3)"];
           return (
             <div key={ts.id}
@@ -107,7 +107,7 @@ export default function ReAuctionPage({ playerPoints, playerMatchPoints }: ReAuc
                   fontSize: "1.25rem", fontWeight: 800,
                   color: ts.ft.color,
                   fontVariantNumeric: "tabular-nums", lineHeight: 1,
-                }}>{ts.total}</div>
+                }}>{typeof ts.total === "number" ? ts.total.toFixed(1) : ts.total}</div>
                 {!isFirst && (
                   <div style={{ fontSize: "0.5rem", color: "var(--text-3)", marginTop: 2 }}>
                     -{gap}
@@ -360,7 +360,7 @@ function PlayerRow({
           color: p.isNew ? teamColor : "var(--text)",
           fontVariantNumeric: "tabular-nums", lineHeight: 1,
         }}>
-          {Math.round(p.adjPts)}
+          {p.adjPts.toFixed(1)}
         </div>
         {(isCap || isVC) && (
           <div style={{ fontSize: "0.42rem", color: "var(--text-3)", marginTop: 1 }}>

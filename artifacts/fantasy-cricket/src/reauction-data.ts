@@ -216,8 +216,8 @@ export function raTeamScore(
   }).sort((a, b) => b.adjPts - a.adjPts);
 
   const top11Set = new Set(scored.slice(0, 11).map(p => p.name));
-  const total = Math.round(
-    scored.filter(p => top11Set.has(p.name)).reduce((s, p) => s + p.adjPts, 0)
+  const total = parseFloat(
+    scored.filter(p => top11Set.has(p.name)).reduce((s, p) => s + p.adjPts, 0).toFixed(1)
   );
   return { total, top11: top11Set, players: scored };
 }

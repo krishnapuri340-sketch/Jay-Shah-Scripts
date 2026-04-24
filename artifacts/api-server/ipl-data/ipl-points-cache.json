@@ -20143,6 +20143,424 @@
         }
       ],
       "playerStats": {}
+    },
+    "2474": {
+      "points": {},
+      "innings": [
+        {
+          "name": "Gujarat Titans Inning 1",
+          "total": "205/3 (20.0 ov)",
+          "batting": [
+            {
+              "name": "Sai Sudharsan",
+              "runs": 100,
+              "balls": 58,
+              "fours": 11,
+              "sixes": 5,
+              "sr": "172.41",
+              "dismissal": "c & b Josh Hazlewood",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Shubman Gill",
+              "runs": 32,
+              "balls": 24,
+              "fours": 2,
+              "sixes": 1,
+              "sr": "133.33",
+              "dismissal": "c Devdutt Padikkal b Suyash Sharma",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Jos Buttler",
+              "runs": 25,
+              "balls": 16,
+              "fours": 2,
+              "sixes": 1,
+              "sr": "156.25",
+              "dismissal": "c Josh Hazlewood b Bhuvneshwar Kumar",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Washington Sundar",
+              "runs": 19,
+              "balls": 12,
+              "fours": 1,
+              "sixes": 1,
+              "sr": "158.33",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Jason Holder",
+              "runs": 23,
+              "balls": 10,
+              "fours": 1,
+              "sixes": 2,
+              "sr": "230.00",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Shahrukh Khan",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Rashid Khan",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Manav Suthar",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Kagiso Rabada",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Mohammed Siraj",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Rahul Tewatia",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Prasidh Krishna",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            }
+          ],
+          "bowling": [
+            {
+              "name": "Bhuvneshwar Kumar",
+              "overs": "4",
+              "maidens": 0,
+              "runs": 31,
+              "wickets": 1,
+              "eco": "7.75",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 6
+            },
+            {
+              "name": "Josh Hazlewood",
+              "overs": "4",
+              "maidens": 0,
+              "runs": 40,
+              "wickets": 1,
+              "eco": "10",
+              "wides": 1,
+              "noBalls": 0,
+              "dots": 11
+            },
+            {
+              "name": "Rasikh Dar",
+              "overs": "3",
+              "maidens": 0,
+              "runs": 28,
+              "wickets": 0,
+              "eco": "9.33",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 3
+            },
+            {
+              "name": "Krunal Pandya",
+              "overs": "4",
+              "maidens": 0,
+              "runs": 50,
+              "wickets": 0,
+              "eco": "12.5",
+              "wides": 1,
+              "noBalls": 0,
+              "dots": 4
+            },
+            {
+              "name": "Romario Shepherd",
+              "overs": "1",
+              "maidens": 0,
+              "runs": 17,
+              "wickets": 0,
+              "eco": "17",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 0
+            },
+            {
+              "name": "Suyash Sharma",
+              "overs": "4",
+              "maidens": 0,
+              "runs": 36,
+              "wickets": 1,
+              "eco": "9",
+              "wides": 1,
+              "noBalls": 0,
+              "dots": 5
+            }
+          ]
+        },
+        {
+          "name": "Royal Challengers Bengaluru Inning 2",
+          "total": "206/5 (18.5 ov)",
+          "batting": [
+            {
+              "name": "Jacob Bethell",
+              "runs": 14,
+              "balls": 10,
+              "fours": 3,
+              "sixes": 0,
+              "sr": "140.00",
+              "dismissal": "c Shahrukh Khan b Mohammed Siraj",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Virat Kohli",
+              "runs": 81,
+              "balls": 44,
+              "fours": 8,
+              "sixes": 4,
+              "sr": "184.09",
+              "dismissal": "b Jason Holder",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Devdutt Padikkal",
+              "runs": 55,
+              "balls": 27,
+              "fours": 2,
+              "sixes": 6,
+              "sr": "203.70",
+              "dismissal": "b Rashid Khan",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Rajat Patidar",
+              "runs": 8,
+              "balls": 5,
+              "fours": 0,
+              "sixes": 1,
+              "sr": "160.00",
+              "dismissal": "c Washington Sundar b Manav Suthar",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Jitesh Sharma",
+              "runs": 10,
+              "balls": 6,
+              "fours": 1,
+              "sixes": 1,
+              "sr": "166.67",
+              "dismissal": "c Manav Suthar b Rashid Khan",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Tim David",
+              "runs": 10,
+              "balls": 9,
+              "fours": 0,
+              "sixes": 1,
+              "sr": "111.11",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Krunal Pandya",
+              "runs": 23,
+              "balls": 12,
+              "fours": 3,
+              "sixes": 1,
+              "sr": "191.67",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Romario Shepherd",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Bhuvneshwar Kumar",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Josh Hazlewood",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Rasikh Dar",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Suyash Sharma",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            }
+          ],
+          "bowling": [
+            {
+              "name": "Mohammed Siraj",
+              "overs": "3",
+              "maidens": 0,
+              "runs": 25,
+              "wickets": 1,
+              "eco": "8.33",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 9
+            },
+            {
+              "name": "Kagiso Rabada",
+              "overs": "4",
+              "maidens": 0,
+              "runs": 45,
+              "wickets": 0,
+              "eco": "11.25",
+              "wides": 1,
+              "noBalls": 0,
+              "dots": 7
+            },
+            {
+              "name": "Jason Holder",
+              "overs": "3.5",
+              "maidens": 0,
+              "runs": 35,
+              "wickets": 1,
+              "eco": "9.13",
+              "wides": 1,
+              "noBalls": 0,
+              "dots": 8
+            },
+            {
+              "name": "Prasidh Krishna",
+              "overs": "2",
+              "maidens": 0,
+              "runs": 31,
+              "wickets": 0,
+              "eco": "15.5",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 1
+            },
+            {
+              "name": "Rashid Khan",
+              "overs": "4",
+              "maidens": 0,
+              "runs": 49,
+              "wickets": 2,
+              "eco": "12.25",
+              "wides": 1,
+              "noBalls": 0,
+              "dots": 7
+            },
+            {
+              "name": "Manav Suthar",
+              "overs": "2",
+              "maidens": 0,
+              "runs": 19,
+              "wickets": 1,
+              "eco": "9.5",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 4
+            }
+          ]
+        }
+      ],
+      "playerStats": {}
     }
   },
   "supabaseScores": {
@@ -20157,7 +20575,8 @@
         "Abhishek Sharma": 106,
         "Travis Head": 104,
         "Ishan Kishan": 46,
-        "Heinrich Klaasen": 88
+        "Heinrich Klaasen": 88,
+        "Nitish Kumar Reddy": 143
       },
       "matchLabel": "Kolkata Knight Riders vs Sunrisers Hyderabad",
       "matchDate": "2026-04-02",
@@ -20166,6 +20585,7 @@
     },
     "d741d6a3-31a1-4ad6-bbe9-69f07f1c3ee1": {
       "points": {
+        "Devdutt Padikkal": 161,
         "Jitesh Sharma": 10,
         "Abhishek Sharma": 17,
         "Virat Kohli": 145,
@@ -20177,6 +20597,7 @@
         "Travis Head": 23,
         "Ishan Kishan": 166,
         "Heinrich Klaasen": 71,
+        "Nitish Kumar Reddy": 15,
         "Harshal Patel": 2
       },
       "matchLabel": "Royal Challengers Bengaluru vs Sunrisers Hyderabad",
@@ -20188,6 +20609,7 @@
       "points": {
         "Virat Kohli": 62,
         "Jitesh Sharma": 24,
+        "Anshul Kamboj": 73,
         "Phil Salt": 90,
         "Rajat Patidar": 120,
         "Tim David": 150,
@@ -20197,7 +20619,10 @@
         "Shivam Dube": 74,
         "Prashant Veer": 83,
         "Ruturaj Gaikwad": 17,
-        "Khaleel Ahmed": 22
+        "Sarfaraz Khan": 114,
+        "Khaleel Ahmed": 22,
+        "Devdutt Padikkal": 116,
+        "Jamie Overton": 123
       },
       "matchLabel": "Royal Challengers Bengaluru vs Chennai Super Kings",
       "matchDate": "2026-04-05",
@@ -20209,15 +20634,19 @@
         "Jitesh Sharma": 28,
         "Phil Salt": 121,
         "KL Rahul": 122,
+        "Josh Hazlewood": 20,
         "Virat Kohli": 45,
         "Bhuvneshwar Kumar": 133,
+        "Pathum Nissanka": 13,
         "Krunal Pandya": 66,
         "Tim David": 56,
+        "Devdutt Padikkal": 34,
         "Lungi Ngidi": 81,
         "Axar Patel": 126,
         "Tristan Stubbs": 102,
         "T Natarajan": 24,
         "Rajat Patidar": 18,
+        "Sameer Rizvi": 6,
         "Kuldeep Yadav": 88
       },
       "matchLabel": "Royal Challengers Bengaluru vs Delhi Capitals",
@@ -20229,13 +20658,18 @@
       "points": {
         "Khaleel Ahmed": 34,
         "KL Rahul": 42,
+        "Jamie Overton": 186,
+        "Anshul Kamboj": 132,
         "Ruturaj Gaikwad": 21,
+        "Sarfaraz Khan": 12,
         "Shivam Dube": 46,
         "Dewald Brevis": 32,
         "Kuldeep Yadav": 6,
         "Axar Patel": 45,
         "Lungi Ngidi": 17,
         "Sanju Samson": 227,
+        "Pathum Nissanka": 95,
+        "Sameer Rizvi": 14,
         "Tristan Stubbs": 110,
         "T Natarajan": 5
       },
@@ -20246,8 +20680,10 @@
     },
     "653147a7-f920-4ba2-b86b-9f284c894950": {
       "points": {
+        "Naman Dhir": 104,
         "Suryakumar Yadav": 2,
         "Marco Jansen": 52,
+        "Quinton de Kock": 220,
         "Deepak Chahar": 10,
         "Prabhsimran Singh": 160,
         "Yuzvendra Chahal": 12,
@@ -20257,7 +20693,9 @@
         "Arshdeep Singh": 142,
         "Tilak Varma": 20,
         "Shashank Singh": 48,
+        "Cooper Connolly": 39,
         "Hardik Pandya": 24,
+        "Vijaykumar Vyshak": 20,
         "Ryan Rickelton": 6,
         "Priyansh Arya": 33,
         "Shreyas Iyer": 128
@@ -20277,9 +20715,12 @@
         "Rishabh Pant": 5,
         "Jitesh Sharma": 63,
         "Krunal Pandya": 92,
+        "Josh Hazlewood": 74,
         "Bhuvneshwar Kumar": 130,
         "Nicholas Pooran": 13,
+        "Devdutt Padikkal": 24,
         "Aiden Markram": 22,
+        "Ayush Badoni": 72,
         "Mohammed Shami": 14
       },
       "matchLabel": "Royal Challengers Bengaluru vs Lucknow Super Giants",
@@ -20289,14 +20730,19 @@
     },
     "c954a4ee-202b-44a1-9db2-87c6a079e439": {
       "points": {
+        "Sakib Hussain": 54,
         "Ishan Kishan": 2,
         "Ruturaj Gaikwad": 53,
         "Abhishek Sharma": 127,
+        "Sarfaraz Khan": 47,
         "Heinrich Klaasen": 127,
         "Shivam Dube": 37,
         "Dewald Brevis": 18,
+        "Jamie Overton": 132,
         "Travis Head": 45,
-        "Sanju Samson": 25
+        "Nitish Kumar Reddy": 110,
+        "Sanju Samson": 25,
+        "Anshul Kamboj": 151
       },
       "matchLabel": "Sunrisers Hyderabad vs Chennai Super Kings",
       "matchDate": "2026-04-18",
@@ -20307,8 +20753,10 @@
       "points": {
         "T Natarajan": 44,
         "Rohit Sharma": 71,
+        "Sameer Rizvi": 182,
         "KL Rahul": 5,
         "Lungi Ngidi": 58,
+        "Pathum Nissanka": 84,
         "Nitish Rana": 10,
         "Axar Patel": 64,
         "Tristan Stubbs": 15,
@@ -20316,6 +20764,7 @@
         "Ryan Rickelton": 27,
         "Tilak Varma": 10,
         "Suryakumar Yadav": 89,
+        "Naman Dhir": 52,
         "Sherfane Rutherford": 13,
         "Deepak Chahar": 58,
         "Jasprit Bumrah": 46
@@ -20337,6 +20786,7 @@
         "Tilak Varma": 58,
         "Hardik Pandya": 84,
         "Sherfane Rutherford": 12,
+        "Naman Dhir": 13,
         "Trent Boult": 18,
         "Jasprit Bumrah": 12,
         "Finn Allen": 89,
@@ -20353,14 +20803,17 @@
         "Lungi Ngidi": 130,
         "Kuldeep Yadav": 98,
         "T Natarajan": 120,
+        "Ayush Badoni": 2,
         "Rishabh Pant": 23,
+        "Sameer Rizvi": 128,
         "Aiden Markram": 29,
         "Mitchell Marsh": 69,
         "Nicholas Pooran": 16,
         "Nitish Rana": 31,
         "Axar Patel": 64,
         "Mohammed Shami": 63,
-        "KL Rahul": 10
+        "KL Rahul": 10,
+        "Pathum Nissanka": 5
       },
       "matchLabel": "Lucknow Super Giants vs Delhi Capitals",
       "matchDate": "2026-04-01",
@@ -20371,18 +20824,22 @@
       "points": {
         "Virat Kohli": 84,
         "Phil Salt": 2,
+        "Devdutt Padikkal": 30,
         "Rajat Patidar": 119,
         "Jitesh Sharma": 17,
         "Tim David": 27,
         "Krunal Pandya": 89,
         "Bhuvneshwar Kumar": 35,
+        "Josh Hazlewood": 86,
         "Venkatesh Iyer": 61,
         "Vaibhav Suryavanshi": 176,
         "Yashasvi Jaiswal": 29,
         "Dhruv Jurel": 161,
         "Riyan Parag": 7,
         "Shimron Hetmyer": 30,
-        "Ravindra Jadeja": 68
+        "Ravindra Jadeja": 68,
+        "Jofra Archer": 74,
+        "Ravi Bishnoi": 90
       },
       "matchLabel": "Rajasthan Royals vs Royal Challengers Bengaluru",
       "matchDate": "2026-04-10",
@@ -20391,10 +20848,12 @@
     },
     "0478c79b-1c1c-456b-912a-35dba6d57201": {
       "points": {
+        "Ayush Badoni": 20,
         "Abhishek Sharma": 2,
         "Travis Head": 15,
         "Ishan Kishan": 27,
         "Heinrich Klaasen": 110,
+        "Nitish Kumar Reddy": 124,
         "Harshal Patel": 30,
         "Mitchell Marsh": 26,
         "Aiden Markram": 101,
@@ -20409,18 +20868,21 @@
     },
     "60afefae-8e09-4cf9-87a5-74f279ce1be7": {
       "points": {
+        "Ravi Bishnoi": 152,
         "Sai Sudharsan": 143,
         "Jos Buttler": 68,
         "Washington Sundar": 12,
         "Rashid Khan": 80,
         "Mohammed Siraj": 60,
+        "Kagiso Rabada": 133,
         "Prasidh Krishna": 50,
         "Vaibhav Suryavanshi": 71,
         "Yashasvi Jaiswal": 113,
         "Dhruv Jurel": 160,
         "Riyan Parag": 54,
         "Shimron Hetmyer": 46,
-        "Ravindra Jadeja": 24
+        "Ravindra Jadeja": 24,
+        "Jofra Archer": 41
       },
       "matchLabel": "Gujarat Titans vs Rajasthan Royals",
       "matchDate": "2026-04-04",
@@ -20431,13 +20893,18 @@
       "points": {
         "Riyan Parag": 28,
         "Shivam Dube": 16,
+        "Jamie Overton": 73,
+        "Sarfaraz Khan": 45,
         "Vaibhav Suryavanshi": 118,
         "Yashasvi Jaiswal": 72,
         "Dhruv Jurel": 59,
         "Shimron Hetmyer": 9,
         "Ravindra Jadeja": 98,
+        "Jofra Archer": 114,
+        "Ravi Bishnoi": 72,
         "Sanju Samson": 14,
         "Ruturaj Gaikwad": 8,
+        "Anshul Kamboj": 97,
         "Khaleel Ahmed": 30
       },
       "matchLabel": "Rajasthan Royals vs Chennai Super Kings",
@@ -20451,14 +20918,18 @@
         "Priyansh Arya": 91,
         "Ruturaj Gaikwad": 49,
         "Sanju Samson": 15,
+        "Sarfaraz Khan": 83,
         "Shivam Dube": 83,
         "Prashant Veer": 14,
+        "Anshul Kamboj": 78,
         "Khaleel Ahmed": 22,
         "Shreyas Iyer": 102,
         "Prabhsimran Singh": 89,
+        "Cooper Connolly": 72,
         "Nehal Wadhera": 36,
         "Marcus Stoinis": 23,
         "Marco Jansen": 62,
+        "Vijaykumar Vyshak": 80,
         "Arshdeep Singh": 20,
         "Yuzvendra Chahal": 54
       },
@@ -20476,6 +20947,7 @@
         "Sunil Narine": 70,
         "Mitchell Marsh": 31,
         "Aiden Markram": 50,
+        "Ayush Badoni": 110,
         "Mohammed Shami": 35,
         "Rishabh Pant": 18,
         "Nicholas Pooran": 21
@@ -20487,13 +20959,16 @@
     },
     "76bc6df3-65dd-4a9a-8ce0-ced203302930": {
       "points": {
+        "Sarfaraz Khan": 51,
         "Cameron Green": 2,
         "Varun Chakravarthy": 16,
+        "Anshul Kamboj": 84,
         "Sanju Samson": 92,
         "Ruturaj Gaikwad": 23,
         "Shivam Dube": 37,
         "Sunil Narine": 116,
         "Rinku Singh": 4,
+        "Jamie Overton": 25,
         "Finn Allen": 5,
         "Ajinkya Rahane": 48,
         "Khaleel Ahmed": 62,
@@ -20518,7 +20993,8 @@
         "Tim Seifert": 39,
         "Cameron Green": 165,
         "Rinku Singh": 13,
-        "Prasidh Krishna": 57
+        "Prasidh Krishna": 57,
+        "Kagiso Rabada": 138
       },
       "matchLabel": "Gujarat Titans vs Kolkata Knight Riders",
       "matchDate": "2026-04-17",
@@ -20531,15 +21007,18 @@
         "Priyansh Arya": 127,
         "Nehal Wadhera": 24,
         "Ishan Kishan": 57,
+        "Cooper Connolly": 25,
         "Shreyas Iyer": 139,
         "Shashank Singh": 108,
         "Marcus Stoinis": 9,
         "Marco Jansen": 20,
+        "Vijaykumar Vyshak": 4,
         "Arshdeep Singh": 86,
         "Yuzvendra Chahal": 8,
         "Abhishek Sharma": 164,
         "Travis Head": 76,
         "Heinrich Klaasen": 65,
+        "Nitish Kumar Reddy": 12,
         "Harshal Patel": 2
       },
       "matchLabel": "Punjab Kings vs Sunrisers Hyderabad",
@@ -20554,9 +21033,11 @@
         "Shashank Singh": 8,
         "Prasidh Krishna": 134,
         "Prabhsimran Singh": 77,
+        "Cooper Connolly": 146,
         "Shreyas Iyer": 46,
         "Marcus Stoinis": 2,
         "Marco Jansen": 77,
+        "Vijaykumar Vyshak": 118,
         "Arshdeep Singh": 36,
         "Yuzvendra Chahal": 86,
         "Shubman Gill": 89,
@@ -20564,6 +21045,7 @@
         "Jos Buttler": 78,
         "Washington Sundar": 80,
         "Rashid Khan": 64,
+        "Kagiso Rabada": 44,
         "Mohammed Siraj": 18
       },
       "matchLabel": "Punjab Kings vs Gujarat Titans",
@@ -20573,6 +21055,7 @@
     },
     "f8f27615-f113-4e6a-ab2a-1aa29b6a5410": {
       "points": {
+        "Ravi Bishnoi": 70,
         "Sherfane Rutherford": 61,
         "Vaibhav Suryavanshi": 89,
         "Yashasvi Jaiswal": 173,
@@ -20580,11 +21063,13 @@
         "Riyan Parag": 48,
         "Shimron Hetmyer": 18,
         "Ravindra Jadeja": 4,
+        "Jofra Archer": 58,
         "Rohit Sharma": 9,
         "Ryan Rickelton": 18,
         "Tilak Varma": 44,
         "Hardik Pandya": 27,
         "Suryakumar Yadav": 16,
+        "Naman Dhir": 59,
         "Deepak Chahar": 16,
         "Trent Boult": 5,
         "Jasprit Bumrah": 21
@@ -20604,9 +21089,11 @@
         "Jos Buttler": 128,
         "Washington Sundar": 51,
         "Rishabh Pant": 48,
+        "Ayush Badoni": 15,
         "Nicholas Pooran": 33,
         "Mohammed Shami": 80,
         "Rashid Khan": 26,
+        "Kagiso Rabada": 42,
         "Prasidh Krishna": 166
       },
       "matchLabel": "Lucknow Super Giants vs Gujarat Titans",
@@ -20616,8 +21103,10 @@
     },
     "0272c5e8-9a50-41f9-8c3f-1101039eae92": {
       "points": {
+        "Sameer Rizvi": 2,
         "Prasidh Krishna": 72,
         "KL Rahul": 182,
+        "Pathum Nissanka": 85,
         "Nitish Rana": 29,
         "Axar Patel": 8,
         "Tristan Stubbs": 11,
@@ -20629,6 +21118,7 @@
         "Jos Buttler": 132,
         "Washington Sundar": 111,
         "Rashid Khan": 138,
+        "Kagiso Rabada": 24,
         "Mohammed Siraj": 44
       },
       "matchLabel": "Delhi Capitals vs Gujarat Titans",
@@ -20639,6 +21129,7 @@
     "0993ac1a-1f2b-4e38-99f4-4790e5ecacc1": {
       "points": {
         "Jitesh Sharma": 18,
+        "Devdutt Padikkal": 4,
         "Rohit Sharma": 39,
         "Phil Salt": 162,
         "Virat Kohli": 90,
@@ -20651,6 +21142,7 @@
         "Tilak Varma": 13,
         "Hardik Pandya": 136,
         "Sherfane Rutherford": 149,
+        "Naman Dhir": 5,
         "Jasprit Bumrah": 16,
         "Trent Boult": 46
       },
@@ -20662,14 +21154,18 @@
     "3c44e9f8-17ff-46f4-a5a5-0779fb52a863": {
       "points": {
         "Vaibhav Suryavanshi": 2,
+        "Sakib Hussain": 176,
         "Abhishek Sharma": 10,
         "Travis Head": 34,
         "Ishan Kishan": 199,
         "Heinrich Klaasen": 74,
+        "Nitish Kumar Reddy": 90,
         "Yashasvi Jaiswal": 5,
         "Dhruv Jurel": 15,
         "Riyan Parag": 52,
-        "Ravindra Jadeja": 75
+        "Ravindra Jadeja": 75,
+        "Jofra Archer": 92,
+        "Ravi Bishnoi": 8
       },
       "matchLabel": "Sunrisers Hyderabad vs Rajasthan Royals",
       "matchDate": "2026-04-13",
@@ -20679,6 +21175,7 @@
     "6bbbd472-bca8-4935-984a-bb0e25537d4f": {
       "points": {
         "Shashank Singh": 37,
+        "Vijaykumar Vyshak": 54,
         "Rishabh Pant": 85,
         "Mohammed Shami": 52,
         "Priyansh Arya": 187,
@@ -20690,6 +21187,8 @@
         "Shreyas Iyer": 17,
         "Aiden Markram": 96,
         "Prabhsimran Singh": 10,
+        "Cooper Connolly": 183,
+        "Ayush Badoni": 73,
         "Marcus Stoinis": 71,
         "Nicholas Pooran": 35
       },
@@ -20709,6 +21208,8 @@
         "Rinku Singh": 101,
         "Cameron Green": 77,
         "Ravindra Jadeja": 113,
+        "Ravi Bishnoi": 40,
+        "Jofra Archer": 72,
         "Varun Chakravarthy": 144,
         "Riyan Parag": 20,
         "Shimron Hetmyer": 17
@@ -20726,9 +21227,12 @@
         "Ravindra Jadeja": 117,
         "Riyan Parag": 54,
         "Mohammed Shami": 108,
+        "Ravi Bishnoi": 56,
         "Vaibhav Suryavanshi": 18,
+        "Jofra Archer": 162,
         "Yashasvi Jaiswal": 48,
         "Nicholas Pooran": 44,
+        "Ayush Badoni": 2,
         "Mitchell Marsh": 105,
         "Dhruv Jurel": 30
       },
@@ -20739,15 +21243,19 @@
     },
     "b78914d6-dc8d-41eb-9e36-49beaae8707e": {
       "points": {
+        "Nitish Kumar Reddy": 16,
         "T Natarajan": 8,
         "Axar Patel": 34,
         "Lungi Ngidi": 14,
+        "Pathum Nissanka": 18,
         "KL Rahul": 71,
         "Abhishek Sharma": 279,
         "Travis Head": 67,
         "Ishan Kishan": 55,
         "Heinrich Klaasen": 83,
+        "Sameer Rizvi": 79,
         "Tristan Stubbs": 57,
+        "Sakib Hussain": 60,
         "Nitish Rana": 139,
         "Kuldeep Yadav": 3
       },
@@ -20764,12 +21272,15 @@
         "Sherfane Rutherford": 5,
         "Mohammed Siraj": 58,
         "Washington Sundar": 60,
+        "Naman Dhir": 113,
         "Jasprit Bumrah": 62,
         "Prasidh Krishna": 36,
         "Shubman Gill": 30,
         "Sai Sudharsan": 2,
         "Jos Buttler": 13,
-        "Hardik Pandya": 63
+        "Quinton de Kock": 47,
+        "Hardik Pandya": 63,
+        "Kagiso Rabada": 172
       },
       "matchLabel": "Gujarat Titans vs Mumbai Indians",
       "matchDate": "2026-04-20",
@@ -20778,20 +21289,50 @@
     },
     "759418d0-2480-41cc-b20a-f576f53c8d4b": {
       "points": {
+        "Jamie Overton": 77,
+        "Anshul Kamboj": 74,
         "Jasprit Bumrah": 66,
+        "Naman Dhir": 10,
         "Suryakumar Yadav": 64,
         "Hardik Pandya": 7,
         "Shivam Dube": 9,
         "Dewald Brevis": 57,
+        "Sarfaraz Khan": 38,
         "Sanju Samson": 219,
         "Tilak Varma": 73,
         "Ruturaj Gaikwad": 48,
+        "Quinton de Kock": 15,
         "Sherfane Rutherford": 2
       },
       "matchLabel": "Mumbai Indians vs Chennai Super Kings",
       "matchDate": "2026-04-23",
       "matchNumber": 33,
       "linkedIplId": "2473"
+    },
+    "49e55b9d-bfa4-462f-833a-000856fd5ab6": {
+      "points": {
+        "Krunal Pandya": 55,
+        "Sai Sudharsan": 200,
+        "Rajat Patidar": 18,
+        "Josh Hazlewood": 70,
+        "Jos Buttler": 51,
+        "Washington Sundar": 45,
+        "Kagiso Rabada": 14,
+        "Mohammed Siraj": 52,
+        "Jacob Bethell": 32,
+        "Shubman Gill": 56,
+        "Prasidh Krishna": 0,
+        "Virat Kohli": 159,
+        "Devdutt Padikkal": 127,
+        "Jitesh Sharma": 24,
+        "Rashid Khan": 80,
+        "Tim David": 20,
+        "Bhuvneshwar Kumar": 48
+      },
+      "matchLabel": "Royal Challengers Bengaluru vs Gujarat Titans",
+      "matchDate": "2026-04-24",
+      "matchNumber": 34,
+      "linkedIplId": "2474"
     }
   },
   "playerIdMap": {
@@ -21470,7 +22011,7 @@
       "matchNumber": 70
     }
   },
-  "lastUpdated": "2026-04-23T22:13:10.516Z",
+  "lastUpdated": "2026-04-24T18:02:09.511Z",
   "cricapiMatchIds": {
     "2428": "12b5d808-d9ab-468e-bd25-a2c347f64bdc",
     "2467": "c5bf2a95-1855-463d-accf-9c1db88418cd",
