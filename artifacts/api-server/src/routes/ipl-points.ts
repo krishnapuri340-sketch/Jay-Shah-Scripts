@@ -1460,10 +1460,91 @@ export function getMatchTeamPoints(iplId: string): Record<string, number> | null
 
 export function getOwnerLabels(): Record<string, string> { return OWNER_LABELS; }
 
+// ── Banter helpers ────────────────────────────────────────────────────────────
+function pickOne<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function wicketBanter(lastName: string, runs: number, balls: number, teamCode: string, totalDown: number, dismissal: string): { title: string; body: string } {
+  const dis = dismissal.length > 60 ? dismissal.slice(0, 60) + "…" : dismissal;
+  if (runs === 0) {
+    return {
+      title: `Duck! ${teamCode} ${totalDown} down`,
+      body: pickOne([
+        `${lastName} walks back without troubling the scorers. Ouch.`,
+        `Zero. Nada. Zilch. ${lastName} gone for a golden duck.`,
+        `${lastName} out first ball — someone put the bat away.`,
+      ]),
+    };
+  }
+  if (runs < 20) {
+    return {
+      title: `Gone early — ${teamCode} ${totalDown} down`,
+      body: pickOne([
+        `${lastName} out for a scratchy ${runs}(${balls}b). Not his day. ${dis}`,
+        `${lastName} departs for ${runs} — ${teamCode} need someone to step up.`,
+        `${runs}(${balls}b) and walking. ${dis}`,
+      ]),
+    };
+  }
+  if (runs < 50) {
+    return {
+      title: `${lastName} out for ${runs} — ${teamCode} ${totalDown} down`,
+      body: pickOne([
+        `Had a start but threw it away. ${runs}(${balls}b) · ${dis}`,
+        `${lastName} out for ${runs}, classic top-order collapse energy. ${dis}`,
+        `${dis} — ${runs}(${balls}b). ${teamCode} fans holding their heads.`,
+      ]),
+    };
+  }
+  return {
+    title: `Big wicket! ${lastName} gone for ${runs}`,
+    body: pickOne([
+      `After a brilliant ${runs}(${balls}b), ${lastName} has to go. ${dis}`,
+      `${lastName} out for ${runs} — what an innings though! ${teamCode} ${totalDown} down.`,
+      `${dis} · ${runs}(${balls}b). ${lastName} can hold his head high.`,
+    ]),
+  };
+}
+
+function milestoneBanter(lastName: string, runs: number, balls: number, milestone: 50 | 100): { title: string; body: string } {
+  if (milestone === 100) {
+    return {
+      title: `Century! ${lastName} raises the bat`,
+      body: pickOne([
+        `${runs}(${balls}b)! Pure T20 masterclass — eyes on your fantasy points.`,
+        `${lastName} goes to three figures off ${balls} balls. Ridiculous.`,
+        `${runs} runs and counting — ${lastName} is on another planet right now.`,
+      ]),
+    };
+  }
+  return {
+    title: `Fifty! ${lastName} brings up the half-century`,
+    body: pickOne([
+      `${runs}(${balls}b) and looking dangerous. Keep an eye on your fantasy team.`,
+      `${lastName} reaches 50 off ${balls}. The crowd loves it.`,
+      `Half-century for ${lastName}! ${runs}(${balls}b) — watch him go.`,
+    ]),
+  };
+}
+
+function fivewicketBanter(lastName: string, wickets: number, runs: number, overs: string): { title: string; body: string } {
+  return {
+    title: `${wickets}-wicket haul! ${lastName} is on fire`,
+    body: pickOne([
+      `${wickets}/${runs} off ${overs} overs. Someone stop this man.`,
+      `${lastName} on a rampage — ${wickets}/${runs}. Unreal stuff.`,
+      `${wickets} wickets for ${lastName}! The batting order is in chaos.`,
+    ]),
+  };
+}
+
 // ── Live match poller (called by ipl.ts every 30 s when a match is active) ───
 let liveRefreshInProgress = false;
 // key: `${iplId}-${inningsIndex}` → set of dismissed batsman names already notified
 const prevDismissals = new Map<string, Set<string>>();
+// key: `${iplId}-${inningsIndex}-${batsmanName}` → highest milestone (50 or 100) already fired
+const prevMilestones = new Map<string, number>();
+// key: `${iplId}-${inningsIndex}-${bowlerName}` → highest wicket count already notified
+const prevBowlerWickets = new Map<string, number>();
 
 // ── Health snapshot: read-only view of internal state for /api/health/detail ──
 export function getPointsHealthSnapshot() {
@@ -1504,39 +1585,58 @@ export async function refreshLiveMatches(liveIplIds: string[]): Promise<void> {
           console.log(`[live-poll] Match ${iplId} S3 updated: ${s3Innings.length} innings, ${Object.keys(matchData.points).length} pts`);
           saveCache(pointsCache);
 
-          // ── Wicket notifications ────────────────────────────────────────────
-          // Check the live (last) innings for newly dismissed batsmen
+          // ── Live innings notifications ──────────────────────────────────────
           const liveInnIdx = matchData.innings.length - 1;
           const liveInn = matchData.innings[liveInnIdx];
           if (liveInn) {
+            const teamName = liveInn.name.replace(" Innings", "").trim();
+            const teamCode = TEAM_NAME_TO_CODE[teamName] || teamName;
+            const logo = TEAM_LOGO_SERVER[teamCode];
+
+            // ── Wicket notifications ──────────────────────────────────────────
             const dismissKey = `${iplId}-${liveInnIdx}`;
             const prevSet = prevDismissals.get(dismissKey) || new Set<string>();
-
             const nowDismissed = liveInn.batting.filter(
               b => !b.notOut && !b.dnb && b.dismissal && b.dismissal.trim().length > 0
             );
             const newFalls = nowDismissed.filter(b => !prevSet.has(b.name));
-
             for (const b of newFalls) {
               const totalDown = nowDismissed.length;
-              const teamName = liveInn.name.replace(" Innings", "").trim();
-              const teamCode = TEAM_NAME_TO_CODE[teamName] || teamName;
-              const scoreStr = liveInn.total ? ` · ${liveInn.total}` : "";
               const lastName = b.name.split(" ").slice(-1)[0];
-              const dismissalShort = b.dismissal.length > 60
-                ? b.dismissal.slice(0, 60) + "…"
-                : b.dismissal;
-              sendPushToAll({
-                title: `Wicket — ${teamCode} ${totalDown} down${scoreStr}`,
-                body: `${lastName} out ${b.runs}(${b.balls}b) · ${dismissalShort}`,
-                tag: `wicket-${iplId}-${liveInnIdx}-${totalDown}`,
-                url: "/",
-                image: TEAM_LOGO_SERVER[teamCode],
-              }).catch(() => {});
+              const { title, body } = wicketBanter(lastName, b.runs, b.balls, teamCode, totalDown, b.dismissal);
+              sendPushToAll({ title, body, tag: `wicket-${iplId}-${liveInnIdx}-${totalDown}`, url: "/", image: logo }).catch(() => {});
+            }
+            prevDismissals.set(dismissKey, new Set(nowDismissed.map(b => b.name)));
+
+            // ── Milestone notifications (50s and 100s) ────────────────────────
+            for (const b of liveInn.batting) {
+              if (b.dnb || b.runs === undefined) continue;
+              const milestoneKey = `${iplId}-${liveInnIdx}-${b.name}`;
+              const prevM = prevMilestones.get(milestoneKey) || 0;
+              const lastName = b.name.split(" ").slice(-1)[0];
+              if (b.runs >= 100 && prevM < 100) {
+                prevMilestones.set(milestoneKey, 100);
+                const { title, body } = milestoneBanter(lastName, b.runs, b.balls, 100);
+                sendPushToAll({ title, body, tag: `century-${iplId}-${b.name}`, url: "/", image: logo }).catch(() => {});
+              } else if (b.runs >= 50 && prevM < 50) {
+                prevMilestones.set(milestoneKey, 50);
+                const { title, body } = milestoneBanter(lastName, b.runs, b.balls, 50);
+                sendPushToAll({ title, body, tag: `fifty-${iplId}-${b.name}`, url: "/", image: logo }).catch(() => {});
+              }
             }
 
-            // Update tracker with all currently dismissed batsmen
-            prevDismissals.set(dismissKey, new Set(nowDismissed.map(b => b.name)));
+            // ── 5-wicket haul notifications ───────────────────────────────────
+            for (const bwl of (liveInn.bowling || []) as any[]) {
+              if ((bwl.wickets || 0) < 5) continue;
+              const bowlerKey = `${iplId}-${liveInnIdx}-${bwl.name}`;
+              const prevW = prevBowlerWickets.get(bowlerKey) || 0;
+              if (bwl.wickets > prevW) {
+                prevBowlerWickets.set(bowlerKey, bwl.wickets);
+                const lastName = bwl.name.split(" ").slice(-1)[0];
+                const { title, body } = fivewicketBanter(lastName, bwl.wickets, bwl.runs, bwl.overs);
+                sendPushToAll({ title, body, tag: `fifer-${iplId}-${liveInnIdx}-${bwl.name}`, url: "/", image: logo }).catch(() => {});
+              }
+            }
           }
         }
       } catch (_) {}
