@@ -1527,7 +1527,7 @@ export async function refreshLiveMatches(liveIplIds: string[]): Promise<void> {
                 ? b.dismissal.slice(0, 60) + "…"
                 : b.dismissal;
               sendPushToAll({
-                title: `🎯 Wicket — ${teamCode} ${totalDown} down${scoreStr}`,
+                title: `Wicket — ${teamCode} ${totalDown} down${scoreStr}`,
                 body: `${lastName} out ${b.runs}(${b.balls}b) · ${dismissalShort}`,
                 tag: `wicket-${iplId}-${liveInnIdx}-${totalDown}`,
                 url: "/",

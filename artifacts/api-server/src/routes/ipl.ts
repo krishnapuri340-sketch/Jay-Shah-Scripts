@@ -20,7 +20,7 @@ const TEAM_LOGO: Record<string, string> = {
   LSG:  "https://upload.wikimedia.org/wikipedia/en/thumb/3/34/Lucknow_Super_Giants_Logo.svg/330px-Lucknow_Super_Giants_Logo.svg.png",
 };
 
-const RANK_EMOJI = ["🥇", "🥈", "🥉", "4️⃣"];
+const RANK_LABEL = ["1st", "2nd", "3rd", "4th"];
 const OWNER_LABELS: Record<string, string> = { rajveer: "Raj", mombasa: "Rahul", mumbai: "Smeet", ponygoat: "Deb" };
 
 // ── Shared data stores ────────────────────────────────────────────────────────
@@ -466,10 +466,10 @@ async function doRefreshMatches(): Promise<void> {
             const home = m.homeTeamCode || "";
             const away = m.awayTeamCode || "";
             const tossBody = m.toss
-              ? m.toss.replace(/^.*won the toss and elected to/, "🪙 Won toss ·").replace(/^.*won the toss and chose to/, "🪙 Won toss ·")
-              : "Match is underway — good luck! 🤞";
+              ? m.toss.replace(/^.*won the toss and elected to/, "Won toss ·").replace(/^.*won the toss and chose to/, "Won toss ·")
+              : "Match is underway — good luck!";
             sendPushToAll({
-              title: `🏏 ${home} vs ${away} · Live Now`,
+              title: `${home} vs ${away} · Live Now`,
               body: tossBody,
               tag: `live-${m.id}`,
               url: "/",
@@ -490,7 +490,7 @@ async function doRefreshMatches(): Promise<void> {
               ? `${inn1Code} ${inn1Summary} · ${inn2Code} need ${target} to win`
               : `${inn1Code}: ${inn1Summary} · ${inn2Code} to bat`;
             sendPushToAll({
-              title: `⚡ Innings Break · ${home} vs ${away}`,
+              title: `Innings Break · ${home} vs ${away}`,
               body,
               tag: `innings-${m.id}`,
               url: "/",
@@ -505,7 +505,7 @@ async function doRefreshMatches(): Promise<void> {
               ? m.status
               : "Match complete";
             sendPushToAll({
-              title: `🏆 ${home} vs ${away} · Full Time`,
+              title: `${home} vs ${away} · Full Time`,
               body: resultText,
               tag: `result-${m.id}`,
               url: "/",
@@ -524,10 +524,10 @@ async function doRefreshMatches(): Promise<void> {
                   if (!teamPts) return;
                   const sorted = Object.entries(teamPts).sort((a, b) => b[1] - a[1]);
                   const body = sorted
-                    .map(([id, pts], i) => `${RANK_EMOJI[i] || ""} ${OWNER_LABELS[id] || id} +${pts}`)
+                    .map(([id, pts], i) => `${RANK_LABEL[i] || ""} ${OWNER_LABELS[id] || id} +${pts}`)
                     .join("  ·  ");
                   await sendPushToAll({
-                    title: `📊 Fantasy Points In · ${matchLabel}`,
+                    title: `Fantasy Points In · ${matchLabel}`,
                     body,
                     tag: `pts-${matchId}`,
                     url: "/",

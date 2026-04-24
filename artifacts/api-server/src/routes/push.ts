@@ -218,7 +218,7 @@ router.post("/ipl/push/toggle", (req: Request, res: Response) => {
 router.post("/ipl/push/test", async (req: Request, res: Response) => {
   if (!requireCommissioner(req, res)) return;
   await sendPushToAll({
-    title: "🏏 Test Notification",
+    title: "Test Notification",
     body: "Push notifications are working for IPL Fantasy 2026!",
     tag: "ipl-test",
     url: "/",
