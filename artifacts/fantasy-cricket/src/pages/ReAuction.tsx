@@ -497,7 +497,7 @@ function PlayerRow({
             <>
               {/* ── Old player: no data placeholder ─────────────────────── */}
               {p.isNew && p.replacedName && replacedMatchPoints.length === 0 && (
-                <div style={{ opacity: 0.45, marginBottom: matchPoints.length > 0 ? 0 : 0 }}>
+                <div style={{ opacity: 0.75, marginBottom: matchPoints.length > 0 ? 0 : 0 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "2px 0" }}>
                     <span style={{ fontSize: "0.5rem", fontWeight: 700, color: "var(--text-3)", background: "rgba(255,255,255,0.06)", borderRadius: 4, padding: "1px 4px", flexShrink: 0 }}>
                       M1–M33
@@ -521,7 +521,7 @@ function PlayerRow({
                 const diff = s ? entry.pts - computed : 0;
                 const isLast = ei === replacedMatchPoints.length - 1;
                 return (
-                  <div key={bdKey} style={{ opacity: 0.5, marginBottom: isLast ? 0 : 6, paddingBottom: isLast ? 0 : 6, borderBottom: isLast ? "none" : "1px solid rgba(255,255,255,0.05)" }}>
+                  <div key={bdKey} style={{ opacity: 0.75, marginBottom: isLast ? 0 : 6, paddingBottom: isLast ? 0 : 6, borderBottom: isLast ? "none" : "1px solid rgba(255,255,255,0.05)" }}>
                     <div onClick={(e) => { e.stopPropagation(); if (s) onToggleBd(bdKey); }}
                       style={{ display: "flex", alignItems: "center", gap: 6, cursor: s ? "pointer" : "default", WebkitTapHighlightColor: "transparent", padding: "2px 0" }}>
                       <span style={{ fontSize: "0.5rem", fontWeight: 700, color: "#34d399", background: "rgba(52,211,153,0.12)", borderRadius: 4, padding: "1px 4px", flexShrink: 0 }}>
