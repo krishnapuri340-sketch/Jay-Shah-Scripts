@@ -1,4 +1,4 @@
-const SHELL_CACHE = "ipl-shell-v6";
+const SHELL_CACHE = "ipl-shell-v7";
 const SHELL_ASSETS = ["/", "/index.html", "/manifest.json", "/app-icon.png"];
 
 self.addEventListener("install", e => {
@@ -65,7 +65,7 @@ self.addEventListener("push", e => {
 
   const options = {
     body: data.body || "",
-    icon: "/app-icon.png",
+    icon: data.image || "/app-icon.png",
     badge: "/app-icon.png",
     tag: data.tag || "ipl-update",
     renotify: true,
