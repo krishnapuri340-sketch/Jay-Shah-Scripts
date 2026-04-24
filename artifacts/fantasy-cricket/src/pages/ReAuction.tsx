@@ -470,10 +470,26 @@ function PlayerRow({
               style={{ background: "rgba(255,255,255,0.05)", border: "none", color: "var(--text-3)", cursor: "pointer", fontSize: "0.7rem", padding: "3px 7px", borderRadius: 6, lineHeight: 1 }}>✕</button>
           </div>
 
-          {matchPoints.length === 0 && replacedMatchPoints.length === 0 ? (
+          {matchPoints.length === 0 && replacedMatchPoints.length === 0 && !(p.isNew && p.replacedName) ? (
             <div style={{ color: "var(--text-3)", fontSize: "0.72rem", textAlign: "center" as const, padding: "10px 0" }}>No match data yet</div>
           ) : (
             <>
+              {/* ── Old player: no data placeholder ─────────────────────── */}
+              {p.isNew && p.replacedName && replacedMatchPoints.length === 0 && (
+                <div style={{ opacity: 0.45, marginBottom: matchPoints.length > 0 ? 0 : 0 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "2px 0" }}>
+                    <span style={{ fontSize: "0.5rem", fontWeight: 700, color: "var(--text-3)", background: "rgba(255,255,255,0.06)", borderRadius: 4, padding: "1px 4px", flexShrink: 0 }}>
+                      M1–M33
+                    </span>
+                    <span style={{ fontSize: "0.44rem", fontWeight: 700, color: "rgba(255,100,100,0.7)", background: "rgba(255,100,100,0.08)", borderRadius: 3, padding: "1px 4px", flexShrink: 0 }}>
+                      {p.replacedName.split(" ").slice(-1)[0]}
+                    </span>
+                    <span style={{ fontSize: "0.65rem", color: "var(--text-3)", flex: 1, fontStyle: "italic" as const }}>Did not play</span>
+                    <span style={{ fontSize: "0.92rem", fontWeight: 700, color: "var(--text-3)", minWidth: 26, textAlign: "right" as const }}>0</span>
+                  </div>
+                </div>
+              )}
+
               {/* ── Old player rows (pre-auction) ────────────────────────── */}
               {replacedMatchPoints.map((entry, ei) => {
                 const s = entry.stats;
@@ -523,7 +539,7 @@ function PlayerRow({
               })}
 
               {/* ── Re-Auction divider ───────────────────────────────────── */}
-              {p.isNew && replacedMatchPoints.length > 0 && matchPoints.length > 0 && (
+              {p.isNew && (replacedMatchPoints.length > 0 || !!p.replacedName) && matchPoints.length > 0 && (
                 <div style={{ display: "flex", alignItems: "center", gap: 6, margin: "8px 0", opacity: 0.7 }}>
                   <div style={{ flex: 1, height: 1, background: `linear-gradient(to right, transparent, ${teamColor}60)` }} />
                   <span style={{ fontSize: "0.44rem", fontWeight: 800, letterSpacing: "0.07em", color: teamColor, textTransform: "uppercase" as const }}>↩ Re-Auction · M{RA_FROM_MATCH}+</span>
