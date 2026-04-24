@@ -25,6 +25,29 @@ const OWNER_LABELS: Record<string, string> = { rajveer: "Raj", mombasa: "Rahul",
 
 function pick<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)]; }
 
+function tossTitle(home: string, away: string): string {
+  return pick([
+    `Toss done · ${home} vs ${away}`,
+    `Coin flipped — ${home} vs ${away}`,
+    `${home} vs ${away} · Toss result`,
+    `We have a toss · ${home} vs ${away}`,
+  ]);
+}
+
+function tossBody(rawToss: string): string {
+  const clean = rawToss
+    .replace(/^.*won the toss and elected to/, "Won toss · elected to")
+    .replace(/^.*won the toss and chose to/, "Won toss · chose to");
+  const suffix = pick([
+    "Fantasy teams locked in — game on.",
+    "No changing your team now.",
+    "Check your players. It begins shortly.",
+    "Start time incoming. Brace yourselves.",
+    "The wait is almost over.",
+  ]);
+  return `${clean} · ${suffix}`;
+}
+
 function liveTitle(home: string, away: string): string {
   return pick([
     `${home} vs ${away} · Live Now`,
@@ -548,6 +571,19 @@ async function doRefreshMatches(): Promise<void> {
           const wentLive = !prev.started && nowLive;
           const wentEnded = !prev.ended && nowEnded;
           const inningsBreak = nowLive && (prev as any).scoreCount < 2 && nowScoreCount >= 2;
+          const tossCame = !prev.toss && !!m.toss && !m.matchStarted;
+
+          if (tossCame) {
+            const home = m.homeTeamCode || "";
+            const away = m.awayTeamCode || "";
+            sendPushToAll({
+              title: tossTitle(home, away),
+              body: tossBody(m.toss as string),
+              tag: `toss-${m.id}`,
+              url: "/fixtures",
+              image: TEAM_LOGO[home] || TEAM_LOGO[away],
+            }).catch(() => {});
+          }
 
           if (wentLive) {
             const home = m.homeTeamCode || "";
@@ -616,13 +652,13 @@ async function doRefreshMatches(): Promise<void> {
           }
         }
 
-        prevMatchStates.set(m.id, { started: m.matchStarted, ended: nowEnded, scoreCount: nowScoreCount });
+        prevMatchStates.set(m.id, { started: m.matchStarted, ended: nowEnded, scoreCount: nowScoreCount, toss: m.toss || null });
       }
     } else {
       // Bootstrap: seed state without firing notifications
       for (const m of allMatches) {
         const sc = Array.isArray(m.score) ? m.score.length : 0;
-        prevMatchStates.set(m.id, { started: m.matchStarted, ended: !!m.matchEnded, scoreCount: sc });
+        prevMatchStates.set(m.id, { started: m.matchStarted, ended: !!m.matchEnded, scoreCount: sc, toss: m.toss || null });
       }
       pushBootstrapDone = true;
     }
