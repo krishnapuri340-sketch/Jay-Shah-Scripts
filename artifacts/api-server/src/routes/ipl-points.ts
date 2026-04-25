@@ -1824,4 +1824,99 @@ router.post("/ipl/points/sync-supabase", async (req, res) => {
   }
 });
 
+// POST /api/ipl/points/refresh-s3-live — on-demand S3 live/recent match refresh
+// Fetches the IPL schedule, finds live + recently-completed matches, and re-runs
+// the same S3 innings fetch + points computation that the background poller does.
+// Rate-limited to 10 per IP per hour (S3 only — no CricAPI quota impact).
+router.post("/ipl/points/refresh-s3-live", async (req, res) => {
+  if (!requireSession(req, res)) return;
+  const ip = req.ip || req.socket.remoteAddress || "unknown";
+  if (!checkIpRateLimit(`refresh-s3-live:${ip}`, 60 * 60 * 1000, 10)) {
+    res.status(429).json({ error: "rate limit exceeded — try again later" });
+    return;
+  }
+  try {
+    // Fetch schedule to identify live + recently completed matches
+    const schedRes = await fetch(
+      `${S3_FEEDS_BASE}/${IPL_COMP_ID}-matchschedule.js`,
+      { signal: AbortSignal.timeout(8000) }
+    );
+    if (!schedRes.ok) {
+      res.status(502).json({ error: "S3 schedule unavailable" });
+      return;
+    }
+    const schedule = JSON.parse(stripJsonp(await schedRes.text()));
+    const allMatches: any[] = schedule.Matchsummary || [];
+
+    // Populate matchMetadata for any newly seen matches
+    if (!pointsCache.matchMetadata) pointsCache.matchMetadata = {};
+    for (const m of allMatches) {
+      const iplId = String(m.MatchID);
+      if (!pointsCache.matchMetadata[iplId]) {
+        pointsCache.matchMetadata[iplId] = {
+          matchDate: (m.GMTMatchDate || m.MatchDate || "").slice(0, 10),
+          teamA: m.HomeTeamName || "",
+          teamB: m.AwayTeamName || "",
+          matchNumber: m.MatchOrder ? Number(m.MatchOrder) : undefined,
+        };
+      }
+    }
+
+    // Live matches: status is "live", "in progress", or "innings break"
+    const liveMatches = allMatches.filter((m: any) => {
+      const s = String(m.MatchStatus || "").toLowerCase();
+      return s === "live" || s === "innings break" || s === "in progress";
+    });
+    const liveIds = liveMatches.map((m: any) => String(m.MatchID));
+
+    // Also refresh the most recent completed match in case it just finished
+    const completedMatches = allMatches.filter((m: any) =>
+      String(m.MatchStatus || "").toLowerCase() === "result"
+    );
+    const recentCompleted = completedMatches
+      .sort((a: any, b: any) => Number(b.MatchID) - Number(a.MatchID))
+      .slice(0, 2)
+      .map((m: any) => String(m.MatchID));
+
+    // Refresh live matches (30-second TTL — bypasses cache when stale)
+    if (liveIds.length > 0) {
+      await refreshLiveMatches(liveIds);
+    }
+
+    // For recently completed matches, force-refresh S3 innings to pick up final stats
+    let completedRefreshed = 0;
+    for (const iplId of recentCompleted) {
+      const cached = s3InningsCache.get(iplId);
+      // Force refetch if completed but innings cache is stale (>2 min old)
+      if (!cached || (Date.now() - cached.fetchedAt > 2 * 60 * 1000 && cached.innings.length < 2)) {
+        try {
+          const innings = await fetchIplS3Innings(iplId, true);
+          if (innings.length > 0) {
+            const meta = pointsCache.matchMetadata[iplId];
+            const matchData = processInningsForPoints(
+              innings, FANTASY_PLAYER_NAMES,
+              meta?.teamA || "", meta?.teamB || ""
+            );
+            pointsCache.processedMatches[iplId] = matchData;
+            console.log(`[s3-live-refresh] Completed match ${iplId}: ${innings.length} innings, ${Object.keys(matchData.points).length} players`);
+            completedRefreshed++;
+          }
+        } catch (_) {}
+      }
+    }
+    if (completedRefreshed > 0) saveCache(pointsCache);
+
+    res.json({
+      ok: true,
+      liveMatchIds: liveIds,
+      recentCompletedIds: recentCompleted,
+      liveRefreshed: liveIds.length,
+      completedRefreshed,
+    });
+  } catch (err: any) {
+    console.error("[s3-live-refresh] Error:", err);
+    res.status(500).json({ error: err.message || "S3 refresh failed" });
+  }
+});
+
 export default router;

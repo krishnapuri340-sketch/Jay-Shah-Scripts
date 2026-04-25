@@ -37,6 +37,8 @@ export interface AdminPageProps {
   supabaseSyncing: boolean;
   s3Prefetching: boolean;
   statsRefreshing: boolean;
+  s3LiveSyncing: boolean;
+  s3LiveSyncMsg: string | null;
   supabaseSyncMsg: string | null;
   s3PrefetchResult: { found: number; missing: number; foundIds: string[]; missingIds: string[] } | null;
   lastUpdated: Date | null;
@@ -47,6 +49,7 @@ export interface AdminPageProps {
   syncSupabase: () => void;
   prefetchS3Scorecards: () => void;
   refreshStatsCache: () => void;
+  refreshS3Live: () => void;
   // Push notifications
   pushSupported: boolean;
   pushSubscribed: boolean;
@@ -68,9 +71,9 @@ export default function AdminPage(p: AdminPageProps) {
     handleConfirmOldPin, handleSavePin, resetPinEdit,
     dataSources, pointsUpdating, pointsError, pendingMatches, nextAttempt, pointsLastUpdated, pointsLoading,
     adminBreakdownOpen, setAdminBreakdownOpen, expandedAdminPlayer, setExpandedAdminPlayer,
-    liveLoading, supabaseSyncing, s3Prefetching, statsRefreshing,
+    liveLoading, supabaseSyncing, s3Prefetching, statsRefreshing, s3LiveSyncing, s3LiveSyncMsg,
     supabaseSyncMsg, s3PrefetchResult, lastUpdated,
-    setPlayerPoints, setProcessedMatches, fetchLive, fetchPoints, syncSupabase, prefetchS3Scorecards, refreshStatsCache,
+    setPlayerPoints, setProcessedMatches, fetchLive, fetchPoints, syncSupabase, prefetchS3Scorecards, refreshStatsCache, refreshS3Live,
     pushSupported, pushSubscribed, pushEnabled, pushSubscriberCount, notifPermission,
     pushSubscribing, onSubscribePush, onUnsubscribePush, onTogglePushEnabled, onTestPush,
   } = p;
@@ -80,7 +83,7 @@ export default function AdminPage(p: AdminPageProps) {
   const liveCount = liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded).length;
   const totalPts = Object.values(playerPoints).reduce((s, v) => s + v, 0);
   const isCommissioner = currentUser === "rajveer";
-  const anySyncing = liveLoading || pointsLoading || supabaseSyncing || s3Prefetching || statsRefreshing;
+  const anySyncing = liveLoading || pointsLoading || supabaseSyncing || s3Prefetching || statsRefreshing || s3LiveSyncing;
 
   return (
     <div>
@@ -400,6 +403,22 @@ export default function AdminPage(p: AdminPageProps) {
                   <span style={{ color: "#f59e0b" }}>{new Date(nextAttempt).toLocaleTimeString()}</span>
                 </div>
               )}
+              {(s3LiveSyncing || s3LiveSyncMsg) && (
+                <div className="admin-status-row">
+                  <span className="admin-status-label">S3 live</span>
+                  <span style={{
+                    color: s3LiveSyncing ? "#94a3b8"
+                      : s3LiveSyncMsg?.startsWith("Failed") ? "#f87171"
+                      : s3LiveSyncMsg?.startsWith("Rate limited") ? "#f59e0b"
+                      : "#34d399"
+                  }}>
+                    {s3LiveSyncing ? "⏳ Fetching…"
+                      : s3LiveSyncMsg?.startsWith("Failed") ? "⚠ " + s3LiveSyncMsg
+                      : s3LiveSyncMsg?.startsWith("Rate limited") ? "⏳ " + s3LiveSyncMsg
+                      : "✓ " + s3LiveSyncMsg}
+                  </span>
+                </div>
+              )}
             </div>
             {pointsLastUpdated && (
               <div className="admin-status-sub" style={{ marginTop: 8 }}>
@@ -465,7 +484,7 @@ export default function AdminPage(p: AdminPageProps) {
 
           {/* Action buttons — consolidated */}
           <div className="admin-btn-row">
-            <button className="btn-primary btn-primary-blue" onClick={() => { fetchLive(); fetchPoints(); syncSupabase(); prefetchS3Scorecards(); refreshStatsCache(); }} disabled={anySyncing}>
+            <button className="btn-primary btn-primary-blue" onClick={() => { fetchLive(); fetchPoints(); syncSupabase(); prefetchS3Scorecards(); refreshStatsCache(); refreshS3Live(); }} disabled={anySyncing}>
               {anySyncing ? <span className="spinner" /> : "🔄"} Sync All
             </button>
             <button className="btn-primary btn-primary-green" onClick={syncSupabase} disabled={supabaseSyncing}>

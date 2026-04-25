@@ -361,6 +361,8 @@ export default function App() {
   const [supabaseSyncMsg, setSupabaseSyncMsg] = useState<string | null>(null);
   const [s3Prefetching, setS3Prefetching] = useState(false);
   const [s3PrefetchResult, setS3PrefetchResult] = useState<{ found: number; missing: number; foundIds: string[]; missingIds: string[] } | null>(null);
+  const [s3LiveSyncing, setS3LiveSyncing] = useState(false);
+  const [s3LiveSyncMsg, setS3LiveSyncMsg] = useState<string | null>(null);
   const [chartHover, setChartHover] = useState<number | null>(null);
   const [selectedAwardIdx, setSelectedAwardIdx] = useState(0);
   const [awardXiFilter, setAwardXiFilter] = useState<"all" | "xi">("all");
@@ -627,6 +629,32 @@ export default function App() {
       setS3PrefetchResult({ found: 0, missing: 0, foundIds: [], missingIds: ["Error: " + (e.message || "unknown")] });
     }
     setS3Prefetching(false);
+  };
+
+  const refreshS3Live = async () => {
+    if (s3LiveSyncing) return;
+    setS3LiveSyncing(true);
+    setS3LiveSyncMsg(null);
+    try {
+      const res = await fetch("/api/ipl/points/refresh-s3-live", {
+        method: "POST",
+        headers: { ...authHeaders() },
+      });
+      const data = await res.json();
+      if (res.status === 429) {
+        setS3LiveSyncMsg("Rate limited — too many S3 refreshes this hour");
+        return;
+      }
+      if (!res.ok) throw new Error(data.error || `Server error ${res.status}`);
+      const parts: string[] = [];
+      if (data.liveRefreshed > 0) parts.push(`${data.liveRefreshed} live`);
+      if (data.completedRefreshed > 0) parts.push(`${data.completedRefreshed} completed`);
+      setS3LiveSyncMsg(parts.length > 0 ? `Updated ${parts.join(", ")}` : "No live matches");
+      setTimeout(fetchPoints, 500);
+    } catch (e: any) {
+      setS3LiveSyncMsg("Failed: " + (e.message || "unknown error"));
+    }
+    setS3LiveSyncing(false);
   };
 
   const refreshStatsCache = async () => {
@@ -1877,6 +1905,8 @@ export default function App() {
       supabaseSyncing={supabaseSyncing}
       s3Prefetching={s3Prefetching}
       statsRefreshing={statsRefreshing}
+      s3LiveSyncing={s3LiveSyncing}
+      s3LiveSyncMsg={s3LiveSyncMsg}
       supabaseSyncMsg={supabaseSyncMsg}
       s3PrefetchResult={s3PrefetchResult}
       lastUpdated={lastUpdated}
@@ -1887,6 +1917,7 @@ export default function App() {
       syncSupabase={syncSupabase}
       prefetchS3Scorecards={prefetchS3Scorecards}
       refreshStatsCache={refreshStatsCache}
+      refreshS3Live={refreshS3Live}
       pushSupported={pushSupported}
       pushSubscribed={pushSubscribed}
       pushEnabled={pushEnabled}
