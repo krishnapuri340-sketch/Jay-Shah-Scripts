@@ -116,7 +116,7 @@ function savePrefs() {
 const PUSH_TIMEOUT_MS = 10_000;
 
 async function sendWithTimeout(sub: PushSub, payload: string): Promise<void> {
-  return Promise.race([
+  await Promise.race([
     webpush.sendNotification(sub, payload),
     new Promise<never>((_, reject) =>
       setTimeout(() => reject(new Error("push timeout")), PUSH_TIMEOUT_MS)

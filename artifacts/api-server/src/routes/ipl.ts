@@ -450,7 +450,7 @@ let currentLiveIplIds: string[] = []; // updated by each doRefreshMatches run
 let completedMatchIds = new Set<string>(); // updated by each doRefreshMatches run
 
 // ── Push notification state tracking ──────────────────────────────────────────
-const prevMatchStates = new Map<string, { started: boolean; ended: boolean }>();
+const prevMatchStates = new Map<string, { started: boolean; ended: boolean; scoreCount: number; toss: string | null }>();
 const pendingPointsTimers = new Map<string, ReturnType<typeof setTimeout>>();
 let pushBootstrapDone = false; // skip first run so we don't push on server restart
 
@@ -642,9 +642,11 @@ router.get("/ipl/matches", async (req, res) => {
       res.setHeader("ETag", etag);
       res.setHeader("Cache-Control", "no-cache");
       if (req.headers["if-none-match"] === etag) {
-        return res.status(304).end();
+        res.status(304).end();
+        return;
       }
-      return res.json(cache.data);
+      res.json(cache.data);
+      return;
     }
     res.status(503).json({ error: "Match data loading, try again shortly", matches: [] });
   } catch (err: any) {
@@ -719,7 +721,10 @@ router.get("/ipl/predictions", (req, res) => {
 // Token passed as ?token=<session-token> query param (EventSource cannot set headers)
 router.get("/ipl/predictions/stream", (req, res) => {
   const userId = getSessionUser(req);
-  if (!userId) return res.status(401).json({ error: "Authentication required" });
+  if (!userId) {
+    res.status(401).json({ error: "Authentication required" });
+    return;
+  }
   res.set({
     "Content-Type": "text/event-stream",
     "Cache-Control": "no-cache",

@@ -24,7 +24,8 @@ const TEAM_ABBREV: Record<string, string> = {
   "Gujarat Titans": "GT",
 };
 
-function abbrevLabel(label: string): string {
+function abbrevLabel(label: string | undefined): string {
+  if (!label) return "";
   return label.replace(
     /Rajasthan Royals|Chennai Super Kings|Mumbai Indians|Kolkata Knight Riders|Sunrisers Hyderabad|Royal Challengers Bengaluru|Royal Challengers Bangalore|Delhi Capitals|Punjab Kings|Lucknow Super Giants|Gujarat Titans/g,
     m => TEAM_ABBREV[m] ?? m
@@ -354,7 +355,7 @@ function buildScoringLines(s: any): { label: string; pts: number; color: string 
 
 // ─── Player Row ───────────────────────────────────────────────────────────────
 
-type MatchEntry = { matchNum: number; pts: number; label: string; source?: string; stats?: any };
+type MatchEntry = { matchNum: number; pts: number; label?: string; source?: string; stats?: any };
 
 function PlayerRow({
   p, isCap, isVC, teamColor, matchPoints, replacedMatchPoints, isExpanded, expandedBdMatches, onToggle, onToggleBd,

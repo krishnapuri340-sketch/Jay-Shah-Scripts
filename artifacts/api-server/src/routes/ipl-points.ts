@@ -1748,7 +1748,10 @@ router.post("/ipl/scorecard/prefetch-s3", async (req, res) => {
   if (!requireCommissioner(req, res)) return;
 
   const allIds = Object.keys(pointsCache.matchMetadata || {});
-  if (allIds.length === 0) return res.json({ ok: true, found: 0, missing: 0, foundIds: [], missingIds: [] });
+  if (allIds.length === 0) {
+    res.json({ ok: true, found: 0, missing: 0, foundIds: [], missingIds: [] });
+    return;
+  }
 
   const foundIds: string[] = [];
   const missingIds: string[] = [];
@@ -1804,7 +1807,8 @@ router.post("/ipl/points/sync-supabase", async (req, res) => {
   const SYNC_COOLDOWN = 5 * 60 * 1000; // 5 minutes global cooldown
   if (now - lastForceSyncAt < SYNC_COOLDOWN) {
     const retryIn = Math.ceil((lastForceSyncAt + SYNC_COOLDOWN - now) / 1000);
-    return res.json({ ok: true, skipped: true, retryIn, changed: false, fixturesBefore: 0, fixturesAfter: 0 });
+    res.json({ ok: true, skipped: true, retryIn, changed: false, fixturesBefore: 0, fixturesAfter: 0 });
+    return;
   }
   lastForceSyncAt = now;
   // Guard: mark update in progress so the GET /ipl/points handler won't call
@@ -1903,7 +1907,7 @@ router.post("/ipl/points/refresh-s3-live", async (req, res) => {
     for (const iplId of recentCompleted) {
       const cached = s3InningsCache.get(iplId);
       // Force refetch if completed but innings cache is stale (>2 min old)
-      if (!cached || (Date.now() - cached.fetchedAt > 2 * 60 * 1000 && cached.innings.length < 2)) {
+      if (!cached || (Date.now() - cached.timestamp > 2 * 60 * 1000 && cached.data.length < 2)) {
         try {
           const innings = await fetchIplS3Innings(iplId, true);
           if (innings.length > 0) {

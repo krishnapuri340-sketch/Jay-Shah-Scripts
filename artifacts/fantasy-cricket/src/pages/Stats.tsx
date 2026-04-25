@@ -82,7 +82,7 @@ export interface StatsPageProps {
   liveMatches: any[];
   predictions: Record<string, Record<string, string | null>>;
   playerPoints: Record<string, number>;
-  setStatsCategory: React.Dispatch<React.SetStateAction<"fantasyPts" | "orangeCap" | "purpleCap" | "sixesLeader" | "foursLeader" | "catchesLeader" | "srLeader" | "ecoLeader">>;
+  setStatsCategory: React.Dispatch<React.SetStateAction<"fantasyPts" | "orangeCap" | "purpleCap" | "sixesLeader" | "foursLeader" | "catchesLeader" | "srLeader" | "ecoLeader" | "dotsLeader">>;
   setStatsFilter: (v: "all" | "fantasy" | "predictions") => void;
   setStatsExpanded: (v: boolean | ((x: boolean) => boolean)) => void;
   setFantasyPtsOpen: (fn: (x: boolean) => boolean) => void;
