@@ -23,114 +23,60 @@ const TEAM_LOGO: Record<string, string> = {
 const RANK_LABEL = ["1st", "2nd", "3rd", "4th"];
 const OWNER_LABELS: Record<string, string> = { rajveer: "Raj", mombasa: "Rahul", mumbai: "Smeet", ponygoat: "Deb" };
 
-function pick<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)]; }
+// ── Notification builders (factual, professional cricket-app style) ──────────
+// No banter, no jokes. Just the facts: who, what, score, context.
 
 function tossTitle(home: string, away: string): string {
-  return pick([
-    `Toss done · ${home} vs ${away}`,
-    `Coin flipped — ${home} vs ${away}`,
-    `${home} vs ${away} · Toss result`,
-    `We have a toss · ${home} vs ${away}`,
-  ]);
+  return `Toss · ${home} vs ${away}`;
 }
 
 function tossBody(rawToss: string): string {
-  const clean = rawToss
-    .replace(/^.*won the toss and elected to/, "Won toss · elected to")
-    .replace(/^.*won the toss and chose to/, "Won toss · chose to");
-  const suffix = pick([
-    "Fantasy teams locked in — game on.",
-    "No changing your team now.",
-    "Check your players. It begins shortly.",
-    "Start time incoming. Brace yourselves.",
-    "The wait is almost over.",
-  ]);
-  return `${clean} · ${suffix}`;
+  // Normalise common cricapi phrasings into a compact factual line.
+  // Examples in:  "Delhi Capitals won the toss and elected to bat"
+  //              "Punjab Kings won the toss and chose to field"
+  return rawToss
+    .replace(/\s+won the toss and elected to\s+/i, " won the toss, elected to ")
+    .replace(/\s+won the toss and chose to\s+/i, " won the toss, chose to ")
+    .trim();
 }
 
 function liveTitle(home: string, away: string): string {
-  return pick([
-    `${home} vs ${away} · Live Now`,
-    `It's on! ${home} vs ${away}`,
-    `${home} vs ${away} · Underway`,
-    `Bat up, phones out — ${home} vs ${away} is live`,
-  ]);
+  return `Live · ${home} vs ${away}`;
 }
 
 function liveBody(toss: string | undefined | null): string {
-  const tossClean = toss
-    ? toss.replace(/^.*won the toss and elected to/, "Won toss ·").replace(/^.*won the toss and chose to/, "Won toss ·")
-    : null;
-  const suffix = pick([
-    "May the best fantasy team win.",
-    "Good luck — you'll need it.",
-    "Fantasy points are up for grabs.",
-    "Time to watch your players perform.",
-    "Lock in and enjoy.",
-  ]);
-  return tossClean ? `${tossClean} · ${suffix}` : suffix;
+  if (!toss) return "Match underway.";
+  return toss
+    .replace(/\s+won the toss and elected to\s+/i, " won toss, elected to ")
+    .replace(/\s+won the toss and chose to\s+/i, " won toss, chose to ")
+    .trim();
 }
 
 function inningsBreakTitle(home: string, away: string): string {
-  return pick([
-    `Innings Break · ${home} vs ${away}`,
-    `Halfway through — ${home} vs ${away}`,
-    `Time for drinks · ${home} vs ${away}`,
-    `${home} vs ${away} · Innings done`,
-  ]);
+  return `Innings break · ${home} vs ${away}`;
 }
 
 function inningsBreakBody(inn1Code: string, inn1Summary: string, inn2Code: string, target: number | null): string {
-  if (!target) return `${inn1Code}: ${inn1Summary} · ${inn2Code} to bat`;
-  const suffix = pick([
-    `Can ${inn2Code} chase it down?`,
-    `${inn2Code} need nerves of steel.`,
-    `The chase is on. No pressure.`,
-    `${inn2Code} have 20 overs. Simple.`,
-    `Fantasy points on the line.`,
-  ]);
-  return `${inn1Code} ${inn1Summary} · ${inn2Code} need ${target} · ${suffix}`;
+  if (!target) return `${inn1Code} ${inn1Summary} · ${inn2Code} to bat`;
+  return `${inn1Code} ${inn1Summary} · ${inn2Code} need ${target} to win`;
 }
 
 function resultTitle(home: string, away: string): string {
-  return pick([
-    `${home} vs ${away} · Full Time`,
-    `That's a wrap — ${home} vs ${away}`,
-    `${home} vs ${away} · It's over`,
-    `Match done · ${home} vs ${away}`,
-  ]);
+  return `Result · ${home} vs ${away}`;
 }
 
 function resultBody(resultText: string): string {
-  const suffix = pick([
-    "Check the leaderboard.",
-    "Points incoming shortly.",
-    "Fantasy fallout incoming.",
-    "See how you fared.",
-    "Updates on the way.",
-  ]);
-  return `${resultText} · ${suffix}`;
+  return resultText;
 }
 
 function pointsTitle(matchLabel: string): string {
-  return pick([
-    `Fantasy Points In · ${matchLabel}`,
-    `Points Updated · ${matchLabel}`,
-    `${matchLabel} · Scores are in`,
-    `How'd your team do? · ${matchLabel}`,
-  ]);
+  return `Fantasy points · ${matchLabel}`;
 }
 
 function pointsBody(sorted: [string, number][]): string {
-  const lines = sorted.map(([id, pts], i) => `${RANK_LABEL[i] || ""} ${OWNER_LABELS[id] || id} +${pts}`).join("  ·  ");
-  const suffix = pick([
-    "Check the table.",
-    "Leaderboard updated.",
-    "Standings have shifted.",
-    "The damage is done.",
-    "Open the app to see the full picture.",
-  ]);
-  return `${lines} · ${suffix}`;
+  return sorted
+    .map(([id, pts], i) => `${RANK_LABEL[i] || `${i + 1}`} ${OWNER_LABELS[id] || id} +${pts}`)
+    .join(" · ");
 }
 
 // ── Shared data stores ────────────────────────────────────────────────────────

@@ -1521,132 +1521,84 @@ export function getMatchTeamPoints(iplId: string): Record<string, number> | null
 
 export function getOwnerLabels(): Record<string, string> { return OWNER_LABELS; }
 
-// ── Banter helpers ────────────────────────────────────────────────────────────
-function pickOne<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)]; }
+// ── Notification builders (factual, professional cricket-app style) ──────────
+// Mirrors how Cricbuzz / ESPNcricinfo write live alerts: who, what, the score
+// at the moment of the event, and the players involved. No banter, no jokes.
 
-function wicketBanter(lastName: string, runs: number, balls: number, teamCode: string, totalDown: number, dismissal: string): { title: string; body: string } {
-  const dis = dismissal.length > 60 ? dismissal.slice(0, 60) + "…" : dismissal;
-  if (runs === 0) {
-    return {
-      title: pickOne([
-        `Duck! ${teamCode} ${totalDown} down`,
-        `Golden duck — ${teamCode} in trouble`,
-        `Out for nothing. ${teamCode} ${totalDown} down`,
-      ]),
-      body: pickOne([
-        `${lastName} walks back without troubling the scorers. Absolutely brutal.`,
-        `Zero. Nada. Zilch. ${lastName} gone for a golden duck. Someone hide the bat.`,
-        `${lastName} out first ball — did he even see it? ${teamCode} fans in shock.`,
-        `The scoreboard did not move for ${lastName}. Painful viewing.`,
-        `Nought. ${lastName} out for a duck. ${teamCode} need a miracle.`,
-        `${lastName} gone for 0. That's a fantasy points disaster right there.`,
-      ]),
-    };
-  }
-  if (runs < 20) {
-    return {
-      title: pickOne([
-        `Gone early — ${teamCode} ${totalDown} down`,
-        `${lastName} departs for ${runs} — pressure on`,
-        `Early blow for ${teamCode}`,
-      ]),
-      body: pickOne([
-        `${lastName} out for a scratchy ${runs}(${balls}b). Not his day. ${dis}`,
-        `${lastName} departs for ${runs} — ${teamCode} desperately need someone to step up.`,
-        `${runs}(${balls}b) and walking back to the pavilion. ${dis}`,
-        `Couldn't get going. ${lastName} out for ${runs} off ${balls}. ${dis}`,
-        `${lastName} barely warmed up before getting out for ${runs}. ${teamCode} wobbling.`,
-        `${runs} runs, ${balls} balls, and gone. ${dis} — rough one.`,
-      ]),
-    };
-  }
-  if (runs < 50) {
-    return {
-      title: pickOne([
-        `${lastName} out for ${runs} — ${teamCode} ${totalDown} down`,
-        `Wicket! ${lastName} gone for ${runs}`,
-        `${teamCode} lose another — ${lastName} departs`,
-      ]),
-      body: pickOne([
-        `Had a start but threw it away. ${runs}(${balls}b) · ${dis}`,
-        `${lastName} out for ${runs} — classic top-order collapse energy. ${dis}`,
-        `${dis} — ${runs}(${balls}b). ${teamCode} fans burying their faces in their hands.`,
-        `Looked good for a big one and then… ${runs}(${balls}b). ${dis}`,
-        `${lastName} built a platform then handed it back. ${runs} off ${balls}. Infuriating.`,
-        `That's a start wasted. ${lastName} gone for ${runs}(${balls}b). ${dis}`,
-        `${teamCode} needed more. ${lastName} out for ${runs}. Not ideal.`,
-      ]),
-    };
-  }
-  return {
-    title: pickOne([
-      `Big wicket! ${lastName} gone for ${runs}`,
-      `${lastName} out after a belter — ${runs} runs`,
-      `${teamCode} lose their key man — ${lastName} gone`,
-    ]),
-    body: pickOne([
-      `After a brilliant ${runs}(${balls}b), ${lastName} has to go. ${dis}`,
-      `${lastName} out for ${runs} — what an innings though! ${teamCode} ${totalDown} down.`,
-      `${dis} · ${runs}(${balls}b). ${lastName} can hold his head high, the rest of ${teamCode} less so.`,
-      `${runs} off ${balls} balls is a proper knock — but ${lastName} is gone. Game on.`,
-      `Standing ovation for ${lastName} — ${runs}(${balls}b). But ${teamCode} are now exposed.`,
-      `That's the match-defining wicket. ${lastName} departs for ${runs}(${balls}b). ${dis}`,
-    ]),
-  };
+// Format the inning total string from S3 (e.g. "264/2 19.5 ov" or "47/3 4.2 Overs")
+// into a compact "score (over)" form for use in notification bodies.
+function formatInningScore(total: string): string {
+  if (!total) return "";
+  // Examples: "264/2 19.5 ov" → "264/2 (19.5 ov)"
+  //           "47/3 4.2 Overs" → "47/3 (4.2 ov)"
+  const m = total.match(/^(\d+\/\d+)\s+([\d.]+)\s*(?:ov|overs?)?$/i);
+  if (m) return `${m[1]} (${m[2]} ov)`;
+  return total.trim();
 }
 
-function milestoneBanter(lastName: string, runs: number, balls: number, milestone: 50 | 100): { title: string; body: string } {
-  if (milestone === 100) {
-    return {
-      title: pickOne([
-        `Century! ${lastName} raises the bat`,
-        `Three figures! ${lastName} is unstoppable`,
-        `100 up for ${lastName} — what a knock`,
-      ]),
-      body: pickOne([
-        `${runs}(${balls}b)! Pure T20 masterclass — check your fantasy points, this is huge.`,
-        `${lastName} goes to three figures off ${balls} balls. Absolutely ridiculous.`,
-        `${runs} runs and still going — ${lastName} is on another planet right now.`,
-        `A hundred in T20 cricket. ${lastName} making it look easy off ${balls} balls.`,
-        `${lastName} brings up the ton! ${runs}(${balls}b) — the crowd is going absolutely mental.`,
-        `Fantasy owners rejoice. ${lastName} with a sensational ${runs}(${balls}b). Chef's kiss.`,
-      ]),
-    };
-  }
-  return {
-    title: pickOne([
-      `Fifty! ${lastName} brings up the half-century`,
-      `Half ton for ${lastName} — looking dangerous`,
-      `50 up for ${lastName}! Eyes on this one`,
-    ]),
-    body: pickOne([
-      `${runs}(${balls}b) and looking very dangerous. Keep an eye on your fantasy team.`,
-      `${lastName} reaches 50 off ${balls}. The crowd is loving every bit of this.`,
-      `Half-century for ${lastName}! ${runs}(${balls}b) — watch him go.`,
-      `${lastName} is in the zone. ${runs} off ${balls} balls and not done yet.`,
-      `Fifty up and the bowlers have no answers. ${lastName} on ${runs}(${balls}b).`,
-      `${lastName} brings up a brilliant fifty. Fantasy points are cooking. ${runs}(${balls}b).`,
-      `That's 50 for ${lastName} and it barely felt like it. ${runs}(${balls}b) — class.`,
-    ]),
-  };
+// Trim long dismissal text but preserve fielder/bowler info.
+function shortDismissal(d: string): string {
+  return d.length > 80 ? d.slice(0, 80) + "…" : d;
 }
 
-function fivewicketBanter(lastName: string, wickets: number, runs: number, overs: string): { title: string; body: string } {
-  return {
-    title: pickOne([
-      `${wickets}-wicket haul! ${lastName} is on fire`,
-      `${lastName} running riot — ${wickets} wickets`,
-      `${wickets} down to ${lastName}! Unplayable`,
-    ]),
-    body: pickOne([
-      `${wickets}/${runs} off ${overs} overs. Someone needs to stop this man immediately.`,
-      `${lastName} on an absolute rampage — ${wickets}/${runs}. The batting order is in tatters.`,
-      `${wickets} wickets for ${lastName}! This is not cricket, this is an execution.`,
-      `${overs} overs, ${runs} runs, ${wickets} wickets. ${lastName} putting on a masterclass.`,
-      `${lastName} has turned up to work today. ${wickets}/${runs} — brutal, clinical, brilliant.`,
-      `The batters have absolutely no idea. ${lastName} with ${wickets}/${runs} off ${overs}.`,
-    ]),
-  };
+function wicketNotif(
+  batterName: string,
+  runs: number,
+  balls: number,
+  teamCode: string,
+  totalDown: number,
+  dismissal: string,
+  innTotal: string,
+): { title: string; body: string } {
+  const score = formatInningScore(innTotal);
+  // Title: e.g. "WICKET · DC 47/3 (4.2 ov)"  (or just "WICKET · DC" if score missing)
+  const title = score
+    ? `WICKET · ${teamCode} ${score}`
+    : `WICKET · ${teamCode} ${totalDown} down`;
+  // Body: e.g. "Nissanka 11 (7) · c Prabhsimran b Arshdeep"
+  const dis = shortDismissal(dismissal);
+  const body = `${batterName} ${runs} (${balls})${dis ? ` · ${dis}` : ""}`;
+  return { title, body };
+}
+
+function milestoneNotif(
+  batterName: string,
+  runs: number,
+  balls: number,
+  fours: number,
+  sixes: number,
+  milestone: 50 | 100,
+  teamCode: string,
+  innTotal: string,
+): { title: string; body: string } {
+  const label = milestone === 100 ? "CENTURY" : "FIFTY";
+  // Title: e.g. "FIFTY · Rana 50 (28)"  /  "CENTURY · Rana 102 (49)"
+  const title = `${label} · ${batterName} ${runs} (${balls})`;
+  const score = formatInningScore(innTotal);
+  // Body: e.g. "DC 89/1 (8.4 ov) · 4s: 6, 6s: 2"
+  const boundaries = `4s: ${fours}, 6s: ${sixes}`;
+  const body = score
+    ? `${teamCode} ${score} · ${boundaries}`
+    : `${teamCode} · ${boundaries}`;
+  return { title, body };
+}
+
+function fiveWicketNotif(
+  bowlerName: string,
+  wickets: number,
+  runs: number,
+  overs: string,
+  teamCode: string,
+  innTotal: string,
+): { title: string; body: string } {
+  // Title: e.g. "5-WICKET HAUL · Kuldeep 5/24"
+  const title = `${wickets}-WICKET HAUL · ${bowlerName} ${wickets}/${runs}`;
+  const score = formatInningScore(innTotal);
+  // Body: e.g. "4.0 ov · DC 187 all out (19.2 ov)"
+  const body = score
+    ? `${overs} ov · ${teamCode} ${score}`
+    : `${overs} ov · ${teamCode}`;
+  return { title, body };
 }
 
 // ── Live match poller (called by ipl.ts every 30 s when a match is active) ───
@@ -1735,7 +1687,7 @@ export async function refreshLiveMatches(liveIplIds: string[]): Promise<void> {
               for (const b of newFalls) {
                 const totalDown = nowDismissed.length;
                 const lastName = b.name.split(" ").slice(-1)[0];
-                const { title, body } = wicketBanter(lastName, b.runs, b.balls, teamCode, totalDown, b.dismissal);
+                const { title, body } = wicketNotif(lastName, b.runs, b.balls, teamCode, totalDown, b.dismissal, liveInn.total);
                 sendPushToAll({ title, body, tag: `wicket-${iplId}-${liveInnIdx}-${totalDown}`, url: "/", image: logo }).catch(() => {});
               }
               prevDismissals.set(innKey, new Set(nowDismissed.map(b => b.name)));
@@ -1754,11 +1706,11 @@ export async function refreshLiveMatches(liveIplIds: string[]): Promise<void> {
               const lastName = b.name.split(" ").slice(-1)[0];
               if (b.runs >= 100 && prevM < 100) {
                 prevMilestones.set(milestoneKey, 100);
-                const { title, body } = milestoneBanter(lastName, b.runs, b.balls, 100);
+                const { title, body } = milestoneNotif(lastName, b.runs, b.balls, b.fours || 0, b.sixes || 0, 100, teamCode, liveInn.total);
                 sendPushToAll({ title, body, tag: `century-${iplId}-${b.name}`, url: "/", image: logo }).catch(() => {});
               } else if (b.runs >= 50 && prevM < 50) {
                 prevMilestones.set(milestoneKey, 50);
-                const { title, body } = milestoneBanter(lastName, b.runs, b.balls, 50);
+                const { title, body } = milestoneNotif(lastName, b.runs, b.balls, b.fours || 0, b.sixes || 0, 50, teamCode, liveInn.total);
                 sendPushToAll({ title, body, tag: `fifty-${iplId}-${b.name}`, url: "/", image: logo }).catch(() => {});
               }
             }
@@ -1775,7 +1727,7 @@ export async function refreshLiveMatches(liveIplIds: string[]): Promise<void> {
               if (bwl.wickets > prevW) {
                 prevBowlerWickets.set(bowlerKey, bwl.wickets);
                 const lastName = bwl.name.split(" ").slice(-1)[0];
-                const { title, body } = fivewicketBanter(lastName, bwl.wickets, bwl.runs, bwl.overs);
+                const { title, body } = fiveWicketNotif(lastName, bwl.wickets, bwl.runs, bwl.overs, teamCode, liveInn.total);
                 sendPushToAll({ title, body, tag: `fifer-${iplId}-${liveInnIdx}-${bwl.name}`, url: "/", image: logo }).catch(() => {});
               }
             }
