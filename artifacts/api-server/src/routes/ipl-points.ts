@@ -319,6 +319,21 @@ function parseDismissal(dismissal: string): { caught?: string; lbwBowled?: boole
 
 // Match a Supabase team label (e.g. "Mumbai Indians") to an S3 team name (e.g. "Mumbai Indians (MI)").
 // Also handles short codes like "MI" and partial matches.
+// Map of normalised full IPL team name → standard abbreviation used in PLAYER_TEAMS
+const IPL_TEAM_ABBR: Record<string, string> = {
+  "rajasthan royals": "rr",
+  "lucknow super giants": "lsg",
+  "royal challengers bengaluru": "rcb",
+  "royal challengers bangalore": "rcb",
+  "mumbai indians": "mi",
+  "chennai super kings": "csk",
+  "sunrisers hyderabad": "srh",
+  "kolkata knight riders": "kkr",
+  "delhi capitals": "dc",
+  "gujarat titans": "gt",
+  "punjab kings": "pbks",
+};
+
 function teamNamesMatch(a: string, b: string): boolean {
   if (!a || !b) return false;
   const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -333,6 +348,13 @@ function teamNamesMatch(a: string, b: string): boolean {
   const cb = codeMatch(b);
   if (ca && (ca === nb || ca === cb)) return true;
   if (cb && (cb === na || cb === ca)) return true;
+  // Acronym lookup: "Rajasthan Royals" → "rr", "Royal Challengers Bengaluru" → "rcb" etc.
+  const aLower = a.toLowerCase();
+  const bLower = b.toLowerCase();
+  const abbrA = IPL_TEAM_ABBR[aLower];
+  const abbrB = IPL_TEAM_ABBR[bLower];
+  if (abbrA && (abbrA === bLower || abbrA === nb)) return true;
+  if (abbrB && (abbrB === aLower || abbrB === na)) return true;
   return false;
 }
 
@@ -902,7 +924,7 @@ router.get("/ipl/points", async (req, res) => {
                 if (m.MatchStatus !== "Post") return false;
                 const iplId = String(m.MatchID);
                 const cached = cache.processedMatches[iplId];
-                return !cached || !cached.innings?.length || cached.innings.length < 2;
+                return !cached || !cached.innings?.length || cached.innings.length < 2 || Object.keys(cached.playerStats || {}).length === 0;
               });
               for (const iplMatch of s3NeedMatches) {
                 const iplId = String(iplMatch.MatchID);
