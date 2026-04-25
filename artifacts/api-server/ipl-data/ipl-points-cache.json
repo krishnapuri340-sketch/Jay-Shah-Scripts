@@ -20561,6 +20561,424 @@
         }
       ],
       "playerStats": {}
+    },
+    "2475": {
+      "points": {},
+      "innings": [
+        {
+          "name": "Delhi Capitals Inning 1",
+          "total": "264/2 (20.0 ov)",
+          "batting": [
+            {
+              "name": "Pathum Nissanka",
+              "runs": 11,
+              "balls": 7,
+              "fours": 2,
+              "sixes": 0,
+              "sr": "157.14",
+              "dismissal": "c Prabhsimran Singh b Arshdeep Singh",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "K L Rahul",
+              "runs": 152,
+              "balls": 67,
+              "fours": 16,
+              "sixes": 9,
+              "sr": "226.87",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Nitish Rana",
+              "runs": 91,
+              "balls": 44,
+              "fours": 11,
+              "sixes": 4,
+              "sr": "206.82",
+              "dismissal": "c Shreyas Iyer b Xavier Bartlett",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "David Miller",
+              "runs": 3,
+              "balls": 3,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "100.00",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Axar Patel",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Auqib Nabi",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Sameer Rizvi",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Tristan Stubbs",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Vipraj Nigam",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Kuldeep Yadav",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "T Natarajan",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Mukesh Kumar",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Lungisani Ngidi",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            }
+          ],
+          "bowling": [
+            {
+              "name": "Arshdeep Singh",
+              "overs": "4",
+              "maidens": 0,
+              "runs": 49,
+              "wickets": 1,
+              "eco": "12.25",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 3
+            },
+            {
+              "name": "Xavier Bartlett",
+              "overs": "4",
+              "maidens": 0,
+              "runs": 69,
+              "wickets": 1,
+              "eco": "17.25",
+              "wides": 1,
+              "noBalls": 0,
+              "dots": 1
+            },
+            {
+              "name": "Marco Jansen",
+              "overs": "4",
+              "maidens": 0,
+              "runs": 45,
+              "wickets": 0,
+              "eco": "11.25",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 7
+            },
+            {
+              "name": "Vyshak Vijaykumar",
+              "overs": "3",
+              "maidens": 0,
+              "runs": 48,
+              "wickets": 0,
+              "eco": "16",
+              "wides": 1,
+              "noBalls": 0,
+              "dots": 4
+            },
+            {
+              "name": "Yuzvendra Chahal",
+              "overs": "4",
+              "maidens": 0,
+              "runs": 42,
+              "wickets": 0,
+              "eco": "10.5",
+              "wides": 2,
+              "noBalls": 1,
+              "dots": 3
+            },
+            {
+              "name": "Marcus Stoinis",
+              "overs": "1",
+              "maidens": 0,
+              "runs": 11,
+              "wickets": 0,
+              "eco": "11",
+              "wides": 2,
+              "noBalls": 0,
+              "dots": 2
+            }
+          ]
+        },
+        {
+          "name": "Punjab Kings Inning 2",
+          "total": "145/3 (9.2 ov)",
+          "batting": [
+            {
+              "name": "Priyansh Arya",
+              "runs": 43,
+              "balls": 17,
+              "fours": 2,
+              "sixes": 5,
+              "sr": "252.94",
+              "dismissal": "c Sameer Rizvi b Axar Patel",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Prabhsimran Singh",
+              "runs": 76,
+              "balls": 26,
+              "fours": 9,
+              "sixes": 5,
+              "sr": "292.31",
+              "dismissal": "lbw Kuldeep Yadav",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Cooper Connolly",
+              "runs": 17,
+              "balls": 10,
+              "fours": 1,
+              "sixes": 1,
+              "sr": "170.00",
+              "dismissal": "b Kuldeep Yadav",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Shreyas Iyer",
+              "runs": 2,
+              "balls": 4,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "50.00",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Shashank Singh",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Marcus Stoinis",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Marco Jansen",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Xavier Bartlett",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Vyshak Vijaykumar",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Arshdeep Singh",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Yuzvendra Chahal",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Nehal Wadhera",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            }
+          ],
+          "bowling": [
+            {
+              "name": "Auqib Nabi",
+              "overs": "2",
+              "maidens": 0,
+              "runs": 41,
+              "wickets": 0,
+              "eco": "20.5",
+              "wides": 1,
+              "noBalls": 1,
+              "dots": 4
+            },
+            {
+              "name": "Mukesh Kumar",
+              "overs": "2",
+              "maidens": 0,
+              "runs": 45,
+              "wickets": 0,
+              "eco": "22.5",
+              "wides": 1,
+              "noBalls": 0,
+              "dots": 0
+            },
+            {
+              "name": "Axar Patel",
+              "overs": "3",
+              "maidens": 0,
+              "runs": 40,
+              "wickets": 1,
+              "eco": "13.33",
+              "wides": 1,
+              "noBalls": 0,
+              "dots": 3
+            },
+            {
+              "name": "T Natarajan",
+              "overs": "1",
+              "maidens": 0,
+              "runs": 9,
+              "wickets": 0,
+              "eco": "9",
+              "wides": 2,
+              "noBalls": 0,
+              "dots": 2
+            },
+            {
+              "name": "Kuldeep Yadav",
+              "overs": "1.2",
+              "maidens": 0,
+              "runs": 9,
+              "wickets": 2,
+              "eco": "6.75",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 3
+            }
+          ]
+        }
+      ],
+      "playerStats": {}
     }
   },
   "supabaseScores": {
@@ -21333,6 +21751,34 @@
       "matchDate": "2026-04-24",
       "matchNumber": 34,
       "linkedIplId": "2474"
+    },
+    "93873558-fc3d-4afd-a001-f942d6586710": {
+      "points": {
+        "Axar Patel": 4,
+        "Sameer Rizvi": 4,
+        "Pathum Nissanka": 23,
+        "Vijaykumar Vyshak": 6,
+        "Shreyas Iyer": 12,
+        "Shashank Singh": 4,
+        "Marcus Stoinis": 8,
+        "Yuzvendra Chahal": 8,
+        "Nehal Wadhera": 4,
+        "KL Rahul": 298,
+        "Nitish Rana": 183,
+        "Tristan Stubbs": 4,
+        "Prabhsimran Singh": 161,
+        "Priyansh Arya": 88,
+        "Cooper Connolly": 4,
+        "Arshdeep Singh": 34,
+        "Lungi Ngidi": 4,
+        "Kuldeep Yadav": 4,
+        "T Natarajan": 8,
+        "Marco Jansen": 14
+      },
+      "matchLabel": "Delhi Capitals vs Punjab Kings",
+      "matchDate": "2026-04-25",
+      "matchNumber": 35,
+      "linkedIplId": "2475"
     }
   },
   "playerIdMap": {
@@ -22011,7 +22457,7 @@
       "matchNumber": 70
     }
   },
-  "lastUpdated": "2026-04-24T19:24:53.068Z",
+  "lastUpdated": "2026-04-25T13:14:03.965Z",
   "cricapiMatchIds": {
     "2428": "12b5d808-d9ab-468e-bd25-a2c347f64bdc",
     "2467": "c5bf2a95-1855-463d-accf-9c1db88418cd",

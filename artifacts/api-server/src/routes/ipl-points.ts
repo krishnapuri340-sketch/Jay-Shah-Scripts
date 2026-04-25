@@ -744,12 +744,22 @@ router.get("/ipl/points", async (req, res) => {
       }
     }
 
-    // 2. S3 points for matches NOT yet covered by Supabase
+    // Build set of iplIds where Supabase actually has scored points (not just linked).
+    // A Supabase-linked but unscored match (live match, scores not yet entered in
+    // AuctionRoom) should fall back to S3 live data so points show during the game.
+    const supabaseScoredIds = new Set<string>();
+    for (const fixtureData of Object.values(pointsCache.supabaseScores || {})) {
+      if (!fixtureData.linkedIplId) continue;
+      const hasScores = Object.values(fixtureData.points || {}).some(p => p !== 0);
+      if (hasScores) supabaseScoredIds.add(fixtureData.linkedIplId);
+    }
+
+    // 2. S3 points for matches NOT yet scored by Supabase (includes live matches)
     // Uses the real match number from the schedule when available so points sort correctly.
     const liveLabels: string[] = [];
     let liveMatchNumFallback = 900; // placeholder only if schedule match number unknown
     for (const [iplId, matchData] of Object.entries(pointsCache.processedMatches || {})) {
-      if (supabaseLinkedIds.has(iplId)) continue;
+      if (supabaseScoredIds.has(iplId)) continue; // Supabase has real scores — use those
       // Skip abandoned / no-result matches — no points awarded
       if (ABANDONED_MATCH_IPL_IDS.has(iplId)) continue;
       const meta = (pointsCache.matchMetadata || {})[iplId];
@@ -1631,9 +1641,11 @@ export async function refreshLiveMatches(liveIplIds: string[]): Promise<void> {
             s3Innings, FANTASY_PLAYER_NAMES,
             meta?.teamA || "", meta?.teamB || ""
           );
-          pointsCache.processedMatches[iplId] = isSupabaseCovered
-            ? { points: {}, innings: matchData.innings, playerStats: matchData.playerStats }
-            : matchData;
+          // Always store live S3 points — Supabase official scores are only entered
+          // after the match ends. During a live match, S3 is the real-time source.
+          // The GET /ipl/points handler prefers Supabase for completed matches but
+          // falls back to S3 when Supabase has no scores yet.
+          pointsCache.processedMatches[iplId] = matchData;
           console.log(`[live-poll] Match ${iplId} S3 updated: ${s3Innings.length} innings, ${Object.keys(matchData.points).length} pts`);
           saveCache(pointsCache);
 
