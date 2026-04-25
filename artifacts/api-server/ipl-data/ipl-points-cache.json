@@ -22733,7 +22733,7 @@
       "points": {
         "Axar Patel": 42,
         "Yuzvendra Chahal": 8,
-        "Shreyas Iyer": 62,
+        "Shreyas Iyer": 138,
         "Priyansh Arya": 97,
         "Marco Jansen": 14,
         "Arshdeep Singh": 34,
@@ -22741,9 +22741,10 @@
         "Nehal Wadhera": 55,
         "Nitish Rana": 183,
         "Marcus Stoinis": 8,
+        "Shashank Singh": 14,
         "KL Rahul": 298,
-        "Kuldeep Yadav": 78,
-        "T Natarajan": 4,
+        "Kuldeep Yadav": 76,
+        "T Natarajan": 6,
         "Pathum Nissanka": 23,
         "Cooper Connolly": 35,
         "Sameer Rizvi": 12
@@ -22968,7 +22969,7 @@
         },
         {
           "name": "Punjab Kings Inning 2",
-          "total": "201/4 (14.3 ov)",
+          "total": "242/4 (17.0 ov)",
           "batting": [
             {
               "name": "Priyansh Arya",
@@ -23005,11 +23006,11 @@
             },
             {
               "name": "Shreyas Iyer",
-              "runs": 28,
-              "balls": 20,
-              "fours": 1,
-              "sixes": 2,
-              "sr": "140.00",
+              "runs": 62,
+              "balls": 31,
+              "fours": 3,
+              "sixes": 6,
+              "sr": "200.00",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -23027,14 +23028,14 @@
             },
             {
               "name": "Shashank Singh",
-              "runs": 0,
-              "balls": 0,
-              "fours": 0,
+              "runs": 6,
+              "balls": 4,
+              "fours": 1,
               "sixes": 0,
-              "sr": "-",
-              "dismissal": "",
-              "notOut": false,
-              "dnb": true
+              "sr": "150.00",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
             },
             {
               "name": "Marcus Stoinis",
@@ -23139,36 +23140,36 @@
             },
             {
               "name": "T Natarajan",
-              "overs": "2",
+              "overs": "3",
               "maidens": 0,
-              "runs": 25,
+              "runs": 41,
               "wickets": 0,
-              "eco": "12.5",
+              "eco": "13.67",
               "wides": 5,
               "noBalls": 0,
-              "dots": 3
+              "dots": 4
             },
             {
               "name": "Kuldeep Yadav",
-              "overs": "3",
+              "overs": "4",
               "maidens": 0,
-              "runs": 23,
+              "runs": 46,
               "wickets": 2,
-              "eco": "7.67",
-              "wides": 1,
+              "eco": "11.5",
+              "wides": 2,
               "noBalls": 0,
-              "dots": 6
+              "dots": 8
             },
             {
               "name": "Vipraj Nigam",
-              "overs": "1.3",
+              "overs": "2",
               "maidens": 0,
-              "runs": 22,
+              "runs": 24,
               "wickets": 1,
-              "eco": "14.67",
+              "eco": "12",
               "wides": 1,
               "noBalls": 0,
-              "dots": 2
+              "dots": 3
             }
           ]
         }
@@ -23212,10 +23213,10 @@
         },
         "Shreyas Iyer": {
           "played": true,
-          "runs": 28,
-          "balls": 20,
-          "fours": 1,
-          "sixes": 2,
+          "runs": 62,
+          "balls": 31,
+          "fours": 3,
+          "sixes": 6,
           "duck": false,
           "wickets": 0,
           "dots": 0,
@@ -23354,6 +23355,24 @@
           "sharedRunOuts": 0,
           "stumpings": 0
         },
+        "Shashank Singh": {
+          "played": true,
+          "runs": 6,
+          "balls": 4,
+          "fours": 1,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
         "KL Rahul": {
           "played": true,
           "runs": 152,
@@ -23380,11 +23399,11 @@
           "sixes": 0,
           "duck": false,
           "wickets": 2,
-          "dots": 6,
+          "dots": 8,
           "lbwBowled": 0,
           "maidens": 0,
-          "ballsBowled": 18,
-          "runsConceded": 23,
+          "ballsBowled": 24,
+          "runsConceded": 46,
           "catches": 0,
           "runOuts": 0,
           "sharedRunOuts": 0,
@@ -23398,11 +23417,11 @@
           "sixes": 0,
           "duck": false,
           "wickets": 0,
-          "dots": 3,
+          "dots": 4,
           "lbwBowled": 0,
           "maidens": 0,
-          "ballsBowled": 12,
-          "runsConceded": 25,
+          "ballsBowled": 18,
+          "runsConceded": 41,
           "catches": 0,
           "runOuts": 0,
           "sharedRunOuts": 0,
@@ -23465,40 +23484,201 @@
       }
     },
     "2476": {
-      "points": {},
+      "points": {
+        "Vaibhav Suryavanshi": 60,
+        "Yashasvi Jaiswal": 13
+      },
       "innings": [
         {
-          "name": "0 Inning 1",
-          "total": "0",
+          "name": "Rajasthan Royals Inning 1",
+          "total": "29/0 (1.2 ov)",
           "batting": [
             {
-              "name": "0",
+              "name": "Yashasvi Jaiswal",
+              "runs": 5,
+              "balls": 3,
+              "fours": 1,
+              "sixes": 0,
+              "sr": "166.67",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Vaibhav Sooryavanshi",
+              "runs": 24,
+              "balls": 5,
+              "fours": 0,
+              "sixes": 4,
+              "sr": "480.00",
+              "dismissal": "not out",
+              "notOut": true,
+              "dnb": false
+            },
+            {
+              "name": "Riyan Parag",
               "runs": 0,
               "balls": 0,
               "fours": 0,
               "sixes": 0,
-              "sr": "0",
-              "dismissal": "0",
+              "sr": "-",
+              "dismissal": "",
               "notOut": false,
-              "dnb": false
+              "dnb": true
+            },
+            {
+              "name": "Dhruv Jurel",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Shimron Hetmyer",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Donovan Ferreira",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Ravindra Jadeja",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Jofra Archer",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Tushar Deshpande",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Nandre Burger",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
+            },
+            {
+              "name": "Brijesh Sharma",
+              "runs": 0,
+              "balls": 0,
+              "fours": 0,
+              "sixes": 0,
+              "sr": "-",
+              "dismissal": "",
+              "notOut": false,
+              "dnb": true
             }
           ],
           "bowling": [
             {
-              "name": "0",
-              "overs": "0",
+              "name": "Praful Hinge",
+              "overs": "1",
               "maidens": 0,
-              "runs": 0,
+              "runs": 25,
               "wickets": 0,
-              "eco": "0",
+              "eco": "25",
               "wides": 0,
               "noBalls": 0,
-              "dots": 0
+              "dots": 1
+            },
+            {
+              "name": "Pat Cummins",
+              "overs": "0.2",
+              "maidens": 0,
+              "runs": 4,
+              "wickets": 0,
+              "eco": "12",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 1
             }
           ]
         }
       ],
-      "playerStats": {}
+      "playerStats": {
+        "Vaibhav Suryavanshi": {
+          "played": true,
+          "runs": 24,
+          "balls": 5,
+          "fours": 0,
+          "sixes": 4,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Yashasvi Jaiswal": {
+          "played": true,
+          "runs": 5,
+          "balls": 3,
+          "fours": 1,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        }
+      }
     }
   },
   "supabaseScores": {
@@ -23948,17 +24128,17 @@
         "Sarfaraz Khan": 51,
         "Cameron Green": 2,
         "Varun Chakravarthy": 16,
-        "Khaleel Ahmed": 62,
-        "Sunil Narine": 116,
-        "Finn Allen": 5,
-        "Ajinkya Rahane": 48,
+        "Anshul Kamboj": 84,
+        "Sanju Samson": 92,
         "Ruturaj Gaikwad": 23,
         "Shivam Dube": 37,
-        "Sanju Samson": 92,
-        "Anshul Kamboj": 84,
+        "Sunil Narine": 116,
         "Rinku Singh": 4,
-        "Dewald Brevis": 87,
-        "Jamie Overton": 25
+        "Jamie Overton": 25,
+        "Finn Allen": 5,
+        "Ajinkya Rahane": 48,
+        "Khaleel Ahmed": 62,
+        "Dewald Brevis": 87
       },
       "matchLabel": "Chennai Super Kings vs Kolkata Knight Riders",
       "matchDate": "2026-04-14",
@@ -23967,26 +24147,26 @@
     },
     "93873558-fc3d-4afd-a001-f942d6586710": {
       "points": {
-        "Axar Patel": 4,
-        "Sameer Rizvi": 4,
-        "Pathum Nissanka": 23,
-        "Vijaykumar Vyshak": 6,
-        "Shreyas Iyer": 12,
-        "Shashank Singh": 4,
-        "Marcus Stoinis": 8,
+        "Marco Jansen": 14,
+        "Cooper Connolly": 35,
+        "Arshdeep Singh": 34,
         "Yuzvendra Chahal": 8,
-        "Nehal Wadhera": 4,
-        "KL Rahul": 298,
+        "Pathum Nissanka": 23,
+        "Prabhsimran Singh": 174,
+        "Axar Patel": 42,
+        "Shreyas Iyer": 129,
+        "Kuldeep Yadav": 92,
+        "Priyansh Arya": 97,
+        "Sameer Rizvi": 12,
+        "Shashank Singh": 6,
         "Nitish Rana": 183,
         "Tristan Stubbs": 4,
-        "Prabhsimran Singh": 161,
-        "Priyansh Arya": 88,
-        "Cooper Connolly": 4,
-        "Arshdeep Singh": 34,
-        "Lungi Ngidi": 4,
-        "Kuldeep Yadav": 4,
-        "T Natarajan": 8,
-        "Marco Jansen": 14
+        "Vijaykumar Vyshak": 6,
+        "Marcus Stoinis": 8,
+        "T Natarajan": 6,
+        "Nehal Wadhera": 55,
+        "KL Rahul": 298,
+        "Lungi Ngidi": 4
       },
       "matchLabel": "Delhi Capitals vs Punjab Kings",
       "matchDate": "2026-04-25",
@@ -24187,20 +24367,20 @@
     },
     "759418d0-2480-41cc-b20a-f576f53c8d4b": {
       "points": {
-        "Sarfaraz Khan": 38,
-        "Quinton de Kock": 15,
-        "Suryakumar Yadav": 64,
-        "Sherfane Rutherford": 2,
-        "Ruturaj Gaikwad": 48,
-        "Shivam Dube": 9,
-        "Sanju Samson": 219,
-        "Hardik Pandya": 7,
-        "Anshul Kamboj": 74,
         "Jasprit Bumrah": 66,
+        "Naman Dhir": 10,
+        "Suryakumar Yadav": 64,
+        "Hardik Pandya": 7,
+        "Shivam Dube": 9,
         "Dewald Brevis": 57,
+        "Sarfaraz Khan": 38,
+        "Sanju Samson": 219,
         "Tilak Varma": 73,
+        "Ruturaj Gaikwad": 48,
+        "Quinton de Kock": 15,
+        "Sherfane Rutherford": 2,
         "Jamie Overton": 77,
-        "Naman Dhir": 10
+        "Anshul Kamboj": 74
       },
       "matchLabel": "Mumbai Indians vs Chennai Super Kings",
       "matchDate": "2026-04-23",
@@ -24281,24 +24461,44 @@
     },
     "3c44e9f8-17ff-46f4-a5a5-0779fb52a863": {
       "points": {
+        "Vaibhav Suryavanshi": 2,
         "Sakib Hussain": 176,
-        "Dhruv Jurel": 15,
+        "Abhishek Sharma": 10,
+        "Travis Head": 34,
+        "Ishan Kishan": 199,
         "Heinrich Klaasen": 74,
+        "Nitish Kumar Reddy": 90,
+        "Yashasvi Jaiswal": 5,
+        "Dhruv Jurel": 15,
         "Riyan Parag": 52,
         "Ravindra Jadeja": 75,
         "Jofra Archer": 92,
-        "Nitish Kumar Reddy": 90,
-        "Vaibhav Suryavanshi": 2,
-        "Yashasvi Jaiswal": 5,
-        "Ishan Kishan": 199,
-        "Abhishek Sharma": 10,
-        "Ravi Bishnoi": 8,
-        "Travis Head": 34
+        "Ravi Bishnoi": 8
       },
       "matchLabel": "Sunrisers Hyderabad vs Rajasthan Royals",
       "matchDate": "2026-04-13",
       "matchNumber": 21,
       "linkedIplId": "2461"
+    },
+    "a8b8cd2f-3bb0-4219-8ac7-29bec43330ae": {
+      "points": {
+        "Vaibhav Suryavanshi": 60,
+        "Yashasvi Jaiswal": 5,
+        "Dhruv Jurel": 4,
+        "Riyan Parag": 4,
+        "Shimron Hetmyer": 4,
+        "Ravindra Jadeja": 4,
+        "Jofra Archer": 4,
+        "Abhishek Sharma": 4,
+        "Ishan Kishan": 4,
+        "Heinrich Klaasen": 4,
+        "Nitish Kumar Reddy": 4,
+        "Sakib Hussain": 4
+      },
+      "matchLabel": "Rajasthan Royals vs Sunrisers Hyderabad",
+      "matchDate": "2026-04-25",
+      "matchNumber": 36,
+      "linkedIplId": "2476"
     }
   },
   "playerIdMap": {
@@ -24560,424 +24760,494 @@
       "matchDate": "2026-03-28",
       "teamA": "Royal Challengers Bengaluru",
       "teamB": "Sunrisers Hyderabad",
-      "matchNumber": 1
+      "matchNumber": 1,
+      "ended": true
     },
     "2418": {
       "matchDate": "2026-03-29",
       "teamA": "Mumbai Indians",
       "teamB": "Kolkata Knight Riders",
-      "matchNumber": 2
+      "matchNumber": 2,
+      "ended": true
     },
     "2419": {
       "matchDate": "2026-03-30",
       "teamA": "Rajasthan Royals",
       "teamB": "Chennai Super Kings",
-      "matchNumber": 3
+      "matchNumber": 3,
+      "ended": true
     },
     "2420": {
       "matchDate": "2026-03-31",
       "teamA": "Punjab Kings",
       "teamB": "Gujarat Titans",
-      "matchNumber": 4
+      "matchNumber": 4,
+      "ended": true
     },
     "2421": {
       "matchDate": "2026-04-01",
       "teamA": "Lucknow Super Giants",
       "teamB": "Delhi Capitals",
-      "matchNumber": 5
+      "matchNumber": 5,
+      "ended": true
     },
     "2422": {
       "matchDate": "2026-04-02",
       "teamA": "Kolkata Knight Riders",
       "teamB": "Sunrisers Hyderabad",
-      "matchNumber": 6
+      "matchNumber": 6,
+      "ended": true
     },
     "2423": {
       "matchDate": "2026-04-03",
       "teamA": "Chennai Super Kings",
       "teamB": "Punjab Kings",
-      "matchNumber": 7
+      "matchNumber": 7,
+      "ended": true
     },
     "2424": {
       "matchDate": "2026-04-04",
       "teamA": "Delhi Capitals",
       "teamB": "Mumbai Indians",
-      "matchNumber": 8
+      "matchNumber": 8,
+      "ended": true
     },
     "2425": {
       "matchDate": "2026-04-04",
       "teamA": "Gujarat Titans",
       "teamB": "Rajasthan Royals",
-      "matchNumber": 9
+      "matchNumber": 9,
+      "ended": true
     },
     "2426": {
       "matchDate": "2026-04-05",
       "teamA": "Sunrisers Hyderabad",
       "teamB": "Lucknow Super Giants",
-      "matchNumber": 10
+      "matchNumber": 10,
+      "ended": true
     },
     "2427": {
       "matchDate": "2026-04-05",
       "teamA": "Royal Challengers Bengaluru",
       "teamB": "Chennai Super Kings",
-      "matchNumber": 11
+      "matchNumber": 11,
+      "ended": true
     },
     "2428": {
       "matchDate": "2026-04-06",
       "teamA": "Kolkata Knight Riders",
       "teamB": "Punjab Kings",
-      "matchNumber": 12
+      "matchNumber": 12,
+      "ended": true
     },
     "2429": {
       "matchDate": "2026-04-07",
       "teamA": "Rajasthan Royals",
       "teamB": "Mumbai Indians",
-      "matchNumber": 13
+      "matchNumber": 13,
+      "ended": true
     },
     "2430": {
       "matchDate": "2026-04-08",
       "teamA": "Delhi Capitals",
       "teamB": "Gujarat Titans",
-      "matchNumber": 14
+      "matchNumber": 14,
+      "ended": true
     },
     "2431": {
       "matchDate": "2026-04-09",
       "teamA": "Kolkata Knight Riders",
       "teamB": "Lucknow Super Giants",
-      "matchNumber": 15
+      "matchNumber": 15,
+      "ended": true
     },
     "2432": {
       "matchDate": "2026-04-10",
       "teamA": "Rajasthan Royals",
       "teamB": "Royal Challengers Bengaluru",
-      "matchNumber": 16
+      "matchNumber": 16,
+      "ended": true
     },
     "2433": {
       "matchDate": "2026-04-11",
       "teamA": "Punjab Kings",
       "teamB": "Sunrisers Hyderabad",
-      "matchNumber": 17
+      "matchNumber": 17,
+      "ended": true
     },
     "2434": {
       "matchDate": "2026-04-11",
       "teamA": "Chennai Super Kings",
       "teamB": "Delhi Capitals",
-      "matchNumber": 18
+      "matchNumber": 18,
+      "ended": true
     },
     "2435": {
       "matchDate": "2026-04-12",
       "teamA": "Lucknow Super Giants",
       "teamB": "Gujarat Titans",
-      "matchNumber": 19
+      "matchNumber": 19,
+      "ended": true
     },
     "2436": {
       "matchDate": "2026-04-12",
       "teamA": "Mumbai Indians",
       "teamB": "Royal Challengers Bengaluru",
-      "matchNumber": 20
+      "matchNumber": 20,
+      "ended": true
     },
     "2461": {
       "matchDate": "2026-04-13",
       "teamA": "Sunrisers Hyderabad",
       "teamB": "Rajasthan Royals",
-      "matchNumber": 21
+      "matchNumber": 21,
+      "ended": true
     },
     "2462": {
       "matchDate": "2026-04-14",
       "teamA": "Chennai Super Kings",
       "teamB": "Kolkata Knight Riders",
-      "matchNumber": 22
+      "matchNumber": 22,
+      "ended": true
     },
     "2463": {
       "matchDate": "2026-04-15",
       "teamA": "Royal Challengers Bengaluru",
       "teamB": "Lucknow Super Giants",
-      "matchNumber": 23
+      "matchNumber": 23,
+      "ended": true
     },
     "2464": {
       "matchDate": "2026-04-16",
       "teamA": "Mumbai Indians",
       "teamB": "Punjab Kings",
-      "matchNumber": 24
+      "matchNumber": 24,
+      "ended": true
     },
     "2465": {
       "matchDate": "2026-04-17",
       "teamA": "Gujarat Titans",
       "teamB": "Kolkata Knight Riders",
-      "matchNumber": 25
+      "matchNumber": 25,
+      "ended": true
     },
     "2466": {
       "matchDate": "2026-04-18",
       "teamA": "Royal Challengers Bengaluru",
       "teamB": "Delhi Capitals",
-      "matchNumber": 26
+      "matchNumber": 26,
+      "ended": true
     },
     "2467": {
       "matchDate": "2026-04-18",
       "teamA": "Sunrisers Hyderabad",
       "teamB": "Chennai Super Kings",
-      "matchNumber": 27
+      "matchNumber": 27,
+      "ended": true
     },
     "2468": {
       "matchDate": "2026-04-19",
       "teamA": "Kolkata Knight Riders",
       "teamB": "Rajasthan Royals",
-      "matchNumber": 28
+      "matchNumber": 28,
+      "ended": true
     },
     "2469": {
       "matchDate": "2026-04-19",
       "teamA": "Punjab Kings",
       "teamB": "Lucknow Super Giants",
-      "matchNumber": 29
+      "matchNumber": 29,
+      "ended": true
     },
     "2470": {
       "matchDate": "2026-04-20",
       "teamA": "Gujarat Titans",
       "teamB": "Mumbai Indians",
-      "matchNumber": 30
+      "matchNumber": 30,
+      "ended": true
     },
     "2471": {
       "matchDate": "2026-04-21",
       "teamA": "Sunrisers Hyderabad",
       "teamB": "Delhi Capitals",
-      "matchNumber": 31
+      "matchNumber": 31,
+      "ended": true
     },
     "2472": {
       "matchDate": "2026-04-22",
       "teamA": "Lucknow Super Giants",
       "teamB": "Rajasthan Royals",
-      "matchNumber": 32
+      "matchNumber": 32,
+      "ended": true
     },
     "2473": {
       "matchDate": "2026-04-23",
       "teamA": "Mumbai Indians",
       "teamB": "Chennai Super Kings",
-      "matchNumber": 33
+      "matchNumber": 33,
+      "ended": true
     },
     "2474": {
       "matchDate": "2026-04-24",
       "teamA": "Royal Challengers Bengaluru",
       "teamB": "Gujarat Titans",
-      "matchNumber": 34
+      "matchNumber": 34,
+      "ended": true
     },
     "2475": {
       "matchDate": "2026-04-25",
       "teamA": "Delhi Capitals",
       "teamB": "Punjab Kings",
-      "matchNumber": 35
+      "matchNumber": 35,
+      "ended": false
     },
     "2476": {
       "matchDate": "2026-04-25",
       "teamA": "Rajasthan Royals",
       "teamB": "Sunrisers Hyderabad",
-      "matchNumber": 36
+      "matchNumber": 36,
+      "ended": false
     },
     "2477": {
       "matchDate": "2026-04-26",
       "teamA": "Chennai Super Kings",
       "teamB": "Gujarat Titans",
-      "matchNumber": 37
+      "matchNumber": 37,
+      "ended": false
     },
     "2478": {
       "matchDate": "2026-04-26",
       "teamA": "Lucknow Super Giants",
       "teamB": "Kolkata Knight Riders",
-      "matchNumber": 38
+      "matchNumber": 38,
+      "ended": false
     },
     "2479": {
       "matchDate": "2026-04-27",
       "teamA": "Delhi Capitals",
       "teamB": "Royal Challengers Bengaluru",
-      "matchNumber": 39
+      "matchNumber": 39,
+      "ended": false
     },
     "2480": {
       "matchDate": "2026-04-28",
       "teamA": "Punjab Kings",
       "teamB": "Rajasthan Royals",
-      "matchNumber": 40
+      "matchNumber": 40,
+      "ended": false
     },
     "2481": {
       "matchDate": "2026-04-29",
       "teamA": "Mumbai Indians",
       "teamB": "Sunrisers Hyderabad",
-      "matchNumber": 41
+      "matchNumber": 41,
+      "ended": false
     },
     "2482": {
       "matchDate": "2026-04-30",
       "teamA": "Gujarat Titans",
       "teamB": "Royal Challengers Bengaluru",
-      "matchNumber": 42
+      "matchNumber": 42,
+      "ended": false
     },
     "2483": {
       "matchDate": "2026-05-01",
       "teamA": "Rajasthan Royals",
       "teamB": "Delhi Capitals",
-      "matchNumber": 43
+      "matchNumber": 43,
+      "ended": false
     },
     "2484": {
       "matchDate": "2026-05-02",
       "teamA": "Chennai Super Kings",
       "teamB": "Mumbai Indians",
-      "matchNumber": 44
+      "matchNumber": 44,
+      "ended": false
     },
     "2485": {
       "matchDate": "2026-05-03",
       "teamA": "Sunrisers Hyderabad",
       "teamB": "Kolkata Knight Riders",
-      "matchNumber": 45
+      "matchNumber": 45,
+      "ended": false
     },
     "2486": {
       "matchDate": "2026-05-03",
       "teamA": "Gujarat Titans",
       "teamB": "Punjab Kings",
-      "matchNumber": 46
+      "matchNumber": 46,
+      "ended": false
     },
     "2487": {
       "matchDate": "2026-05-04",
       "teamA": "Mumbai Indians",
       "teamB": "Lucknow Super Giants",
-      "matchNumber": 47
+      "matchNumber": 47,
+      "ended": false
     },
     "2488": {
       "matchDate": "2026-05-05",
       "teamA": "Delhi Capitals",
       "teamB": "Chennai Super Kings",
-      "matchNumber": 48
+      "matchNumber": 48,
+      "ended": false
     },
     "2489": {
       "matchDate": "2026-05-06",
       "teamA": "Sunrisers Hyderabad",
       "teamB": "Punjab Kings",
-      "matchNumber": 49
+      "matchNumber": 49,
+      "ended": false
     },
     "2490": {
       "matchDate": "2026-05-07",
       "teamA": "Lucknow Super Giants",
       "teamB": "Royal Challengers Bengaluru",
-      "matchNumber": 50
+      "matchNumber": 50,
+      "ended": false
     },
     "2491": {
       "matchDate": "2026-05-08",
       "teamA": "Delhi Capitals",
       "teamB": "Kolkata Knight Riders",
-      "matchNumber": 51
+      "matchNumber": 51,
+      "ended": false
     },
     "2492": {
       "matchDate": "2026-05-09",
       "teamA": "Rajasthan Royals",
       "teamB": "Gujarat Titans",
-      "matchNumber": 52
+      "matchNumber": 52,
+      "ended": false
     },
     "2493": {
       "matchDate": "2026-05-10",
       "teamA": "Chennai Super Kings",
       "teamB": "Lucknow Super Giants",
-      "matchNumber": 53
+      "matchNumber": 53,
+      "ended": false
     },
     "2494": {
       "matchDate": "2026-05-10",
       "teamA": "Royal Challengers Bengaluru",
       "teamB": "Mumbai Indians",
-      "matchNumber": 54
+      "matchNumber": 54,
+      "ended": false
     },
     "2495": {
       "matchDate": "2026-05-11",
       "teamA": "Punjab Kings",
       "teamB": "Delhi Capitals",
-      "matchNumber": 55
+      "matchNumber": 55,
+      "ended": false
     },
     "2496": {
       "matchDate": "2026-05-12",
       "teamA": "Gujarat Titans",
       "teamB": "Sunrisers Hyderabad",
-      "matchNumber": 56
+      "matchNumber": 56,
+      "ended": false
     },
     "2497": {
       "matchDate": "2026-05-13",
       "teamA": "Royal Challengers Bengaluru",
       "teamB": "Kolkata Knight Riders",
-      "matchNumber": 57
+      "matchNumber": 57,
+      "ended": false
     },
     "2498": {
       "matchDate": "2026-05-14",
       "teamA": "Punjab Kings",
       "teamB": "Mumbai Indians",
-      "matchNumber": 58
+      "matchNumber": 58,
+      "ended": false
     },
     "2499": {
       "matchDate": "2026-05-15",
       "teamA": "Lucknow Super Giants",
       "teamB": "Chennai Super Kings",
-      "matchNumber": 59
+      "matchNumber": 59,
+      "ended": false
     },
     "2500": {
       "matchDate": "2026-05-16",
       "teamA": "Kolkata Knight Riders",
       "teamB": "Gujarat Titans",
-      "matchNumber": 60
+      "matchNumber": 60,
+      "ended": false
     },
     "2501": {
       "matchDate": "2026-05-17",
       "teamA": "Punjab Kings",
       "teamB": "Royal Challengers Bengaluru",
-      "matchNumber": 61
+      "matchNumber": 61,
+      "ended": false
     },
     "2502": {
       "matchDate": "2026-05-17",
       "teamA": "Delhi Capitals",
       "teamB": "Rajasthan Royals",
-      "matchNumber": 62
+      "matchNumber": 62,
+      "ended": false
     },
     "2503": {
       "matchDate": "2026-05-18",
       "teamA": "Chennai Super Kings",
       "teamB": "Sunrisers Hyderabad",
-      "matchNumber": 63
+      "matchNumber": 63,
+      "ended": false
     },
     "2504": {
       "matchDate": "2026-05-19",
       "teamA": "Rajasthan Royals",
       "teamB": "Lucknow Super Giants",
-      "matchNumber": 64
+      "matchNumber": 64,
+      "ended": false
     },
     "2505": {
       "matchDate": "2026-05-20",
       "teamA": "Kolkata Knight Riders",
       "teamB": "Mumbai Indians",
-      "matchNumber": 65
+      "matchNumber": 65,
+      "ended": false
     },
     "2506": {
       "matchDate": "2026-05-21",
       "teamA": "Gujarat Titans",
       "teamB": "Chennai Super Kings",
-      "matchNumber": 66
+      "matchNumber": 66,
+      "ended": false
     },
     "2507": {
       "matchDate": "2026-05-22",
       "teamA": "Sunrisers Hyderabad",
       "teamB": "Royal Challengers Bengaluru",
-      "matchNumber": 67
+      "matchNumber": 67,
+      "ended": false
     },
     "2508": {
       "matchDate": "2026-05-23",
       "teamA": "Lucknow Super Giants",
       "teamB": "Punjab Kings",
-      "matchNumber": 68
+      "matchNumber": 68,
+      "ended": false
     },
     "2509": {
       "matchDate": "2026-05-24",
       "teamA": "Mumbai Indians",
       "teamB": "Rajasthan Royals",
-      "matchNumber": 69
+      "matchNumber": 69,
+      "ended": false
     },
     "2510": {
       "matchDate": "2026-05-24",
       "teamA": "Kolkata Knight Riders",
       "teamB": "Delhi Capitals",
-      "matchNumber": 70
+      "matchNumber": 70,
+      "ended": false
     }
   },
-  "lastUpdated": "2026-04-25T13:50:48.108Z",
+  "lastUpdated": "2026-04-25T14:07:05.736Z",
   "cricapiMatchIds": {
     "2428": "12b5d808-d9ab-468e-bd25-a2c347f64bdc",
     "2467": "c5bf2a95-1855-463d-accf-9c1db88418cd",

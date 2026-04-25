@@ -130,7 +130,7 @@ interface PointsCache {
   processedMatches: Record<string, ProcessedMatchData>; // S3: points (live/fallback) + innings
   supabaseScores: Record<string, SupabaseFixtureScore>; // fixtureId → official scores (override)
   playerIdMap: Record<string, string>; // supabase player_id → player name
-  matchMetadata: Record<string, { matchDate: string; teamA: string; teamB: string; matchNumber?: number }>; // iplId → meta
+  matchMetadata: Record<string, { matchDate: string; teamA: string; teamB: string; matchNumber?: number; ended?: boolean }>; // iplId → meta
   lastUpdated: string;
 }
 
@@ -603,10 +603,12 @@ async function linkSupabaseFixtures(cache: PointsCache): Promise<void> {
       const sm = sortedMatches[i];
       const iplId = String(sm.MatchID);
       const matchNumber = i + 1;
+      const ended = String(sm.MatchStatus || "").toLowerCase() === "post";
       if (!cache.matchMetadata[iplId]) {
-        cache.matchMetadata[iplId] = { matchDate: sm.GMTMatchDate || sm.MatchDate || "", teamA: sm.HomeTeamName || "", teamB: sm.AwayTeamName || "", matchNumber };
+        cache.matchMetadata[iplId] = { matchDate: sm.GMTMatchDate || sm.MatchDate || "", teamA: sm.HomeTeamName || "", teamB: sm.AwayTeamName || "", matchNumber, ended };
       } else {
         cache.matchMetadata[iplId].matchNumber = matchNumber;
+        cache.matchMetadata[iplId].ended = ended;
       }
     }
   } catch (_) {}
@@ -722,10 +724,14 @@ router.get("/ipl/points", async (req, res) => {
     // hasn't yet written linkedIplId (causing both sources to be counted):
     //   1. Already-linked via linkedIplId (set by background job)
     //   2. On-the-fly date+team matching against matchMetadata (covers the race window)
+    // Build a fixture-key → resolvedIplId map so downstream scored/shadow logic can
+    // treat unlinked-but-resolvable fixtures the same as fully-linked ones.
     const supabaseLinkedIds = new Set<string>();
-    for (const fixtureData of Object.values(pointsCache.supabaseScores || {})) {
+    const fixtureToResolvedIplId = new Map<string, string>();
+    for (const [fid, fixtureData] of Object.entries(pointsCache.supabaseScores || {})) {
       if (fixtureData.linkedIplId) {
         supabaseLinkedIds.add(fixtureData.linkedIplId);
+        fixtureToResolvedIplId.set(fid, fixtureData.linkedIplId);
         continue;
       }
       // Fallback: match by date + teams so we deduplicate even before linking is persisted
@@ -740,6 +746,7 @@ router.get("/ipl/points", async (req, res) => {
         const okBB = teamNamesMatch(sTeamB, meta.teamB);
         if ((okAA || okAB) && (okBA || okBB)) {
           supabaseLinkedIds.add(iplId);
+          fixtureToResolvedIplId.set(fid, iplId);
           break;
         }
       }
@@ -754,9 +761,37 @@ router.get("/ipl/points", async (req, res) => {
       playerMatchPoints[player].push({ matchNum, label, pts, source, stats });
     };
 
-    // 1. Official Supabase scores for completed matches
-    for (const fixtureData of Object.values(pointsCache.supabaseScores || {})
-        .sort((a, b) => a.matchNumber - b.matchNumber)) {
+    // Build set of iplIds where Supabase actually has scored points (not just linked).
+    // A Supabase-linked but unscored match (live match, scores not yet entered in
+    // AuctionRoom) should fall back to S3 live data so points show during the game.
+    // ALSO: if the match is currently live per the S3 schedule (ended === false),
+    // prefer S3 live data even when Supabase has partial scores entered, so users
+    // see fresh in-progress numbers rather than stale partial Supabase totals.
+    const supabaseScoredIds = new Set<string>();
+    const supabaseShadowedLiveIds = new Set<string>(); // live matches whose Supabase rows we skip
+    const shadowedFixtureIds = new Set<string>(); // fixture keys to skip in the official emission loop
+    for (const [fid, fixtureData] of Object.entries(pointsCache.supabaseScores || {})) {
+      const resolvedIplId = fixtureToResolvedIplId.get(fid);
+      if (!resolvedIplId) continue; // can't resolve to an iplId yet — keep legacy behavior
+      const hasScores = Object.values(fixtureData.points || {}).some(p => p !== 0);
+      if (!hasScores) continue;
+      const meta = (pointsCache.matchMetadata || {})[resolvedIplId];
+      // Treat ended === false as "still live" → defer to S3.
+      // If ended is undefined (e.g. schedule fetch hasn't run yet), keep old behavior
+      // (use Supabase) for safety.
+      if (meta && meta.ended === false) {
+        supabaseShadowedLiveIds.add(resolvedIplId);
+        shadowedFixtureIds.add(fid);
+        continue;
+      }
+      supabaseScoredIds.add(resolvedIplId);
+    }
+
+    // 1. Official Supabase scores for completed matches.
+    // Skip fixtures linked to a currently-live match — loop 2 will use fresh S3 data instead.
+    for (const [fid, fixtureData] of Object.entries(pointsCache.supabaseScores || {})
+        .sort((a, b) => a[1].matchNumber - b[1].matchNumber)) {
+      if (shadowedFixtureIds.has(fid)) continue;
       // Look up playerStats from the linked S3 processed match if available
       const linkedIplId = fixtureData.linkedIplId;
       const linkedMatchData = linkedIplId ? (pointsCache.processedMatches || {})[linkedIplId] : null;
@@ -764,16 +799,6 @@ router.get("/ipl/points", async (req, res) => {
         const stats = linkedMatchData?.playerStats?.[player];
         addMatchPoint(player, fixtureData.matchNumber, fixtureData.matchLabel, pts, "official", stats);
       }
-    }
-
-    // Build set of iplIds where Supabase actually has scored points (not just linked).
-    // A Supabase-linked but unscored match (live match, scores not yet entered in
-    // AuctionRoom) should fall back to S3 live data so points show during the game.
-    const supabaseScoredIds = new Set<string>();
-    for (const fixtureData of Object.values(pointsCache.supabaseScores || {})) {
-      if (!fixtureData.linkedIplId) continue;
-      const hasScores = Object.values(fixtureData.points || {}).some(p => p !== 0);
-      if (hasScores) supabaseScoredIds.add(fixtureData.linkedIplId);
     }
 
     // 2. S3 points for matches NOT yet scored by Supabase (includes live matches)
@@ -867,16 +892,19 @@ router.get("/ipl/points", async (req, res) => {
                 const m = sortedMatches[i];
                 const iplId = String(m.MatchID);
                 const matchNumber = i + 1; // position in schedule = match number
+                const ended = String(m.MatchStatus || "").toLowerCase() === "post";
                 if (!cache.matchMetadata[iplId]) {
                   cache.matchMetadata[iplId] = {
                     matchDate: m.GMTMatchDate || m.MatchDate || "",
                     teamA: m.HomeTeamName || "",
                     teamB: m.AwayTeamName || "",
                     matchNumber,
+                    ended,
                   };
                 } else {
-                  // Always keep matchNumber up to date
+                  // Always keep matchNumber and ended status up to date
                   cache.matchMetadata[iplId].matchNumber = matchNumber;
+                  cache.matchMetadata[iplId].ended = ended;
                 }
               }
 
@@ -1848,17 +1876,21 @@ router.post("/ipl/points/refresh-s3-live", async (req, res) => {
     const schedule = JSON.parse(stripJsonp(await schedRes.text()));
     const allMatches: any[] = schedule.Matchsummary || [];
 
-    // Populate matchMetadata for any newly seen matches
+    // Populate matchMetadata for any newly seen matches; refresh `ended` for all
     if (!pointsCache.matchMetadata) pointsCache.matchMetadata = {};
     for (const m of allMatches) {
       const iplId = String(m.MatchID);
+      const ended = String(m.MatchStatus || "").toLowerCase() === "post";
       if (!pointsCache.matchMetadata[iplId]) {
         pointsCache.matchMetadata[iplId] = {
           matchDate: (m.GMTMatchDate || m.MatchDate || "").slice(0, 10),
           teamA: m.HomeTeamName || "",
           teamB: m.AwayTeamName || "",
           matchNumber: m.MatchOrder ? Number(m.MatchOrder) : undefined,
+          ended,
         };
+      } else {
+        pointsCache.matchMetadata[iplId].ended = ended;
       }
     }
 
