@@ -23485,15 +23485,16 @@
     },
     "2476": {
       "points": {
-        "Vaibhav Suryavanshi": 78,
-        "Dhruv Jurel": 13,
+        "Vaibhav Suryavanshi": 100,
+        "Dhruv Jurel": 21,
         "Heinrich Klaasen": 12,
-        "Yashasvi Jaiswal": 22
+        "Yashasvi Jaiswal": 22,
+        "Sakib Hussain": 6
       },
       "innings": [
         {
           "name": "Rajasthan Royals Inning 1",
-          "total": "47/1 (3.3 ov)",
+          "total": "63/1 (5.1 ov)",
           "batting": [
             {
               "name": "Yashasvi Jaiswal",
@@ -23508,20 +23509,20 @@
             },
             {
               "name": "Vaibhav Sooryavanshi",
-              "runs": 32,
-              "balls": 8,
-              "fours": 0,
-              "sixes": 5,
-              "sr": "400.00",
+              "runs": 44,
+              "balls": 14,
+              "fours": 1,
+              "sixes": 6,
+              "sr": "314.29",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
             },
             {
               "name": "Dhruv Jurel",
-              "runs": 5,
-              "balls": 5,
-              "fours": 1,
+              "runs": 9,
+              "balls": 9,
+              "fours": 2,
               "sixes": 0,
               "sr": "100.00",
               "dismissal": "not out",
@@ -23631,25 +23632,36 @@
             },
             {
               "name": "Pat Cummins",
-              "overs": "1.3",
+              "overs": "2",
               "maidens": 0,
-              "runs": 16,
+              "runs": 20,
               "wickets": 0,
-              "eco": "10.67",
+              "eco": "10",
               "wides": 0,
               "noBalls": 0,
-              "dots": 4
+              "dots": 6
             },
             {
               "name": "Eshan Malinga",
-              "overs": "1",
+              "overs": "2",
               "maidens": 0,
-              "runs": 6,
+              "runs": 18,
               "wickets": 1,
-              "eco": "6",
+              "eco": "9",
               "wides": 0,
               "noBalls": 0,
-              "dots": 3
+              "dots": 6
+            },
+            {
+              "name": "Sakib Hussain",
+              "overs": "0.1",
+              "maidens": 0,
+              "runs": 0,
+              "wickets": 0,
+              "eco": "0",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 1
             }
           ]
         }
@@ -23657,10 +23669,10 @@
       "playerStats": {
         "Vaibhav Suryavanshi": {
           "played": true,
-          "runs": 32,
-          "balls": 8,
-          "fours": 0,
-          "sixes": 5,
+          "runs": 44,
+          "balls": 14,
+          "fours": 1,
+          "sixes": 6,
           "duck": false,
           "wickets": 0,
           "dots": 0,
@@ -23675,9 +23687,9 @@
         },
         "Dhruv Jurel": {
           "played": true,
-          "runs": 5,
-          "balls": 5,
-          "fours": 1,
+          "runs": 9,
+          "balls": 9,
+          "fours": 2,
           "sixes": 0,
           "duck": false,
           "wickets": 0,
@@ -23721,6 +23733,24 @@
           "lbwBowled": 0,
           "maidens": 0,
           "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Sakib Hussain": {
+          "played": true,
+          "runs": 0,
+          "balls": 0,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 1,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 1,
           "runsConceded": 0,
           "catches": 0,
           "runOuts": 0,

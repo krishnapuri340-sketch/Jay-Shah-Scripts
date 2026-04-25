@@ -1657,6 +1657,13 @@ const prevDismissals = new Map<string, Set<string>>();
 const prevMilestones = new Map<string, number>();
 // key: `${iplId}-${inningsIndex}-${bowlerName}` → highest wicket count already notified
 const prevBowlerWickets = new Map<string, number>();
+// Tracks which `${iplId}-${inningsIndex}` combos we've already seeded once.
+// On the FIRST poll of an innings (e.g. after a server restart mid-match, or
+// when a brand-new match becomes live), we seed the prev* state from the
+// current scorecard WITHOUT firing notifications. Otherwise every existing
+// dismissal/milestone/5-fer would re-fire as "new" — including spurious
+// "Duck!" notifications for any batter previously out for 0.
+const liveNotifBootstrapped = new Set<string>();
 
 // ── Health snapshot: read-only view of internal state for /api/health/detail ──
 export function getPointsHealthSnapshot() {
@@ -1707,25 +1714,42 @@ export async function refreshLiveMatches(liveIplIds: string[]): Promise<void> {
             const teamCode = TEAM_NAME_TO_CODE[teamName] || teamName;
             const logo = TEAM_LOGO_SERVER[teamCode];
 
+            // First time we see this (match × innings) combo we just SEED the
+            // tracking maps from the current scorecard — without firing any
+            // notifications. This prevents a "notification storm" of stale
+            // wickets/milestones/5-fers (including spurious "Duck!" notifs for
+            // batters previously out for 0) after a server restart, or when a
+            // brand-new live match is discovered already in progress.
+            const innKey = `${iplId}-${liveInnIdx}`;
+            const isFirstSightOfInnings = !liveNotifBootstrapped.has(innKey);
+
             // ── Wicket notifications ──────────────────────────────────────────
-            const dismissKey = `${iplId}-${liveInnIdx}`;
-            const prevSet = prevDismissals.get(dismissKey) || new Set<string>();
             const nowDismissed = liveInn.batting.filter(
               b => !b.notOut && !b.dnb && b.dismissal && b.dismissal.trim().length > 0
             );
-            const newFalls = nowDismissed.filter(b => !prevSet.has(b.name));
-            for (const b of newFalls) {
-              const totalDown = nowDismissed.length;
-              const lastName = b.name.split(" ").slice(-1)[0];
-              const { title, body } = wicketBanter(lastName, b.runs, b.balls, teamCode, totalDown, b.dismissal);
-              sendPushToAll({ title, body, tag: `wicket-${iplId}-${liveInnIdx}-${totalDown}`, url: "/", image: logo }).catch(() => {});
+            if (isFirstSightOfInnings) {
+              prevDismissals.set(innKey, new Set(nowDismissed.map(b => b.name)));
+            } else {
+              const prevSet = prevDismissals.get(innKey) || new Set<string>();
+              const newFalls = nowDismissed.filter(b => !prevSet.has(b.name));
+              for (const b of newFalls) {
+                const totalDown = nowDismissed.length;
+                const lastName = b.name.split(" ").slice(-1)[0];
+                const { title, body } = wicketBanter(lastName, b.runs, b.balls, teamCode, totalDown, b.dismissal);
+                sendPushToAll({ title, body, tag: `wicket-${iplId}-${liveInnIdx}-${totalDown}`, url: "/", image: logo }).catch(() => {});
+              }
+              prevDismissals.set(innKey, new Set(nowDismissed.map(b => b.name)));
             }
-            prevDismissals.set(dismissKey, new Set(nowDismissed.map(b => b.name)));
 
             // ── Milestone notifications (50s and 100s) ────────────────────────
             for (const b of liveInn.batting) {
               if (b.dnb || b.runs === undefined) continue;
               const milestoneKey = `${iplId}-${liveInnIdx}-${b.name}`;
+              if (isFirstSightOfInnings) {
+                if (b.runs >= 100) prevMilestones.set(milestoneKey, 100);
+                else if (b.runs >= 50) prevMilestones.set(milestoneKey, 50);
+                continue;
+              }
               const prevM = prevMilestones.get(milestoneKey) || 0;
               const lastName = b.name.split(" ").slice(-1)[0];
               if (b.runs >= 100 && prevM < 100) {
@@ -1743,6 +1767,10 @@ export async function refreshLiveMatches(liveIplIds: string[]): Promise<void> {
             for (const bwl of (liveInn.bowling || []) as any[]) {
               if ((bwl.wickets || 0) < 5) continue;
               const bowlerKey = `${iplId}-${liveInnIdx}-${bwl.name}`;
+              if (isFirstSightOfInnings) {
+                prevBowlerWickets.set(bowlerKey, bwl.wickets);
+                continue;
+              }
               const prevW = prevBowlerWickets.get(bowlerKey) || 0;
               if (bwl.wickets > prevW) {
                 prevBowlerWickets.set(bowlerKey, bwl.wickets);
@@ -1751,6 +1779,9 @@ export async function refreshLiveMatches(liveIplIds: string[]): Promise<void> {
                 sendPushToAll({ title, body, tag: `fifer-${iplId}-${liveInnIdx}-${bwl.name}`, url: "/", image: logo }).catch(() => {});
               }
             }
+
+            // Mark this innings as seeded — subsequent polls fire normally.
+            if (isFirstSightOfInnings) liveNotifBootstrapped.add(innKey);
           }
         }
       } catch (_) {}
