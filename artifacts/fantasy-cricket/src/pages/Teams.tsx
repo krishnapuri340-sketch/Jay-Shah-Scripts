@@ -345,9 +345,6 @@ export default function TeamsPage(props: TeamsPageProps) {
                               )}
                             </div>
                           )}
-                          {!s && entry.source === "official" && (
-                            <div style={{ fontSize: "0.58rem", color: "var(--text-3)", marginTop: 2 }}>Stats syncing...</div>
-                          )}
                         </div>
                       );
                     })}
