@@ -484,7 +484,7 @@ export default function AdminPage(p: AdminPageProps) {
 
           {/* Action buttons — consolidated */}
           <div className="admin-btn-row">
-            <button className="btn-primary btn-primary-blue" onClick={() => { fetchLive(); fetchPoints(); syncSupabase(); prefetchS3Scorecards(); refreshStatsCache(); refreshS3Live(); }} disabled={anySyncing}>
+            <button className="btn-primary btn-primary-blue" onClick={() => { fetchLive(); fetchPoints(); prefetchS3Scorecards(); refreshStatsCache(); refreshS3Live(); }} disabled={anySyncing}>
               {anySyncing ? <span className="spinner" /> : "🔄"} Sync All
             </button>
             <button className="btn-primary btn-primary-green" onClick={syncSupabase} disabled={supabaseSyncing}>
