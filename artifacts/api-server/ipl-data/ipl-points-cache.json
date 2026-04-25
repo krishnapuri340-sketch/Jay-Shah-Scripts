@@ -22738,7 +22738,7 @@
         "Marco Jansen": 14,
         "Arshdeep Singh": 34,
         "Prabhsimran Singh": 174,
-        "Nehal Wadhera": 17,
+        "Nehal Wadhera": 16,
         "Nitish Rana": 183,
         "Marcus Stoinis": 8,
         "KL Rahul": 298,
@@ -22968,7 +22968,7 @@
         },
         {
           "name": "Punjab Kings Inning 2",
-          "total": "183/3 (13.1 ov)",
+          "total": "185/3 (13.2 ov)",
           "batting": [
             {
               "name": "Priyansh Arya",
@@ -23016,8 +23016,8 @@
             },
             {
               "name": "Nehal Wadhera",
-              "runs": 9,
-              "balls": 9,
+              "runs": 10,
+              "balls": 10,
               "fours": 1,
               "sixes": 0,
               "sr": "100.00",
@@ -23139,12 +23139,12 @@
             },
             {
               "name": "T Natarajan",
-              "overs": "1.1",
+              "overs": "1.2",
               "maidens": 0,
-              "runs": 15,
+              "runs": 17,
               "wickets": 0,
-              "eco": "12.86",
-              "wides": 4,
+              "eco": "12.75",
+              "wides": 5,
               "noBalls": 0,
               "dots": 2
             },
@@ -23302,8 +23302,8 @@
         },
         "Nehal Wadhera": {
           "played": true,
-          "runs": 9,
-          "balls": 9,
+          "runs": 10,
+          "balls": 10,
           "fours": 1,
           "sixes": 0,
           "duck": false,
@@ -23401,8 +23401,8 @@
           "dots": 2,
           "lbwBowled": 0,
           "maidens": 0,
-          "ballsBowled": 7,
-          "runsConceded": 15,
+          "ballsBowled": 8,
+          "runsConceded": 17,
           "catches": 0,
           "runOuts": 0,
           "sharedRunOuts": 0,

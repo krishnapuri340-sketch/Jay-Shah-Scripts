@@ -592,10 +592,16 @@ export default function App() {
         headers: { ...authHeaders() },
       });
       const data = await res.json();
+      if (res.status === 429) {
+        setSupabaseSyncMsg("Rate limited — too many syncs this hour");
+        return;
+      }
       if (!res.ok) throw new Error(data.error || `Server error ${res.status}`);
-      const msg = data.changed
-        ? `Synced ✓ — ${data.fixturesAfter} fixtures loaded`
-        : "Already up to date";
+      const msg = data.skipped
+        ? `Rate limited — next sync available soon`
+        : data.changed
+          ? `Synced ✓ — ${data.fixturesAfter} fixtures loaded`
+          : "Already up to date";
       setSupabaseSyncMsg(msg);
       // Refresh points display after sync
       setTimeout(fetchPoints, 300);

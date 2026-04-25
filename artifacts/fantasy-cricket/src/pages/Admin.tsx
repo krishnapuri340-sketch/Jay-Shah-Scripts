@@ -383,8 +383,14 @@ export default function AdminPage(p: AdminPageProps) {
               {supabaseSyncMsg && (
                 <div className="admin-status-row">
                   <span className="admin-status-label">Last sync</span>
-                  <span style={{ color: supabaseSyncMsg.startsWith("Sync failed") ? "#f87171" : "#34d399" }}>
-                    {supabaseSyncMsg.startsWith("Sync failed") ? "⚠ Failed" : "✓ " + supabaseSyncMsg}
+                  <span style={{
+                    color: supabaseSyncMsg.startsWith("Sync failed") ? "#f87171"
+                      : supabaseSyncMsg.startsWith("Rate limited") ? "#f59e0b"
+                      : "#34d399"
+                  }}>
+                    {supabaseSyncMsg.startsWith("Sync failed") ? "⚠ Failed"
+                      : supabaseSyncMsg.startsWith("Rate limited") ? "⏳ " + supabaseSyncMsg
+                      : "✓ " + supabaseSyncMsg}
                   </span>
                 </div>
               )}
