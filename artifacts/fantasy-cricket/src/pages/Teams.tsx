@@ -306,11 +306,12 @@ export default function TeamsPage(props: TeamsPageProps) {
                       const computed = lines.reduce((a, l) => a + l.pts, 0);
                       const diff = s ? entry.pts - computed : 0;
 
+                      const hasLines = s && lines.length > 0;
                       return (
                         <div key={ei} style={{ marginBottom: ei < breakdown.length - 1 ? 6 : 0, paddingBottom: ei < breakdown.length - 1 ? 6 : 0, borderBottom: ei < breakdown.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none" }}>
-                          {/* Match row — tap to expand score lines */}
-                          <div onClick={s ? toggleEntry : undefined}
-                            style={{ display: "flex", alignItems: "center", gap: 6, cursor: s ? "pointer" : "default", WebkitTapHighlightColor: "transparent", padding: "2px 0" }}>
+                          {/* Match row — always tappable */}
+                          <div onClick={toggleEntry}
+                            style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", WebkitTapHighlightColor: "transparent", padding: "2px 0" }}>
                             <span style={{ fontSize: "0.5rem", fontWeight: 700, color: "var(--text-3)", background: "rgba(255,255,255,0.06)", borderRadius: 4, padding: "1px 4px", flexShrink: 0 }}>
                               {entry.matchNum < 900 ? `M${entry.matchNum}` : "LIVE"}
                             </span>
@@ -319,29 +320,37 @@ export default function TeamsPage(props: TeamsPageProps) {
                             <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.92rem", fontWeight: 700, color: entry.pts > 0 ? "var(--text)" : "var(--text-3)", minWidth: 26, textAlign: "right" as const }}>
                               {entry.pts}
                             </span>
-                            {s && (
-                              <svg width="8" height="5" viewBox="0 0 10 6" fill="none" style={{ flexShrink: 0, transition: "transform 0.18s", transform: isEntryOpen ? "rotate(180deg)" : "rotate(0deg)" }}>
-                                <path d="M1 1l4 4 4-4" stroke="var(--text-3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                              </svg>
-                            )}
+                            <svg width="8" height="5" viewBox="0 0 10 6" fill="none" style={{ flexShrink: 0, transition: "transform 0.18s", transform: isEntryOpen ? "rotate(180deg)" : "rotate(0deg)" }}>
+                              <path d="M1 1l4 4 4-4" stroke="var(--text-3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
                           </div>
 
                           {/* Score lines — shown only when expanded */}
-                          {isEntryOpen && s && lines.length > 0 && (
+                          {isEntryOpen && (
                             <div style={{ display: "grid", gridTemplateColumns: "1fr auto", rowGap: 1, columnGap: 10, padding: "6px 8px", background: "rgba(255,255,255,0.02)", borderRadius: 7, marginTop: 4 }}>
-                              {lines.map((line, li) => (
-                                <React.Fragment key={li}>
-                                  <span style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{line.label}</span>
-                                  <span style={{ fontSize: "0.6rem", fontWeight: 600, color: line.pts >= 0 ? line.color : "#ef4444", textAlign: "right" as const }}>
-                                    {line.pts > 0 ? "+" : ""}{line.pts}
+                              {hasLines ? (
+                                <>
+                                  {lines.map((line, li) => (
+                                    <React.Fragment key={li}>
+                                      <span style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{line.label}</span>
+                                      <span style={{ fontSize: "0.6rem", fontWeight: 600, color: line.pts >= 0 ? line.color : "#ef4444", textAlign: "right" as const }}>
+                                        {line.pts > 0 ? "+" : ""}{line.pts}
+                                      </span>
+                                    </React.Fragment>
+                                  ))}
+                                  {Math.abs(diff) > 0 && (
+                                    <React.Fragment>
+                                      <span style={{ fontSize: "0.6rem", color: "var(--text-3)", fontStyle: "italic" as const }}>other</span>
+                                      <span style={{ fontSize: "0.6rem", fontWeight: 600, color: diff >= 0 ? "#a78bfa" : "#ef4444", textAlign: "right" as const }}>{diff > 0 ? "+" : ""}{diff}</span>
+                                    </React.Fragment>
+                                  )}
+                                </>
+                              ) : (
+                                <>
+                                  <span style={{ fontSize: "0.6rem", color: "var(--text-3)", gridColumn: "1 / -1" }}>
+                                    {entry.source === "official" ? "AuctionRoom score · no stat breakdown available" : "No breakdown available"}
                                   </span>
-                                </React.Fragment>
-                              ))}
-                              {Math.abs(diff) > 0 && (
-                                <React.Fragment>
-                                  <span style={{ fontSize: "0.6rem", color: "var(--text-3)", fontStyle: "italic" as const }}>other</span>
-                                  <span style={{ fontSize: "0.6rem", fontWeight: 600, color: diff >= 0 ? "#a78bfa" : "#ef4444", textAlign: "right" as const }}>{diff > 0 ? "+" : ""}{diff}</span>
-                                </React.Fragment>
+                                </>
                               )}
                             </div>
                           )}
