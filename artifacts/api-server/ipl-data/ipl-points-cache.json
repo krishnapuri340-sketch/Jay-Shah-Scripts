@@ -22733,7 +22733,7 @@
       "points": {
         "Axar Patel": 42,
         "Yuzvendra Chahal": 8,
-        "Shreyas Iyer": 138,
+        "Shreyas Iyer": 153,
         "Priyansh Arya": 97,
         "Marco Jansen": 14,
         "Arshdeep Singh": 34,
@@ -22741,10 +22741,10 @@
         "Nehal Wadhera": 55,
         "Nitish Rana": 183,
         "Marcus Stoinis": 8,
-        "Shashank Singh": 14,
+        "Shashank Singh": 43,
         "KL Rahul": 298,
         "Kuldeep Yadav": 76,
-        "T Natarajan": 6,
+        "T Natarajan": 8,
         "Pathum Nissanka": 23,
         "Cooper Connolly": 35,
         "Sameer Rizvi": 12
@@ -22969,7 +22969,7 @@
         },
         {
           "name": "Punjab Kings Inning 2",
-          "total": "242/4 (17.0 ov)",
+          "total": "264/4 (18.5 ov)",
           "batting": [
             {
               "name": "Priyansh Arya",
@@ -23006,11 +23006,11 @@
             },
             {
               "name": "Shreyas Iyer",
-              "runs": 62,
-              "balls": 31,
+              "runs": 71,
+              "balls": 36,
               "fours": 3,
-              "sixes": 6,
-              "sr": "200.00",
+              "sixes": 7,
+              "sr": "197.22",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -23028,11 +23028,11 @@
             },
             {
               "name": "Shashank Singh",
-              "runs": 6,
-              "balls": 4,
-              "fours": 1,
-              "sixes": 0,
-              "sr": "150.00",
+              "runs": 19,
+              "balls": 10,
+              "fours": 2,
+              "sixes": 1,
+              "sr": "190.00",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -23118,14 +23118,14 @@
             },
             {
               "name": "Mukesh Kumar",
-              "overs": "2",
+              "overs": "3",
               "maidens": 0,
-              "runs": 45,
+              "runs": 55,
               "wickets": 0,
-              "eco": "22.5",
+              "eco": "18.33",
               "wides": 1,
               "noBalls": 0,
-              "dots": 0
+              "dots": 1
             },
             {
               "name": "Axar Patel",
@@ -23140,14 +23140,14 @@
             },
             {
               "name": "T Natarajan",
-              "overs": "3",
+              "overs": "3.5",
               "maidens": 0,
-              "runs": 41,
+              "runs": 53,
               "wickets": 0,
-              "eco": "13.67",
+              "eco": "13.83",
               "wides": 5,
               "noBalls": 0,
-              "dots": 4
+              "dots": 5
             },
             {
               "name": "Kuldeep Yadav",
@@ -23213,10 +23213,10 @@
         },
         "Shreyas Iyer": {
           "played": true,
-          "runs": 62,
-          "balls": 31,
+          "runs": 71,
+          "balls": 36,
           "fours": 3,
-          "sixes": 6,
+          "sixes": 7,
           "duck": false,
           "wickets": 0,
           "dots": 0,
@@ -23357,10 +23357,10 @@
         },
         "Shashank Singh": {
           "played": true,
-          "runs": 6,
-          "balls": 4,
-          "fours": 1,
-          "sixes": 0,
+          "runs": 19,
+          "balls": 10,
+          "fours": 2,
+          "sixes": 1,
           "duck": false,
           "wickets": 0,
           "dots": 0,
@@ -23417,11 +23417,11 @@
           "sixes": 0,
           "duck": false,
           "wickets": 0,
-          "dots": 4,
+          "dots": 5,
           "lbwBowled": 0,
           "maidens": 0,
-          "ballsBowled": 18,
-          "runsConceded": 41,
+          "ballsBowled": 23,
+          "runsConceded": 53,
           "catches": 0,
           "runOuts": 0,
           "sharedRunOuts": 0,
@@ -23485,49 +23485,51 @@
     },
     "2476": {
       "points": {
-        "Vaibhav Suryavanshi": 60,
-        "Yashasvi Jaiswal": 13
+        "Vaibhav Suryavanshi": 78,
+        "Dhruv Jurel": 13,
+        "Heinrich Klaasen": 12,
+        "Yashasvi Jaiswal": 22
       },
       "innings": [
         {
           "name": "Rajasthan Royals Inning 1",
-          "total": "29/0 (1.2 ov)",
+          "total": "47/1 (3.3 ov)",
           "batting": [
             {
               "name": "Yashasvi Jaiswal",
-              "runs": 5,
-              "balls": 3,
-              "fours": 1,
+              "runs": 10,
+              "balls": 8,
+              "fours": 2,
               "sixes": 0,
-              "sr": "166.67",
+              "sr": "125.00",
+              "dismissal": "c Heinrich Klaasen b Eshan Malinga",
+              "notOut": false,
+              "dnb": false
+            },
+            {
+              "name": "Vaibhav Sooryavanshi",
+              "runs": 32,
+              "balls": 8,
+              "fours": 0,
+              "sixes": 5,
+              "sr": "400.00",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
             },
             {
-              "name": "Vaibhav Sooryavanshi",
-              "runs": 24,
+              "name": "Dhruv Jurel",
+              "runs": 5,
               "balls": 5,
-              "fours": 0,
-              "sixes": 4,
-              "sr": "480.00",
+              "fours": 1,
+              "sixes": 0,
+              "sr": "100.00",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
             },
             {
               "name": "Riyan Parag",
-              "runs": 0,
-              "balls": 0,
-              "fours": 0,
-              "sixes": 0,
-              "sr": "-",
-              "dismissal": "",
-              "notOut": false,
-              "dnb": true
-            },
-            {
-              "name": "Dhruv Jurel",
               "runs": 0,
               "balls": 0,
               "fours": 0,
@@ -23629,14 +23631,25 @@
             },
             {
               "name": "Pat Cummins",
-              "overs": "0.2",
+              "overs": "1.3",
               "maidens": 0,
-              "runs": 4,
+              "runs": 16,
               "wickets": 0,
-              "eco": "12",
+              "eco": "10.67",
               "wides": 0,
               "noBalls": 0,
-              "dots": 1
+              "dots": 4
+            },
+            {
+              "name": "Eshan Malinga",
+              "overs": "1",
+              "maidens": 0,
+              "runs": 6,
+              "wickets": 1,
+              "eco": "6",
+              "wides": 0,
+              "noBalls": 0,
+              "dots": 3
             }
           ]
         }
@@ -23644,10 +23657,10 @@
       "playerStats": {
         "Vaibhav Suryavanshi": {
           "played": true,
-          "runs": 24,
-          "balls": 5,
+          "runs": 32,
+          "balls": 8,
           "fours": 0,
-          "sixes": 4,
+          "sixes": 5,
           "duck": false,
           "wickets": 0,
           "dots": 0,
@@ -23660,11 +23673,47 @@
           "sharedRunOuts": 0,
           "stumpings": 0
         },
-        "Yashasvi Jaiswal": {
+        "Dhruv Jurel": {
           "played": true,
           "runs": 5,
-          "balls": 3,
+          "balls": 5,
           "fours": 1,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 0,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Heinrich Klaasen": {
+          "played": true,
+          "runs": 0,
+          "balls": 0,
+          "fours": 0,
+          "sixes": 0,
+          "duck": false,
+          "wickets": 0,
+          "dots": 0,
+          "lbwBowled": 0,
+          "maidens": 0,
+          "ballsBowled": 0,
+          "runsConceded": 0,
+          "catches": 1,
+          "runOuts": 0,
+          "sharedRunOuts": 0,
+          "stumpings": 0
+        },
+        "Yashasvi Jaiswal": {
+          "played": true,
+          "runs": 10,
+          "balls": 8,
+          "fours": 2,
           "sixes": 0,
           "duck": false,
           "wickets": 0,
@@ -23942,21 +23991,21 @@
     },
     "4d7bd0d4-48ea-42d6-8cc1-c6eb4155a1f0": {
       "points": {
-        "Suryakumar Yadav": 32,
-        "Rohit Sharma": 162,
-        "Ryan Rickelton": 167,
         "Cameron Green": 38,
-        "Rinku Singh": 69,
-        "Sunil Narine": 44,
         "Varun Chakravarthy": 10,
-        "Tilak Varma": 58,
-        "Hardik Pandya": 84,
+        "Suryakumar Yadav": 32,
         "Sherfane Rutherford": 12,
-        "Naman Dhir": 13,
-        "Trent Boult": 18,
-        "Jasprit Bumrah": 12,
+        "Sunil Narine": 44,
         "Finn Allen": 89,
-        "Ajinkya Rahane": 125
+        "Ajinkya Rahane": 125,
+        "Ryan Rickelton": 167,
+        "Hardik Pandya": 84,
+        "Rinku Singh": 69,
+        "Jasprit Bumrah": 12,
+        "Tilak Varma": 58,
+        "Rohit Sharma": 162,
+        "Naman Dhir": 13,
+        "Trent Boult": 18
       },
       "matchLabel": "Mumbai Indians vs Kolkata Knight Riders",
       "matchDate": "2026-03-29",
@@ -24147,26 +24196,26 @@
     },
     "93873558-fc3d-4afd-a001-f942d6586710": {
       "points": {
+        "Sameer Rizvi": 12,
+        "Yuzvendra Chahal": 8,
+        "Arshdeep Singh": 34,
+        "Lungi Ngidi": 4,
+        "Kuldeep Yadav": 92,
+        "T Natarajan": 6,
         "Marco Jansen": 14,
         "Cooper Connolly": 35,
-        "Arshdeep Singh": 34,
-        "Yuzvendra Chahal": 8,
-        "Pathum Nissanka": 23,
-        "Prabhsimran Singh": 174,
-        "Axar Patel": 42,
-        "Shreyas Iyer": 129,
-        "Kuldeep Yadav": 92,
-        "Priyansh Arya": 97,
-        "Sameer Rizvi": 12,
         "Shashank Singh": 6,
+        "Marcus Stoinis": 8,
+        "Axar Patel": 42,
+        "KL Rahul": 298,
+        "Pathum Nissanka": 23,
         "Nitish Rana": 183,
         "Tristan Stubbs": 4,
+        "Prabhsimran Singh": 174,
+        "Priyansh Arya": 97,
+        "Shreyas Iyer": 129,
         "Vijaykumar Vyshak": 6,
-        "Marcus Stoinis": 8,
-        "T Natarajan": 6,
-        "Nehal Wadhera": 55,
-        "KL Rahul": 298,
-        "Lungi Ngidi": 4
+        "Nehal Wadhera": 55
       },
       "matchLabel": "Delhi Capitals vs Punjab Kings",
       "matchDate": "2026-04-25",
@@ -24482,8 +24531,8 @@
     },
     "a8b8cd2f-3bb0-4219-8ac7-29bec43330ae": {
       "points": {
-        "Vaibhav Suryavanshi": 60,
-        "Yashasvi Jaiswal": 5,
+        "Vaibhav Suryavanshi": 76,
+        "Yashasvi Jaiswal": 22,
         "Dhruv Jurel": 4,
         "Riyan Parag": 4,
         "Shimron Hetmyer": 4,
@@ -24491,7 +24540,7 @@
         "Jofra Archer": 4,
         "Abhishek Sharma": 4,
         "Ishan Kishan": 4,
-        "Heinrich Klaasen": 4,
+        "Heinrich Klaasen": 12,
         "Nitish Kumar Reddy": 4,
         "Sakib Hussain": 4
       },
@@ -24999,7 +25048,7 @@
       "teamA": "Delhi Capitals",
       "teamB": "Punjab Kings",
       "matchNumber": 35,
-      "ended": false
+      "ended": true
     },
     "2476": {
       "matchDate": "2026-04-25",
@@ -25247,7 +25296,7 @@
       "ended": false
     }
   },
-  "lastUpdated": "2026-04-25T14:07:05.736Z",
+  "lastUpdated": "2026-04-25T14:13:11.900Z",
   "cricapiMatchIds": {
     "2428": "12b5d808-d9ab-468e-bd25-a2c347f64bdc",
     "2467": "c5bf2a95-1855-463d-accf-9c1db88418cd",

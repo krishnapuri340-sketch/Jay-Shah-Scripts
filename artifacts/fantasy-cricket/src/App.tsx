@@ -906,6 +906,25 @@ export default function App() {
   }, [liveMatches]);
 
 
+  // Auto-prefetch scorecards for live matches so the innings table
+  // (batters/bowlers) is ready the moment the user expands a score row.
+  // Refreshes every 15s while at least one match is live. The set of live
+  // IDs is tracked via a ref so this effect doesn't reset every 5s when
+  // fetchLive refreshes liveMatches — only when the live-state changes.
+  const liveIdsRef = useRef<string[]>([]);
+  liveIdsRef.current = liveMatches
+    .filter((m: any) => m.matchStarted && !m.matchEnded)
+    .map((m: any) => String(m.id));
+  const hasLiveMatch = liveIdsRef.current.length > 0;
+  useEffect(() => {
+    if (!hasLiveMatch) return;
+    const refresh = () => { liveIdsRef.current.forEach(id => fetchScorecard(id, true)); };
+    refresh();
+    const t = setInterval(refresh, 15000);
+    return () => clearInterval(t);
+  }, [hasLiveMatch, fetchScorecard]);
+
+
   // Hot players: scored >= 25 pts in most recent match
   const hotPlayers = useMemo(() => new Set<string>(
     Object.entries(playerMatchPoints)
