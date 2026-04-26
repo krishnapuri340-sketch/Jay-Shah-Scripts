@@ -1099,7 +1099,9 @@ export default function App() {
         ctx.lineTo(W - PAD, ry + rowH - 4);
         ctx.stroke();
       }
-    });
+      });
+    } catch { /* user cancelled */ }
+  };
 
     // Bottom gold line
     ctx.fillStyle = goldGrad; ctx.fillRect(0, H - 3, W, 3);
