@@ -264,9 +264,9 @@ export default function HomePage(props: HomePageProps) {
             </div>
           );
         })()}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8, marginTop: countdown ? 16 : 0 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, marginTop: countdown ? 16 : 0 }}>
           <div className="sec-title" style={{ marginBottom: 0 }}>Leaderboard</div>
-          <div style={{ display: "flex", gap: 6 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <div style={{ display: "flex", background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 7, overflow: "hidden" }}>
               {(["season", "reauction"] as const).map(v => (
                 <button key={v} onClick={() => setLbView(v)}
@@ -281,15 +281,10 @@ export default function HomePage(props: HomePageProps) {
                 </button>
               ))}
             </div>
-          </div>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", marginBottom: 12 }}>
-          <div style={{ display: "flex", gap: 6 }}>
-            <button className="btn-primary" style={{ padding: "6px 10px", display: "flex", alignItems: "center", gap: 5 }} onClick={shareLeaderboard} title="Share leaderboard">
+            <button className="btn-icon" onClick={shareLeaderboard} title="Share leaderboard" aria-label="Share leaderboard">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>
               </svg>
-              <span style={{ fontSize: "0.68rem" }}>Share</span>
             </button>
           </div>
         </div>
