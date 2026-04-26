@@ -66,16 +66,7 @@ function ecoColor(eco: number): string {
 }
 
 const FantasyDot = () => (
-  <span style={{
-    display: "inline-block",
-    width: 5, height: 5,
-    borderRadius: "50%",
-    background: "#a07830",
-    opacity: 0.8,
-    marginLeft: 5,
-    verticalAlign: "middle",
-    flexShrink: 0,
-  }} />
+  <span className="fantasy-tag">F</span>
 );
 
 const tblStyle: React.CSSProperties = {
@@ -280,7 +271,8 @@ export default function InningsTable({ inning, isFantasy }: Props) {
                 {dnbPlayers.map((p, i) => (
                   <React.Fragment key={i}>
                     {i > 0 && <span style={{ color: "var(--border)", margin: "0 4px" }}>·</span>}
-                    <span style={{ color: isFt(p.name) ? "#a07830" : "var(--text-3)" }}>{p.name}</span>
+                    <span style={{ color: "var(--text-3)" }}>{p.name}</span>
+                    {isFt(p.name) && <span className="fantasy-tag">F</span>}
                   </React.Fragment>
                 ))}
               </span>

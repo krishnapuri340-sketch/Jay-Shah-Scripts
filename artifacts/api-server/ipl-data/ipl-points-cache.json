@@ -2303,6 +2303,52 @@
               "noBalls": 0,
               "dots": 9
             }
+          ],
+          "extras": {
+            "byes": 0,
+            "lb": 2,
+            "wides": 11,
+            "nb": 1,
+            "penalty": 0,
+            "total": 14
+          },
+          "fow": [
+            {
+              "player": "Sai Sudharsan",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Shubman Gill",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Glenn Phillips",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Jos Buttler",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Washington Sundar",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Shahrukh Khan",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            }
           ]
         },
         {
@@ -2508,6 +2554,58 @@
               "wides": 2,
               "noBalls": 0,
               "dots": 11
+            }
+          ],
+          "extras": {
+            "byes": 0,
+            "lb": 0,
+            "wides": 4,
+            "nb": 0,
+            "penalty": 0,
+            "total": 4
+          },
+          "fow": [
+            {
+              "player": "Priyansh Arya",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Prabhsimran Singh",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Shreyas Iyer",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Nehal Wadhera",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Shashank Singh",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Marcus Stoinis",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Marco Jansen",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
             }
           ]
         }
