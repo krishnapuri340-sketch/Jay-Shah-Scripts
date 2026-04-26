@@ -97,7 +97,6 @@ export default function InningsTable({ inning, isFantasy }: Props) {
   return (
     <div style={{
       borderRadius: 12,
-      border: "1px solid var(--border)",
       overflow: "hidden",
       background: "var(--surface)",
     }}>
