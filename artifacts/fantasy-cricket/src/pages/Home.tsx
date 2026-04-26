@@ -39,7 +39,7 @@ export default function HomePage(props: HomePageProps) {
     selectedAwardIdx, setSelectedAwardIdx, awardXiFilter, setAwardXiFilter,
   } = props;
   const { playerPoints, teamScores, matchHistory, playerMatchPoints } = usePoints();
-  const [lbView, setLbView] = React.useState<"season" | "reauction">("season");
+  const [lbView, setLbView] = React.useState<"season" | "reauction">("reauction");
 
   const raScores = React.useMemo(() => {
     return RA_TEAM_ORDER.map(tid => {
