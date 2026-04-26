@@ -277,7 +277,7 @@ export default function HomePage(props: HomePageProps) {
                     color: lbView === v ? "var(--text)" : "var(--text-3)",
                     letterSpacing: "0.04em",
                   }}>
-                  {v === "season" ? "Season" : "Re-Auction"}
+                  {v === "season" ? "Original" : "Re-Auction"}
                 </button>
               ))}
             </div>
