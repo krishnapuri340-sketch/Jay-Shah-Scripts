@@ -443,7 +443,7 @@ export default function HomePage(props: HomePageProps) {
         })()}
 
         {/* ─── Season Race ─── */}
-        {matchHistory.length > 0 && matchHistory[0].points.length >= 2 && (() => {
+        {lbView === "season" && matchHistory.length > 0 && matchHistory[0].points.length >= 2 && (() => {
           const allMatchNums = matchHistory[0].points.map((p: any) => p.matchNum);
           const n = allMatchNums.length;
 
