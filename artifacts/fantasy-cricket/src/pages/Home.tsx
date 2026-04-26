@@ -517,15 +517,6 @@ export default function HomePage(props: HomePageProps) {
             return { teamId, color: ft.color, points };
           });
 
-          // ─ RA per-match raw scores & best match (for awards) ─
-          const raRawScores: Record<string, number[]> = {};
-          const raBestMatch: Record<string, number> = {};
-          for (const t of raChartData) {
-            const raws = t.points.map((p: any, i: number) => i === 0 ? p.cum : p.cum - t.points[i - 1].cum);
-            raRawScores[t.teamId] = raws;
-            raBestMatch[t.teamId] = Math.max(...raws, 0);
-          }
-
           const originalChartData = chartXiFilter === "xi"
             ? matchHistory.map(t => {
                 const top11Set = getTeamData(t.teamId, playerPoints).top11;
@@ -609,47 +600,6 @@ export default function HomePage(props: HomePageProps) {
           };
           const teamAgg = buildTeamAgg(false);
           const activeAgg = awardXiFilter === "xi" ? buildTeamAgg(true) : teamAgg;
-
-          const buildRaTeamAgg = (xiOnly: boolean): Record<string, TeamAggEntry> => {
-            const agg: Record<string, TeamAggEntry> = {};
-            for (const [tid, raTeam] of Object.entries(RA_TEAMS)) {
-              const top11Set = xiOnly ? raTeamScore(tid, playerPoints, playerMatchPoints as any).top11 : null;
-              let runs = 0, balls = 0, sixes = 0, fours = 0, wickets = 0, catches = 0, ducks = 0, dots = 0, price = 0, captainPts = 0, vcPts = 0;
-              for (const player of raTeam.players) {
-                if (top11Set && !top11Set.has(player.name)) continue;
-                price += player.price ?? 0;
-                const allEntries: any[] = playerMatchPoints[player.name] || [];
-                const relevantEntries = player.isNew
-                  ? allEntries.filter(e => e.matchNum >= RA_FROM_MATCH)
-                  : allEntries;
-                const livePts = relevantEntries.reduce((s: number, e: any) => s + e.pts, 0);
-                const slotPts = player.isNew ? (player.frozenPts ?? 0) + livePts : livePts;
-                if (player.name === raTeam.captain) captainPts = slotPts;
-                if (player.name === raTeam.vc) vcPts = slotPts;
-                for (const e of relevantEntries) {
-                  if (!e.stats) continue;
-                  runs += e.stats.runs ?? 0;
-                  balls += e.stats.balls ?? 0;
-                  sixes += e.stats.sixes ?? 0;
-                  fours += e.stats.fours ?? 0;
-                  wickets += e.stats.wickets ?? 0;
-                  catches += (e.stats.catches ?? 0) + (e.stats.runOuts ?? 0) + (e.stats.stumpings ?? 0);
-                  dots += e.stats.dots ?? 0;
-                  if (e.stats.duck) ducks++;
-                }
-              }
-              agg[tid] = { runs, balls, sixes, fours, wickets, catches, ducks, dots, price, captainPts, vcPts };
-            }
-            return agg;
-          };
-          const raTeamAgg = buildRaTeamAgg(false);
-          const activeRaAgg = awardXiFilter === "xi" ? buildRaTeamAgg(true) : raTeamAgg;
-
-          const awardsAgg = lbView === "reauction" ? activeRaAgg : activeAgg;
-          const awardsBestMatch = lbView === "reauction" ? raBestMatch : bestMatch;
-          const awardsRawScores = lbView === "reauction" ? raRawScores : rawScores;
-          const awardsTeamScores = lbView === "reauction" ? raScores : teamScores;
-
           const topBy = (key: keyof (typeof teamAgg)[string], hi = true) =>
             Object.entries(teamAgg).sort((a, b) => hi ? (b[1][key] as number) - (a[1][key] as number) : (a[1][key] as number) - (b[1][key] as number))[0]?.[0];
           const sixesTeamId    = topBy("sixes");
@@ -676,57 +626,51 @@ export default function HomePage(props: HomePageProps) {
           const awardsV2: Array<{ emoji: string; label: string; rows: Array<{ teamId: string; value: number; display: string }> }> = [
             {
               emoji: "💥", label: "Best Single Match",
-              rows: tids.map(tid => ({ teamId: tid, value: awardsBestMatch[tid] ?? 0, display: `${awardsBestMatch[tid] ?? 0} pts` })).sort((a, b) => b.value - a.value),
+              rows: tids.map(tid => ({ teamId: tid, value: bestMatch[tid] ?? 0, display: `${bestMatch[tid] ?? 0} pts` })).sort((a, b) => b.value - a.value),
             },
             {
               emoji: "🏏", label: "Run Machine",
-              rows: tids.map(tid => ({ teamId: tid, value: awardsAgg[tid].runs, display: `${awardsAgg[tid].runs} runs` })).sort((a, b) => b.value - a.value),
+              rows: tids.map(tid => ({ teamId: tid, value: activeAgg[tid].runs, display: `${activeAgg[tid].runs} runs` })).sort((a, b) => b.value - a.value),
             },
             {
               emoji: "🎳", label: "Wicket Machine",
-              rows: tids.map(tid => ({ teamId: tid, value: awardsAgg[tid].wickets, display: `${awardsAgg[tid].wickets} wkts` })).sort((a, b) => b.value - a.value),
+              rows: tids.map(tid => ({ teamId: tid, value: activeAgg[tid].wickets, display: `${activeAgg[tid].wickets} wkts` })).sort((a, b) => b.value - a.value),
             },
             {
               emoji: "💣", label: "Six Appeal",
-              rows: tids.map(tid => ({ teamId: tid, value: awardsAgg[tid].sixes, display: `${awardsAgg[tid].sixes} sixes` })).sort((a, b) => b.value - a.value),
+              rows: tids.map(tid => ({ teamId: tid, value: activeAgg[tid].sixes, display: `${activeAgg[tid].sixes} sixes` })).sort((a, b) => b.value - a.value),
             },
             {
               emoji: "🔵", label: "Four Machine",
-              rows: tids.map(tid => ({ teamId: tid, value: awardsAgg[tid].fours, display: `${awardsAgg[tid].fours} fours` })).sort((a, b) => b.value - a.value),
+              rows: tids.map(tid => ({ teamId: tid, value: activeAgg[tid].fours, display: `${activeAgg[tid].fours} fours` })).sort((a, b) => b.value - a.value),
             },
             {
               emoji: "🤲", label: "Safe Hands",
-              rows: tids.map(tid => ({ teamId: tid, value: awardsAgg[tid].catches, display: `${awardsAgg[tid].catches} catches` })).sort((a, b) => b.value - a.value),
+              rows: tids.map(tid => ({ teamId: tid, value: activeAgg[tid].catches, display: `${activeAgg[tid].catches} catches` })).sort((a, b) => b.value - a.value),
             },
             {
               emoji: "👔", label: "Captain Clutch",
-              rows: tids.map(tid => {
-                const cap = lbView === "reauction" ? RA_TEAMS[tid]?.captain : FANTASY_TEAMS[tid]?.captain;
-                return { teamId: tid, value: awardsAgg[tid].captainPts, display: `${(cap ?? "").split(" ").slice(-1)[0]} · ${awardsAgg[tid].captainPts} pts` };
-              }).sort((a, b) => b.value - a.value),
+              rows: tids.map(tid => ({ teamId: tid, value: activeAgg[tid].captainPts, display: `${FANTASY_TEAMS[tid]?.captain.split(" ").slice(-1)[0]} · ${activeAgg[tid].captainPts} pts` })).sort((a, b) => b.value - a.value),
             },
             {
               emoji: "🥈", label: "VC Value",
-              rows: tids.map(tid => {
-                const vc = lbView === "reauction" ? RA_TEAMS[tid]?.vc : FANTASY_TEAMS[tid]?.vc;
-                return { teamId: tid, value: awardsAgg[tid].vcPts, display: `${(vc ?? "").split(" ").slice(-1)[0]} · ${awardsAgg[tid].vcPts} pts` };
-              }).sort((a, b) => b.value - a.value),
+              rows: tids.map(tid => ({ teamId: tid, value: activeAgg[tid].vcPts, display: `${FANTASY_TEAMS[tid]?.vc.split(" ").slice(-1)[0]} · ${activeAgg[tid].vcPts} pts` })).sort((a, b) => b.value - a.value),
             },
             {
               emoji: "🦆", label: "Duck Brigade",
-              rows: tids.map(tid => ({ teamId: tid, value: awardsAgg[tid].ducks, display: `${awardsAgg[tid].ducks} ducks` })).sort((a, b) => b.value - a.value),
+              rows: tids.map(tid => ({ teamId: tid, value: activeAgg[tid].ducks, display: `${activeAgg[tid].ducks} ducks` })).sort((a, b) => b.value - a.value),
             },
             {
               emoji: "💎", label: "Best Value",
-              rows: tids.map(tid => { const tot = awardsTeamScores.find((s: any) => s.id === tid)?.total ?? 0; const v = awardsAgg[tid].price > 0 ? tot / awardsAgg[tid].price : 0; return { teamId: tid, value: v, display: `${v.toFixed(1)} pts/cr` }; }).sort((a, b) => b.value - a.value),
+              rows: tids.map(tid => { const tot = teamScores.find(s => s.id === tid)?.total ?? 0; const v = activeAgg[tid].price > 0 ? tot / activeAgg[tid].price : 0; return { teamId: tid, value: v, display: `${v.toFixed(1)} pts/cr` }; }).sort((a, b) => b.value - a.value),
             },
             {
               emoji: "🟣", label: "Dot Ball Kings",
-              rows: tids.map(tid => ({ teamId: tid, value: awardsAgg[tid].dots, display: `${awardsAgg[tid].dots} dots` })).sort((a, b) => b.value - a.value),
+              rows: tids.map(tid => ({ teamId: tid, value: activeAgg[tid].dots, display: `${activeAgg[tid].dots} dots` })).sort((a, b) => b.value - a.value),
             },
             {
               emoji: "📊", label: "Most Consistent",
-              rows: tids.map(tid => { const sd = stdDev(awardsRawScores[tid] || []); return { teamId: tid, value: sd, display: `σ ${sd.toFixed(0)}` }; }).sort((a, b) => a.value - b.value),
+              rows: tids.map(tid => { const sd = stdDev(rawScores[tid] || []); return { teamId: tid, value: sd, display: `σ ${sd.toFixed(0)}` }; }).sort((a, b) => a.value - b.value),
             },
           ];
 
