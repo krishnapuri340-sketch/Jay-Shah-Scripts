@@ -5,7 +5,7 @@ import StatsPage from "./pages/Stats";
 import { FANTASY_TEAMS } from "./teams";
 import { getTeamData } from "./utils";
 import { IPL_COLORS, SWIPEABLE_TABS, TEAM_LOGO_CDN } from "./constants";
-import ReAuctionPage from "./pages/ReAuction";
+
 import FixturesPage from "./pages/Fixtures";
 import TeamsPage from "./pages/Teams";
 import HomePage from "./pages/Home";
@@ -235,7 +235,7 @@ const PULL_THRESHOLD = 72;
 const TABS = [
   { id: "home",     label: "Leaderboard" },
   { id: "teams",    label: "Teams"        },
-  { id: "whatif",   label: "Re-Auction"   },
+
   { id: "fixtures", label: "Matches"      },
   { id: "stats",    label: "Stats"        },
   { id: "history",  label: "History"      },
@@ -267,12 +267,7 @@ const NAV_ICON: Record<string, React.ReactElement> = {
       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
     </svg>
   ),
-  whatif: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r="0.5" fill="currentColor"/>
-      <circle cx="12" cy="12" r="10"/>
-    </svg>
-  ),
+
 };
 
 const buildMatchPreviews = (matches: any[]) =>
@@ -1459,7 +1454,6 @@ export default function App() {
     />
   );
 
-  const renderWhatIf = () => <ReAuctionPage />;
 
   const renderStats = () => (
     <StatsPage
@@ -1641,7 +1635,7 @@ export default function App() {
             {tab === "fixtures" && renderFixtures()}
             {tab === "stats"    && renderStats()}
             {tab === "history"  && renderHistory()}
-            {tab === "whatif"   && renderWhatIf()}
+
             {tab === "admin"    && renderAdmin()}
           </div>
         </div>

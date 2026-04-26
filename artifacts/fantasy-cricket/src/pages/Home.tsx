@@ -393,7 +393,7 @@ export default function HomePage(props: HomePageProps) {
                 const gap = i > 0 ? raLeader - s.total : 0;
                 return (
                   <div key={s.id} className={`lb-card ${i === 0 ? "rank-first" : ""}`}
-                    onClick={() => setTab("whatif")}
+                    onClick={() => setTab("teams")}
                   >
                     {/* Blurred team artwork background */}
                     <div style={{
