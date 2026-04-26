@@ -131,17 +131,16 @@ export default function TeamsPage(props: TeamsPageProps) {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 10 }}>
           <div className="sec-title" style={{ marginBottom: 0, flexShrink: 0 }}>Teams</div>
           {/* Original / Re-Auction toggle */}
-          <div style={{ display: "flex", gap: 4, flex: 1 }}>
+          <div style={{ display: "flex", background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 7, overflow: "hidden" }}>
             {(["original", "reauction"] as const).map(v => (
               <button key={v} onClick={() => setTeamsView(v)}
                 style={{
-                  flex: 1, padding: "5px 0", borderRadius: 16, cursor: "pointer",
-                  fontFamily: "inherit", fontSize: "0.62rem", fontWeight: 600,
-                  background: teamsView === v ? (v === "reauction" ? "rgba(212,168,67,0.18)" : "var(--surface-3)") : "var(--surface)",
-                  color: teamsView === v ? (v === "reauction" ? "#d4a843" : "var(--text)") : "var(--text-3)",
-                  border: `1px solid ${teamsView === v ? (v === "reauction" ? "rgba(212,168,67,0.35)" : "rgba(255,255,255,0.12)") : "var(--border)"}`,
+                  padding: "4px 9px", fontSize: "0.6rem", fontWeight: 700, border: "none", cursor: "pointer",
+                  fontFamily: "inherit",
+                  background: teamsView === v ? "rgba(255,255,255,0.12)" : "transparent",
+                  color: teamsView === v ? "var(--text)" : "var(--text-3)",
+                  letterSpacing: "0.04em",
                   WebkitTapHighlightColor: "transparent",
-                  transition: "all 0.18s ease",
                 }}>
                 {v === "original" ? "Original" : "Re-Auction"}
               </button>
