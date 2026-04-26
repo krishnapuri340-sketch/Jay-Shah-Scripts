@@ -67,7 +67,7 @@ export default function TeamsPage(props: TeamsPageProps) {
   const [expandedMatchNums, setExpandedMatchNums] = useState<Set<number>>(new Set());
   const [teamSection, setTeamSection] = useState<"xi" | "bench" | "matchpts">("xi");
   const [drillPlayer, setDrillPlayer] = useState<string | null>(null);
-  const [teamsView, setTeamsView] = useState<"original" | "reauction">("original");
+  const [teamsView, setTeamsView] = useState<"original" | "reauction">("reauction");
 
     const t = FANTASY_TEAMS[selectedTeam];
     const td = getTeamData(selectedTeam, playerPoints);
@@ -128,9 +128,26 @@ export default function TeamsPage(props: TeamsPageProps) {
 
     return (
       <div>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-          <div className="sec-title" style={{ marginBottom: 0 }}>Teams</div>
-          <button className="btn-primary" style={{ padding: "6px 10px", display: "flex", alignItems: "center", gap: 5 }} onClick={shareTeams} title="Share all teams">
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 10 }}>
+          <div className="sec-title" style={{ marginBottom: 0, flexShrink: 0 }}>Teams</div>
+          {/* Original / Re-Auction toggle */}
+          <div style={{ display: "flex", gap: 4, flex: 1 }}>
+            {(["original", "reauction"] as const).map(v => (
+              <button key={v} onClick={() => setTeamsView(v)}
+                style={{
+                  flex: 1, padding: "5px 0", borderRadius: 16, cursor: "pointer",
+                  fontFamily: "inherit", fontSize: "0.62rem", fontWeight: 600,
+                  background: teamsView === v ? (v === "reauction" ? "rgba(212,168,67,0.18)" : "var(--surface-3)") : "var(--surface)",
+                  color: teamsView === v ? (v === "reauction" ? "#d4a843" : "var(--text)") : "var(--text-3)",
+                  border: `1px solid ${teamsView === v ? (v === "reauction" ? "rgba(212,168,67,0.35)" : "rgba(255,255,255,0.12)") : "var(--border)"}`,
+                  WebkitTapHighlightColor: "transparent",
+                  transition: "all 0.18s ease",
+                }}>
+                {v === "original" ? "Original" : "Re-Auction"}
+              </button>
+            ))}
+          </div>
+          <button className="btn-primary" style={{ padding: "6px 10px", display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }} onClick={shareTeams} title="Share all teams">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>
             </svg>
@@ -163,24 +180,6 @@ export default function TeamsPage(props: TeamsPageProps) {
             );
           })}
         </div>
-        {/* Original / Re-Auction toggle */}
-        <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
-          {(["original", "reauction"] as const).map(v => (
-            <button key={v} onClick={() => setTeamsView(v)}
-              style={{
-                flex: 1, padding: "5px 0", borderRadius: 16, cursor: "pointer",
-                fontFamily: "inherit", fontSize: "0.65rem", fontWeight: 600,
-                background: teamsView === v ? (v === "reauction" ? "rgba(212,168,67,0.18)" : "var(--surface-3)") : "var(--surface)",
-                color: teamsView === v ? (v === "reauction" ? "#d4a843" : "var(--text)") : "var(--text-3)",
-                border: `1px solid ${teamsView === v ? (v === "reauction" ? "rgba(212,168,67,0.35)" : "rgba(255,255,255,0.12)") : "var(--border)"}`,
-                WebkitTapHighlightColor: "transparent",
-                transition: "all 0.18s ease",
-              }}>
-              {v === "original" ? "Original" : "Re-Auction"}
-            </button>
-          ))}
-        </div>
-
         <div className="team-header-card" style={{ "--team-color": t.color } as React.CSSProperties}>
           {/* Blurred team artwork background */}
           <div style={{
