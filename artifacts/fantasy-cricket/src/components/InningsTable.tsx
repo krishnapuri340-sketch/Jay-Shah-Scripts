@@ -246,9 +246,8 @@ export default function InningsTable({ inning, isFantasy }: Props) {
               <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 10px" }}>
                 {fow.map((f, i) => (
                   <span key={i} style={{ fontSize: "0.6rem", color: "var(--text-3)", fontVariantNumeric: "tabular-nums" }}>
-                    <span style={{ color: "var(--text-2)" }}>{f.runs}</span>
-                    {f.wicket > 0 && <span>-{f.wicket}</span>}
-                    {f.player && <span> ({f.player.split(" ").pop()}{f.overs ? `, ${f.overs}` : ""})</span>}
+                    <span style={{ color: "var(--text-2)" }}>{f.runs}/{f.wicket}</span>
+                    {f.player && <span> ({f.player.split(" ").pop()}{f.overs ? `, ${f.overs}ov` : ""})</span>}
                   </span>
                 ))}
               </div>
