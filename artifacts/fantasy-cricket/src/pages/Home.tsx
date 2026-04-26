@@ -800,47 +800,38 @@ export default function HomePage(props: HomePageProps) {
                 return (
                   <div style={{ marginTop: 22 }}>
                     {/* Section title + controls */}
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
                       <div className="sec-title" style={{ marginBottom: 0 }}>Awards</div>
-                      {/* All / Top XI toggle */}
-                      <div style={{ display: "flex", background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 7, overflow: "hidden" }}>
-                        {(["all", "xi"] as const).map(f => (
-                          <button key={f} onClick={() => setAwardXiFilter(f)}
-                            style={{
-                              padding: "4px 9px", fontSize: "0.6rem", fontWeight: 700, border: "none", cursor: "pointer",
-                              background: awardXiFilter === f ? "rgba(255,255,255,0.12)" : "transparent",
-                              color: awardXiFilter === f ? "var(--text)" : "var(--text-3)",
-                              letterSpacing: "0.04em",
-                            }}>
-                            {f === "all" ? "All" : "Top XI"}
-                          </button>
-                        ))}
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        {/* All / Top XI toggle */}
+                        <div style={{ display: "flex", background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 7, overflow: "hidden" }}>
+                          {(["all", "xi"] as const).map(f => (
+                            <button key={f} onClick={() => setAwardXiFilter(f)}
+                              style={{
+                                padding: "4px 9px", fontSize: "0.6rem", fontWeight: 700, border: "none", cursor: "pointer",
+                                background: awardXiFilter === f ? "rgba(255,255,255,0.12)" : "transparent",
+                                color: awardXiFilter === f ? "var(--text)" : "var(--text-3)",
+                                letterSpacing: "0.04em",
+                              }}>
+                              {f === "all" ? "All" : "Top XI"}
+                            </button>
+                          ))}
+                        </div>
+                        {/* Award picker */}
+                        <select
+                          value={safeIdx}
+                          onChange={e => setSelectedAwardIdx(Number(e.target.value))}
+                          style={{
+                            background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.10)",
+                            borderRadius: 8, color: "var(--text-2)", fontSize: "0.65rem", fontWeight: 600,
+                            padding: "5px 8px", cursor: "pointer", outline: "none", maxWidth: 140,
+                          }}
+                        >
+                          {awardsV2.map((a, i) => (
+                            <option key={a.label} value={i}>{a.label}</option>
+                          ))}
+                        </select>
                       </div>
-                    </div>
-                    {/* Award picker — horizontal scroll pill bar */}
-                    <div style={{
-                      display: "flex", gap: 6, overflowX: "auto", WebkitOverflowScrolling: "touch" as any,
-                      scrollbarWidth: "none" as any, flexWrap: "nowrap",
-                      marginLeft: -16, marginRight: -16, paddingLeft: 16, paddingRight: 16,
-                      paddingBottom: 2, marginBottom: 10,
-                    }}>
-                      {awardsV2.map((a, i) => {
-                        const active = i === safeIdx;
-                        return (
-                          <button key={a.label} onClick={() => setSelectedAwardIdx(i)}
-                            style={{
-                              flexShrink: 0, padding: "6px 13px", borderRadius: 20,
-                              border: `1px solid ${active ? "rgba(232,184,75,0.35)" : "var(--border)"}`,
-                              background: active ? "var(--gold-deep)" : "var(--surface-2)",
-                              color: active ? "var(--gold)" : "var(--text-3)",
-                              fontSize: "0.72rem", fontWeight: 600, cursor: "pointer",
-                              fontFamily: "inherit", whiteSpace: "nowrap" as const,
-                              transform: active ? "scale(1.02)" : "scale(1)",
-                              transition: "all 0.15s",
-                              WebkitTapHighlightColor: "transparent",
-                            }}>{a.label}</button>
-                        );
-                      })}
                     </div>
 
                     {/* Single award card */}

@@ -923,30 +923,6 @@ body { background: var(--bg); }
 .hist-cap-purple { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-2); }
 .hist-card-arrow { font-size: 1rem; color: var(--text-3); flex-shrink: 0; display: flex; align-items: center; padding: 0 10px; }
 
-/* Year filter bar */
-.hist-yr-grid {
-  display: flex; gap: 7px; margin-bottom: 18px;
-  overflow-x: auto; -webkit-overflow-scrolling: touch;
-  scrollbar-width: none; flex-wrap: nowrap;
-  padding-bottom: 2px; margin-left: -16px; margin-right: -16px;
-  padding-left: 16px; padding-right: 16px;
-}
-.hist-yr-grid::-webkit-scrollbar { display: none; }
-.hist-yr-btn {
-  flex-shrink: 0; padding: 7px 14px; border-radius: 20px;
-  border: 1px solid var(--border); background: var(--surface-2);
-  color: var(--text-3); font-size: 0.78rem; font-weight: 600; cursor: pointer;
-  transition: all 0.15s; font-family: 'Inter', sans-serif;
-  letter-spacing: 0; white-space: nowrap;
-  -webkit-tap-highlight-color: transparent;
-}
-.hist-yr-btn:active { opacity: 0.7; }
-.hist-yr-btn.active {
-  background: var(--gold-deep);
-  color: var(--gold); border-color: rgba(232,184,75,0.35);
-  transform: scale(1.02);
-}
-.hist-yr-btn.all-btn { display: block; }
 
 /* Back button */
 .hist-back-btn {

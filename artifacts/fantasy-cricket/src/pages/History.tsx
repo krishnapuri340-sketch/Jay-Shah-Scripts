@@ -44,21 +44,24 @@ export default function HistoryPage() {
         </div>
       )}
 
-      {/* Year filter grid */}
+      {/* Year filter */}
       {!s && (
-        <div className="hist-yr-grid" data-no-swipe="true">
-          <button
-            className={`hist-yr-btn all-btn${historyYear === null ? " active" : ""}`}
-            onClick={() => setHistoryYear(null)}
-          >All Seasons</button>
-          {IPL_HISTORY.map(h => (
-            <button
-              key={h.year}
-              className={`hist-yr-btn${historyYear === h.year ? " active" : ""}`}
-              style={historyYear === h.year ? { background: h.color + "22", borderColor: h.color, color: h.color } : {}}
-              onClick={() => setHistoryYear(h.year)}
-            >{h.year}</button>
-          ))}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+          <span style={{ fontSize: "0.7rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.06em", textTransform: "uppercase" }}>Season</span>
+          <select
+            value={historyYear ?? ""}
+            onChange={e => setHistoryYear(e.target.value ? Number(e.target.value) : null)}
+            style={{
+              background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.10)",
+              borderRadius: 8, color: "var(--text-2)", fontSize: "0.72rem", fontWeight: 600,
+              padding: "6px 10px", cursor: "pointer", outline: "none",
+            }}
+          >
+            <option value="">All Seasons</option>
+            {IPL_HISTORY.map(h => (
+              <option key={h.year} value={h.year}>{h.year}</option>
+            ))}
+          </select>
         </div>
       )}
 
