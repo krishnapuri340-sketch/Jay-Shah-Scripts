@@ -4,9 +4,9 @@
 ::selection { background: rgba(232,184,75,0.2); color: var(--text); }
 
 :root {
-  --bg:        #09090b;
-  --surface:   #111113;
-  --surface-2: #141417;
+  --bg:        #080808;
+  --surface:   #0d0d0d;
+  --surface-2: #111111;
   --surface-3: #1c1c21;
   --border:    rgba(255,255,255,0.06);
   --border-2:  rgba(255,255,255,0.10);
@@ -863,11 +863,11 @@ body { background: var(--bg); }
 }
 .inn-hdr:active { background: var(--surface); }
 .inn-body {
-  border: 1px solid var(--border);
-  border-top: none;
-  border-radius: 0 0 10px 10px;
-  padding-bottom: 6px;
-  background: var(--surface);
+  border: none;
+  border-radius: 12px;
+  padding-bottom: 0;
+  background: transparent;
+  margin-top: 6px;
 }
 
 /* === HISTORY TAB === */

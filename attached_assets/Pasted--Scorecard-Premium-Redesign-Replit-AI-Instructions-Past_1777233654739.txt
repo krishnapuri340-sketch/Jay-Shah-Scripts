@@ -1,0 +1,192 @@
+# Scorecard Premium Redesign — Replit AI Instructions
+
+Paste this entire message into Replit AI. It tells it exactly what to change and why.
+
+-----
+
+## What we’re doing
+
+Redesigning the scorecard / innings table to look more premium and editorial — true black palette, no neon, warm amber accents, cleaner typography.
+
+-----
+
+## Step 1 — Replace InningsTable.tsx
+
+Replace the entire contents of:
+`artifacts/fantasy-cricket/src/components/InningsTable.tsx`
+
+With the new file attached (InningsTable.tsx).
+
+Key changes:
+
+- Fantasy players now shown with a small amber dot instead of a green “F” badge
+- Top scorer row gets a warm amber tint background + amber name colour
+- Top wicket-taker row gets a soft violet tint + violet name colour
+- SR colour-coded: muted green (≥150), neutral (110–150), muted red (<110)
+- Economy colour-coded: muted green (≤7), neutral (7–10), muted red (>10)
+- “BATTING” / “BOWLING” section labels in small uppercase above each table
+- Tighter row padding, cleaner column widths
+- No external font dependency — uses existing Inter
+
+-----
+
+## Step 2 — Update the score row inside Fixtures.tsx
+
+In `artifacts/fantasy-cricket/src/pages/Fixtures.tsx`, find the score row block. It looks like this (around line 367–387):
+
+```tsx
+<div onClick={canExpand ? toggleRow : undefined} style={{
+  display: "flex", justifyContent: "space-between", alignItems: "center",
+  padding: "8px 10px",
+  marginTop: i === 0 ? 10 : 5,
+  borderRadius: 8,
+  borderLeft: `3px solid ${teamColorForScore}55`,
+  background: teamColorForScore + "0d",
+  cursor: canExpand ? "pointer" : "default", userSelect: "none" as const,
+}}>
+  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.04em", color: teamColorForScore }}>
+    {inningTeamCode || (s.inning || "").replace(" Innings", "").replace(" Inning", "")}
+  </span>
+  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+    <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.95rem", fontWeight: 700, letterSpacing: "0.02em", color: teamColorForScore }}>
+      {s.summary || (s.r != null ? `${s.r}/${s.w} (${s.o}ov)` : "")}
+    </span>
+    {canExpand && (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={teamColorForScore} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"
+        style={{ transition: "transform 0.22s ease", transform: isRowOpen ? "rotate(180deg)" : "none", flexShrink: 0, opacity: 0.7 }}>
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    )}
+  </div>
+</div>
+```
+
+Replace it with:
+
+```tsx
+<div onClick={canExpand ? toggleRow : undefined} style={{
+  display: "flex", justifyContent: "space-between", alignItems: "center",
+  padding: "9px 12px",
+  marginTop: i === 0 ? 10 : 6,
+  borderRadius: 10,
+  borderLeft: `2px solid ${teamColorForScore}40`,
+  background: "rgba(255,255,255,0.03)",
+  cursor: canExpand ? "pointer" : "default", userSelect: "none" as const,
+  transition: "background 0.15s",
+}}>
+  <div>
+    <span style={{
+      fontSize: "0.7rem", fontWeight: 600, letterSpacing: "0.08em",
+      textTransform: "uppercase", color: "var(--text-3)",
+    }}>
+      {inningTeamCode || (s.inning || "").replace(" Innings", "").replace(" Inning", "")}
+    </span>
+    <div style={{
+      fontSize: "1rem", fontWeight: 600, color: "var(--text)",
+      fontVariantNumeric: "tabular-nums", marginTop: 2, letterSpacing: "-0.01em",
+    }}>
+      {s.summary || (s.r != null ? `${s.r}/${s.w}` : "")}
+      {s.o != null && (
+        <span style={{ fontSize: "0.65rem", color: "var(--text-3)", fontWeight: 400, marginLeft: 6 }}>
+          {s.o} ov
+        </span>
+      )}
+    </div>
+  </div>
+  {canExpand && (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+      style={{ transition: "transform 0.22s ease", transform: isRowOpen ? "rotate(180deg)" : "none", flexShrink: 0 }}>
+      <polyline points="6 9 12 15 18 9"/>
+    </svg>
+  )}
+</div>
+```
+
+**What changed:**
+
+- Team code moved to a small uppercase label above the score (less shouting)
+- Score uses `var(--text)` not the team colour (calmer, more readable)
+- Left border reduced from 3px to 2px and much more transparent
+- Background is a flat near-transparent instead of team-colour tinted
+- Chevron is neutral `var(--text-3)` not team colour
+- Score broken into runs/wickets on its own line, overs as a small suffix
+
+-----
+
+## Step 3 — Update inn-body and inn-hdr CSS
+
+In `artifacts/fantasy-cricket/src/index.css`, find:
+
+```css
+/* Innings header / body */
+.inn-hdr {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  transition: background 0.15s ease;
+}
+.inn-hdr:active { background: var(--surface); }
+.inn-body {
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  padding-bottom: 6px;
+  background: var(--surface);
+}
+```
+
+Replace with:
+
+```css
+/* Innings header / body */
+.inn-hdr {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  transition: background 0.15s ease;
+}
+.inn-hdr:active { background: var(--surface); }
+.inn-body {
+  border: none;
+  border-radius: 12px;
+  padding-bottom: 0;
+  background: transparent;
+  margin-top: 6px;
+}
+```
+
+The InningsTable component now handles its own border/radius, so `inn-body` just needs to be a neutral wrapper.
+
+-----
+
+## Step 4 — Update CSS design tokens (optional but recommended)
+
+In `artifacts/fantasy-cricket/src/index.css`, find the `:root` block and update these three lines only — leave everything else alone:
+
+**Find:**
+
+```css
+--bg:        #09090b;
+--surface:   #111113;
+--surface-2: #18181b;
+```
+
+**Replace with:**
+
+```css
+--bg:        #080808;
+--surface:   #0d0d0d;
+--surface-2: #111111;
+```
+
+This makes the overall app cooler and blacker — matching the new scorecard palette.
+
+-----
+
+## Summary of files changed
+
+|File                                                       |Change                                |
+|-----------------------------------------------------------|--------------------------------------|
+|`artifacts/fantasy-cricket/src/components/InningsTable.tsx`|Full replacement                      |
+|`artifacts/fantasy-cricket/src/pages/Fixtures.tsx`         |Score row block only (~20 lines)      |
+|`artifacts/fantasy-cricket/src/index.css`                  |`inn-body` block + 3 `:root` variables|
+
+No new dependencies. No API changes. Purely visual.

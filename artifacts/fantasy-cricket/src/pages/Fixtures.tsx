@@ -355,27 +355,39 @@ export default function FixturesPage({
                         {/* Score row */}
                         <div onClick={canExpand ? toggleRow : undefined} style={{
                           display: "flex", justifyContent: "space-between", alignItems: "center",
-                          padding: "8px 10px",
-                          marginTop: i === 0 ? 10 : 5,
-                          borderRadius: 8,
-                          borderLeft: `3px solid ${teamColorForScore}55`,
-                          background: teamColorForScore + "0d",
+                          padding: "9px 12px",
+                          marginTop: i === 0 ? 10 : 6,
+                          borderRadius: 10,
+                          borderLeft: `2px solid ${teamColorForScore}40`,
+                          background: "rgba(255,255,255,0.03)",
                           cursor: canExpand ? "pointer" : "default", userSelect: "none" as const,
+                          transition: "background 0.15s",
                         }}>
-                          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.04em", color: teamColorForScore }}>
-                            {inningTeamCode || (s.inning || "").replace(" Innings", "").replace(" Inning", "")}
-                          </span>
-                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.95rem", fontWeight: 700, letterSpacing: "0.02em", color: teamColorForScore }}>
-                              {s.summary || (s.r != null ? `${s.r}/${s.w} (${s.o}ov)` : "")}
+                          <div>
+                            <span style={{
+                              fontSize: "0.7rem", fontWeight: 600, letterSpacing: "0.08em",
+                              textTransform: "uppercase", color: "var(--text-3)",
+                            }}>
+                              {inningTeamCode || (s.inning || "").replace(" Innings", "").replace(" Inning", "")}
                             </span>
-                            {canExpand && (
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={teamColorForScore} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"
-                                style={{ transition: "transform 0.22s ease", transform: isRowOpen ? "rotate(180deg)" : "none", flexShrink: 0, opacity: 0.7 }}>
-                                <polyline points="6 9 12 15 18 9"/>
-                              </svg>
-                            )}
+                            <div style={{
+                              fontSize: "1rem", fontWeight: 600, color: "var(--text)",
+                              fontVariantNumeric: "tabular-nums", marginTop: 2, letterSpacing: "-0.01em",
+                            }}>
+                              {s.summary || (s.r != null ? `${s.r}/${s.w}` : "")}
+                              {s.o != null && (
+                                <span style={{ fontSize: "0.65rem", color: "var(--text-3)", fontWeight: 400, marginLeft: 6 }}>
+                                  {s.o} ov
+                                </span>
+                              )}
+                            </div>
                           </div>
+                          {canExpand && (
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                              style={{ transition: "transform 0.22s ease", transform: isRowOpen ? "rotate(180deg)" : "none", flexShrink: 0 }}>
+                              <polyline points="6 9 12 15 18 9"/>
+                            </svg>
+                          )}
                         </div>
                         {/* Inline innings expansion */}
                         {isRowOpen && (
