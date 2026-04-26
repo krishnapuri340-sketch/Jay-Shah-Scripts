@@ -6,7 +6,7 @@ import {
   getMatchNum, getMatchWinner, getTeamData, rankLabel, applyMultiplier,
 } from "../utils";
 import { usePoints } from "../context/PointsContext";
-import { raTeamScore, RA_TEAM_ORDER } from "../reauction-data";
+import { raTeamScore, RA_TEAM_ORDER, RA_TEAMS, RA_FROM_MATCH } from "../reauction-data";
 
 interface HomePageProps {
   countdown: { text: string; matchName: string; venue?: string; homeTeam?: string; awayTeam?: string } | null;
@@ -483,10 +483,46 @@ export default function HomePage(props: HomePageProps) {
           }
           const banter = pool.length > 0 ? pool[Math.floor(Date.now() / 60000) % pool.length] : "";
 
+          // Re-auction chart data
+          const raChartData = RA_TEAM_ORDER.map(teamId => {
+            const raTeam = RA_TEAMS[teamId];
+            const ft = FANTASY_TEAMS[teamId];
+            let cum = 0;
+            const points = allMatchNums.map((matchNum: number) => {
+              let pts = 0;
+              for (const player of raTeam.players) {
+                const isCap = player.name === raTeam.captain;
+                const isVC = player.name === raTeam.vc;
+                const mult = isCap ? 2 : isVC ? 1.5 : 1;
+                if (player.isNew) {
+                  if (matchNum === RA_FROM_MATCH) {
+                    pts += (player.frozenPts ?? 0) * mult;
+                  }
+                  if (matchNum >= RA_FROM_MATCH) {
+                    const entry = (playerMatchPoints[player.name] || []).find((e: any) => e.matchNum === matchNum);
+                    if (entry) pts += entry.pts * mult;
+                  }
+                } else {
+                  const entry = (playerMatchPoints[player.name] || []).find((e: any) => e.matchNum === matchNum);
+                  if (entry) pts += entry.pts * mult;
+                }
+              }
+              cum += pts;
+              return { matchNum, label: `M${matchNum}`, cum };
+            });
+            return { teamId, color: ft.color, points };
+          });
+
+          const activeChartData = lbView === "reauction" ? raChartData : matchHistory;
+
+          const sortedByFinal = [...activeChartData].sort((a, b) =>
+            (b.points[b.points.length - 1]?.cum ?? 0) - (a.points[a.points.length - 1]?.cum ?? 0)
+          );
+
           // Chart dimensions
           const W = 320, H = 148, PL = 14, PR = 54, PT = 14, PB = 20;
           const CW = W - PL - PR, CH = H - PT - PB;
-          const maxCum = Math.max(...matchHistory.flatMap(t => t.points.map((p: any) => p.cum)), 1);
+          const maxCum = Math.max(...activeChartData.flatMap(t => t.points.map((p: any) => p.cum)), 1);
           const xOf = (i: number) => PL + (n <= 1 ? CW / 2 : (i / (n - 1)) * CW);
           const yOf = (v: number) => PT + CH - (v / maxCum) * CH;
           const bottom = PT + CH;
@@ -508,29 +544,6 @@ export default function HomePage(props: HomePageProps) {
             }
             return d;
           };
-
-          const chartMatchHistory = chartXiFilter === "xi"
-            ? matchHistory.map(t => {
-                const top11Set = getTeamData(t.teamId, playerPoints).top11;
-                const team = FANTASY_TEAMS[t.teamId];
-                let cum = 0;
-                const points = matchHistory[0].points.map(({ matchNum }: any) => {
-                  let pts = 0;
-                  for (const player of team.players) {
-                    if (!top11Set.has(player.name)) continue;
-                    const entry = (playerMatchPoints[player.name] || []).find((e: any) => e.matchNum === matchNum);
-                    if (entry) pts += applyMultiplier(entry.pts, player.name === team.captain, player.name === team.vc);
-                  }
-                  cum += pts;
-                  return { matchNum, label: `M${matchNum}`, cum };
-                });
-                return { ...t, points };
-              })
-            : matchHistory;
-
-          const sortedByFinal = [...chartMatchHistory].sort((a, b) =>
-            (b.points[b.points.length - 1]?.cum ?? 0) - (a.points[a.points.length - 1]?.cum ?? 0)
-          );
 
           // ─ Per-team aggregated batting/bowling/fielding stats ─
           type TeamAggEntry = { runs: number; balls: number; sixes: number; fours: number; wickets: number; catches: number; ducks: number; dots: number; price: number; captainPts: number; vcPts: number };
@@ -641,21 +654,7 @@ export default function HomePage(props: HomePageProps) {
           return (
             <div style={{ marginTop: 22 }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                <div className="sec-title" style={{ marginBottom: 0 }}>Season Race</div>
-                <div style={{ display: "flex", background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 7, overflow: "hidden" }}>
-                  {(["all", "xi"] as const).map(f => (
-                    <button key={f} onClick={() => setChartXiFilter(f)}
-                      style={{
-                        padding: "4px 9px", fontSize: "0.6rem", fontWeight: 700, border: "none", cursor: "pointer",
-                        fontFamily: "inherit",
-                        background: chartXiFilter === f ? "rgba(255,255,255,0.12)" : "transparent",
-                        color: chartXiFilter === f ? "var(--text)" : "var(--text-3)",
-                        letterSpacing: "0.04em",
-                      }}>
-                      {f === "all" ? "All" : "Top XI"}
-                    </button>
-                  ))}
-                </div>
+                <div className="sec-title" style={{ marginBottom: 0 }}>{lbView === "reauction" ? "Re-Auction Race" : "Season Race"}</div>
               </div>
 
               {/* Line chart */}
@@ -796,7 +795,7 @@ export default function HomePage(props: HomePageProps) {
                         {sortedByFinal.map(team => {
                           const pts = team.points.map((p: any, i: number) => ({ x: xOf(i), y: yOf(p.cum) }));
                           if (pts.length < 2) return null;
-                          const isLeader = team.teamId === leader.id;
+                          const isLeader = team.teamId === sortedByFinal[0].teamId;
                           const linePath = smoothPath(pts);
                           const lastPt = pts[pts.length - 1];
                           return (
@@ -842,7 +841,7 @@ export default function HomePage(props: HomePageProps) {
                           const lx = xOf(lastI) + 6;
                           const ly = labelMap[team.teamId] ?? yOf(lastPt.cum);
                           const ft = FANTASY_TEAMS[team.teamId];
-                          const isLeader = team.teamId === leader.id;
+                          const isLeader = team.teamId === sortedByFinal[0].teamId;
                           return (
                             <g key={team.teamId + "-lbl"} opacity={chartHover !== null ? 0.25 : 1}>
                               <circle cx={lx + AVT_R} cy={ly} r={AVT_R + 2} fill={team.color} opacity={0.22} />
