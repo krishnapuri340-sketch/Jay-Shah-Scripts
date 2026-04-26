@@ -604,6 +604,14 @@ export default function TeamsPage(props: TeamsPageProps) {
                 {teamSection === "xi" && (
                   <div className="players-grid" style={{ borderTop: `2px solid ${t.color}70`, borderRadius: "var(--radius-md)", boxShadow: `0 -3px 14px ${t.color}33` }}>
                     {xi.map(p => renderPlayer(p, false))}
+                    {bench.length > 0 && (
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "6px 0 2px" }}>
+                        <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.06)" }} />
+                        <span style={{ fontSize: "0.48rem", fontWeight: 700, letterSpacing: "0.12em", color: "var(--text-3)", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "2px 9px" }}>BENCH</span>
+                        <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.06)" }} />
+                      </div>
+                    )}
+                    {bench.map(p => renderPlayer(p, true))}
                   </div>
                 )}
 

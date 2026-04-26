@@ -483,8 +483,8 @@ body { background: var(--bg); }
 }
 .player-card:last-child { border-bottom: none; }
 .player-card:active { background: var(--surface-3); }
-.player-card.benched { opacity: 0.38; }
-.player-card.benched:hover { opacity: 0.58; }
+.player-card.benched { opacity: 0.55; }
+.player-card.benched:hover { opacity: 0.72; }
 .player-card.benched.playing-next { opacity: 1 !important; }
 .player-card.live-now { opacity: 1 !important; }
 .player-card.player-expanded { border-bottom: 1px solid var(--border); }
