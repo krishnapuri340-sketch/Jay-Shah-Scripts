@@ -520,6 +520,12 @@ export default function App() {
     }).catch(() => {});
   }, [pushSupported, currentUser]);
 
+  useEffect(() => {
+    const local = loadLocalPreds();
+    if (Object.keys(local).length > 0) setPredictions(local);
+    fetchPredictions();
+  }, [currentUser]);
+
   const subscribePush = async () => {
     if (!pushSupported || pushSubscribing) return;
     setPushSubscribing(true);

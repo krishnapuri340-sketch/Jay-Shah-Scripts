@@ -23755,7 +23755,7 @@
     "2478": {
       "points": {
         "Cameron Green": 110,
-        "Nicholas Pooran": 6,
+        "Nicholas Pooran": 7,
         "Mohammed Shami": 20,
         "Varun Chakravarthy": 14,
         "Aiden Markram": 77,
@@ -23765,7 +23765,7 @@
         "Tim Seifert": 10,
         "Sunil Narine": 50,
         "Mitchell Marsh": 14,
-        "Ayush Badoni": 13
+        "Ayush Badoni": 14
       },
       "innings": [
         {
@@ -23976,7 +23976,7 @@
         },
         {
           "name": "Lucknow Super Giants Inning 2",
-          "total": "79/3 (12.4 ov)",
+          "total": "81/3 (13.0 ov)",
           "batting": [
             {
               "name": "Aiden Markram",
@@ -24013,22 +24013,22 @@
             },
             {
               "name": "Nicholas Pooran",
-              "runs": 2,
-              "balls": 6,
+              "runs": 3,
+              "balls": 7,
               "fours": 0,
               "sixes": 0,
-              "sr": "33.33",
+              "sr": "42.86",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
             },
             {
               "name": "Ayush Badoni",
-              "runs": 1,
-              "balls": 2,
+              "runs": 2,
+              "balls": 3,
               "fours": 0,
               "sixes": 0,
-              "sr": "50.00",
+              "sr": "66.67",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -24147,11 +24147,11 @@
             },
             {
               "name": "Sunil Narine",
-              "overs": "2.4",
+              "overs": "3",
               "maidens": 0,
-              "runs": 18,
+              "runs": 20,
               "wickets": 1,
-              "eco": "6.75",
+              "eco": "6.67",
               "wides": 0,
               "noBalls": 0,
               "dots": 4
@@ -24202,8 +24202,8 @@
         },
         "Nicholas Pooran": {
           "played": true,
-          "runs": 2,
-          "balls": 6,
+          "runs": 3,
+          "balls": 7,
           "fours": 0,
           "sixes": 0,
           "duck": false,
@@ -24355,8 +24355,8 @@
           "dots": 4,
           "lbwBowled": 0,
           "maidens": 0,
-          "ballsBowled": 16,
-          "runsConceded": 18,
+          "ballsBowled": 18,
+          "runsConceded": 20,
           "catches": 0,
           "runOuts": 0,
           "sharedRunOuts": 0,
@@ -24382,8 +24382,8 @@
         },
         "Ayush Badoni": {
           "played": true,
-          "runs": 1,
-          "balls": 2,
+          "runs": 2,
+          "balls": 3,
           "fours": 0,
           "sixes": 0,
           "duck": false,
