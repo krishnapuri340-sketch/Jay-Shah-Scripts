@@ -1,11 +1,13 @@
 import { Router, type IRouter } from "express";
 import { randomInt } from "crypto";
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
+import { readFileSync, existsSync, mkdirSync } from "fs";
 import { join } from "path";
 import { fileURLToPath } from "url";
 import { fetchMatchOverview, refreshLiveMatches, getPointsHealthSnapshot, getMatchTeamPoints } from "./ipl-points";
 import { sendPushToAll } from "./push";
 import { createSession, getSessionUser, requireSession, requireCommissioner } from "../lib/sessions";
+import { db, predictions, userPins } from "@workspace/db";
+import bcrypt from "bcryptjs";
 
 const TEAM_LOGO: Record<string, string> = {
   CSK:  "https://upload.wikimedia.org/wikipedia/en/thumb/2/2b/Chennai_Super_Kings_Logo.svg/330px-Chennai_Super_Kings_Logo.svg.png",
@@ -81,8 +83,6 @@ function pointsBody(sorted: [string, number][]): string {
 
 // ── Shared data stores ────────────────────────────────────────────────────────
 // Anchor data directory to the bundle file location (dist/index.mjs).
-// import.meta.url is preserved by esbuild and resolves to the actual output file,
-// so this works correctly regardless of the process working directory (dev or prod).
 const _bundleDir2 = fileURLToPath(new URL(".", import.meta.url));
 const _dataDir = (() => {
   const dir = join(_bundleDir2, "../ipl-data");
@@ -90,16 +90,9 @@ const _dataDir = (() => {
   return dir;
 })();
 
-const PRED_FILE = join(_dataDir, "ipl-predictions.json");
+// ── Predictions — PostgreSQL-backed, in-memory broadcast cache ────────────────
 type PredStore = Record<string, Record<string, string | null>>;
-function loadPreds(): PredStore {
-  try { if (existsSync(PRED_FILE)) return JSON.parse(readFileSync(PRED_FILE, "utf8")); } catch {}
-  return {};
-}
-function savePreds(data: PredStore) {
-  try { writeFileSync(PRED_FILE, JSON.stringify(data)); } catch {}
-}
-let predsCache: PredStore = loadPreds();
+let predsCache: PredStore = {};
 
 // ── SSE push ───────────────────────────────────────────────────────────────────
 const sseClients = new Set<any>();
@@ -110,194 +103,171 @@ function broadcastPredictions() {
   }
 }
 
-const PINS_FILE = join(_dataDir, "ipl-pins.json");
-// Ordered list of the four league members — used for first-run bootstrap only.
+async function loadPredsFromDB(): Promise<PredStore> {
+  try {
+    const rows = await db.select().from(predictions);
+    const store: PredStore = {};
+    for (const row of rows) {
+      if (!store[row.matchId]) store[row.matchId] = {};
+      store[row.matchId][row.userId] = row.pick ?? null;
+    }
+    return store;
+  } catch (e) {
+    console.error("[preds] DB load failed:", e);
+    return {};
+  }
+}
+
+async function savePredToDB(matchId: string, userId: string, pick: string | null): Promise<void> {
+  await db.insert(predictions)
+    .values({ matchId, userId, pick, updatedAt: new Date() })
+    .onConflictDoUpdate({
+      target: [predictions.matchId, predictions.userId],
+      set: { pick, updatedAt: new Date() },
+    });
+}
+
+// One-time migration: seed DB from legacy flat file if it exists and DB is empty.
+async function seedPredsFromLegacyFile(): Promise<void> {
+  const PRED_FILE = join(_dataDir, "ipl-predictions.json");
+  try {
+    if (!existsSync(PRED_FILE)) return;
+    const file: PredStore = JSON.parse(readFileSync(PRED_FILE, "utf8"));
+    for (const [matchId, picks] of Object.entries(file)) {
+      for (const [userId, pick] of Object.entries(picks)) {
+        await db.insert(predictions)
+          .values({ matchId, userId, pick: pick ?? null, updatedAt: new Date() })
+          .onConflictDoUpdate({
+            target: [predictions.matchId, predictions.userId],
+            set: { pick: pick ?? null, updatedAt: new Date() },
+          });
+      }
+    }
+    const total = Object.values(file).reduce((n, p) => n + Object.keys(p).length, 0);
+    console.log(`[preds] Migrated ${total} rows from flat file to DB`);
+  } catch (e) {
+    console.warn("[preds] Legacy file migration failed:", e);
+  }
+}
+
+// Startup: load from DB; if empty, migrate from legacy file first.
+(async () => {
+  try {
+    let dbPreds = await loadPredsFromDB();
+    if (Object.keys(dbPreds).length === 0) {
+      await seedPredsFromLegacyFile();
+      dbPreds = await loadPredsFromDB();
+    }
+    predsCache = dbPreds;
+    console.log(`[preds] Loaded from DB: ${Object.keys(predsCache).length} matches`);
+  } catch (e) {
+    console.error("[preds] Startup failed:", e);
+  }
+})();
+
+// ── PINs — PostgreSQL-backed with bcrypt hashing ──────────────────────────────
 const OWNER_IDS = ["rajveer", "mombasa", "mumbai", "ponygoat"];
-type PinStore = Record<string, string>;
-function loadServerPins(): PinStore {
+// In-memory hash cache — avoids a DB round-trip on every login attempt.
+let pinHashCache: Record<string, string> = {};
+
+async function savePinHashToDB(userId: string, hash: string): Promise<void> {
+  await db.insert(userPins)
+    .values({ userId, pinHash: hash, updatedAt: new Date() })
+    .onConflictDoUpdate({
+      target: userPins.userId,
+      set: { pinHash: hash, updatedAt: new Date() },
+    });
+}
+
+// Legacy KV helpers — used only during one-time PIN migration.
+const REPLIT_DB_URL = process.env.REPLIT_DB_URL;
+async function legacyKvGet(key: string): Promise<string | null> {
+  if (!REPLIT_DB_URL) return null;
+  try {
+    const r = await fetch(`${REPLIT_DB_URL}/${encodeURIComponent(key)}`, { signal: AbortSignal.timeout(6000) });
+    return r.ok ? r.text() : null;
+  } catch { return null; }
+}
+async function legacyKvList(prefix: string): Promise<string[]> {
+  if (!REPLIT_DB_URL) return [];
+  try {
+    const r = await fetch(`${REPLIT_DB_URL}?prefix=${encodeURIComponent(prefix)}`, { signal: AbortSignal.timeout(6000) });
+    if (!r.ok) return [];
+    return (await r.text()).split("\n").map(k => k.trim()).filter(Boolean);
+  } catch { return []; }
+}
+async function loadLegacyPinsFromKV(): Promise<Record<string, string> | null> {
+  try {
+    const keys = await legacyKvList("pin_");
+    if (!keys.length) return null;
+    const store: Record<string, string> = {};
+    await Promise.all(keys.map(async key => {
+      const userId = key.slice("pin_".length);
+      const val = await legacyKvGet(key);
+      if (val && /^\d{4,}$/.test(val)) store[userId] = val;
+    }));
+    return Object.keys(store).length ? store : null;
+  } catch { return null; }
+}
+function loadLegacyPinsFromFile(): Record<string, string> {
+  const PINS_FILE = join(_dataDir, "ipl-pins.json");
   try {
     if (existsSync(PINS_FILE)) {
-      const stored = JSON.parse(readFileSync(PINS_FILE, "utf8")) as PinStore;
-      // Only trust entries that look like 4-digit PINs (avoids ingesting stale defaults)
-      const filtered: PinStore = {};
+      const stored = JSON.parse(readFileSync(PINS_FILE, "utf8")) as Record<string, string>;
+      const out: Record<string, string> = {};
       for (const [uid, pin] of Object.entries(stored)) {
-        if (/^\d{4,}$/.test(pin)) filtered[uid] = pin;
+        if (/^\d{4,}$/.test(pin)) out[uid] = pin;
       }
-      if (Object.keys(filtered).length) return filtered;
+      if (Object.keys(out).length) return out;
     }
   } catch {}
   return {};
 }
-function saveServerPins(data: PinStore) {
-  try { writeFileSync(PINS_FILE, JSON.stringify(data)); } catch {}
-}
-let pinsCache: PinStore = loadServerPins();
 
-// Server-side credential check: used by other route modules (ipl-points, push) to
-// validate requests that claim to come from a specific owner. Returns true only when
-// the ownerId is a known league member AND the supplied pin matches the server record.
-export function verifyOwnerPin(ownerId: string, pin: string): boolean {
-  if (!ownerId || !pin) return false;
-  const stored = pinsCache[ownerId];
-  return stored !== undefined && stored === pin;
-}
-
-// ── Replit KV persistence (PINs + Predictions) ───────────────────────────────
-// REPLIT_DB_URL is automatically available in both dev and deployed environments.
-// Data written here survives restarts, new deployments, and server restarts.
-const REPLIT_DB_URL = process.env.REPLIT_DB_URL;
-const PIN_KEY_PREFIX = "pin_";
-const PRED_KV_KEY = "ipl_predictions_2026";
-
-// ── KV helpers ──────────────────────────────────────────────────────────────
-
-async function kvGet(key: string): Promise<string | null> {
-  if (!REPLIT_DB_URL) return null;
+// Startup: load hashes from DB; if empty, hash + migrate from KV / file / generate fresh.
+(async () => {
   try {
-    const res = await fetch(`${REPLIT_DB_URL}/${encodeURIComponent(key)}`, { signal: AbortSignal.timeout(6000) });
-    if (!res.ok) return null;
-    return await res.text();
-  } catch { return null; }
-}
-
-async function kvSet(key: string, value: string): Promise<boolean> {
-  if (!REPLIT_DB_URL) return false;
-  try {
-    const res = await fetch(REPLIT_DB_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
-      signal: AbortSignal.timeout(6000),
-    });
-    return res.ok;
-  } catch { return false; }
-}
-
-async function kvList(prefix: string): Promise<string[]> {
-  if (!REPLIT_DB_URL) return [];
-  try {
-    const res = await fetch(`${REPLIT_DB_URL}?prefix=${encodeURIComponent(prefix)}`, { signal: AbortSignal.timeout(6000) });
-    if (!res.ok) return [];
-    const text = await res.text();
-    return text.split("\n").map(k => k.trim()).filter(Boolean);
-  } catch { return []; }
-}
-
-// ── Predictions KV ───────────────────────────────────────────────────────────
-
-async function loadPredsFromKV(): Promise<PredStore | null> {
-  const raw = await kvGet(PRED_KV_KEY);
-  if (!raw) return null;
-  try { return JSON.parse(raw); } catch { return null; }
-}
-
-async function savePredsToKV(data: PredStore): Promise<boolean> {
-  const ok = await kvSet(PRED_KV_KEY, JSON.stringify(data));
-  if (!ok) {
-    // Retry once after 3 s — handles transient KV unavailability
-    await new Promise(r => setTimeout(r, 3000));
-    const retry = await kvSet(PRED_KV_KEY, JSON.stringify(data));
-    if (!retry) console.warn("[preds] KV save failed after retry — pick is in memory+disk but not KV");
-    return retry;
-  }
-  return ok;
-}
-
-// Warm up predsCache from KV on startup — survives deployments.
-// Also runs a divergence check: file count vs KV count, warns if they disagree.
-loadPredsFromKV().then(async kv => {
-  const fileCount = Object.keys(predsCache).length;
-  if (kv) {
-    const kvCount = Object.keys(kv).length;
-    // Merge: KV is authoritative, local file fills any gaps (e.g. manual edits in git)
-    predsCache = { ...predsCache, ...kv };
-    savePreds(predsCache);
-    const merged = Object.keys(predsCache).length;
-    console.log(`[preds] Loaded from Replit KV: ${merged} matches (file=${fileCount}, kv=${kvCount})`);
-    if (Math.abs(fileCount - kvCount) > 0) {
-      console.warn(`[preds] DIVERGENCE: file has ${fileCount} matches, KV has ${kvCount}. Re-syncing KV with merged set (${merged}).`);
-      await savePredsToKV(predsCache);
+    const rows = await db.select().from(userPins);
+    if (rows.length > 0) {
+      for (const row of rows) pinHashCache[row.userId] = row.pinHash;
+      console.log(`[pins] Loaded from DB: ${Object.keys(pinHashCache).join(", ")}`);
+      return;
     }
-  } else if (REPLIT_DB_URL) {
-    // KV available but empty — seed it with local file so it persists future deploys
-    console.log(`[preds] Seeding Replit KV with local predictions (${fileCount} matches)...`);
-    const ok = await savePredsToKV(predsCache);
-    console.log("[preds] Seeded Replit KV:", ok ? "ok" : "failed");
-  } else {
-    console.warn(`[preds] Replit KV unavailable — using local file fallback only (${fileCount} matches in memory). DATA AT RISK ON RESTART.`);
-  }
-}).catch(() => {});
-
-// Periodic KV re-sync every 5 min — self-heals any drift between memory and KV
-setInterval(async () => {
-  if (!REPLIT_DB_URL) return;
-  const ok = await kvSet(PRED_KV_KEY, JSON.stringify(predsCache));
-  if (!ok) console.warn("[preds] Periodic KV re-sync failed");
-}, 5 * 60_000);
-
-// ── PIN KV ───────────────────────────────────────────────────────────────────
-
-async function loadAllPinsFromKV(): Promise<PinStore | null> {
-  if (!REPLIT_DB_URL) return null;
-  try {
-    const keys = await kvList(PIN_KEY_PREFIX);
-    if (!keys.length) return null;
-    const store: PinStore = {};
-    await Promise.all(keys.map(async key => {
-      const userId = key.slice(PIN_KEY_PREFIX.length);
-      const val = await kvGet(key);
-      // Only accept entries that look like valid PINs (at least 4 digits)
-      if (val !== null && /^\d{4,}$/.test(val)) store[userId] = val;
-    }));
-    return store;
-  } catch { return null; }
-}
-
-async function savePinToKV(userId: string, pin: string): Promise<boolean> {
-  return kvSet(`${PIN_KEY_PREFIX}${userId}`, pin);
-}
-
-// Warm up pinsCache from Replit KV on startup (non-blocking).
-// If KV is empty, seed it with the current local pins so they survive future deploys.
-loadAllPinsFromKV().then(async kv => {
-  if (kv && Object.keys(kv).length) {
-    pinsCache = { ...pinsCache, ...kv };
-    // Do NOT write back to local file here — KV is authoritative on startup.
-    // Writing back would persist predictable old defaults if they were still in KV.
-    // The local file is only updated when a user explicitly changes their PIN.
-    console.log("[pins] Loaded from Replit KV:", Object.keys(kv).join(", "));
-  } else if (REPLIT_DB_URL) {
-    if (Object.keys(pinsCache).length) {
-      // Local file had valid PIN data (e.g., migrated from old deployment) — push to KV
-      console.log("[pins] Seeding Replit KV with local PINs...");
-      await Promise.all(Object.entries(pinsCache).map(([uid, pin]) => savePinToKV(uid, pin)));
-      console.log("[pins] Seeded Replit KV:", Object.keys(pinsCache).join(", "));
+    // DB empty — migrate plaintext from KV or file and hash them.
+    const kv   = await loadLegacyPinsFromKV();
+    const file = loadLegacyPinsFromFile();
+    const merged = { ...file, ...(kv || {}) };
+    if (Object.keys(merged).length > 0) {
+      console.log("[pins] Migrating legacy PINs → DB with bcrypt hashing...");
+      for (const [userId, pin] of Object.entries(merged)) {
+        const hash = await bcrypt.hash(pin, 10);
+        pinHashCache[userId] = hash;
+        await savePinHashToDB(userId, hash);
+      }
+      console.log("[pins] Migrated:", Object.keys(pinHashCache).join(", "));
     } else {
-      // Fresh deployment with no prior PIN data — generate cryptographically random PINs.
-      // Log them once so the commissioner can distribute them; members should change after first login.
-      const fresh: PinStore = {};
+      // Completely fresh deployment — generate cryptographically random PINs.
+      console.log("[pins] ⚠️  First-run: generating random PINs (treat as secrets):");
       for (const uid of OWNER_IDS) {
-        fresh[uid] = String(randomInt(1000, 10000)); // 1000–9999, always 4 digits
+        const pin = String(randomInt(1000, 10000));
+        const hash = await bcrypt.hash(pin, 10);
+        pinHashCache[uid] = hash;
+        await savePinHashToDB(uid, hash);
+        console.log(`[pins]   ${uid}: ${pin.slice(0, 2)}** (full PIN in DB — change via Settings)`);
       }
-      pinsCache = fresh;
-      saveServerPins(pinsCache);
-      await Promise.all(Object.entries(pinsCache).map(([uid, pin]) => savePinToKV(uid, pin)));
-      // Log PINs for the commissioner — only fires once per fresh deployment.
-      // These values are sensitive; treat these lines as a one-time setup secret.
-      // Each member should change their PIN immediately after first login.
-      console.log("[pins] ⚠️  FIRST-RUN BOOTSTRAP — generated random PINs (treat as secrets):");
-      for (const [uid, pin] of Object.entries(pinsCache)) {
-        // Mask the last two digits in the log so casual log readers can't trivially recover them.
-        // The commissioner distributes them directly; members change them on first login.
-        const masked = pin.slice(0, 2) + "**";
-        console.log(`[pins]   ${uid}: ${masked}  (full PIN saved to KV)`);
-      }
-      console.log("[pins] Full PINs are stored only in Replit KV. Change them via Settings after first login.");
     }
-  } else {
-    console.log("[pins] Replit KV unavailable — using local fallback");
+  } catch (e) {
+    console.error("[pins] Startup failed:", e);
   }
-}).catch(() => {});
+})();
+
+// Exported for potential use by other modules (async — bcrypt comparison).
+export async function verifyOwnerPin(ownerId: string, pin: string): Promise<boolean> {
+  if (!ownerId || !pin) return false;
+  const hash = pinHashCache[ownerId];
+  if (!hash) return false;
+  return bcrypt.compare(pin, hash);
+}
 
 const router: IRouter = Router();
 
@@ -777,9 +747,8 @@ router.post("/ipl/predictions/:matchId", (req, res) => {
   }
   if (!predsCache[matchId]) predsCache[matchId] = {};
   predsCache[matchId][ownerId] = pick ?? null;
-  savePreds(predsCache);                    // local file backup
-  savePredsToKV(predsCache).catch(() => {}); // KV (cloud-persistent, non-blocking)
-  broadcastPredictions();                   // push to all open SSE sessions instantly
+  broadcastPredictions(); // push to all open SSE sessions instantly
+  savePredToDB(matchId, ownerId, pick ?? null).catch(e => console.error("[preds] DB save failed:", e));
   return res.json({ ok: true, predictions: predsCache });
 });
 
@@ -811,46 +780,44 @@ function ownerOnly(req: any, res: any): boolean {
   return requireCommissioner(req, res);
 }
 
-// GET /api/ipl/pins → returns all PINs (commissioner-only, session-verified)
-router.get("/ipl/pins", async (req, res) => {
+// GET /api/ipl/pins → { userId: true/false } — which owners have a PIN set (commissioner-only)
+router.get("/ipl/pins", (req, res) => {
   if (!requireCommissioner(req, res)) return;
-  const kv = await loadAllPinsFromKV();
-  if (kv && Object.keys(kv).length) { pinsCache = { ...pinsCache, ...kv }; saveServerPins(pinsCache); }
-  res.json(pinsCache);
+  const result: Record<string, boolean> = {};
+  for (const uid of OWNER_IDS) result[uid] = !!pinHashCache[uid];
+  res.json(result);
 });
 
-// POST /api/ipl/pins/validate → { userId, pin } — validate PIN (rate-limited)
+// POST /api/ipl/pins/validate → { userId, pin } — validate PIN with bcrypt (rate-limited)
 router.post("/ipl/pins/validate", async (req, res) => {
   const ip = String(req.ip || req.socket.remoteAddress || "unknown");
   if (!checkRateLimit(ip)) return res.status(429).json({ error: "Too many attempts — try again in a minute" });
   const { userId, pin } = req.body as { userId?: string; pin?: string };
   if (!userId || !pin) return res.status(400).json({ error: "userId and pin required" });
-  // Always pull the freshest PIN from KV before validating
-  const kv = await loadAllPinsFromKV();
-  if (kv) { pinsCache = { ...pinsCache, ...kv }; saveServerPins(pinsCache); }
-  const correct = pinsCache[userId];
-  if (!correct || pin !== correct) return res.status(401).json({ error: "Invalid PIN" });
+  const hash = pinHashCache[userId];
+  if (!hash) return res.status(401).json({ error: "Invalid PIN" });
+  const correct = await bcrypt.compare(pin, hash);
+  if (!correct) return res.status(401).json({ error: "Invalid PIN" });
   const token = createSession(userId);
   return res.json({ ok: true, userId, token });
 });
 
-// POST /api/ipl/pins/:userId → { pin, oldPin } — update one user's PIN (admin only; oldPin required)
+// POST /api/ipl/pins/:userId → { pin, oldPin } — change PIN (commissioner only; bcrypt-verified oldPin)
 router.post("/ipl/pins/:userId", async (req, res) => {
   if (!ownerOnly(req, res)) return;
   const { userId } = req.params;
   const { pin, oldPin } = req.body as { pin?: string; oldPin?: string };
   if (!userId || !pin || !/^\d{4}$/.test(pin)) return res.status(400).json({ error: "userId and 4-digit pin required" });
   if (!oldPin) return res.status(400).json({ error: "Current PIN (oldPin) required" });
-  // Reload from KV so we compare against the real current PIN
-  const kv = await loadAllPinsFromKV();
-  if (kv) { pinsCache = { ...pinsCache, ...kv }; saveServerPins(pinsCache); }
-  const current = pinsCache[userId];
-  if (!current || oldPin !== current) return res.status(401).json({ error: "Current PIN does not match" });
-  pinsCache[userId] = pin;
-  saveServerPins(pinsCache); // local backup as belt-and-suspenders
-  const savedToKV = await savePinToKV(userId, pin);
-  console.log(`[pins] ${userId} PIN updated — Replit KV: ${savedToKV}`);
-  return res.json({ ok: true, kv: savedToKV });
+  const currentHash = pinHashCache[userId];
+  if (!currentHash) return res.status(401).json({ error: "No PIN set for this user" });
+  const matches = await bcrypt.compare(oldPin, currentHash);
+  if (!matches) return res.status(401).json({ error: "Current PIN does not match" });
+  const newHash = await bcrypt.hash(pin, 10);
+  pinHashCache[userId] = newHash;
+  await savePinHashToDB(userId, newHash);
+  console.log(`[pins] ${userId} PIN updated successfully`);
+  return res.json({ ok: true });
 });
 
 // ── Health detail endpoint ───────────────────────────────────────────────────
@@ -874,12 +841,10 @@ router.get("/health/detail", (_req, res) => {
     },
     predictions: {
       matchCount: Object.keys(predsCache).length,
-      kvAvailable: !!REPLIT_DB_URL,
       sseClients: sseClients.size,
     },
     pins: {
-      userCount: Object.keys(pinsCache).length,
-      kvAvailable: !!REPLIT_DB_URL,
+      userCount: Object.keys(pinHashCache).length,
     },
     points,
   });

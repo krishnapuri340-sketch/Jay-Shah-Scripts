@@ -49,11 +49,15 @@ Primary application: IPL Fantasy Cricket Tracker for 4 teams (Rajveer Puri, Momb
 - `GET /api/ipl/scorecard/:matchId` — Innings batting/bowling from cache + live S3 match overview
 - `GET /api/ipl/stats` — Aggregated season batting/bowling stats (Orange Cap, Purple Cap, Sixes, Fours, SR, Economy); each player tagged `isFantasy` if in any of the 4 fantasy teams
 ### Authentication (PIN Login)
-- Client-side only; no backend involvement
-- `LoginScreen` component shown when no session is active (`localStorage: ipl-current-user`)
-- PINs stored in `localStorage: ipl-pins-2026` (object keyed by team ID)
-- Default PINs: `rajveer=1111, mombasa=2222, mumbai=3333, ponygoat=4444`; changeable via Admin tab
-- `DEFAULT_PINS`, `loadPins()`, `savePins()` exported from top of App.tsx
+- **Server-authoritative bcrypt PINs** — stored as bcrypt hashes in PostgreSQL `user_pins` table
+- `LoginScreen` component shown when no session is active
+- `POST /api/ipl/pins/validate` — rate-limited (5 req/min/IP); compares PIN via `bcrypt.compare`; returns signed session token
+- `GET /api/ipl/pins` — commissioner-only; returns `Record<string, boolean>` (userId → hasPin set)
+- `POST /api/ipl/pins/:userId` — commissioner-only; requires `oldPin` (bcrypt-verified), hashes new PIN with bcrypt rounds=10, upserts to DB
+- Session token stored in `localStorage: ipl-session-token`; sent as `Authorization: Bearer <token>` header on all write requests
+- In-memory `pinHashCache` populated from DB on startup (avoids DB round-trip on every login attempt)
+- One-time migration on first boot: plaintext PINs from `ipl-pins.json` / Replit KV are hashed and written to DB
+- Frontend `userPins` state: `Record<string, boolean>` (reflects which users have a PIN, not the PIN values)
 - 4-digit numpad UI; auto-submits on 4 digits; shake animation on wrong PIN
 - `currentUser` state gates entire app; logout clears localStorage and resets to login screen
 - Predictions: only the logged-in user's row shows pick buttons; others are read-only
@@ -86,8 +90,9 @@ Primary application: IPL Fantasy Cricket Tracker for 4 teams (Rajveer Puri, Momb
 - `artifacts/api-server/src/routes/ipl.ts` — IPL schedule + match data + standings + predictions + PIN routes
 - `artifacts/api-server/src/routes/ipl-points.ts` — Auto-points pipeline + Supabase sync + stats endpoint
 - `artifacts/api-server/ipl-data/ipl-points-cache.json` — Persistent points cache (real data directory)
-- `artifacts/api-server/ipl-data/ipl-predictions.json` — Match prediction picks
-- `artifacts/api-server/ipl-data/ipl-pins.json` — User PINs (fallback; primary in Replit KV)
+- `artifacts/api-server/ipl-data/ipl-predictions.json` — Legacy flat file (migrated to DB on first boot; kept as reference)
+- `artifacts/api-server/ipl-data/ipl-pins.json` — Legacy plaintext PINs (migrated to DB as bcrypt hashes on first boot; kept as reference)
+- `lib/db/src/schema/index.ts` — Drizzle schema: `predictions` (matchId+userId PK, pick) + `user_pins` (userId PK, pinHash)
 
 ## Stack
 

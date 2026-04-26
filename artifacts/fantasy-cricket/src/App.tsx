@@ -20,7 +20,7 @@ import { getAuthToken, setAuthToken, clearAuthToken, authHeaders, authStreamUrl,
 // ─── PIN login ───────────────────────────────────────────────────────────────
 // PINs are server-authoritative; never stored as defaults in client code.
 // The commissioner fetches the current list via GET /api/ipl/pins (session-gated).
-function savePins(p: Record<string, string>) { localStorage.setItem("ipl-pins-2026", JSON.stringify(p)); }
+function savePins(p: Record<string, boolean>) { localStorage.setItem("ipl-pins-2026", JSON.stringify(p)); }
 
 function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string) => Promise<boolean> }) {
   const [sel, setSel] = useState<string | null>(null);
@@ -411,7 +411,7 @@ export default function App() {
   const refreshFnRef = useRef(() => {});
   const [countdown, setCountdown] = useState<{ text: string; matchName: string; venue?: string; homeTeam?: string; awayTeam?: string } | null>(null);
   const [currentUser, setCurrentUser] = useState<string | null>(() => localStorage.getItem("ipl-current-user"));
-  const [userPins, setUserPins] = useState<Record<string, string>>({});
+  const [userPins, setUserPins] = useState<Record<string, boolean>>({});
   const [pinEditTarget, setPinEditTarget] = useState<string | null>(null);
   const [pinEditVal, setPinEditVal] = useState("");
   const [pinConfirmVal, setPinConfirmVal] = useState("");
@@ -462,7 +462,7 @@ export default function App() {
   };
   const handleSavePin = async (uid: string) => {
     if (!/^\d{4}$/.test(pinEditVal)) return;
-    const updated = { ...userPins, [uid]: pinEditVal };
+    const updated = { ...userPins, [uid]: true };
     setUserPins(updated); savePins(updated);
     const savedOld = pinConfirmVal;
     resetPinEdit();
