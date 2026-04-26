@@ -116,6 +116,23 @@ export default function TeamsPage(props: TeamsPageProps) {
     const { playing: nextMatchPlaying, infos: nextMatchInfoForTeam, playerMatchLabel: nextPlayerMatchLabel } = extractForTeam(upcomingLineupPreviews);
     const bannerPlayers = isRA ? RA_TEAMS[selectedTeam].players : td.players;
 
+    // In RA mode: if a released player is in the playing set, their replacement inherits the slot
+    const raReplacementMap = isRA
+      ? new Map(RA_TEAMS[selectedTeam].players
+          .filter(p => p.isNew && p.replacedName)
+          .map(p => [p.replacedName!, p.name]))
+      : new Map<string, string>();
+    const expandPlaying = (playing: Set<string>) => {
+      if (!isRA || raReplacementMap.size === 0) return playing;
+      const expanded = new Set(playing);
+      for (const [released, acquired] of raReplacementMap) {
+        if (playing.has(released)) expanded.add(acquired);
+      }
+      return expanded;
+    };
+    const effectiveLivePlaying = expandPlaying(liveNowPlaying);
+    const effectiveNextPlaying = expandPlaying(nextMatchPlaying);
+
     const hasLiveNow = liveNowPlaying.size > 0;
     const hasNextMatch = nextMatchPlaying.size > 0;
     const hasAnyContext = hasLiveNow || hasNextMatch;
@@ -226,7 +243,7 @@ export default function TeamsPage(props: TeamsPageProps) {
                   {liveNowInfo[0] && <span style={{ fontSize: "0.65rem", color: "var(--text-3)" }}>{liveNowInfo[0].matchLabel}</span>}
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  {bannerPlayers.filter(p => liveNowPlaying.has(p.name)).map(p => (
+                  {bannerPlayers.filter(p => effectiveLivePlaying.has(p.name)).map(p => (
                     <div key={p.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                         <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#f87171", display: "inline-block", flexShrink: 0 }} />
@@ -259,7 +276,7 @@ export default function TeamsPage(props: TeamsPageProps) {
                   ))}
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  {bannerPlayers.filter(p => nextMatchPlaying.has(p.name) && !liveNowPlaying.has(p.name)).map(p => (
+                  {bannerPlayers.filter(p => effectiveNextPlaying.has(p.name) && !effectiveLivePlaying.has(p.name)).map(p => (
                     <div key={p.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                         <span style={{ fontSize: "0.78rem", fontWeight: 500, color: "var(--text-2)" }}>{p.name}</span>
