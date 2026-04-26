@@ -78,8 +78,8 @@ const thBase: React.CSSProperties = {
 
 const numTd: React.CSSProperties = {
   textAlign: "right",
-  padding: "10px 6px",
-  fontSize: "0.82rem",
+  padding: "9px 5px",
+  fontSize: "0.72rem",
   color: "var(--text-3)",
   verticalAlign: "top",
   fontVariantNumeric: "tabular-nums",
@@ -148,7 +148,7 @@ export default function InningsTable({ inning, isFantasy }: Props) {
                       <td style={{ padding: "10px 6px 10px 14px", verticalAlign: "top" }}>
                         <div style={{ display: "flex", alignItems: "center" }}>
                           <span style={{
-                            fontSize: "0.8rem",
+                            fontSize: "0.75rem",
                             color: "var(--text)",
                             overflow: "hidden",
                             textOverflow: "ellipsis",
@@ -176,7 +176,7 @@ export default function InningsTable({ inning, isFantasy }: Props) {
                       <td style={numTd}>{b.balls}</td>
                       <td style={numTd}>{b.fours}</td>
                       <td style={numTd}>{b.sixes}</td>
-                      <td style={{ ...numTd, paddingRight: 14, fontSize: "0.72rem" }}>
+                      <td style={{ ...numTd, paddingRight: 14, fontSize: "0.65rem" }}>
                         {srNum.toFixed(1)}
                       </td>
                     </tr>
@@ -198,7 +198,7 @@ export default function InningsTable({ inning, isFantasy }: Props) {
                         ].filter(Boolean).join("  ·  ")}
                       </div>
                     </td>
-                    <td colSpan={5} style={{ textAlign: "right", padding: "7px 14px 7px 6px", verticalAlign: "top", fontSize: "0.82rem", color: "var(--text-2)", fontVariantNumeric: "tabular-nums" }}>
+                    <td colSpan={5} style={{ textAlign: "right", padding: "7px 14px 7px 6px", verticalAlign: "top", fontSize: "0.72rem", color: "var(--text-2)", fontVariantNumeric: "tabular-nums" }}>
                       {extras!.total}
                     </td>
                   </tr>
@@ -210,7 +210,7 @@ export default function InningsTable({ inning, isFantasy }: Props) {
                     <td style={{ padding: "8px 6px 8px 14px", verticalAlign: "top" }}>
                       <span style={{ fontSize: "0.72rem", color: "var(--text-2)", fontWeight: 600 }}>Total</span>
                     </td>
-                    <td colSpan={5} style={{ textAlign: "right", padding: "8px 14px 8px 6px", verticalAlign: "top", fontSize: "0.82rem", fontWeight: 600, color: "var(--text)", fontVariantNumeric: "tabular-nums" }}>
+                    <td colSpan={5} style={{ textAlign: "right", padding: "8px 14px 8px 6px", verticalAlign: "top", fontSize: "0.72rem", fontWeight: 600, color: "var(--text)", fontVariantNumeric: "tabular-nums" }}>
                       {inning.total}
                     </td>
                   </tr>
@@ -289,7 +289,7 @@ export default function InningsTable({ inning, isFantasy }: Props) {
                       <td style={{ padding: "10px 6px 10px 14px", verticalAlign: "top" }}>
                         <div style={{ display: "flex", alignItems: "center" }}>
                           <span style={{
-                            fontSize: "0.8rem",
+                            fontSize: "0.75rem",
                             color: "var(--text)",
                             overflow: "hidden",
                             textOverflow: "ellipsis",
@@ -303,7 +303,7 @@ export default function InningsTable({ inning, isFantasy }: Props) {
                       <td style={numTd}>{b.maidens}</td>
                       <td style={numTd}>{b.runs}</td>
                       <td style={numTd}>{b.wickets}</td>
-                      <td style={{ ...numTd, paddingRight: 14, fontSize: "0.72rem" }}>
+                      <td style={{ ...numTd, paddingRight: 14, fontSize: "0.65rem" }}>
                         {ecoNum.toFixed(2)}
                       </td>
                     </tr>

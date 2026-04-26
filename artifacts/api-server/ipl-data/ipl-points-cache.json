@@ -220,57 +220,57 @@
           "fow": [
             {
               "player": "Abhishek Sharma",
-              "runs": null,
-              "wicket": 0,
-              "overs": ""
+              "runs": 18,
+              "wicket": 1,
+              "overs": "2.1"
             },
             {
               "player": "Travis Head",
-              "runs": null,
-              "wicket": 0,
-              "overs": ""
+              "runs": 23,
+              "wicket": 2,
+              "overs": "2.6"
             },
             {
               "player": "Nitish Kumar Reddy",
-              "runs": null,
-              "wicket": 0,
-              "overs": ""
+              "runs": 29,
+              "wicket": 3,
+              "overs": "4.2"
             },
             {
               "player": "Heinrich Klaasen",
-              "runs": null,
-              "wicket": 0,
-              "overs": ""
+              "runs": 126,
+              "wicket": 4,
+              "overs": "13.1"
             },
             {
               "player": "Salil Arora",
-              "runs": null,
-              "wicket": 0,
-              "overs": ""
+              "runs": 137,
+              "wicket": 5,
+              "overs": "14.3"
             },
             {
               "player": "Ishan Kishan",
-              "runs": null,
-              "wicket": 0,
-              "overs": ""
+              "runs": 155,
+              "wicket": 6,
+              "overs": "15.6"
             },
             {
               "player": "Harsh Dubey",
-              "runs": null,
-              "wicket": 0,
-              "overs": ""
+              "runs": 167,
+              "wicket": 7,
+              "overs": "16.6"
             },
             {
               "player": "Harshal Patel",
-              "runs": null,
-              "wicket": 0,
-              "overs": ""
+              "runs": 174,
+              "wicket": 8,
+              "overs": "17.5"
             },
             {
               "player": "Aniket Verma",
-              "runs": null,
-              "wicket": 0,
-              "overs": ""
+              "runs": 192,
+              "wicket": 9,
+              "overs": "18.6"
             }
           ]
         },
@@ -490,27 +490,27 @@
           "fow": [
             {
               "player": "Phil Salt",
-              "runs": null,
-              "wicket": 0,
-              "overs": ""
+              "runs": 9,
+              "wicket": 1,
+              "overs": "1.1"
             },
             {
               "player": "Devdutt Padikkal",
-              "runs": null,
-              "wicket": 0,
-              "overs": ""
+              "runs": 110,
+              "wicket": 2,
+              "overs": "8.4"
             },
             {
               "player": "Rajat Patidar",
-              "runs": null,
-              "wicket": 0,
-              "overs": ""
+              "runs": 163,
+              "wicket": 3,
+              "overs": "12.2"
             },
             {
               "player": "Jitesh Sharma",
-              "runs": null,
-              "wicket": 0,
-              "overs": ""
+              "runs": 163,
+              "wicket": 4,
+              "overs": "12.3"
             }
           ]
         }
@@ -2413,39 +2413,39 @@
           "fow": [
             {
               "player": "Sai Sudharsan",
-              "runs": null,
-              "wicket": 0,
-              "overs": ""
+              "runs": 37,
+              "wicket": 1,
+              "overs": "3.4"
             },
             {
               "player": "Shubman Gill",
-              "runs": null,
-              "wicket": 0,
-              "overs": ""
+              "runs": 83,
+              "wicket": 2,
+              "overs": "9.3"
             },
             {
               "player": "Glenn Phillips",
-              "runs": null,
-              "wicket": 0,
-              "overs": ""
+              "runs": 119,
+              "wicket": 3,
+              "overs": "13.6"
             },
             {
               "player": "Jos Buttler",
-              "runs": null,
-              "wicket": 0,
-              "overs": ""
+              "runs": 129,
+              "wicket": 4,
+              "overs": "15.4"
             },
             {
               "player": "Washington Sundar",
-              "runs": null,
-              "wicket": 0,
-              "overs": ""
+              "runs": 144,
+              "wicket": 5,
+              "overs": "18.1"
             },
             {
               "player": "Shahrukh Khan",
-              "runs": null,
-              "wicket": 0,
-              "overs": ""
+              "runs": 150,
+              "wicket": 6,
+              "overs": "18.6"
             }
           ]
         },
@@ -2665,45 +2665,45 @@
           "fow": [
             {
               "player": "Priyansh Arya",
-              "runs": null,
-              "wicket": 0,
-              "overs": ""
+              "runs": 7,
+              "wicket": 1,
+              "overs": "1.2"
             },
             {
               "player": "Prabhsimran Singh",
-              "runs": null,
-              "wicket": 0,
-              "overs": ""
+              "runs": 83,
+              "wicket": 2,
+              "overs": "9.3"
             },
             {
               "player": "Shreyas Iyer",
-              "runs": null,
-              "wicket": 0,
-              "overs": ""
+              "runs": 110,
+              "wicket": 3,
+              "overs": "12.1"
             },
             {
               "player": "Nehal Wadhera",
-              "runs": null,
-              "wicket": 0,
-              "overs": ""
+              "runs": 113,
+              "wicket": 4,
+              "overs": "13.1"
             },
             {
               "player": "Shashank Singh",
-              "runs": null,
-              "wicket": 0,
-              "overs": ""
+              "runs": 118,
+              "wicket": 5,
+              "overs": "14.2"
             },
             {
               "player": "Marcus Stoinis",
-              "runs": null,
-              "wicket": 0,
-              "overs": ""
+              "runs": 118,
+              "wicket": 6,
+              "overs": "14.4"
             },
             {
               "player": "Marco Jansen",
-              "runs": null,
-              "wicket": 0,
-              "overs": ""
+              "runs": 144,
+              "wicket": 7,
+              "overs": "17.4"
             }
           ]
         }
@@ -27640,7 +27640,7 @@
       "ended": false
     }
   },
-  "lastUpdated": "2026-04-26T20:08:53.539Z",
+  "lastUpdated": "2026-04-26T20:26:36.246Z",
   "cricapiMatchIds": {
     "2428": "12b5d808-d9ab-468e-bd25-a2c347f64bdc",
     "2467": "c5bf2a95-1855-463d-accf-9c1db88418cd",
