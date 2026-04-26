@@ -3144,6 +3144,76 @@
               "noBalls": 0,
               "dots": 2
             }
+          ],
+          "extras": {
+            "byes": 4,
+            "lb": 8,
+            "wides": 2,
+            "nb": 0,
+            "penalty": 0,
+            "total": 14
+          },
+          "fow": [
+            {
+              "player": "Rishabh Pant",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Aiden Markram",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Ayush Badoni",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Nicholas Pooran",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Mitchell Marsh",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Mukul Choudhary",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Abdul Samad",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Mohammad Shami",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Anrich Nortje",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Mohsin Khan",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            }
           ]
         },
         {
@@ -3360,6 +3430,40 @@
               "wides": 0,
               "noBalls": 0,
               "dots": 0
+            }
+          ],
+          "extras": {
+            "byes": 0,
+            "lb": 4,
+            "wides": 16,
+            "nb": 0,
+            "penalty": 0,
+            "total": 20
+          },
+          "fow": [
+            {
+              "player": "K L Rahul",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Nitish Rana",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Pathum Nissanka",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Axar Patel",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
             }
           ]
         }
@@ -3844,6 +3948,64 @@
               "noBalls": 0,
               "dots": 4
             }
+          ],
+          "extras": {
+            "byes": 0,
+            "lb": 4,
+            "wides": 9,
+            "nb": 0,
+            "penalty": 0,
+            "total": 13
+          },
+          "fow": [
+            {
+              "player": "Travis Head",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Ishan Kishan",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Abhishek Sharma",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Aniket Verma",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Nitish Kumar Reddy",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Salil Arora",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Heinrich Klaasen",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Shivang Kumar",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            }
           ]
         },
         {
@@ -4060,6 +4222,76 @@
               "wides": 0,
               "noBalls": 0,
               "dots": 5
+            }
+          ],
+          "extras": {
+            "byes": 0,
+            "lb": 1,
+            "wides": 7,
+            "nb": 0,
+            "penalty": 0,
+            "total": 8
+          },
+          "fow": [
+            {
+              "player": "Finn Allen",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Ajinkya Rahane",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Cameron Green",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Angkrish Raghuvanshi",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Anukul Roy",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Rinku Singh",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Sunil Narine",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Ramandeep Singh",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Kartik Tyagi",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Varun Chakaravarthy",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
             }
           ]
         }
@@ -5186,6 +5418,52 @@
               "noBalls": 0,
               "dots": 4
             }
+          ],
+          "extras": {
+            "byes": 0,
+            "lb": 1,
+            "wides": 4,
+            "nb": 0,
+            "penalty": 0,
+            "total": 5
+          },
+          "fow": [
+            {
+              "player": "Ryan Rickelton",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Tilak Varma",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Rohit Sharma",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Sherfane Rutherford",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Surya Kumar Yadav",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Naman Dhir",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            }
           ]
         },
         {
@@ -5391,6 +5669,40 @@
               "wides": 1,
               "noBalls": 0,
               "dots": 6
+            }
+          ],
+          "extras": {
+            "byes": 0,
+            "lb": 1,
+            "wides": 4,
+            "nb": 0,
+            "penalty": 0,
+            "total": 5
+          },
+          "fow": [
+            {
+              "player": "K L Rahul",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Nitish Rana",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Pathum Nissanka",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Sameer Rizvi",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
             }
           ]
         }

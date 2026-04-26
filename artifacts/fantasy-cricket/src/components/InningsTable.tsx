@@ -193,24 +193,19 @@ export default function InningsTable({ inning, isFantasy }: Props) {
                           }}>{b.dismissal}</div>
                         )}
                       </td>
-                      <td style={{ textAlign: "right", padding: "10px 6px", verticalAlign: "top" }}>
-                        <span style={{
-                          fontSize: isTop ? "0.92rem" : "0.82rem",
-                          fontWeight: isTop ? 600 : 500,
-                          color: isTop ? "#b8924a" : "var(--text)",
-                          fontVariantNumeric: "tabular-nums",
-                        }}>{b.runs}</span>
+                      <td style={{ textAlign: "right", padding: "10px 6px", verticalAlign: "top", fontVariantNumeric: "tabular-nums", fontSize: "0.82rem", fontWeight: isTop ? 600 : 500, color: isTop ? "#b8924a" : "var(--text)" }}>
+                        {b.runs}
                       </td>
-                      <td style={{ textAlign: "right", padding: "10px 6px", color: "var(--text-3)", verticalAlign: "top", fontVariantNumeric: "tabular-nums" }}>
+                      <td style={{ textAlign: "right", padding: "10px 6px", verticalAlign: "top", fontVariantNumeric: "tabular-nums", fontSize: "0.82rem", color: "var(--text-3)" }}>
                         {b.balls}
                       </td>
-                      <td style={{ textAlign: "right", padding: "10px 6px", color: "var(--text-3)", verticalAlign: "top", fontVariantNumeric: "tabular-nums" }}>
+                      <td style={{ textAlign: "right", padding: "10px 6px", verticalAlign: "top", fontVariantNumeric: "tabular-nums", fontSize: "0.82rem", color: "var(--text-3)" }}>
                         {b.fours}
                       </td>
-                      <td style={{ textAlign: "right", padding: "10px 6px", color: "var(--text-3)", verticalAlign: "top", fontVariantNumeric: "tabular-nums" }}>
+                      <td style={{ textAlign: "right", padding: "10px 6px", verticalAlign: "top", fontVariantNumeric: "tabular-nums", fontSize: "0.82rem", color: "var(--text-3)" }}>
                         {b.sixes}
                       </td>
-                      <td style={{ textAlign: "right", padding: "10px 14px 10px 6px", fontSize: "0.66rem", color: srColor(srNum), verticalAlign: "top", fontVariantNumeric: "tabular-nums" }}>
+                      <td style={{ textAlign: "right", padding: "10px 14px 10px 6px", fontSize: "0.72rem", color: srColor(srNum), verticalAlign: "top", fontVariantNumeric: "tabular-nums" }}>
                         {srNum.toFixed(1)}
                       </td>
                     </tr>
@@ -357,34 +352,29 @@ export default function InningsTable({ inning, isFantasy }: Props) {
                           {ft && <FantasyDot />}
                         </div>
                       </td>
-                      <td style={{ textAlign: "right", padding: "10px 6px", color: "var(--text-3)", verticalAlign: "top", fontVariantNumeric: "tabular-nums" }}>
+                      <td style={{ textAlign: "right", padding: "10px 6px", fontSize: "0.82rem", color: "var(--text-3)", verticalAlign: "top", fontVariantNumeric: "tabular-nums" }}>
                         {b.overs}
                       </td>
-                      <td style={{ textAlign: "right", padding: "10px 6px", color: "var(--text-3)", verticalAlign: "top", fontVariantNumeric: "tabular-nums" }}>
+                      <td style={{ textAlign: "right", padding: "10px 6px", fontSize: "0.82rem", color: "var(--text-3)", verticalAlign: "top", fontVariantNumeric: "tabular-nums" }}>
                         {b.maidens}
                       </td>
-                      <td style={{ textAlign: "right", padding: "10px 6px", color: "var(--text-2)", verticalAlign: "top", fontVariantNumeric: "tabular-nums" }}>
+                      <td style={{ textAlign: "right", padding: "10px 6px", fontSize: "0.82rem", color: "var(--text-2)", verticalAlign: "top", fontVariantNumeric: "tabular-nums" }}>
                         {b.runs}
                       </td>
-                      <td style={{ textAlign: "right", padding: "10px 6px", verticalAlign: "top" }}>
-                        <span style={{
-                          fontSize: isTop ? "0.92rem" : "0.82rem",
-                          fontWeight: isTop ? 700 : 500,
-                          color: isTop ? "#9a88c0" : "var(--text-2)",
-                          fontVariantNumeric: "tabular-nums",
-                        }}>{b.wickets}</span>
+                      <td style={{ textAlign: "right", padding: "10px 6px", fontSize: "0.82rem", fontWeight: isTop ? 700 : 500, color: isTop ? "#9a88c0" : "var(--text-2)", verticalAlign: "top", fontVariantNumeric: "tabular-nums" }}>
+                        {b.wickets}
                       </td>
                       {hasWidesOrNb && (
-                        <td style={{ textAlign: "right", padding: "10px 6px", color: "var(--text-3)", verticalAlign: "top", fontVariantNumeric: "tabular-nums", fontSize: "0.66rem" }}>
+                        <td style={{ textAlign: "right", padding: "10px 6px", color: "var(--text-3)", verticalAlign: "top", fontVariantNumeric: "tabular-nums", fontSize: "0.82rem" }}>
                           {(b.wides ?? 0) > 0 ? b.wides : <span style={{ opacity: 0.3 }}>—</span>}
                         </td>
                       )}
                       {hasWidesOrNb && (
-                        <td style={{ textAlign: "right", padding: "10px 6px", color: "var(--text-3)", verticalAlign: "top", fontVariantNumeric: "tabular-nums", fontSize: "0.66rem" }}>
+                        <td style={{ textAlign: "right", padding: "10px 6px", color: "var(--text-3)", verticalAlign: "top", fontVariantNumeric: "tabular-nums", fontSize: "0.82rem" }}>
                           {(b.noBalls ?? 0) > 0 ? b.noBalls : <span style={{ opacity: 0.3 }}>—</span>}
                         </td>
                       )}
-                      <td style={{ textAlign: "right", padding: "10px 14px 10px 6px", fontSize: "0.66rem", color: ecoColor(ecoNum), verticalAlign: "top", fontVariantNumeric: "tabular-nums" }}>
+                      <td style={{ textAlign: "right", padding: "10px 14px 10px 6px", fontSize: "0.72rem", color: ecoColor(ecoNum), verticalAlign: "top", fontVariantNumeric: "tabular-nums" }}>
                         {ecoNum.toFixed(2)}
                       </td>
                     </tr>
