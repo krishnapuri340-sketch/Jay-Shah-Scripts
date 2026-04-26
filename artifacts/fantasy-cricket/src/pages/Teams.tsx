@@ -680,8 +680,8 @@ export default function TeamsPage(props: TeamsPageProps) {
 
           // Per-player state helper
           const getPlayerState = (name: string, ipl: string) => {
-            const isLiveNow = hasLiveNow && liveNowPlaying.has(name);
-            const isUpcoming = hasNextMatch && nextMatchPlaying.has(name) && !isLiveNow;
+            const isLiveNow = hasLiveNow && effectiveLivePlaying.has(name);
+            const isUpcoming = hasNextMatch && effectiveNextPlaying.has(name) && !isLiveNow;
             const isDimmed = hasAnyContext && !isLiveNow && !isUpcoming;
             const glowColor = isLiveNow ? "#f87171" : isUpcoming ? (IPL_COLORS[ipl] || "#4ade80") : null;
             return { isLiveNow, isUpcoming, isDimmed, glowColor };
