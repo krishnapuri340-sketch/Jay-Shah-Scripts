@@ -80,11 +80,29 @@ interface BowlingRow {
   dots?: number;
 }
 
+interface ExtrasDetail {
+  byes: number;
+  lb: number;
+  wides: number;
+  nb: number;
+  penalty: number;
+  total: number;
+}
+
+interface FowEntry {
+  player: string;
+  runs: number;
+  wicket: number;
+  overs: string;
+}
+
 interface InningData {
   name: string;
   total: string;
   batting: BattingRow[];
   bowling: BowlingRow[];
+  extras?: ExtrasDetail;
+  fow?: FowEntry[];
 }
 
 interface ProcessedMatchData {
@@ -1140,7 +1158,21 @@ async function fetchIplS3Innings(matchId: string, isCompleted: boolean): Promise
       wides: b.Wides ?? 0, noBalls: b.NoBalls ?? 0,
       dots: b.Dots ?? b.DotBalls ?? 0,
     })).filter((b: BowlingRow) => b.name);
-    return { name: `${teamName} Inning ${n}`, total: totalStr, batting, bowling };
+    const extrasDetail: ExtrasDetail = {
+      byes: Number(extras.Byes ?? extras.byes ?? 0),
+      lb: Number(extras.LegByes ?? extras.LegBye ?? extras.lb ?? 0),
+      wides: Number(extras.Wides ?? extras.Wide ?? 0),
+      nb: Number(extras.NoBalls ?? extras.NoBall ?? 0),
+      penalty: Number(extras.Penalty ?? 0),
+      total: Number(extras.Extras ?? extras.ExtraRuns ?? extras.TotalExtras ?? 0),
+    };
+    const fow: FowEntry[] = (inn.FallofWickets ?? inn.FallOfWickets ?? inn.Fow ?? []).map((f: any) => ({
+      player: ((f.PlayerName || f.Name || "").replace(/\s*\([^)]*\)\s*$/, "")).trim(),
+      runs: Number(f.Runs ?? f.Score ?? f.RunsAtFall ?? 0),
+      wicket: Number(f.Wickets ?? f.WicketNo ?? f.WicketNumber ?? 0),
+      overs: String(f.Overs ?? f.Over ?? ""),
+    }));
+    return { name: `${teamName} Inning ${n}`, total: totalStr, batting, bowling, extras: extrasDetail, fow };
   };
 
   const results: InningData[] = [];

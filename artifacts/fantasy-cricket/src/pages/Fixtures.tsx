@@ -387,8 +387,11 @@ export default function FixturesPage({
                       </div>
                     );
                   })}
-                  {m.venue && (
-                    <div style={{ fontSize: "0.58rem", color: "var(--text-3)", marginTop: 7, letterSpacing: "0.01em" }}>🏟 {m.venue}{m.homeTeamCode ? ` · ${m.homeTeamCode}` : ""}</div>
+                  {(m.venue || sc?.overview?.venue) && (
+                    <div style={{ fontSize: "0.58rem", color: "var(--text-3)", marginTop: 7, letterSpacing: "0.01em" }}>🏟 {m.venue || sc?.overview?.venue}</div>
+                  )}
+                  {sc?.overview?.umpires && (
+                    <div style={{ fontSize: "0.56rem", color: "var(--text-3)", marginTop: 3, letterSpacing: "0.01em", opacity: 0.75 }}>👁 {sc.overview.umpires}</div>
                   )}
                   {/* Prediction section — collapsible */}
                   {m.homeTeamCode && m.awayTeamCode && (() => {

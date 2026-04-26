@@ -879,6 +879,40 @@
               "noBalls": 0,
               "dots": 1
             }
+          ],
+          "extras": {
+            "byes": 0,
+            "lb": 2,
+            "wides": 7,
+            "nb": 1,
+            "penalty": 0,
+            "total": 10
+          },
+          "fow": [
+            {
+              "player": "Finn Allen",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Cameron Green",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Ajinkya Rahane",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Angkrish Raghuvanshi",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            }
           ]
         },
         {
@@ -1084,6 +1118,40 @@
               "wides": 1,
               "noBalls": 0,
               "dots": 1
+            }
+          ],
+          "extras": {
+            "byes": 0,
+            "lb": 2,
+            "wides": 3,
+            "nb": 1,
+            "penalty": 0,
+            "total": 6
+          },
+          "fow": [
+            {
+              "player": "Rohit Sharma",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Surya Kumar Yadav",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Ryan Rickelton",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Tilak Varma",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
             }
           ]
         }
@@ -24819,20 +24887,7 @@
       }
     },
     "2478": {
-      "points": {
-        "Cameron Green": 110,
-        "Nicholas Pooran": 17,
-        "Mohammed Shami": 41,
-        "Varun Chakravarthy": 84,
-        "Aiden Markram": 77,
-        "Ajinkya Rahane": 16,
-        "Rishabh Pant": 88,
-        "Rinku Singh": 197,
-        "Tim Seifert": 10,
-        "Sunil Narine": 66,
-        "Mitchell Marsh": 14,
-        "Ayush Badoni": 48
-      },
+      "points": {},
       "innings": [
         {
           "name": "Kolkata Knight Riders Inning 1",
@@ -25984,20 +26039,20 @@
     },
     "ae75ebba-34a0-4877-abf7-9a41dde1cd24": {
       "points": {
-        "Prasidh Krishna": 57,
-        "Sai Sudharsan": 44,
-        "Cameron Green": 165,
-        "Varun Chakravarthy": 74,
-        "Mohammed Siraj": 114,
         "Sunil Narine": 58,
         "Ajinkya Rahane": 2,
-        "Rashid Khan": 52,
-        "Rinku Singh": 13,
-        "Kagiso Rabada": 138,
+        "Washington Sundar": 21,
+        "Mohammed Siraj": 114,
         "Jos Buttler": 98,
         "Shubman Gill": 164,
-        "Washington Sundar": 21,
-        "Tim Seifert": 39
+        "Sai Sudharsan": 44,
+        "Varun Chakravarthy": 74,
+        "Rashid Khan": 52,
+        "Tim Seifert": 39,
+        "Cameron Green": 165,
+        "Rinku Singh": 13,
+        "Prasidh Krishna": 57,
+        "Kagiso Rabada": 138
       },
       "matchLabel": "Gujarat Titans vs Kolkata Knight Riders",
       "matchDate": "2026-04-17",
@@ -26197,23 +26252,23 @@
     },
     "49e55b9d-bfa4-462f-833a-000856fd5ab6": {
       "points": {
-        "Jacob Bethell": 32,
-        "Prasidh Krishna": 0,
-        "Sai Sudharsan": 200,
-        "Jitesh Sharma": 24,
-        "Virat Kohli": 159,
-        "Rajat Patidar": 18,
-        "Mohammed Siraj": 52,
-        "Rashid Khan": 80,
         "Krunal Pandya": 55,
+        "Sai Sudharsan": 200,
+        "Rajat Patidar": 18,
         "Josh Hazlewood": 70,
-        "Kagiso Rabada": 14,
-        "Tim David": 20,
         "Jos Buttler": 51,
+        "Washington Sundar": 45,
+        "Kagiso Rabada": 14,
+        "Mohammed Siraj": 52,
+        "Jacob Bethell": 32,
         "Shubman Gill": 56,
-        "Bhuvneshwar Kumar": 48,
+        "Prasidh Krishna": 0,
+        "Virat Kohli": 159,
         "Devdutt Padikkal": 127,
-        "Washington Sundar": 45
+        "Jitesh Sharma": 24,
+        "Rashid Khan": 80,
+        "Tim David": 20,
+        "Bhuvneshwar Kumar": 48
       },
       "matchLabel": "Royal Challengers Bengaluru vs Gujarat Titans",
       "matchDate": "2026-04-24",
@@ -26247,19 +26302,19 @@
     },
     "3c44e9f8-17ff-46f4-a5a5-0779fb52a863": {
       "points": {
-        "Vaibhav Suryavanshi": 2,
         "Sakib Hussain": 176,
-        "Abhishek Sharma": 10,
-        "Travis Head": 34,
-        "Ishan Kishan": 199,
-        "Heinrich Klaasen": 74,
-        "Nitish Kumar Reddy": 90,
-        "Yashasvi Jaiswal": 5,
         "Dhruv Jurel": 15,
+        "Heinrich Klaasen": 74,
         "Riyan Parag": 52,
         "Ravindra Jadeja": 75,
         "Jofra Archer": 92,
-        "Ravi Bishnoi": 8
+        "Nitish Kumar Reddy": 90,
+        "Vaibhav Suryavanshi": 2,
+        "Yashasvi Jaiswal": 5,
+        "Ishan Kishan": 199,
+        "Abhishek Sharma": 10,
+        "Ravi Bishnoi": 8,
+        "Travis Head": 34
       },
       "matchLabel": "Sunrisers Hyderabad vs Rajasthan Royals",
       "matchDate": "2026-04-13",
@@ -26300,7 +26355,7 @@
         "Cameron Green": 110,
         "Rinku Singh": 197,
         "Varun Chakravarthy": 84,
-        "Sunil Narine": 66,
+        "Sunil Narine": 74,
         "Mohammed Shami": 41
       },
       "matchLabel": "Lucknow Super Giants vs Kolkata Knight Riders",
@@ -27077,7 +27132,7 @@
       "ended": false
     }
   },
-  "lastUpdated": "2026-04-26T18:02:43.286Z",
+  "lastUpdated": "2026-04-26T20:08:53.539Z",
   "cricapiMatchIds": {
     "2428": "12b5d808-d9ab-468e-bd25-a2c347f64bdc",
     "2467": "c5bf2a95-1855-463d-accf-9c1db88418cd",
