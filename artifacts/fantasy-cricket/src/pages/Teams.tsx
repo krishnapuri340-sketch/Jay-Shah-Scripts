@@ -432,9 +432,7 @@ export default function TeamsPage(props: TeamsPageProps) {
                               <svg width="8" height="5" viewBox="0 0 10 6" fill="none" style={{ flexShrink: 0, transition: "transform 0.18s", transform: isEntryOpen ? "rotate(180deg)" : "rotate(0deg)" }}><path d="M1 1l4 4 4-4" stroke="var(--text-3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                             </div>
                             {isEntryOpen && (s && lines.length > 0 ? renderBdExpandLines(lines, diff) : (
-                              <div style={{ display: "grid", gridTemplateColumns: "1fr auto", rowGap: 1, columnGap: 10, padding: "6px 8px", background: "rgba(255,255,255,0.02)", borderRadius: 7, marginTop: 4 }}>
-                                <span style={{ fontSize: "0.6rem", color: "var(--text-3)", gridColumn: "1 / -1" }}>{entry.source === "official" ? "AuctionRoom score · no stat breakdown available" : "No breakdown available"}</span>
-                              </div>
+                              renderBdExpandLines(entry.pts === 4 ? [{ label: "Playing XI", pts: 4, color: "#64748b" }] : [], 0)
                             ))}
                           </div>
                         );
@@ -471,9 +469,7 @@ export default function TeamsPage(props: TeamsPageProps) {
                               <svg width="8" height="5" viewBox="0 0 10 6" fill="none" style={{ flexShrink: 0, transition: "transform 0.18s", transform: isEntryOpen ? "rotate(180deg)" : "rotate(0deg)" }}><path d="M1 1l4 4 4-4" stroke="var(--text-3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                             </div>
                             {isEntryOpen && (s && lines.length > 0 ? renderBdExpandLines(lines, diff) : (
-                              <div style={{ display: "grid", gridTemplateColumns: "1fr auto", rowGap: 1, columnGap: 10, padding: "6px 8px", background: "rgba(255,255,255,0.02)", borderRadius: 7, marginTop: 4 }}>
-                                <span style={{ fontSize: "0.6rem", color: "var(--text-3)", gridColumn: "1 / -1" }}>{entry.source === "official" ? "AuctionRoom score · no stat breakdown available" : "No breakdown available"}</span>
-                              </div>
+                              renderBdExpandLines(entry.pts === 4 ? [{ label: "Playing XI", pts: 4, color: "#64748b" }] : [], 0)
                             ))}
                           </div>
                         );
