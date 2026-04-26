@@ -6,6 +6,7 @@ import {
   getMatchNum, getMatchWinner, getTeamData, rankLabel, applyMultiplier,
 } from "../utils";
 import { usePoints } from "../context/PointsContext";
+import { raTeamScore, RA_TEAM_ORDER } from "../reauction-data";
 
 interface HomePageProps {
   countdown: { text: string; matchName: string; venue?: string; homeTeam?: string; awayTeam?: string } | null;
@@ -38,6 +39,15 @@ export default function HomePage(props: HomePageProps) {
     selectedAwardIdx, setSelectedAwardIdx, awardXiFilter, setAwardXiFilter,
   } = props;
   const { playerPoints, teamScores, matchHistory, playerMatchPoints } = usePoints();
+  const [lbView, setLbView] = React.useState<"season" | "reauction">("season");
+
+  const raScores = React.useMemo(() => {
+    return RA_TEAM_ORDER.map(tid => {
+      const ft = FANTASY_TEAMS[tid];
+      const { total } = raTeamScore(tid, playerPoints, playerMatchPoints as any);
+      return { id: tid, team: ft, total };
+    }).sort((a, b) => b.total - a.total);
+  }, [playerPoints, playerMatchPoints]);
 
     return (
       <div>
@@ -254,8 +264,26 @@ export default function HomePage(props: HomePageProps) {
             </div>
           );
         })()}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, marginTop: countdown ? 16 : 0 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8, marginTop: countdown ? 16 : 0 }}>
           <div className="sec-title" style={{ marginBottom: 0 }}>Leaderboard</div>
+          <div style={{ display: "flex", gap: 6 }}>
+            <div style={{ display: "flex", background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 7, overflow: "hidden" }}>
+              {(["season", "reauction"] as const).map(v => (
+                <button key={v} onClick={() => setLbView(v)}
+                  style={{
+                    padding: "4px 9px", fontSize: "0.6rem", fontWeight: 700, border: "none", cursor: "pointer",
+                    fontFamily: "inherit",
+                    background: lbView === v ? "rgba(255,255,255,0.12)" : "transparent",
+                    color: lbView === v ? "var(--text)" : "var(--text-3)",
+                    letterSpacing: "0.04em",
+                  }}>
+                  {v === "season" ? "Season" : "Re-Auction"}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", marginBottom: 12 }}>
           <div style={{ display: "flex", gap: 6 }}>
             <button
               onClick={handleLbRefresh}
@@ -277,7 +305,7 @@ export default function HomePage(props: HomePageProps) {
             </button>
           </div>
         </div>
-        {(() => {
+        {lbView === "season" && (() => {
           const LB_BG: Record<string, string> = {
             rajveer:  `${import.meta.env.BASE_URL}lb-bg-rajveer.jpeg`,
             mombasa:  `${import.meta.env.BASE_URL}lb-bg-mumbai.jpeg`,
@@ -347,6 +375,84 @@ export default function HomePage(props: HomePageProps) {
                     </div>
                   </div>
                 </div>
+                );
+              })}
+            </div>
+          );
+        })()}
+
+        {lbView === "reauction" && (() => {
+          const LB_BG: Record<string, string> = {
+            rajveer:  `${import.meta.env.BASE_URL}lb-bg-rajveer.jpeg`,
+            mombasa:  `${import.meta.env.BASE_URL}lb-bg-mumbai.jpeg`,
+            mumbai:   `${import.meta.env.BASE_URL}lb-bg-mombasa.jpeg`,
+            ponygoat: `${import.meta.env.BASE_URL}lb-bg-ponygoat.jpeg`,
+          };
+          const hasData = Object.keys(playerPoints).length > 0;
+          if (!hasData) return (
+            <div>
+              {[0,1,2,3].map(i => (
+                <div key={i} className="skel-lb-card">
+                  <div className="skel" style={{ width: 30, height: 30, borderRadius: "50%", flexShrink: 0 }} />
+                  <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 8 }}>
+                    <div className="skel" style={{ height: 13, width: "52%" }} />
+                    <div className="skel" style={{ height: 9, width: "78%" }} />
+                  </div>
+                  <div className="skel" style={{ width: 38, height: 22, flexShrink: 0 }} />
+                </div>
+              ))}
+            </div>
+          );
+          const raLeader = raScores[0]?.total ?? 0;
+          return (
+            <div>
+              {raScores.map((s, i) => {
+                const gap = i > 0 ? raLeader - s.total : 0;
+                return (
+                  <div key={s.id} className={`lb-card ${i === 0 ? "rank-first" : ""}`}
+                    onClick={() => setTab("whatif")}
+                  >
+                    {/* Blurred team artwork background */}
+                    <div style={{
+                      position: "absolute", inset: -6, zIndex: 0,
+                      backgroundImage: `url(${LB_BG[s.id]})`,
+                      backgroundSize: "cover", backgroundPosition: "center 30%",
+                      filter: "blur(32px) brightness(0.72) saturate(1.4)",
+                      transform: "translateZ(0)", willChange: "filter",
+                    }} />
+                    {/* Glass scrim */}
+                    <div style={{
+                      position: "absolute", inset: 0, zIndex: 1,
+                      background: `linear-gradient(135deg, ${s.team.color}18 0%, rgba(9,9,11,0.18) 100%)`,
+                    }} />
+                    <div className="lb-accent" style={{ background: s.team.color, zIndex: 2, position: "relative" }} />
+                    <div className="lb-inner" style={{ position: "relative", zIndex: 2 }}>
+                      <div className={`lb-rank ${rankLabel(i)}`} style={{ textShadow: "0 1px 4px rgba(0,0,0,0.4)" }}>{i + 1}</div>
+                      <div className="lb-info">
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          <div className={`lb-name ${i === 0 ? "first" : ""}`}
+                            style={{ textShadow: "0 1px 6px rgba(0,0,0,1), 0 0 20px rgba(0,0,0,0.8)" }}>
+                            {s.team.name}
+                          </div>
+                        </div>
+                        <div className="lb-meta">
+                          {s.team.owner} · <span style={{ color: "#d4a843" }}>C:</span> {s.team.captain} · <span style={{ color: "rgba(255,255,255,0.45)" }}>VC:</span> {s.team.vc}
+                        </div>
+                      </div>
+                      <div style={{ textAlign: "right", flexShrink: 0 }}>
+                        <div className="lb-pts first opacity-[1] bg-[transparent]"
+                          style={{ color: s.team.color, textShadow: `0 0 12px ${s.team.color}66` }}>
+                          {s.total}
+                        </div>
+                        <div className="lb-pts-label" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>pts</div>
+                        {i > 0 && (
+                          <div style={{ fontSize: "0.58rem", color: gap === 0 ? "var(--text-3)" : "#f87171", textShadow: "0 1px 4px rgba(0,0,0,0.9)", fontWeight: 600, marginTop: 1 }}>
+                            {`−${gap}`}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 );
               })}
             </div>
