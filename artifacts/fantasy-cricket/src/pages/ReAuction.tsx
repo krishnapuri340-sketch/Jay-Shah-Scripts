@@ -227,6 +227,7 @@ function RosterCard({ teamId, top11, players, total, ft, teamColor, captain, vc,
 
   const xiTotal = xi.reduce((s, p) => s + p.adjPts, 0);
   const benchTotal = bench.reduce((s, p) => s + p.adjPts, 0);
+  const grandTotal = xiTotal + benchTotal;
 
   const bgImg = TEAM_BG[teamId];
 
@@ -283,7 +284,7 @@ function RosterCard({ teamId, top11, players, total, ft, teamColor, captain, vc,
         {([
           ["xi",    "Playing XI", xiTotal > 0 ? `${xiTotal.toFixed(1)} pts` : ""],
           ["bench", "Bench",      benchTotal > 0 ? `${benchTotal.toFixed(1)} pts` : ""],
-          ["total", "Total",      total > 0 ? `${total.toFixed(1)} pts` : ""],
+          ["total", "Total",      grandTotal > 0 ? `${grandTotal.toFixed(1)} pts` : ""],
         ] as const).map(([id, label, badge]) => (
           <button key={id} onClick={() => setSection(id)}
             style={{
@@ -329,7 +330,7 @@ function RosterCard({ teamId, top11, players, total, ft, teamColor, captain, vc,
         <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--radius-md)", overflow: "hidden" }}>
           {[
             { label: "Playing XI", pts: xiTotal, color: "#4ade80" },
-            { label: "Bench (not counted)", pts: benchTotal, color: "var(--text-3)" },
+            { label: "Bench", pts: benchTotal, color: "var(--text-3)" },
           ].map(row => (
             <div key={row.label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", borderBottom: "1px solid var(--border)" }}>
               <span style={{ fontSize: "0.72rem", color: "var(--text-2)" }}>{row.label}</span>
@@ -341,7 +342,7 @@ function RosterCard({ teamId, top11, players, total, ft, teamColor, captain, vc,
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px" }}>
             <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--text-2)" }}>Total</span>
             <span style={{ fontSize: "1.25rem", fontWeight: 800, color: teamColor, fontVariantNumeric: "tabular-nums", textShadow: `0 0 12px ${teamColor}55` }}>
-              {typeof total === "number" ? total.toFixed(1) : total}
+              {grandTotal.toFixed(1)}
             </span>
           </div>
         </div>
