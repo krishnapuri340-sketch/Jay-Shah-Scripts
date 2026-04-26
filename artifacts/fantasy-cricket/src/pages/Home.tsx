@@ -513,7 +513,26 @@ export default function HomePage(props: HomePageProps) {
             return { teamId, color: ft.color, points };
           });
 
-          const activeChartData = lbView === "reauction" ? raChartData : matchHistory;
+          const originalChartData = chartXiFilter === "xi"
+            ? matchHistory.map(t => {
+                const top11Set = getTeamData(t.teamId, playerPoints).top11;
+                const team = FANTASY_TEAMS[t.teamId];
+                let cum = 0;
+                const points = matchHistory[0].points.map(({ matchNum }: any) => {
+                  let pts = 0;
+                  for (const player of team.players) {
+                    if (!top11Set.has(player.name)) continue;
+                    const entry = (playerMatchPoints[player.name] || []).find((e: any) => e.matchNum === matchNum);
+                    if (entry) pts += applyMultiplier(entry.pts, player.name === team.captain, player.name === team.vc);
+                  }
+                  cum += pts;
+                  return { matchNum, label: `M${matchNum}`, cum };
+                });
+                return { ...t, points };
+              })
+            : matchHistory;
+
+          const activeChartData = lbView === "reauction" ? raChartData : originalChartData;
 
           const sortedByFinal = [...activeChartData].sort((a, b) =>
             (b.points[b.points.length - 1]?.cum ?? 0) - (a.points[a.points.length - 1]?.cum ?? 0)
@@ -655,6 +674,22 @@ export default function HomePage(props: HomePageProps) {
             <div style={{ marginTop: 22 }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
                 <div className="sec-title" style={{ marginBottom: 0 }}>{lbView === "reauction" ? "Re-Auction Race" : "Season Race"}</div>
+                {lbView === "season" && (
+                  <div style={{ display: "flex", background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 7, overflow: "hidden" }}>
+                    {(["all", "xi"] as const).map(f => (
+                      <button key={f} onClick={() => setChartXiFilter(f)}
+                        style={{
+                          padding: "4px 9px", fontSize: "0.6rem", fontWeight: 700, border: "none", cursor: "pointer",
+                          fontFamily: "inherit",
+                          background: chartXiFilter === f ? "rgba(255,255,255,0.12)" : "transparent",
+                          color: chartXiFilter === f ? "var(--text)" : "var(--text-3)",
+                          letterSpacing: "0.04em",
+                        }}>
+                        {f === "all" ? "All" : "Top XI"}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Line chart */}
