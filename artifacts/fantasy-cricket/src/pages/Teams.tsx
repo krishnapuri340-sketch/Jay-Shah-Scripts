@@ -3,6 +3,7 @@ import { ROLE_COLORS, IPL_COLORS, IPL_TEAM_BADGE, TEAM_LOGO_CDN } from "../const
 import { FANTASY_TEAMS } from "../teams";
 import { getTeamData, applyMultiplier } from "../utils";
 import { usePoints } from "../context/PointsContext";
+import { RA_TEAMS, raTeamScore } from "../reauction-data";
 
 interface TeamsPageProps {
   selectedTeam: string;
@@ -66,6 +67,7 @@ export default function TeamsPage(props: TeamsPageProps) {
   const [expandedMatchNums, setExpandedMatchNums] = useState<Set<number>>(new Set());
   const [teamSection, setTeamSection] = useState<"xi" | "bench" | "matchpts">("xi");
   const [drillPlayer, setDrillPlayer] = useState<string | null>(null);
+  const [teamsView, setTeamsView] = useState<"original" | "reauction">("original");
 
     const t = FANTASY_TEAMS[selectedTeam];
     const td = getTeamData(selectedTeam, playerPoints);
@@ -73,6 +75,20 @@ export default function TeamsPage(props: TeamsPageProps) {
       acc[p.role] = (acc[p.role] || 0) + 1;
       return acc;
     }, {});
+
+    const raScore = raTeamScore(selectedTeam, playerPoints, playerMatchPoints);
+    const raRoleCounts = RA_TEAMS[selectedTeam].players.reduce((acc: Record<string, number>, p) => {
+      acc[p.role] = (acc[p.role] || 0) + 1;
+      return acc;
+    }, {});
+    const raExtras = new Map(raScore.players.map(p => [p.name, {
+      isNew: p.isNew, frozenPts: p.frozenPts ?? 0, liveGain: p.liveGain, replacedName: p.replacedName,
+    }]));
+    const isRA = teamsView === "reauction";
+    const activeCap = isRA ? RA_TEAMS[selectedTeam].captain : t.captain;
+    const activeVC  = isRA ? RA_TEAMS[selectedTeam].vc       : t.vc;
+    const displayRoleCounts = isRA ? raRoleCounts : roleCounts;
+    const displayTotal = isRA ? raScore.total : (Object.keys(playerPoints).length === 0 ? null : td.total);
 
     // Helper: extract match label + players for this team from a preview list
     const extractForTeam = (previews: any[]) => {
@@ -147,6 +163,24 @@ export default function TeamsPage(props: TeamsPageProps) {
             );
           })}
         </div>
+        {/* Original / Re-Auction toggle */}
+        <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
+          {(["original", "reauction"] as const).map(v => (
+            <button key={v} onClick={() => setTeamsView(v)}
+              style={{
+                flex: 1, padding: "5px 0", borderRadius: 16, cursor: "pointer",
+                fontFamily: "inherit", fontSize: "0.65rem", fontWeight: 600,
+                background: teamsView === v ? (v === "reauction" ? "rgba(212,168,67,0.18)" : "var(--surface-3)") : "var(--surface)",
+                color: teamsView === v ? (v === "reauction" ? "#d4a843" : "var(--text)") : "var(--text-3)",
+                border: `1px solid ${teamsView === v ? (v === "reauction" ? "rgba(212,168,67,0.35)" : "rgba(255,255,255,0.12)") : "var(--border)"}`,
+                WebkitTapHighlightColor: "transparent",
+                transition: "all 0.18s ease",
+              }}>
+              {v === "original" ? "Original" : "Re-Auction"}
+            </button>
+          ))}
+        </div>
+
         <div className="team-header-card" style={{ "--team-color": t.color } as React.CSSProperties}>
           {/* Blurred team artwork background */}
           <div style={{
@@ -161,10 +195,9 @@ export default function TeamsPage(props: TeamsPageProps) {
           }} />
           <div style={{ flex: 1, position: "relative", zIndex: 2 }}>
             <div className="team-hname" style={{ color: t.color, textShadow: "0 1px 6px rgba(0,0,0,1)" }}>{t.name}</div>
-            <div
-              style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.92)", marginBottom: 4 }}>{t.owner} </div>
+            <div style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.92)", marginBottom: 4 }}>{t.owner}</div>
             <div className="team-roles">
-              {Object.entries(roleCounts).sort((a, b) => (b[1] as number) - (a[1] as number)).map(([role, n]) => (
+              {Object.entries(displayRoleCounts).sort((a, b) => (b[1] as number) - (a[1] as number)).map(([role, n]) => (
                 <span key={role} className="role-badge"
                   style={{ color: ROLE_COLORS[role], borderColor: ROLE_COLORS[role] + "44", background: ROLE_COLORS[role] + "11" }}>
                   {n} {role}
@@ -173,10 +206,10 @@ export default function TeamsPage(props: TeamsPageProps) {
             </div>
           </div>
           <div style={{ textAlign: "right", position: "relative", zIndex: 2 }}>
-            <div className="team-htotal" style={{ color: Object.keys(playerPoints).length === 0 ? "var(--text-3)" : t.color, textShadow: `0 0 10px ${t.color}55, 0 1px 4px rgba(0,0,0,1)` }}>
-              {Object.keys(playerPoints).length === 0 ? "—" : td.total}
+            <div className="team-htotal" style={{ color: displayTotal === null ? "var(--text-3)" : t.color, textShadow: `0 0 10px ${t.color}55, 0 1px 4px rgba(0,0,0,1)` }}>
+              {displayTotal === null ? "—" : displayTotal}
             </div>
-            <div className="team-hlabel" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>total pts</div>
+            <div className="team-hlabel" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>{isRA ? "re-auction pts" : "total pts"}</div>
           </div>
         </div>
         {/* Match status banner — shows LIVE and/or UPCOMING players */}
@@ -249,9 +282,9 @@ export default function TeamsPage(props: TeamsPageProps) {
           const renderBreakdown = (p: { name: string; raw: number; adj: number; role: string; ipl: string }, onClose?: () => void) => {
             const playerName = p.name;
             const breakdown = playerMatchPoints[playerName] || [];
-            const isCap = playerName === t.captain;
-            const isVC = playerName === t.vc;
-            const inTop11 = td.top11.has(playerName);
+            const isCap = playerName === activeCap;
+            const isVC = playerName === activeVC;
+            const inTop11 = isRA ? raScore.top11.has(playerName) : td.top11.has(playerName);
             const raw = p.raw;
             const adj = p.adj;
             const multiplier = isCap ? "× 2 (Captain)" : isVC ? "× 1.5 (VC)" : null;
@@ -457,10 +490,23 @@ export default function TeamsPage(props: TeamsPageProps) {
             return { isLiveNow, isUpcoming, isDimmed, glowColor };
           };
 
-          const drillData = drillPlayer ? td.players.find(p => p.name === drillPlayer) ?? null : null;
+          const drillData = drillPlayer
+            ? (isRA
+                ? (() => {
+                    const rap = raScore.players.find(p => p.name === drillPlayer);
+                    return rap ? { name: rap.name, raw: rap.slotPts, adj: rap.adjPts, role: rap.role, ipl: rap.ipl, price: rap.price } : null;
+                  })()
+                : td.players.find(p => p.name === drillPlayer) ?? null)
+            : null;
           const innerContent = (() => {
-            const xi = td.players.filter(p => td.top11.has(p.name)).sort((a, b) => b.adj - a.adj);
-            const bench = td.players.filter(p => !td.top11.has(p.name)).sort((a, b) => b.adj - a.adj);
+            const xi = isRA
+              ? raScore.players.filter(p => raScore.top11.has(p.name))
+                  .map(p => ({ name: p.name, raw: p.slotPts, adj: p.adjPts, role: p.role, ipl: p.ipl, price: p.price }))
+              : td.players.filter(p => td.top11.has(p.name)).sort((a, b) => b.adj - a.adj);
+            const bench = isRA
+              ? raScore.players.filter(p => !raScore.top11.has(p.name))
+                  .map(p => ({ name: p.name, raw: p.slotPts, adj: p.adjPts, role: p.role, ipl: p.ipl, price: p.price }))
+              : td.players.filter(p => !td.top11.has(p.name)).sort((a, b) => b.adj - a.adj);
             const xiTotal = xi.reduce((s, p) => s + p.adj, 0);
             const benchTotal = bench.reduce((s, p) => s + p.adj, 0);
 
@@ -490,8 +536,9 @@ export default function TeamsPage(props: TeamsPageProps) {
             const renderPlayer = (p: typeof xi[0], isBench: boolean) => {
               const isExp = expandedPlayer === p.name;
               const { isLiveNow, isUpcoming, isDimmed } = getPlayerState(p.name, p.ipl);
-              const isCap = p.name === t.captain;
-              const isVC = p.name === t.vc;
+              const isCap = p.name === activeCap;
+              const isVC = p.name === activeVC;
+              const raEx = isRA ? raExtras.get(p.name) : undefined;
               const roleColor = ROLE_COLORS[p.role] || "var(--text-3)";
               const cardClass = [
                 isBench ? "player-card benched" : "player-card",
@@ -528,6 +575,9 @@ export default function TeamsPage(props: TeamsPageProps) {
                         }}>{p.name}</div>
                         {isCap && <CaptainBadge />}
                         {isVC && <VCBadge />}
+                        {raEx?.isNew && (
+                          <span style={{ fontSize: "0.42rem", fontWeight: 800, color: "#d4a843", letterSpacing: "0.07em", background: "rgba(212,168,67,0.14)", border: "1px solid rgba(212,168,67,0.35)", borderRadius: 3, padding: "1px 4px", flexShrink: 0, lineHeight: 1 }}>NEW</span>
+                        )}
                         {isLiveNow && <span style={{ fontSize: "0.42rem", fontWeight: 800, color: "#f87171", letterSpacing: "0.09em", background: "rgba(248,113,113,0.12)", border: "1px solid rgba(248,113,113,0.28)", borderRadius: 3, padding: "1px 4px", flexShrink: 0, lineHeight: 1 }}>LIVE</span>}
                         {isUpcoming && !isLiveNow && <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#4ade80", flexShrink: 0, display: "inline-block", boxShadow: "0 0 5px #4ade8088" }} />}
                       </div>
@@ -553,6 +603,12 @@ export default function TeamsPage(props: TeamsPageProps) {
                       }}>{p.adj}</div>
                       {isCap && <div className="player-pts-raw" style={{ color: "#d4a843" }}>×2</div>}
                       {isVC && <div className="player-pts-raw" style={{ color: "#9e8e7e" }}>×1.5</div>}
+                      {raEx?.isNew && !isCap && !isVC && (
+                        <div style={{ fontSize: "0.42rem", color: "var(--text-3)", fontWeight: 600, marginTop: 2, lineHeight: 1.3, textAlign: "right" as const, whiteSpace: "nowrap" as const }}>
+                          <span style={{ color: "#d4a843" }}>{raEx.frozenPts}</span>
+                          {raEx.liveGain > 0 && <span style={{ color: "#4ade80" }}>{`+${raEx.liveGain}`}</span>}
+                        </div>
+                      )}
                       {isBench && (() => {
                         if (xi11thPts === null) return <div style={{ fontSize: "0.44rem", color: "var(--text-3)", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" as const, marginTop: 2, opacity: 0.5 }}>bench</div>;
                         const gap = Math.round((xi11thPts - p.adj) * 10) / 10;
@@ -631,8 +687,8 @@ export default function TeamsPage(props: TeamsPageProps) {
 
                   const allTeamPlayers = [...xi, ...bench];
                   const getAdj = (name: string, mn: number) => {
-                    const isCap = name === t.captain;
-                    const isVC = name === t.vc;
+                    const isCap = name === activeCap;
+                    const isVC = name === activeVC;
                     const e = (playerMatchPoints[name] || []).find((x: any) => x.matchNum === mn);
                     return e ? applyMultiplier(e.pts, isCap, isVC) : 0;
                   };
@@ -646,7 +702,7 @@ export default function TeamsPage(props: TeamsPageProps) {
                     const players = allTeamPlayers
                       .filter(p => hasEntry(p.name, mn))
                       .map(p => ({
-                        ...p, isCap: p.name === t.captain, isVC: p.name === t.vc,
+                        ...p, isCap: p.name === activeCap, isVC: p.name === activeVC,
                         pts: getAdj(p.name, mn),
                       })).sort((a, b) => b.pts - a.pts);
                     const total = players.reduce((s, p) => s + p.pts, 0);
