@@ -487,10 +487,14 @@ export default function HomePage(props: HomePageProps) {
           const raChartData = RA_TEAM_ORDER.map(teamId => {
             const raTeam = RA_TEAMS[teamId];
             const ft = FANTASY_TEAMS[teamId];
+            const raTop11 = chartXiFilter === "xi"
+              ? raTeamScore(teamId, playerPoints, playerMatchPoints as any).top11
+              : null;
             let cum = 0;
             const points = allMatchNums.map((matchNum: number) => {
               let pts = 0;
               for (const player of raTeam.players) {
+                if (raTop11 && !raTop11.has(player.name)) continue;
                 const isCap = player.name === raTeam.captain;
                 const isVC = player.name === raTeam.vc;
                 const mult = isCap ? 2 : isVC ? 1.5 : 1;
@@ -674,22 +678,20 @@ export default function HomePage(props: HomePageProps) {
             <div style={{ marginTop: 22 }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
                 <div className="sec-title" style={{ marginBottom: 0 }}>{lbView === "reauction" ? "Re-Auction Race" : "Season Race"}</div>
-                {lbView === "season" && (
-                  <div style={{ display: "flex", background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 7, overflow: "hidden" }}>
-                    {(["all", "xi"] as const).map(f => (
-                      <button key={f} onClick={() => setChartXiFilter(f)}
-                        style={{
-                          padding: "4px 9px", fontSize: "0.6rem", fontWeight: 700, border: "none", cursor: "pointer",
-                          fontFamily: "inherit",
-                          background: chartXiFilter === f ? "rgba(255,255,255,0.12)" : "transparent",
-                          color: chartXiFilter === f ? "var(--text)" : "var(--text-3)",
-                          letterSpacing: "0.04em",
-                        }}>
-                        {f === "all" ? "All" : "Top XI"}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                <div style={{ display: "flex", background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 7, overflow: "hidden" }}>
+                  {(["all", "xi"] as const).map(f => (
+                    <button key={f} onClick={() => setChartXiFilter(f)}
+                      style={{
+                        padding: "4px 9px", fontSize: "0.6rem", fontWeight: 700, border: "none", cursor: "pointer",
+                        fontFamily: "inherit",
+                        background: chartXiFilter === f ? "rgba(255,255,255,0.12)" : "transparent",
+                        color: chartXiFilter === f ? "var(--text)" : "var(--text-3)",
+                        letterSpacing: "0.04em",
+                      }}>
+                      {f === "all" ? "All" : "Top XI"}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Line chart */}
