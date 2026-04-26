@@ -44,34 +44,28 @@ export default function HistoryPage() {
         </div>
       )}
 
-      {/* Year filter */}
-      {!s && (
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-          <span style={{ fontSize: "0.7rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.06em", textTransform: "uppercase" }}>Season</span>
-          <select
-            value={historyYear ?? ""}
-            onChange={e => setHistoryYear(e.target.value ? Number(e.target.value) : null)}
-            style={{
-              background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.10)",
-              borderRadius: 8, color: "var(--text-2)", fontSize: "0.72rem", fontWeight: 600,
-              padding: "6px 10px", cursor: "pointer", outline: "none",
-            }}
-          >
-            <option value="">All Seasons</option>
-            {IPL_HISTORY.map(h => (
-              <option key={h.year} value={h.year}>{h.year}</option>
-            ))}
-          </select>
-        </div>
-      )}
+      {/* Year filter — always visible */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+        <span style={{ fontSize: "0.7rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.06em", textTransform: "uppercase" }}>Season</span>
+        <select
+          value={historyYear ?? ""}
+          onChange={e => setHistoryYear(e.target.value ? Number(e.target.value) : null)}
+          style={{
+            background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.10)",
+            borderRadius: 8, color: "var(--text-2)", fontSize: "0.72rem", fontWeight: 600,
+            padding: "6px 10px", cursor: "pointer", outline: "none",
+          }}
+        >
+          <option value="">All Seasons</option>
+          {IPL_HISTORY.map(h => (
+            <option key={h.year} value={h.year}>{h.year}</option>
+          ))}
+        </select>
+      </div>
 
-      {/* DETAIL VIEW – single season */}
+      {/* DETAIL VIEW – single season, inline below filter */}
       {s && (
         <div>
-          {/* Back nav */}
-          <button className="hist-back-btn" onClick={() => setHistoryYear(null)}>
-            ← All Seasons
-          </button>
           {/* Season hero — split champion/runner-up + awards grid */}
           <div className="hist-hero" style={{ borderColor: s.color }}>
             <div className="hist-hero-year" style={{ color: s.color }}>Season {s.season} · IPL {s.year}</div>
