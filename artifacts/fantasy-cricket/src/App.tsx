@@ -1,26 +1,23 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import HistoryPage from "./pages/History";
 import AdminPage from "./pages/Admin";
 import StatsPage from "./pages/Stats";
 import { FANTASY_TEAMS } from "./teams";
-import { applyMultiplier, getTeamData } from "./utils";
+import { getTeamData } from "./utils";
 import { IPL_COLORS, SWIPEABLE_TABS, TEAM_LOGO_CDN } from "./constants";
 import ReAuctionPage from "./pages/ReAuction";
 import FixturesPage from "./pages/Fixtures";
 import TeamsPage from "./pages/Teams";
 import HomePage from "./pages/Home";
-import { useStandings } from "./hooks/useStandings";
 import { useIplStats } from "./hooks/useIplStats";
-import { usePredictions, saveLocalPreds, loadLocalPreds } from "./hooks/usePredictions";
 import { useScorecard } from "./hooks/useScorecard";
 import { useLiveMatches } from "./hooks/useLiveMatches";
-import { useFantasyPoints } from "./hooks/useFantasyPoints";
-import { getAuthToken, setAuthToken, clearAuthToken, authHeaders, authStreamUrl, fetchAuthed, dispatchSessionExpired } from "./lib/auth";
+import { authHeaders, fetchAuthed } from "./lib/auth";
+import { useAuth } from "./context/AuthContext";
+import { usePredictions } from "./context/PredictionsContext";
+import { usePoints } from "./context/PointsContext";
 
-// ─── PIN login ───────────────────────────────────────────────────────────────
-// PINs are server-authoritative; never stored as defaults in client code.
-// The commissioner fetches the current list via GET /api/ipl/pins (session-gated).
-function savePins(p: Record<string, boolean>) { localStorage.setItem("ipl-pins-2026", JSON.stringify(p)); }
+// ─────────────────────────────────────────────────────────────────────────────
 
 function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string) => Promise<boolean> }) {
   const [sel, setSel] = useState<string | null>(null);
@@ -45,12 +42,10 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
   };
   const back = () => { if (!checking) setEntered(e => e.slice(0, -1)); };
 
-  // ── Cinematic background — image flipped so sky sits at bottom ───────────
   const BASE = import.meta.env.BASE_URL;
   const cinematicBg: React.CSSProperties = {
     position: "fixed", inset: 0, zIndex: 1000, overflow: "hidden",
   };
-  // Inlined bg JSX (not a component — avoids remount/flicker on state changes)
   const bgImg: React.CSSProperties = {
     position: "absolute", left: 0, right: 0,
     top: "12%", height: "100%", width: "100%",
@@ -92,7 +87,6 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
         </button>
 
         <div style={{ position: "relative", zIndex: 2, animation: "login-fade-up 0.38s ease-out", display: "flex", flexDirection: "column" as const, alignItems: "center" }}>
-          {/* Avatar with warm glow ring */}
           <div style={{ position: "relative", marginBottom: 20 }}>
             <div style={{ position: "absolute", inset: -10, borderRadius: "50%", background: `radial-gradient(circle, ${ft.color}40 0%, transparent 70%)`, filter: "blur(14px)" }} />
             <div style={{ width: 90, height: 90, borderRadius: "50%", border: `2px solid rgba(255,255,255,0.22)`, overflow: "hidden", boxShadow: `0 0 0 5px rgba(255,255,255,0.06), 0 10px 40px rgba(0,0,0,0.5)`, position: "relative" as const, backdropFilter: "blur(4px)" }}>
@@ -104,7 +98,6 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
           <div style={{ fontSize: "0.65rem", color: ft.color, letterSpacing: "0.08em", fontWeight: 700, marginBottom: 2, textShadow: "0 1px 6px rgba(0,0,0,0.95), 0 2px 12px rgba(0,0,0,0.8)" }}>{ft.name}</div>
           <div style={{ fontSize: "0.56rem", color: "rgba(255,255,255,0.8)", letterSpacing: "0.2em", marginBottom: 40, fontWeight: 700, textTransform: "uppercase" as const, textShadow: "0 1px 6px rgba(0,0,0,1)" }}>Enter your PIN</div>
 
-          {/* PIN dots */}
           <div className={shake ? "pin-dot-shake" : ""} style={{ display: "flex", gap: 20, marginBottom: wrong ? 10 : 44, animation: shake ? "pin-shake 0.55s ease" : "none" }}>
             {[0,1,2,3].map(i => (
               <div key={i} className={`pin-dot-fill ${i < entered.length ? "filled" : ""}`} style={{
@@ -119,7 +112,6 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
           {wrong && <div style={{ fontSize: "0.65rem", color: "#ff8888", marginBottom: 18, letterSpacing: "0.04em", fontWeight: 600, textShadow: "0 1px 8px rgba(0,0,0,0.6)" }}>✕ Wrong PIN — try again</div>}
           {checking && <div style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.4)", marginBottom: 12, letterSpacing: "0.06em" }}>Checking…</div>}
 
-          {/* Numpad — frosted glass keys */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 76px)", gap: 12, width: "fit-content", opacity: checking ? 0.4 : 1, pointerEvents: checking ? "none" : "auto" }}>
             {["1","2","3","4","5","6","7","8","9","","0","⌫"].map((k, i) => (
               k === "" ? <div key={i} /> :
@@ -158,19 +150,14 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
         .team-card:active { transform: scale(0.95) !important; transition: all 0.1s ease !important; }
       `}</style>
 
-      {/* Logo area */}
       {(() => {
         const savedId = localStorage.getItem("ipl-current-user");
         const savedTeam = savedId ? FANTASY_TEAMS[savedId] : null;
         return (
           <div style={{ position: "relative", zIndex: 2, animation: "login-fade-up 0.35s ease-out", display: "flex", flexDirection: "column" as const, alignItems: "center", marginBottom: savedTeam ? 28 : 44 }}>
-            {/* spinning ring icon */}
             <div style={{ position: "relative", width: 92, height: 92, marginBottom: 20 }}>
-              {/* Outer ambient glow */}
               <div style={{ position: "absolute", inset: -14, borderRadius: 40, background: "radial-gradient(circle, rgba(245,166,35,0.25) 0%, transparent 65%)", filter: "blur(10px)" }} />
-              {/* Static full gold ring — always visible, with outer squared glow */}
               <div style={{ position: "absolute", inset: -2, borderRadius: 28, background: "rgba(245,166,35,0.38)", boxShadow: "0 0 0 1px rgba(245,166,35,0.5), 0 0 12px 3px rgba(245,166,35,0.35), 0 0 28px 6px rgba(245,166,35,0.18)" }} />
-              {/* Inner clip — rounded square, covers center leaving only the ring visible */}
               <div style={{ position: "absolute", inset: 2.5, borderRadius: 25.5, background: "#100d08", overflow: "hidden" }}>
                 <img
                   src={`${import.meta.env.BASE_URL}app-icon.png`}
@@ -208,12 +195,10 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
         );
       })()}
 
-      {/* Label */}
       <div style={{ position: "relative", zIndex: 2, fontSize: "0.56rem", letterSpacing: "0.2em", color: "#fff", textTransform: "uppercase" as const, marginBottom: 18, marginTop: -28, fontWeight: 800, animation: "login-fade-up 0.4s ease-out", textShadow: "0 1px 6px rgba(0,0,0,1), 0 2px 16px rgba(0,0,0,0.9)" }}>
         Select your team
       </div>
 
-      {/* Team cards — glass cards with warm border */}
       <div style={{ position: "relative", zIndex: 2, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, width: "100%", maxWidth: 400 }}>
         {Object.values(FANTASY_TEAMS).map((ft, idx) => (
           <button key={ft.id} className="team-card" onClick={() => setSel(ft.id)} style={{
@@ -236,7 +221,6 @@ function LoginScreen({ onValidate }: { onValidate: (userId: string, pin: string)
         ))}
       </div>
 
-      {/* Footer */}
       <div style={{ position: "absolute", bottom: 24, zIndex: 2, fontSize: "0.52rem", color: "rgba(255,200,120,0.25)", letterSpacing: "0.1em", fontWeight: 600 }}>
         IPL 2026 · Private League
       </div>
@@ -305,56 +289,69 @@ const buildMatchPreviews = (matches: any[]) =>
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const [tab, setTab] = useState("home");
-  const [wiSection, setWiSection] = useState<"swap" | "permatch" | "intel">("swap");
-  const [wiTeamId, setWiTeamId] = useState("rajveer");
-  const [altCap, setAltCap] = useState("");
-  const [altVC, setAltVC] = useState("");
-  const [perMatchCaps, setPerMatchCaps] = useState<Record<string, Record<number, { cap: string; vc: string }>>>({});
-  const [expandedWiMatch, setExpandedWiMatch] = useState<number | null>(null);
-  const [historyYear, setHistoryYear] = useState<number | null>(null);
-  const [histTop10Tab, setHistTop10Tab] = useState<"bat" | "bwl">("bat");
-  const [selectedTeam, setSelectedTeam] = useState("rajveer");
-  const [fixtureHomeAwayFilter, setFixtureHomeAwayFilter] = useState<"all" | "home" | "away">("all");
+  // ── Contexts ──────────────────────────────────────────────────────────────
+  const { currentUser, handleLogout, handleValidate } = useAuth();
+  const { fetchPredictions, bumpSseGen } = usePredictions();
   const {
-    playerPoints, setPlayerPoints,
-    playerMatchPoints, setPlayerMatchPoints,
-    iplIdToMatchNum, setIplIdToMatchNum,
-    pointsLoading,
-    pointsError, setPointsError,
-    pointsLastUpdated, setPointsLastUpdated,
-    pointsUpdating, setPointsUpdating,
-    pendingMatches, setPendingMatches,
-    nextAttempt, setNextAttempt,
-    processedMatches, setProcessedMatches,
-    abandonedMatchIds, setAbandonedMatchIds,
+    playerPoints,
+    setPlayerPoints,
+    playerMatchPoints,
+    setPlayerMatchPoints,
+    setIplIdToMatchNum,
+    setPointsLastUpdated,
+    setPointsUpdating,
+    setPendingMatches,
+    setProcessedMatches,
+    setAbandonedMatchIds,
     fetchPoints,
     resetRetries: resetPointsRetries,
-  } = useFantasyPoints();
-  const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
-  const [expandedBdMatches, setExpandedBdMatches] = useState<Set<string>>(new Set());
-  const [scoringGuideOpen, setScoringGuideOpen] = useState(false);
-  const [benchOpen, setBenchOpen] = useState(false);
-  const [matchPtsOpen, setMatchPtsOpen] = useState(false);
-  const [teamSection, setTeamSection] = useState<"xi"|"bench"|"matchpts">("xi");
-  const [expandedMatchNums, setExpandedMatchNums] = useState<Set<number>>(new Set());
-  const [expandedAdminPlayer, setExpandedAdminPlayer] = useState<string | null>(null);
-  const [adminBreakdownOpen, setAdminBreakdownOpen] = useState(false);
+    standings,
+    setStandings,
+    fetchStandings,
+    teamScores,
+    pointsLastUpdated,
+  } = usePoints();
+
+  // ── UI state ──────────────────────────────────────────────────────────────
+  const [tab, setTab] = useState("home");
+  const [selectedTeam, setSelectedTeam] = useState("rajveer");
+  const [fixtureHomeAwayFilter, setFixtureHomeAwayFilter] = useState<"all" | "home" | "away">("all");
+  const [chartHover, setChartHover] = useState<number | null>(null);
+  const [selectedAwardIdx, setSelectedAwardIdx] = useState(0);
+  const [awardXiFilter, setAwardXiFilter] = useState<"all" | "xi">("all");
+  const [chartXiFilter, setChartXiFilter] = useState<"all" | "xi">("all");
+  const [openScoreRows, setOpenScoreRows] = useState<Set<string>>(new Set());
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const settingsRef = useRef<HTMLDivElement>(null);
+  const [intelOpen, setIntelOpen] = useState(false);
+  const [matchFilter, setMatchFilter] = useState<"upcoming" | "live" | "completed" | "all">("upcoming");
+  const [teamFilter, setTeamFilter] = useState<Set<string>>(new Set());
+  const toggleTeamFilter = (code: string) => setTeamFilter(prev => {
+    const next = new Set(prev);
+    if (next.has(code)) next.delete(code); else next.add(code);
+    return next;
+  });
+  const [statsFilter, setStatsFilter] = useState<"all" | "fantasy" | "predictions">("all");
+  const [statsCategory, setStatsCategory] = useState<"fantasyPts" | "orangeCap" | "purpleCap" | "sixesLeader" | "foursLeader" | "catchesLeader" | "srLeader" | "ecoLeader" | "dotsLeader">("fantasyPts");
+  const [statsExpanded, setStatsExpanded] = useState(false);
+  const [fantasyPtsOpen, setFantasyPtsOpen] = useState(false);
+
+  // ── Data hooks (non-context) ──────────────────────────────────────────────
+  const { scorecards, setScorecards, scorecardLoading, fetchScorecard } = useScorecard();
+  const { iplStats, setIplStats, statsLoading, fetchStats } = useIplStats();
   const {
     liveMatches,
-    setLiveMatches,
     liveLoading,
     lastUpdated,
-    setLastUpdated,
     apiError,
-    setApiError,
     dataSources,
-    setDataSources,
     fetchLive,
   } = useLiveMatches((matches) => {
     const hasLive = matches.some((m: any) => m.matchStarted && !m.matchEnded);
     setMatchFilter(prev => (prev === "completed" || prev === "all") ? prev : (hasLive ? "live" : "upcoming"));
   });
+
+  // ── Admin action state ────────────────────────────────────────────────────
   const [supabaseSyncing, setSupabaseSyncing] = useState(false);
   const [statsRefreshing, setStatsRefreshing] = useState(false);
   const [statsTabRefreshing, setStatsTabRefreshing] = useState(false);
@@ -363,119 +360,8 @@ export default function App() {
   const [s3PrefetchResult, setS3PrefetchResult] = useState<{ found: number; missing: number; foundIds: string[]; missingIds: string[] } | null>(null);
   const [s3LiveSyncing, setS3LiveSyncing] = useState(false);
   const [s3LiveSyncMsg, setS3LiveSyncMsg] = useState<string | null>(null);
-  const [chartHover, setChartHover] = useState<number | null>(null);
-  const [selectedAwardIdx, setSelectedAwardIdx] = useState(0);
-  const [awardXiFilter, setAwardXiFilter] = useState<"all" | "xi">("all");
-  const [chartXiFilter, setChartXiFilter] = useState<"all" | "xi">("all");
-  const [openScoreRows, setOpenScoreRows] = useState<Set<string>>(new Set());
-  const { scorecards, setScorecards, scorecardLoading, fetchScorecard } = useScorecard();
-  const { standings, setStandings, standingsLoading, fetchStandings } = useStandings();
-  const { iplStats, setIplStats, statsLoading, fetchStats } = useIplStats();
-  const [statsFilter, setStatsFilter] = useState<"all" | "fantasy" | "predictions">("all");
-  const [statsCategory, setStatsCategory] = useState<"fantasyPts" | "orangeCap" | "purpleCap" | "sixesLeader" | "foursLeader" | "catchesLeader" | "srLeader" | "ecoLeader" | "dotsLeader">("fantasyPts");
-  const [statsExpanded, setStatsExpanded] = useState(false);
-  const [predArchiveOpen, setPredArchiveOpen] = useState(false);
-  const [fantasyPtsOpen, setFantasyPtsOpen] = useState(false);
-  const [predVisibleCount, setPredVisibleCount] = useState(10);
-  const [matchFilter, setMatchFilter] = useState<"upcoming" | "live" | "completed" | "all">("upcoming");
-  const [teamFilter, setTeamFilter] = useState<Set<string>>(new Set());
-  const toggleTeamFilter = (code: string) => setTeamFilter(prev => {
-    const next = new Set(prev);
-    if (next.has(code)) next.delete(code); else next.add(code);
-    return next;
-  });
-  const [standingsOpen, setStandingsOpen] = useState(false);
-  const [intelOpen, setIntelOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const settingsRef = useRef<HTMLDivElement>(null);
-  const [expandedPredMatchId, setExpandedPredMatchId] = useState<string | null>(null);
-  const [expandedFantasyMatchId, setExpandedFantasyMatchId] = useState<string | null>(null);
-  const { predictions, setPredictions, lastPredSaveRef, fetchPredictions } = usePredictions();
-  const [predFlash, setPredFlash] = useState<string | null>(null);
-  const [predSaveState, setPredSaveState] = useState<Record<string, "saving" | "saved" | "error">>({});
 
-  const [sparkTip, setSparkTip] = useState<{ label: string; pts: number } | null>(null);
-  const [pullY, setPullY] = useState(0);
-  const [installPrompt, setInstallPrompt] = useState<any>(null);
-  const [appInstalled, setAppInstalled] = useState(false);
-  const [showToast, setShowToast] = useState(false);
-  // Swipe refs
-  const swipeStartX = useRef(0);
-  const swipeStartY = useRef(0);
-  const swipeBlocked = useRef(false);
-  // PTR refs
-  const pullState = useRef({ active: false, startY: 0, startX: 0 });
-  const pullYRef = useRef(0);
-  const sparkTipTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // Always-fresh ref to refresh fn (avoids stale closure in PTR listener)
-  const refreshFnRef = useRef(() => {});
-  const [countdown, setCountdown] = useState<{ text: string; matchName: string; venue?: string; homeTeam?: string; awayTeam?: string } | null>(null);
-  const [currentUser, setCurrentUser] = useState<string | null>(() => localStorage.getItem("ipl-current-user"));
-  const [userPins, setUserPins] = useState<Record<string, boolean>>({});
-  const [pinEditTarget, setPinEditTarget] = useState<string | null>(null);
-  const [pinEditVal, setPinEditVal] = useState("");
-  const [pinConfirmVal, setPinConfirmVal] = useState("");
-  const [pinStep, setPinStep] = useState<"confirm" | "new">("confirm");
-  const [pinConfirmError, setPinConfirmError] = useState(false);
-  const resetPinEdit = () => { setPinEditTarget(null); setPinEditVal(""); setPinConfirmVal(""); setPinStep("confirm"); setPinConfirmError(false); };
-  const handleLogin = (userId: string) => { localStorage.setItem("ipl-current-user", userId); setCurrentUser(userId); setTab("home"); };
-  const handleLogout = () => { localStorage.removeItem("ipl-current-user"); clearAuthToken(); setCurrentUser(null); };
-
-  // When any API call returns 401 (server restarted, session wiped), force re-login
-  useEffect(() => {
-    const onExpired = () => { clearAuthToken(); localStorage.removeItem("ipl-current-user"); setCurrentUser(null); };
-    window.addEventListener("ipl:session-expired", onExpired);
-    return () => window.removeEventListener("ipl:session-expired", onExpired);
-  }, []);
-  const handleValidate = async (userId: string, pin: string): Promise<boolean> => {
-    try {
-      const res = await fetch("/api/ipl/pins/validate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, pin }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.token) setAuthToken(data.token);
-        handleLogin(userId);
-        return true;
-      }
-      return false;
-    } catch {
-      return false;
-    }
-  };
-  const handleConfirmOldPin = async (uid: string) => {
-    if (pinConfirmVal.length !== 4) return;
-    try {
-      const res = await fetch("/api/ipl/pins/validate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: uid, pin: pinConfirmVal }),
-      });
-      if (res.ok) { setPinStep("new"); setPinConfirmError(false); }
-      else { setPinConfirmError(true); setPinConfirmVal(""); }
-    } catch {
-      // No offline fallback — PIN validation is always server-authoritative
-      setPinConfirmError(true); setPinConfirmVal("");
-    }
-  };
-  const handleSavePin = async (uid: string) => {
-    if (!/^\d{4}$/.test(pinEditVal)) return;
-    const updated = { ...userPins, [uid]: true };
-    setUserPins(updated); savePins(updated);
-    const savedOld = pinConfirmVal;
-    resetPinEdit();
-    try {
-      await fetch(`/api/ipl/pins/${encodeURIComponent(uid)}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", ...authHeaders() },
-        body: JSON.stringify({ pin: pinEditVal, oldPin: savedOld }),
-      });
-    } catch (_) {}
-  };
-
-  // ── Push notifications ──────────────────────────────────────────────────────
+  // ── Push notifications ────────────────────────────────────────────────────
   const [pushSupported, setPushSupported] = useState(false);
   const [pushSubscribed, setPushSubscribed] = useState(false);
   const [pushEnabled, setPushEnabled] = useState(true);
@@ -488,8 +374,6 @@ export default function App() {
     const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
     const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
     const raw = atob(base64);
-    // Allocate via ArrayBuffer (not the broader ArrayBufferLike) so the result
-    // is assignable to BufferSource for pushManager.subscribe.applicationServerKey.
     const buf = new ArrayBuffer(raw.length);
     const view = new Uint8Array(buf);
     for (let i = 0; i < raw.length; i++) view[i] = raw.charCodeAt(i);
@@ -519,12 +403,6 @@ export default function App() {
       });
     }).catch(() => {});
   }, [pushSupported, currentUser]);
-
-  useEffect(() => {
-    const local = loadLocalPreds();
-    if (Object.keys(local).length > 0) setPredictions(local);
-    fetchPredictions();
-  }, [currentUser]);
 
   const subscribePush = async () => {
     if (!pushSupported || pushSubscribing) return;
@@ -595,6 +473,7 @@ export default function App() {
     } catch (_) {}
   };
 
+  // ── Admin action handlers ─────────────────────────────────────────────────
   const syncSupabase = async () => {
     if (supabaseSyncing) return;
     setSupabaseSyncing(true);
@@ -616,7 +495,6 @@ export default function App() {
           ? `Synced ✓ — ${data.fixturesAfter} fixtures loaded`
           : "Already up to date";
       setSupabaseSyncMsg(msg);
-      // Refresh points display after sync
       setTimeout(fetchPoints, 300);
     } catch (e: any) {
       setSupabaseSyncMsg("Sync failed: " + (e.message || "unknown error"));
@@ -700,17 +578,22 @@ export default function App() {
     setStatsTabRefreshing(false);
   };
 
-  const fetchPins = async () => {
-    try {
-      const res = await fetch("/api/ipl/pins", { headers: { ...authHeaders() } });
-      if (res.ok) {
-        const serverPins = await res.json();
-        setUserPins(serverPins);
-        savePins(serverPins);
-      }
-    } catch (_) {}
-  };
+  // ── PTR / swipe refs ──────────────────────────────────────────────────────
+  const [sparkTip, setSparkTip] = useState<{ label: string; pts: number } | null>(null);
+  const [pullY, setPullY] = useState(0);
+  const [installPrompt, setInstallPrompt] = useState<any>(null);
+  const [appInstalled, setAppInstalled] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const swipeStartX = useRef(0);
+  const swipeStartY = useRef(0);
+  const swipeBlocked = useRef(false);
+  const pullState = useRef({ active: false, startY: 0, startX: 0 });
+  const pullYRef = useRef(0);
+  const sparkTipTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const refreshFnRef = useRef(() => {});
+  const [countdown, setCountdown] = useState<{ text: string; matchName: string; venue?: string; homeTeam?: string; awayTeam?: string } | null>(null);
 
+  // ── Click-outside to close settings ──────────────────────────────────────
   useEffect(() => {
     if (!settingsOpen) return;
     const handler = (e: MouseEvent) => {
@@ -720,7 +603,7 @@ export default function App() {
     return () => document.removeEventListener("mousedown", handler);
   }, [settingsOpen]);
 
-  // Initial fetch — runs on mount AND whenever the user logs in
+  // ── Initial fetch on login ────────────────────────────────────────────────
   useEffect(() => {
     if (!currentUser) return;
     fetchLive();
@@ -728,10 +611,9 @@ export default function App() {
     fetchStandings();
     fetchStats();
     fetchPredictions();
-    if (currentUser === "rajveer") fetchPins();
   }, [currentUser]);
 
-  // Register service worker for PWA offline support — auto-reload on SW update
+  // ── Service worker (PWA offline + auto-reload on update) ─────────────────
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return;
     navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(() => {});
@@ -740,20 +622,17 @@ export default function App() {
     return () => navigator.serviceWorker.removeEventListener("message", onMsg);
   }, []);
 
-  // Adaptive polling — split by data freshness needs:
-  //   Live status (fetchLive, standings):  5 s  — S3 feed, server cache 5 s
-  //   Points / stats:                     30 s  — server recalculates every 30 s (S3 live cooldown)
-  //   Idle (no live match):                5 min — nothing is changing
-  const isAnyMatchLive = liveMatches.some((m: any) => m.matchStarted && !m.matchEnded);
-
-  // Reset home/away sub-filter whenever the team filter is changed
+  // Reset home/away sub-filter whenever the team filter changes
   useEffect(() => { setFixtureHomeAwayFilter("all"); }, [teamFilter]);
+
+  // ── Adaptive polling ──────────────────────────────────────────────────────
+  const isAnyMatchLive = liveMatches.some((m: any) => m.matchStarted && !m.matchEnded);
 
   useEffect(() => {
     if (!currentUser) return;
-    const idleDelay  = 5 * 60_000;  // 5 min when nothing is live
-    const liveStatus = 5_000;        //  5 s — match status / scorecard
-    const livePoints = 30_000;       // 30 s — aligned with server S3 live cooldown
+    const idleDelay  = 5 * 60_000;
+    const liveStatus = 5_000;
+    const livePoints = 30_000;
     if (!isAnyMatchLive) {
       const ids = [
         setInterval(fetchLive,        idleDelay),
@@ -764,7 +643,6 @@ export default function App() {
       ];
       return () => ids.forEach(clearInterval);
     }
-    // Live match — faster status, slower points (server cooldown aligned)
     const ids = [
       setInterval(fetchLive,        liveStatus),
       setInterval(fetchStandings,   liveStatus),
@@ -775,61 +653,29 @@ export default function App() {
     return () => ids.forEach(clearInterval);
   }, [isAnyMatchLive, currentUser]);
 
-  // Refetch stats every time the user opens the stats tab (catches server-side refreshes)
-  useEffect(() => {
-    if (!currentUser || tab !== "stats") return;
-    fetchStats();
-  }, [tab, currentUser]);
-
-  // SSE: server pushes predictions to all open sessions instantly on any save.
-  // Bumped on tab-visible to force a fresh connection (mobile browsers kill SSE in background).
-  const [sseGen, setSseGen] = useState(0);
-  useEffect(() => {
-    if (!currentUser) return;
-    const es = new EventSource(authStreamUrl("/api/ipl/predictions/stream"));
-    es.onmessage = (e) => {
-      try {
-        const data = JSON.parse(e.data) as Record<string, Record<string, string | null>>;
-        // Update lastPredSaveRef so the 30s poll fallback doesn't overwrite this fresh push
-        lastPredSaveRef.current = Date.now();
-        saveLocalPreds(data);
-        setPredictions(data);
-      } catch {}
-    };
-    es.onerror = () => {
-      if (es.readyState === EventSource.CLOSED) {
-        // Permanently closed (e.g. 401) — dispatch session-expired so the app re-logs in
-        dispatchSessionExpired();
-      }
-    };
-    return () => es.close();
-  }, [currentUser, sseGen]);
-
-  // Poll predictions on all tabs as fallback (SSE covers normal operation)
-  useEffect(() => {
-    if (!currentUser) return;
-    fetchPredictions(); // immediate fetch on login / tab change
-    const id = setInterval(fetchPredictions, 30_000);
-    return () => clearInterval(id);
-  }, [currentUser]);
-
-  // Fast-poll predictions when the Predictions view is open (picks can change up until match starts)
+  // Fast-poll predictions when the Predictions view is open
   useEffect(() => {
     if (!currentUser || !(tab === "stats" && statsFilter === "predictions")) return;
     const id = setInterval(fetchPredictions, 15_000);
     return () => clearInterval(id);
   }, [tab, statsFilter, currentUser]);
 
-  // Refresh when the user returns to the tab after being away
+  // Refetch stats every time the user opens the stats tab
+  useEffect(() => {
+    if (!currentUser || tab !== "stats") return;
+    fetchStats();
+  }, [tab, currentUser]);
+
+  // Refresh all data + reconnect SSE when the user returns to the tab
   useEffect(() => {
     const onVisible = () => {
       if (document.visibilityState === "visible" && currentUser) {
-        resetPointsRetries(); // allow fresh retries after coming back
+        resetPointsRetries();
         fetchLive();
         fetchPoints();
         fetchPredictions();
         fetchStandings();
-        setSseGen(g => g + 1); // force-reconnect SSE — mobile browsers kill it in background
+        bumpSseGen();
       }
     };
     document.addEventListener("visibilitychange", onVisible);
@@ -839,7 +685,7 @@ export default function App() {
   // Keep refreshFnRef up-to-date every render so PTR always calls the latest version
   useEffect(() => { refreshFnRef.current = () => { fetchLive(); fetchPoints(); }; });
 
-  // PWA install prompt
+  // ── PWA install prompt ────────────────────────────────────────────────────
   useEffect(() => {
     const onPrompt = (e: Event) => { e.preventDefault(); setInstallPrompt(e); };
     const onInstalled = () => { setAppInstalled(true); setInstallPrompt(null); };
@@ -851,7 +697,7 @@ export default function App() {
     };
   }, []);
 
-  // Pull-to-refresh via native touch listeners (needs passive:true so it doesn't block scroll)
+  // ── Pull-to-refresh ───────────────────────────────────────────────────────
   useEffect(() => {
     const onStart = (e: TouchEvent) => {
       pullState.current.active = window.scrollY <= 0;
@@ -886,12 +732,7 @@ export default function App() {
     };
   }, []);
 
-  const teamScores = useMemo(() => Object.keys(FANTASY_TEAMS)
-    .map(id => ({ id, ...getTeamData(id, playerPoints), team: FANTASY_TEAMS[id] }))
-    .sort((a, b) => b.total - a.total), [playerPoints]);
-
-
-  // Countdown to next match
+  // ── Countdown to next match ───────────────────────────────────────────────
   useEffect(() => {
     const update = () => {
       const upcoming = liveMatches
@@ -916,12 +757,7 @@ export default function App() {
     return () => clearInterval(id);
   }, [liveMatches]);
 
-
-  // Auto-prefetch scorecards for live matches so the innings table
-  // (batters/bowlers) is ready the moment the user expands a score row.
-  // Refreshes every 15s while at least one match is live. The set of live
-  // IDs is tracked via a ref so this effect doesn't reset every 5s when
-  // fetchLive refreshes liveMatches — only when the live-state changes.
+  // ── Auto-prefetch live scorecards ─────────────────────────────────────────
   const liveIdsRef = useRef<string[]>([]);
   liveIdsRef.current = liveMatches
     .filter((m: any) => m.matchStarted && !m.matchEnded)
@@ -935,43 +771,7 @@ export default function App() {
     return () => clearInterval(t);
   }, [hasLiveMatch, fetchScorecard]);
 
-
-  // Hot players: scored >= 25 pts in most recent match
-  const hotPlayers = useMemo(() => new Set<string>(
-    Object.entries(playerMatchPoints)
-      .filter(([, matches]) => {
-        const sorted = [...matches].sort((a, b) => b.matchNum - a.matchNum);
-        return sorted.length > 0 && sorted[0].pts >= 25;
-      })
-      .map(([name]) => name)
-  ), [playerMatchPoints]);
-
-  // Per-team match-by-match cumulative points (for chart)
-  const matchHistory = useMemo(() => {
-    const allNums = new Set<number>();
-    const labels: Record<number, string> = {};
-    for (const matches of Object.values(playerMatchPoints)) {
-      for (const e of matches) { allNums.add(e.matchNum); labels[e.matchNum] = e.label; }
-    }
-    const sorted = [...allNums].sort((a, b) => a - b);
-    return Object.entries(FANTASY_TEAMS).map(([teamId, team]) => {
-      let cum = 0;
-      const points = sorted.map(matchNum => {
-        let pts = 0;
-        for (const player of team.players) {
-          const entry = (playerMatchPoints[player.name] || []).find(e => e.matchNum === matchNum);
-          if (entry) {
-            const p = applyMultiplier(entry.pts, player.name === team.captain, player.name === team.vc);
-            pts += p;
-          }
-        }
-        cum += pts;
-        return { matchNum, label: `M${matchNum}`, cum };
-      });
-      return { teamId, color: team.color, name: team.name, emoji: team.emoji, points };
-    });
-  }, [playerMatchPoints]);
-
+  // ── Leaderboard refresh (manual, from home page) ──────────────────────────
   const [lbRefreshing, setLbRefreshing] = React.useState(false);
   const handleLbRefresh = async () => {
     if (lbRefreshing) return;
@@ -998,47 +798,40 @@ export default function App() {
         fetch("/api/ipl/standings").then(r => r.ok ? r.json() : null).then(data => {
           if (data) setStandings(data.standings || data);
         }),
-        fetchAuthed("/api/ipl/predictions").then(r => r.ok ? r.json() : (loadLocalPreds())).then(data => {
-          if (data && Object.keys(data).length) { setPredictions(data); if (data) saveLocalPreds(data); }
-        }),
         fetch("/api/ipl/stats").then(r => r.ok ? r.json() : null).then(data => {
           if (data) setIplStats(data);
         }),
       ]);
+      fetchPredictions();
     } catch (_) {}
     setLbRefreshing(false);
   };
 
+  // ── Share — Leaderboard image ─────────────────────────────────────────────
   const shareLeaderboard = async () => {
     const W = 1080, H = 1000, PAD = 64;
     const canvas = document.createElement("canvas");
     canvas.width = W; canvas.height = H;
     const ctx = canvas.getContext("2d")!;
 
-    // Load logo
     const logoImg = new Image();
     logoImg.crossOrigin = "anonymous";
     logoImg.src = `${import.meta.env.BASE_URL}app-icon.png`;
     await new Promise(res => { logoImg.onload = res; logoImg.onerror = res; });
 
-    // — Background —
     ctx.fillStyle = "#080c14";
     ctx.fillRect(0, 0, W, H);
 
-    // Gold top line (thin, tasteful)
     const goldGrad = ctx.createLinearGradient(0, 0, W, 0);
     goldGrad.addColorStop(0, "#a07832"); goldGrad.addColorStop(0.5, "#d4a843"); goldGrad.addColorStop(1, "#a07832");
     ctx.fillStyle = goldGrad; ctx.fillRect(0, 0, W, 3);
 
-    // — Header —
-    // Logo circle (small, top-left)
     const logoR = 26, logoX = PAD + logoR, logoY = 68;
     ctx.save();
     ctx.beginPath(); ctx.arc(logoX, logoY, logoR, 0, Math.PI * 2); ctx.clip();
     if (logoImg.naturalWidth > 0) ctx.drawImage(logoImg, logoX - logoR, logoY - logoR, logoR * 2, logoR * 2);
     ctx.restore();
 
-    // App name + label (right of logo)
     ctx.textAlign = "left";
     ctx.font = "700 36px -apple-system, Arial, sans-serif";
     ctx.fillStyle = "#ffffff";
@@ -1047,57 +840,40 @@ export default function App() {
     ctx.fillStyle = "#52525b";
     ctx.fillText("Leaderboard", PAD + logoR * 2 + 18, 88);
 
-    // Timestamp (top-right, muted)
     ctx.textAlign = "right";
     ctx.font = "400 21px -apple-system, Arial, sans-serif";
     ctx.fillStyle = "#3f3f46";
     ctx.fillText(lastUpdated?.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) ?? "just now", W - PAD, 88);
 
-    // Thin separator line
     ctx.strokeStyle = "#1c1c20"; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(PAD, 116); ctx.lineTo(W - PAD, 116); ctx.stroke();
 
-    // — Rows —
     const rowH = 200, startY = 132;
-
     teamScores.forEach((s, i) => {
       const ry = startY + i * rowH;
       const isFirst = i === 0;
-
-      // Faint rank number (Sofascore-style ghost number, left)
       ctx.textAlign = "left";
       ctx.font = `100 108px -apple-system, Arial, sans-serif`;
       ctx.fillStyle = "#18181b";
       ctx.fillText(String(i + 1), PAD, ry + 130);
-
-      // Color dot
       ctx.beginPath();
       ctx.arc(PAD + 110, ry + 62, 8, 0, Math.PI * 2);
       ctx.fillStyle = s.team.color;
       ctx.fill();
-
-      // Owner name (primary)
       ctx.textAlign = "left";
       ctx.font = `600 52px -apple-system, Arial, sans-serif`;
       ctx.fillStyle = isFirst ? "#ffffff" : "#e4e4e7";
       ctx.fillText(s.team.owner, PAD + 130, ry + 78);
-
-      // Team name (secondary — smaller, muted)
       ctx.font = `400 25px -apple-system, Arial, sans-serif`;
       ctx.fillStyle = "#52525b";
       ctx.fillText(s.team.name, PAD + 130, ry + 116);
-
-      // Points (right)
       ctx.textAlign = "right";
       ctx.font = `700 58px -apple-system, Arial, sans-serif`;
       ctx.fillStyle = isFirst ? "#d4a843" : "#e4e4e7";
       ctx.fillText(String(s.total), W - PAD, ry + 84);
-
       ctx.font = `400 21px -apple-system, Arial, sans-serif`;
       ctx.fillStyle = "#3f3f46";
       ctx.fillText("pts", W - PAD, ry + 118);
-
-      // Row divider
       if (i < teamScores.length - 1) {
         ctx.strokeStyle = "#111114"; ctx.lineWidth = 1;
         ctx.beginPath();
@@ -1107,10 +883,8 @@ export default function App() {
       }
     });
 
-    // Bottom gold line
     ctx.fillStyle = goldGrad; ctx.fillRect(0, H - 3, W, 3);
 
-    // Share
     const blob = await new Promise<Blob | null>(res => canvas.toBlob(res, "image/png"));
     if (!blob) return;
     const file = new File([blob], "ipl-fantasy-leaderboard.png", { type: "image/png" });
@@ -1128,10 +902,10 @@ export default function App() {
     } catch { /* user cancelled */ }
   };
 
+  // ── Share — All Teams image ───────────────────────────────────────────────
   const shareTeams = async () => {
-    // ── Layout: 2×2 grid, Sofascore-clean style ──
     const W = 1080;
-    const CELL_W = W / 2;            // 540px per column, full-bleed
+    const CELL_W = W / 2;
     const HEADER_H = 82;
     const COLOR_BAR = 3;
     const CELL_PAD = 28;
@@ -1151,16 +925,13 @@ export default function App() {
     logoImg.src = `${import.meta.env.BASE_URL}app-icon.png`;
     await new Promise(res => { logoImg.onload = res; logoImg.onerror = res; });
 
-    // ── Background ──
     ctx.fillStyle = "#0c0c0e";
     ctx.fillRect(0, 0, W, H);
 
-    // Gold top bar
     const goldGrad = ctx.createLinearGradient(0, 0, W, 0);
     goldGrad.addColorStop(0, "#a07832"); goldGrad.addColorStop(0.5, "#d4a843"); goldGrad.addColorStop(1, "#a07832");
     ctx.fillStyle = goldGrad; ctx.fillRect(0, 0, W, 3);
 
-    // ── Header ──
     const logoR = 20, logoX = 36 + logoR, logoY = HEADER_H / 2;
     ctx.save();
     ctx.beginPath(); ctx.arc(logoX, logoY, logoR, 0, Math.PI * 2); ctx.clip();
@@ -1184,19 +955,14 @@ export default function App() {
     ctx.fillStyle = "#27272a";
     ctx.fillText(dateStr, W - 36, logoY + 6);
 
-    // Thin header separator
     ctx.strokeStyle = "#18181b"; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(0, HEADER_H); ctx.lineTo(W, HEADER_H); ctx.stroke();
 
-    // Grid dividers (cross hair)
     ctx.strokeStyle = "#18181b"; ctx.lineWidth = 1;
-    // Vertical centre
     ctx.beginPath(); ctx.moveTo(W / 2, HEADER_H); ctx.lineTo(W / 2, H - 34); ctx.stroke();
-    // Horizontal mid (between top and bottom row)
     const midY = HEADER_H + CELL_H + SEP / 2;
     ctx.beginPath(); ctx.moveTo(0, midY); ctx.lineTo(W, midY); ctx.stroke();
 
-    // ── Draw each team ──
     for (let ti = 0; ti < teamScores.length; ti++) {
       const s = teamScores[ti];
       const t = s.team;
@@ -1207,24 +973,19 @@ export default function App() {
       const gridRow = Math.floor(ti / 2);
       const xS = col * CELL_W;
       const xE = xS + CELL_W;
-      const xL = xS + CELL_PAD;      // inner left
-      const xR = xE - CELL_PAD;      // inner right
+      const xL = xS + CELL_PAD;
+      const xR = xE - CELL_PAD;
       const yS = HEADER_H + gridRow * (CELL_H + SEP);
 
-      // ── Color accent bar ──
       ctx.fillStyle = t.color;
       ctx.fillRect(xS, yS, CELL_W, COLOR_BAR);
 
-      // ── Team header (rank · name · pts) ──
       const thY = yS + COLOR_BAR;
-
-      // Ghost rank
       ctx.textAlign = "left";
       ctx.font = "100 44px -apple-system, Arial, sans-serif";
       ctx.fillStyle = "#1e1e22";
       ctx.fillText(String(ti + 1), xL, thY + 50);
 
-      // Team name + owner
       ctx.font = "600 20px -apple-system, Arial, sans-serif";
       ctx.fillStyle = "#e4e4e7";
       ctx.fillText(t.name, xL + 38, thY + 22);
@@ -1235,7 +996,6 @@ export default function App() {
       ctx.fillStyle = "#27272a";
       ctx.fillText(`C: ${t.captain}`, xL + 38, thY + 56);
 
-      // Total pts (right — the hero number)
       ctx.textAlign = "right";
       ctx.font = "700 40px -apple-system, Arial, sans-serif";
       ctx.fillStyle = t.color;
@@ -1244,12 +1004,10 @@ export default function App() {
       ctx.fillStyle = t.color + "66";
       ctx.fillText("PTS", xR, thY + 56);
 
-      // Header → players separator
       const sepY = thY + TEAM_HDR_H;
       ctx.strokeStyle = "#18181b"; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(xS, sepY); ctx.lineTo(xE, sepY); ctx.stroke();
 
-      // ── Player rows: just name + pts ──
       const playersY = sepY + SEP;
       for (let pi = 0; pi < top11.length; pi++) {
         const p = top11[pi];
@@ -1258,21 +1016,18 @@ export default function App() {
         const py = playersY + pi * PLAYER_ROW_H;
         const midRow = py + PLAYER_ROW_H * 0.62;
 
-        // Name weight/color by importance
         const nameWeight = isC ? "500" : "400";
         const nameColor = isC ? "#e4e4e7" : isVC ? "#a1a1aa" : pi < 6 ? "#71717a" : "#3f3f46";
         ctx.font = `${nameWeight} 15px -apple-system, Arial, sans-serif`;
         ctx.fillStyle = nameColor;
         ctx.textAlign = "left";
 
-        // Truncate name to fit (max ~330px before pts area)
         let dName = p.name;
         while (ctx.measureText(dName).width > 330 && dName.length > 5) {
           dName = dName.slice(0, -2) + "…";
         }
         ctx.fillText(dName, xL, midRow);
 
-        // Inline C / VC marker right after name
         if (isC || isVC) {
           const nameW = ctx.measureText(dName).width;
           ctx.font = "700 10px -apple-system, Arial, sans-serif";
@@ -1280,13 +1035,11 @@ export default function App() {
           ctx.fillText(isC ? " C" : " VC", xL + nameW, midRow);
         }
 
-        // Pts (right-aligned)
         ctx.textAlign = "right";
         ctx.font = `${isC || isVC ? "600" : "400"} 15px -apple-system, Arial, sans-serif`;
         ctx.fillStyle = isC ? "#e4e4e7" : isVC ? "#a1a1aa" : "#3f3f46";
         ctx.fillText(String(p.adj), xR, midRow);
 
-        // Subtle row divider (skip last)
         if (pi < top11.length - 1) {
           ctx.strokeStyle = "#18181b"; ctx.lineWidth = 0.5;
           ctx.beginPath();
@@ -1297,11 +1050,9 @@ export default function App() {
       }
     }
 
-    // Gold bottom accent
     ctx.fillStyle = goldGrad;
     ctx.fillRect(0, H - 3, W, 3);
 
-    // Share / download
     const blob = await new Promise<Blob | null>(res => canvas.toBlob(res, "image/png"));
     if (!blob) return;
     const file = new File([blob], "ipl-fantasy-teams.png", { type: "image/png" });
@@ -1319,6 +1070,7 @@ export default function App() {
     } catch { /* user cancelled */ }
   };
 
+  // ── Share — Match scorecard image ─────────────────────────────────────────
   const shareMatchCard = async (m: any) => {
     const W = 1080, PAD = 56;
     const isLive = m.matchStarted && !m.matchEnded;
@@ -1326,7 +1078,6 @@ export default function App() {
     const matchTeams = (m.teamInfo || []) as Array<{ shortname: string; img: string }>;
     const scores = (m.score || []) as any[];
 
-    // Fetch scorecard if not already loaded (user may not have expanded the card)
     let sc = scorecards[String(m.id)];
     if (!sc) {
       try {
@@ -1339,11 +1090,9 @@ export default function App() {
     }
     const innings: any[] = sc?.innings || [];
 
-    // Match number for fantasy points lookup
     const mNumMatch = (m.name || "").match(/(\d+)(?:st|nd|rd|th) Match/i);
     const matchNum = mNumMatch ? parseInt(mNumMatch[1]) : null;
 
-    // Fantasy team totals for this match
     const fantasyRows = Object.values(FANTASY_TEAMS).map(ft => {
       let total = 0;
       const scorers: string[] = [];
@@ -1358,14 +1107,12 @@ export default function App() {
     }).filter(r => r.total !== 0).sort((a, b) => b.total - a.total);
     const hasFantasy = fantasyRows.length > 0;
 
-    // Row / section height constants
-    const ROW_BAT = 46;  // batting row (name + dismissal)
-    const ROW_BOWL = 34; // bowling row
-    const COL_HDR = 30;  // "BATTER" / "BOWLER" column header
-    const INN_HDR = 48;  // innings title bar
-    const INN_GAP = 28;  // spacer between innings
+    const ROW_BAT = 46;
+    const ROW_BOWL = 34;
+    const COL_HDR = 30;
+    const INN_HDR = 48;
+    const INN_GAP = 28;
 
-    // Compute innings section height
     let inningsH = 0;
     for (const inn of innings) {
       const batters = (inn.batting || []).filter((b: any) => !b.dnb);
@@ -1390,12 +1137,10 @@ export default function App() {
     canvas.width = W; canvas.height = H;
     const ctx = canvas.getContext("2d")!;
 
-    // Load logo
     const logoImg = new Image(); logoImg.crossOrigin = "anonymous";
     logoImg.src = `${import.meta.env.BASE_URL}app-icon.png`;
     await new Promise(r => { logoImg.onload = r; logoImg.onerror = r; });
 
-    // Load team logos
     const teamLogoImgs = await Promise.all(
       matchTeams.slice(0, 2).map(ti => new Promise<HTMLImageElement | null>(resolve => {
         const url = TEAM_LOGO_CDN[ti.shortname] || ti.img || "";
@@ -1414,11 +1159,9 @@ export default function App() {
       ctx.beginPath(); ctx.moveTo(PAD, yy); ctx.lineTo(W - PAD, yy); ctx.stroke();
     };
 
-    // Background + top gold strip
     ctx.fillStyle = "#080c14"; ctx.fillRect(0, 0, W, H);
     ctx.fillStyle = goldGrad; ctx.fillRect(0, 0, W, 3);
 
-    // ── Header ──
     const logoR = 22, logoX = PAD + logoR, logoY = 65;
     ctx.save(); ctx.beginPath(); ctx.arc(logoX, logoY, logoR, 0, Math.PI * 2); ctx.clip();
     if (logoImg.naturalWidth > 0) ctx.drawImage(logoImg, logoX - logoR, logoY - logoR, logoR * 2, logoR * 2);
@@ -1436,7 +1179,6 @@ export default function App() {
 
     let y = HEADER_H + 14;
 
-    // ── Team title ──
     if (matchTeams.length >= 2) {
       const ta = matchTeams[0], tb = matchTeams[1];
       const colA = IPL_COLORS[ta.shortname] || "#e4e4e7";
@@ -1456,7 +1198,6 @@ export default function App() {
     }
     y += TITLE_H;
 
-    // ── Meta: match number · venue · toss ──
     const mNumStr = mNumMatch ? `M${mNumMatch[1]}` : "";
     const venue = m.venue ? m.venue.split(",")[0] : "";
     const metaLine = [mNumStr, venue].filter(Boolean).join("  ·  ");
@@ -1468,7 +1209,6 @@ export default function App() {
     }
     y += META_H;
 
-    // ── Quick score summary ──
     hr(y); y += 18;
     const sColW = scores.length > 1 ? (W - PAD * 2 - 20) / 2 : W - PAD * 2;
     scores.forEach((s: any, i: number) => {
@@ -1489,7 +1229,6 @@ export default function App() {
     });
     y += SCORE_H;
 
-    // ── Result ──
     if (isDone && m.status) {
       hr(y); y += 14;
       ctx.textAlign = "center"; ctx.font = "600 25px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#60a5fa";
@@ -1497,208 +1236,132 @@ export default function App() {
       y += RESULT_H;
     }
 
-    // ── Full scorecard innings ──
     if (innings.length > 0) {
       hr(y); y += 18;
 
-      // Right-edge x positions for batting columns
       const B_SR  = W - PAD;
-      const B_6S  = B_SR  - 80;
-      const B_4S  = B_6S  - 74;
-      const B_B   = B_4S  - 74;
-      const B_R   = B_B   - 84;
-
-      // Right-edge x positions for bowling columns
-      const BW_ECO = W - PAD;
-      const BW_W   = BW_ECO - 74;
-      const BW_R   = BW_W   - 74;
-      const BW_M   = BW_R   - 74;
-      const BW_O   = BW_M   - 74;
-
-      // Fantasy-scoring colour helpers (mirrors the UI logic)
-      const findFtC = (name: string) => {
-        const norm = (s: string) => s.replace(/\s*\(.*?\)\s*/g, "").trim().toLowerCase();
-        const ALIASES: Record<string, string> = { "mohammad shami": "mohammed shami", "md shami": "mohammed shami" };
-        const sn = ALIASES[norm(name)] ?? norm(name);
-        for (const ft of Object.values(FANTASY_TEAMS)) {
-          if (ft.players.some(p => norm(p.name) === sn)) return ft;
-        }
-        return null;
-      };
-      const runsColorC = (runs: number, balls: number) => {
-        if (runs === 0 && balls > 0) return "#f87171";
-        if (runs >= 100) return "#d4a843";
-        if (runs >= 50) return "#fb923c";
-        if (runs >= 30) return "#f59e0b";
-        return "#e4e4e7";
-      };
-      const srColorC = (sr: number, balls: number) => {
-        if (balls < 5) return "#71717a";
-        if (sr >= 200) return "#22c55e";
-        if (sr >= 150) return "#86efac";
-        if (sr < 70) return "#f87171";
-        return "#71717a";
-      };
-      const wkColorC = (w: number) => {
-        if (w >= 4) return "#d4a843";
-        if (w === 3) return "#22c55e";
-        if (w === 2) return "#4ade80";
-        if (w === 1) return "#e4e4e7";
-        return "#71717a";
-      };
-      const ecoColorC = (eco: number) => {
-        if (eco < 6) return "#22c55e";
-        if (eco < 8) return "#86efac";
-        if (eco < 10) return "#71717a";
-        if (eco < 12) return "#f59e0b";
-        return "#f87171";
-      };
+      const B_4S  = B_SR  - 62;
+      const B_6S  = B_4S  - 52;
+      const B_R   = B_6S  - 56;
 
       for (const inn of innings) {
         const batters = (inn.batting || []).filter((b: any) => !b.dnb);
-        const bowlers: any[] = inn.bowling || [];
+        const bowlers = inn.bowling || [];
+        const innTeam = (inn.inning || "").replace(/ Innings?$/i, "");
 
-        // Innings title bar
-        ctx.textAlign = "left"; ctx.font = "700 22px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#71717a";
-        ctx.fillText((inn.name || "").toUpperCase(), PAD, y + 22);
-        ctx.textAlign = "right"; ctx.font = "700 22px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#e4e4e7";
-        ctx.fillText(inn.total || "", W - PAD, y + 22);
+        ctx.fillStyle = "#0e1420";
+        ctx.fillRect(PAD - 16, y, W - PAD * 2 + 32, INN_HDR);
+        ctx.textAlign = "left";
+        ctx.font = "600 22px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#e4e4e7";
+        ctx.fillText(innTeam, PAD, y + 28);
+        if (inn.runs != null) {
+          ctx.textAlign = "right"; ctx.font = "700 22px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#e4e4e7";
+          ctx.fillText(`${inn.runs}${inn.wickets != null ? "/" + inn.wickets : ""}`, W - PAD, y + 28);
+          if (inn.overs) {
+            ctx.font = "400 16px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
+            ctx.fillText(`(${inn.overs} ov)`, W - PAD, y + 46);
+          }
+        }
         y += INN_HDR;
 
-        // ─ Batting table ─
-        if (batters.length > 0) {
-          ctx.fillStyle = "#3f3f46"; ctx.font = "600 15px -apple-system, Arial, sans-serif";
-          ctx.textAlign = "left";  ctx.fillText("BATTER", PAD, y + 19);
+        if (batters.length) {
+          ctx.textAlign = "left"; ctx.font = "500 14px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#3f3f46";
+          ctx.fillText("BATTER", PAD, y + 20);
           ctx.textAlign = "right";
-          ctx.fillText("R",   B_R,   y + 19);
-          ctx.fillText("B",   B_B,   y + 19);
-          ctx.fillText("4s",  B_4S,  y + 19);
-          ctx.fillText("6s",  B_6S,  y + 19);
-          ctx.fillText("SR",  B_SR,  y + 19);
+          ["SR","4s","6s","R"].forEach((lbl, i) => {
+            const xs = [B_SR, B_4S, B_6S, B_R][i];
+            ctx.fillText(lbl, xs, y + 20);
+          });
           y += COL_HDR;
 
           for (const b of batters) {
-            const bFt = findFtC(b.name || "");
-            const rc  = runsColorC(b.runs, b.balls);
-            const src = srColorC(parseFloat(b.sr || "0"), b.balls);
-
-            // Name (bold if fantasy player)
+            const notOut = !b.dismissal || b.dismissal === "not out" || b.dismissal === "batting";
             ctx.textAlign = "left";
-            ctx.font = `${bFt ? "700" : b.notOut ? "600" : "400"} 21px -apple-system, Arial, sans-serif`;
-            ctx.fillStyle = b.notOut ? "#22c55e" : "#e4e4e7";
-            ctx.fillText(b.name || "", PAD, y + 22);
-
-            // F badge to the right of name
-            if (bFt) {
-              const nW = ctx.measureText(b.name || "").width;
-              const bx = PAD + nW + 8, by = y + 8;
-              ctx.fillStyle = bFt.color + "28";
-              ctx.fillRect(bx, by, 22, 16);
-              ctx.font = "700 11px -apple-system, Arial, sans-serif";
-              ctx.fillStyle = bFt.color;
-              ctx.textAlign = "left";
-              ctx.fillText("F", bx + 5, by + 12);
+            ctx.font = `${notOut ? "600" : "400"} 18px -apple-system, Arial, sans-serif`;
+            ctx.fillStyle = notOut ? "#e4e4e7" : "#71717a";
+            let dName = b.name || "";
+            while (ctx.measureText(dName).width > 420 && dName.length > 5) dName = dName.slice(0, -2) + "…";
+            ctx.fillText(dName, PAD, y + 28);
+            if (b.dismissal && b.dismissal !== "not out" && b.dismissal !== "batting") {
+              ctx.font = "300 12px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#3f3f46";
+              let dis = b.dismissal;
+              while (ctx.measureText(dis).width > 440 && dis.length > 5) dis = dis.slice(0, -2) + "…";
+              ctx.fillText(dis, PAD, y + 42);
             }
-
-            // Dismissal
-            if (b.dismissal) {
-              ctx.font = "400 13px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
-              const d = b.dismissal.length > 55 ? b.dismissal.slice(0, 53) + "…" : b.dismissal;
-              ctx.textAlign = "left"; ctx.fillText(d, PAD, y + 38);
-            }
-
-            // Stats — colour-coded
             ctx.textAlign = "right";
-            ctx.font = "700 21px -apple-system, Arial, sans-serif"; ctx.fillStyle = rc;
-            ctx.fillText(String(b.runs ?? ""), B_R, y + 22);
-            ctx.font = "400 19px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#71717a";
-            ctx.fillText(String(b.balls ?? ""), B_B, y + 22);
-            ctx.fillStyle = b.fours > 0 ? "#60a5fa" : "#3f3f46";
-            ctx.fillText(String(b.fours ?? ""), B_4S, y + 22);
-            ctx.fillStyle = b.sixes > 0 ? "#a855f7" : "#3f3f46";
-            ctx.fillText(String(b.sixes ?? ""), B_6S, y + 22);
-            ctx.fillStyle = src;
-            ctx.fillText(b.sr ? parseFloat(b.sr).toFixed(1) : "", B_SR, y + 22);
+            ctx.font = `${notOut ? "700" : "400"} 20px -apple-system, Arial, sans-serif`;
+            ctx.fillStyle = notOut ? "#ffffff" : "#a1a1aa";
+            ctx.fillText(b.r != null ? String(b.r) : "—", B_R, y + 32);
+            ctx.font = "400 15px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
+            if (b["6s"] != null) ctx.fillText(String(b["6s"]), B_6S, y + 32);
+            if (b["4s"] != null) ctx.fillText(String(b["4s"]), B_4S, y + 32);
+            const sr = b.b > 0 ? ((b.r / b.b) * 100).toFixed(1) : "–";
+            ctx.fillText(sr, B_SR, y + 32);
             y += ROW_BAT;
           }
         }
 
-        // ─ Bowling table ─
-        if (bowlers.length > 0) {
+        if (bowlers.length) {
           y += 16;
-          ctx.fillStyle = "#3f3f46"; ctx.font = "600 15px -apple-system, Arial, sans-serif";
-          ctx.textAlign = "left";  ctx.fillText("BOWLER", PAD, y + 19);
+          const BW_ECO = W - PAD;
+          const BW_W   = BW_ECO - 64;
+          const BW_R   = BW_W   - 52;
+          const BW_O   = BW_R   - 52;
+
+          ctx.textAlign = "left"; ctx.font = "500 14px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#3f3f46";
+          ctx.fillText("BOWLER", PAD, y + 20);
           ctx.textAlign = "right";
-          ctx.fillText("O",   BW_O,   y + 19);
-          ctx.fillText("M",   BW_M,   y + 19);
-          ctx.fillText("R",   BW_R,   y + 19);
-          ctx.fillText("W",   BW_W,   y + 19);
-          ctx.fillText("ECO", BW_ECO, y + 19);
+          ["ECO","W","R","O"].forEach((lbl, i) => {
+            const xs = [BW_ECO, BW_W, BW_R, BW_O][i];
+            ctx.fillText(lbl, xs, y + 20);
+          });
           y += COL_HDR;
 
-          for (const b of bowlers) {
-            const bFt = findFtC(b.name || "");
-            const wc  = wkColorC(b.wickets);
-            const ec  = ecoColorC(parseFloat(b.eco || "0"));
-
-            // Name
-            ctx.textAlign = "left";
-            ctx.font = `${bFt ? "700" : "400"} 21px -apple-system, Arial, sans-serif`;
-            ctx.fillStyle = "#e4e4e7";
-            ctx.fillText(b.name || "", PAD, y + 23);
-
-            // F badge
-            if (bFt) {
-              const nW = ctx.measureText(b.name || "").width;
-              const bx = PAD + nW + 8, by = y + 9;
-              ctx.fillStyle = bFt.color + "28";
-              ctx.fillRect(bx, by, 22, 16);
-              ctx.font = "700 11px -apple-system, Arial, sans-serif";
-              ctx.fillStyle = bFt.color;
-              ctx.textAlign = "left";
-              ctx.fillText("F", bx + 5, by + 12);
-            }
-
-            // Stats — colour-coded
-            ctx.textAlign = "right"; ctx.font = "400 19px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#71717a";
-            ctx.fillText(String(b.overs ?? ""),   BW_O,   y + 23);
-            ctx.fillStyle = b.maidens > 0 ? "#f59e0b" : "#71717a";
-            ctx.fillText(String(b.maidens ?? ""), BW_M,   y + 23);
-            ctx.fillStyle = "#71717a";
-            ctx.fillText(String(b.runs ?? ""),    BW_R,   y + 23);
-            ctx.font = "700 21px -apple-system, Arial, sans-serif"; ctx.fillStyle = wc;
-            ctx.fillText(String(b.wickets ?? ""), BW_W,   y + 23);
-            ctx.font = "400 19px -apple-system, Arial, sans-serif"; ctx.fillStyle = ec;
-            ctx.fillText(b.eco ? parseFloat(b.eco).toFixed(2) : "", BW_ECO, y + 23);
+          for (const bw of bowlers) {
+            ctx.textAlign = "left"; ctx.font = "400 17px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#a1a1aa";
+            let dName = bw.name || "";
+            while (ctx.measureText(dName).width > 440 && dName.length > 5) dName = dName.slice(0, -2) + "…";
+            ctx.fillText(dName, PAD, y + 22);
+            ctx.textAlign = "right"; ctx.font = "400 15px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
+            if (bw.o != null) ctx.fillText(String(bw.o), BW_O, y + 22);
+            if (bw.r != null) ctx.fillText(String(bw.r), BW_R, y + 22);
+            ctx.font = `${(bw.w || 0) >= 3 ? "700" : "400"} 15px -apple-system, Arial, sans-serif`;
+            ctx.fillStyle = (bw.w || 0) >= 3 ? "#22c55e" : "#52525b";
+            if (bw.w != null) ctx.fillText(String(bw.w), BW_W, y + 22);
+            const eco = bw.o && parseFloat(bw.o) > 0 ? (bw.r / parseFloat(bw.o)).toFixed(2) : "–";
+            ctx.font = "400 15px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
+            ctx.fillText(eco, BW_ECO, y + 22);
             y += ROW_BOWL;
           }
         }
+
         y += INN_GAP;
       }
     }
 
-    // ── Fantasy highlights ──
     if (hasFantasy) {
       hr(y); y += 14;
-      ctx.textAlign = "left"; ctx.font = "600 17px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#3f3f46";
-      ctx.fillText("FANTASY POINTS THIS MATCH", PAD, y + 18);
-      y += 36;
-      for (const { ft, total, scorers } of fantasyRows) {
-        ctx.fillStyle = ft.color; ctx.fillRect(PAD, y + 6, 3, 34);
-        ctx.textAlign = "left"; ctx.font = "700 26px -apple-system, Arial, sans-serif"; ctx.fillStyle = ft.color;
-        ctx.fillText(ft.owner, PAD + 13, y + 28);
-        ctx.font = "400 17px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
-        ctx.fillText(scorers.slice(0, 4).join("  ·  "), PAD + 13 + ctx.measureText(ft.owner).width + 16, y + 28);
-        ctx.textAlign = "right"; ctx.font = "700 32px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#e4e4e7";
-        ctx.fillText(String(total), W - PAD, y + 30);
+      ctx.textAlign = "left"; ctx.font = "500 18px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#3f3f46";
+      ctx.fillText("FANTASY POINTS", PAD, y + 20);
+      y += 30;
+      for (const row of fantasyRows) {
+        ctx.beginPath(); ctx.arc(PAD + 8, y + 26, 6, 0, Math.PI * 2);
+        ctx.fillStyle = row.ft.color; ctx.fill();
+        ctx.textAlign = "left"; ctx.font = "600 20px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#e4e4e7";
+        ctx.fillText(row.ft.owner, PAD + 22, y + 30);
+        ctx.font = "400 14px -apple-system, Arial, sans-serif"; ctx.fillStyle = "#52525b";
+        const scorersText = row.scorers.slice(0, 5).join("  ·  ");
+        ctx.fillText(scorersText, PAD + 22, y + 46);
+        ctx.textAlign = "right"; ctx.font = `700 24px -apple-system, Arial, sans-serif`;
+        ctx.fillStyle = row.total > 0 ? "#22c55e" : "#ef4444";
+        ctx.fillText(`${row.total > 0 ? "+" : ""}${row.total}`, W - PAD, y + 34);
         y += 52;
       }
     }
 
-    // Gold bottom line
-    ctx.fillStyle = goldGrad; ctx.fillRect(0, H - 3, W, 3);
+    ctx.fillStyle = goldGrad;
+    ctx.fillRect(0, H - 3, W, 3);
 
-    // Share or download
     const blob = await new Promise<Blob | null>(r => canvas.toBlob(r, "image/png"));
     if (!blob) return;
     const filename = matchTeams.length >= 2
@@ -1721,15 +1384,10 @@ export default function App() {
     } catch { /* user cancelled */ }
   };
 
-  const maxPts = teamScores[0]?.total || 1;
-
-
-  // Currently LIVE matches (started, not ended)
+  // ── Match preview lists ───────────────────────────────────────────────────
   const liveMatchPreviews = buildMatchPreviews(
     liveMatches.filter((m: any) => m.matchStarted && !m.matchEnded)
   );
-
-  // All upcoming matches within the next 24 hours — handles double-headers
   const upcomingLineupPreviews = buildMatchPreviews(
     liveMatches
       .filter((m: any) => !m.matchStarted && m.dateTimeGMT)
@@ -1739,6 +1397,7 @@ export default function App() {
       .map(({ m }) => m)
   );
 
+  // ── Render helpers ────────────────────────────────────────────────────────
   const renderHome = () => (
     <HomePage
       countdown={countdown}
@@ -1751,10 +1410,7 @@ export default function App() {
       handleLbRefresh={handleLbRefresh}
       lbRefreshing={lbRefreshing}
       shareLeaderboard={shareLeaderboard}
-      teamScores={teamScores}
-      playerPoints={playerPoints}
       setSelectedTeam={setSelectedTeam}
-      matchHistory={matchHistory}
       chartXiFilter={chartXiFilter}
       setChartXiFilter={setChartXiFilter}
       chartHover={chartHover}
@@ -1763,82 +1419,21 @@ export default function App() {
       setSelectedAwardIdx={setSelectedAwardIdx}
       awardXiFilter={awardXiFilter}
       setAwardXiFilter={setAwardXiFilter}
-      playerMatchPoints={playerMatchPoints}
     />
   );
 
-  const renderHistory = () => (
-    <HistoryPage
-      historyYear={historyYear}
-      setHistoryYear={setHistoryYear}
-      histTop10Tab={histTop10Tab}
-      setHistTop10Tab={setHistTop10Tab}
-    />
-  );
-
-
-  const TEAM_ABBREVS: Record<string, string> = {
-    "Royal Challengers Bengaluru": "RCB", "Sunrisers Hyderabad": "SRH",
-    "Mumbai Indians": "MI", "Chennai Super Kings": "CSK",
-    "Kolkata Knight Riders": "KKR", "Rajasthan Royals": "RR",
-    "Punjab Kings": "PBKS", "Delhi Capitals": "DC",
-    "Gujarat Titans": "GT", "Lucknow Super Giants": "LSG",
-  };
-  const shortMatchLabel = (label: string) =>
-    label.split(" vs ").map(t => TEAM_ABBREVS[t.trim()] || t.trim().split(" ").map((w: string) => w[0]).join("")).join(" vs ");
-
-  const Sparkline = ({ name, color }: { name: string; color: string }) => {
-    const ms = (playerMatchPoints[name] || []).slice(-5);
-    if (ms.length === 0) return null;
-    const maxPts = Math.max(...ms.map(m => m.pts), 1);
-    const BAR_W = 4, GAP = 2, H = 10, HIT_W = 10;
-    const W = ms.length * (BAR_W + GAP) - GAP;
-    const handleBarTap = (e: React.MouseEvent | React.TouchEvent, m: typeof ms[0]) => {
-      e.stopPropagation();
-      if (sparkTipTimer.current) clearTimeout(sparkTipTimer.current);
-      setSparkTip({ label: m.label, pts: m.pts });
-      sparkTipTimer.current = setTimeout(() => setSparkTip(null), 2500);
-    };
-    return (
-      <svg width={W} height={H} style={{ display: "block", marginTop: 3, flexShrink: 0, opacity: 0.8 }}>
-        {ms.map((m, i) => {
-          const barH = Math.max(2, Math.round((m.pts / maxPts) * H));
-          const x = i * (BAR_W + GAP);
-          return (
-            <g key={i} onClick={(e) => handleBarTap(e, m)} style={{ cursor: "pointer" }}>
-              <rect x={x} y={H - barH} width={BAR_W} height={barH} rx={1} fill={m.pts > 0 ? color : "#334155"} />
-              <rect x={Math.max(0, x - 3)} y={0} width={HIT_W} height={H} fill="transparent" />
-            </g>
-          );
-        })}
-      </svg>
-    );
-  };
-
-
+  const renderHistory = () => <HistoryPage />;
 
   const renderTeams = () => (
     <TeamsPage
       selectedTeam={selectedTeam}
       setSelectedTeam={setSelectedTeam}
-      playerPoints={playerPoints}
-      teamScores={teamScores}
-      playerMatchPoints={playerMatchPoints}
       upcomingLineupPreviews={upcomingLineupPreviews}
       liveMatchPreviews={liveMatchPreviews}
-      expandedPlayer={expandedPlayer}
-      setExpandedPlayer={setExpandedPlayer}
-      expandedBdMatches={expandedBdMatches}
-      setExpandedBdMatches={setExpandedBdMatches}
-      scoringGuideOpen={scoringGuideOpen}
-      setScoringGuideOpen={setScoringGuideOpen}
-      expandedMatchNums={expandedMatchNums}
-      setExpandedMatchNums={setExpandedMatchNums}
-      teamSection={teamSection}
-      setTeamSection={setTeamSection}
       shareTeams={shareTeams}
-      Sparkline={Sparkline}
-      shortMatchLabel={shortMatchLabel}
+      sparkTip={sparkTip}
+      setSparkTip={setSparkTip}
+      sparkTipTimer={sparkTipTimer}
     />
   );
 
@@ -1853,28 +1448,18 @@ export default function App() {
       scorecards={scorecards}
       scorecardLoading={scorecardLoading}
       openScoreRows={openScoreRows}
-      predictions={predictions}
-      expandedPredMatchId={expandedPredMatchId}
-      predFlash={predFlash}
-      predSaveState={predSaveState}
-      currentUser={currentUser}
       apiError={apiError}
-      lastPredSaveRef={lastPredSaveRef}
       setMatchFilter={setMatchFilter}
       setTeamFilter={setTeamFilter}
       setFixtureHomeAwayFilter={setFixtureHomeAwayFilter}
       setOpenScoreRows={setOpenScoreRows}
-      setExpandedPredMatchId={setExpandedPredMatchId}
-      setPredictions={setPredictions}
-      setPredSaveState={setPredSaveState}
       toggleTeamFilter={toggleTeamFilter}
       shareMatchCard={shareMatchCard}
       fetchScorecard={fetchScorecard}
-      saveLocalPreds={saveLocalPreds}
     />
   );
 
-  const renderWhatIf = () => <ReAuctionPage playerPoints={playerPoints} playerMatchPoints={playerMatchPoints} />;
+  const renderWhatIf = () => <ReAuctionPage />;
 
   const renderStats = () => (
     <StatsPage
@@ -1882,55 +1467,20 @@ export default function App() {
       statsFilter={statsFilter}
       statsExpanded={statsExpanded}
       fantasyPtsOpen={fantasyPtsOpen}
-      predVisibleCount={predVisibleCount}
-      predArchiveOpen={predArchiveOpen}
       iplStats={iplStats}
       statsLoading={statsLoading}
       liveMatches={liveMatches}
-      predictions={predictions}
-      playerPoints={playerPoints}
       setStatsCategory={setStatsCategory}
       setStatsFilter={setStatsFilter}
       setStatsExpanded={setStatsExpanded}
       setFantasyPtsOpen={setFantasyPtsOpen}
-      setPredVisibleCount={setPredVisibleCount}
-      setPredArchiveOpen={setPredArchiveOpen}
     />
   );
 
-
   const renderAdmin = () => (
     <AdminPage
-      currentUser={currentUser!}
-      abandonedMatchIds={abandonedMatchIds}
-      liveMatches={liveMatches}
-      playerPoints={playerPoints}
-      processedMatches={processedMatches}
-      playerMatchPoints={playerMatchPoints}
-      pinEditTarget={pinEditTarget}
-      pinStep={pinStep}
-      pinConfirmVal={pinConfirmVal}
-      pinConfirmError={pinConfirmError}
-      pinEditVal={pinEditVal}
-      setPinEditTarget={setPinEditTarget}
-      setPinStep={setPinStep}
-      setPinConfirmVal={setPinConfirmVal}
-      setPinConfirmError={setPinConfirmError}
-      setPinEditVal={setPinEditVal}
-      handleConfirmOldPin={handleConfirmOldPin}
-      handleSavePin={handleSavePin}
-      resetPinEdit={resetPinEdit}
       dataSources={dataSources}
-      pointsUpdating={pointsUpdating}
-      pointsError={pointsError}
-      pendingMatches={pendingMatches}
-      nextAttempt={nextAttempt}
-      pointsLastUpdated={pointsLastUpdated}
-      pointsLoading={pointsLoading}
-      adminBreakdownOpen={adminBreakdownOpen}
-      setAdminBreakdownOpen={setAdminBreakdownOpen}
-      expandedAdminPlayer={expandedAdminPlayer}
-      setExpandedAdminPlayer={setExpandedAdminPlayer}
+      liveMatches={liveMatches}
       liveLoading={liveLoading}
       supabaseSyncing={supabaseSyncing}
       s3Prefetching={s3Prefetching}
@@ -1940,8 +1490,6 @@ export default function App() {
       supabaseSyncMsg={supabaseSyncMsg}
       s3PrefetchResult={s3PrefetchResult}
       lastUpdated={lastUpdated}
-      setPlayerPoints={setPlayerPoints}
-      setProcessedMatches={setProcessedMatches}
       fetchLive={fetchLive}
       fetchPoints={fetchPoints}
       syncSupabase={syncSupabase}
@@ -1961,12 +1509,10 @@ export default function App() {
     />
   );
 
-  // Swipe gesture handlers (attached to the app wrapper)
+  // ── Swipe gesture handlers ────────────────────────────────────────────────
   const handleSwipeStart = (e: React.TouchEvent) => {
     swipeStartX.current = e.touches[0].clientX;
     swipeStartY.current = e.touches[0].clientY;
-    // Block tab-swipe if the touch started inside a no-swipe zone
-    // (horizontally-scrollable inner containers)
     const target = e.target as HTMLElement;
     swipeBlocked.current = !!target.closest("[data-no-swipe]");
   };
@@ -1974,8 +1520,6 @@ export default function App() {
     if (swipeBlocked.current) { swipeBlocked.current = false; return; }
     const dx = e.changedTouches[0].clientX - swipeStartX.current;
     const dy = e.changedTouches[0].clientY - swipeStartY.current;
-    // Must be a clearly horizontal swipe: min 70px horizontal, and horizontal
-    // must be at least 3× the vertical movement (within ~18° of horizontal axis)
     if (Math.abs(dx) < 70) return;
     if (Math.abs(dy) > Math.abs(dx) * 0.3) return;
     const idx = SWIPEABLE_TABS.indexOf(tab);
@@ -2039,7 +1583,6 @@ export default function App() {
                   Install
                 </button>
               )}
-              {/* Settings icon button */}
               {currentUser && (
                 <button className="btn-icon" onClick={() => setSettingsOpen(p => !p)} aria-label="Settings">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -2086,13 +1629,13 @@ export default function App() {
           </div>
 
           <div key={tab} className="tab-content">
-            {tab === "home" && renderHome()}
-            {tab === "teams" && renderTeams()}
+            {tab === "home"     && renderHome()}
+            {tab === "teams"    && renderTeams()}
             {tab === "fixtures" && renderFixtures()}
-            {tab === "stats" && renderStats()}
-            {tab === "history" && renderHistory()}
-            {tab === "whatif" && renderWhatIf()}
-            {tab === "admin" && renderAdmin()}
+            {tab === "stats"    && renderStats()}
+            {tab === "history"  && renderHistory()}
+            {tab === "whatif"   && renderWhatIf()}
+            {tab === "admin"    && renderAdmin()}
           </div>
         </div>
 

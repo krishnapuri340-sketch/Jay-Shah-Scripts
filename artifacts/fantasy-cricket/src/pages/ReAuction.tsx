@@ -2,11 +2,7 @@ import React, { useMemo, useState } from "react";
 import { RA_TEAMS, RA_TEAM_ORDER, raTeamScore, REAUCTION_DATE, RA_FROM_MATCH, type RaPlayer, type RaTeam, type PlayerMatchPoints } from "../reauction-data";
 import { FANTASY_TEAMS } from "../teams";
 import { IPL_COLORS, ROLE_COLORS, TEAM_LOGO_CDN } from "../constants";
-
-export interface ReAuctionPageProps {
-  playerPoints: Record<string, number>;
-  playerMatchPoints: PlayerMatchPoints;
-}
+import { usePoints } from "../context/PointsContext";
 
 const OWNER_ORDER = RA_TEAM_ORDER;
 
@@ -32,7 +28,8 @@ function abbrevLabel(label: string | undefined): string {
   );
 }
 
-export default function ReAuctionPage({ playerPoints, playerMatchPoints }: ReAuctionPageProps) {
+export default function ReAuctionPage() {
+  const { playerPoints, playerMatchPoints } = usePoints();
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
 
   // Compute each team's re-auction score using scorecard data from M34+

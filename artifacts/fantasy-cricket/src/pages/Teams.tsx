@@ -1,42 +1,70 @@
-import React from "react";
+import React, { useState } from "react";
 import { ROLE_COLORS, IPL_COLORS, IPL_TEAM_BADGE, TEAM_LOGO_CDN } from "../constants";
 import { FANTASY_TEAMS } from "../teams";
 import { getTeamData, applyMultiplier } from "../utils";
+import { usePoints } from "../context/PointsContext";
 
 interface TeamsPageProps {
   selectedTeam: string;
   setSelectedTeam: (id: string) => void;
-  playerPoints: Record<string, number>;
-  teamScores: any[];
-  playerMatchPoints: Record<string, any[]>;
   upcomingLineupPreviews: any[];
   liveMatchPreviews: any[];
-  expandedPlayer: string | null;
-  setExpandedPlayer: React.Dispatch<React.SetStateAction<string | null>>;
-  expandedBdMatches: Set<string>;
-  setExpandedBdMatches: React.Dispatch<React.SetStateAction<Set<string>>>;
-  scoringGuideOpen: boolean;
-  setScoringGuideOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  expandedMatchNums: Set<number>;
-  setExpandedMatchNums: React.Dispatch<React.SetStateAction<Set<number>>>;
-  teamSection: "xi" | "bench" | "matchpts";
-  setTeamSection: React.Dispatch<React.SetStateAction<"xi" | "bench" | "matchpts">>;
   shareTeams: () => void;
-  Sparkline: React.ComponentType<{ name: string; color: string }>;
-  shortMatchLabel: (label: string) => string;
+  sparkTip: { label: string; pts: number } | null;
+  setSparkTip: React.Dispatch<React.SetStateAction<{ label: string; pts: number } | null>>;
+  sparkTipTimer: React.MutableRefObject<ReturnType<typeof setTimeout> | null>;
+}
+
+function Sparkline({ name, color, setSparkTip, sparkTipTimer }: {
+  name: string;
+  color: string;
+  setSparkTip: React.Dispatch<React.SetStateAction<{ label: string; pts: number } | null>>;
+  sparkTipTimer: React.MutableRefObject<ReturnType<typeof setTimeout> | null>;
+}) {
+  const { playerMatchPoints } = usePoints();
+  const matches = (playerMatchPoints[name] || []).filter((e: any) => e.matchNum < 900).slice(-5);
+  if (matches.length === 0) return null;
+  const maxPts = Math.max(...matches.map((m: any) => m.pts), 1);
+  const BAR_W = 4, GAP = 2, H = 12;
+  const sparkW = matches.length * (BAR_W + GAP) - GAP;
+  return (
+    <svg width={sparkW} height={H} style={{ display: "block", flexShrink: 0, cursor: "pointer" }}>
+      {matches.map((m: any, i: number) => {
+        const barH = Math.max(2, Math.round((Math.max(m.pts, 0) / maxPts) * H));
+        return (
+          <rect key={i} x={i * (BAR_W + GAP)} y={H - barH} width={BAR_W} height={barH} rx={1}
+            fill={m.pts > 0 ? color : "#334155"}
+            onClickCapture={(e) => {
+              e.stopPropagation();
+              if (sparkTipTimer.current) clearTimeout(sparkTipTimer.current);
+              setSparkTip({ pts: m.pts, label: m.label });
+              sparkTipTimer.current = setTimeout(() => setSparkTip(null), 3000);
+            }}
+          />
+        );
+      })}
+    </svg>
+  );
+}
+
+function shortMatchLabel(label: string): string {
+  return label.split(" vs ").map(t =>
+    IPL_TEAM_BADGE[t]?.abbr || t.split(" ").map((w: string) => w[0]).join("")
+  ).join(" vs ");
 }
 
 export default function TeamsPage(props: TeamsPageProps) {
   const {
-    selectedTeam, setSelectedTeam, playerPoints, teamScores, playerMatchPoints,
+    selectedTeam, setSelectedTeam,
     upcomingLineupPreviews, liveMatchPreviews,
-    expandedPlayer, setExpandedPlayer,
-    expandedBdMatches, setExpandedBdMatches,
-    scoringGuideOpen, setScoringGuideOpen,
-    expandedMatchNums, setExpandedMatchNums,
-    teamSection, setTeamSection,
-    shareTeams, Sparkline, shortMatchLabel,
+    shareTeams, setSparkTip, sparkTipTimer,
   } = props;
+  const { playerPoints, teamScores, playerMatchPoints } = usePoints();
+  const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
+  const [expandedBdMatches, setExpandedBdMatches] = useState<Set<string>>(new Set());
+  const [scoringGuideOpen, setScoringGuideOpen] = useState(false);
+  const [expandedMatchNums, setExpandedMatchNums] = useState<Set<number>>(new Set());
+  const [teamSection, setTeamSection] = useState<"xi" | "bench" | "matchpts">("xi");
 
     const t = FANTASY_TEAMS[selectedTeam];
     const td = getTeamData(selectedTeam, playerPoints);
@@ -505,7 +533,7 @@ export default function TeamsPage(props: TeamsPageProps) {
                           <span style={{ fontSize: "0.5rem", fontWeight: 400, color: "rgba(255,255,255,0.2)", lineHeight: 1, verticalAlign: "middle" }}>·</span>
                           <span style={{ fontSize: "0.5rem", fontWeight: 500, color: "var(--text-3)", letterSpacing: "0.01em", flexShrink: 0, lineHeight: 1, verticalAlign: "middle" }}>{p.price}cr</span>
                         </>}
-                        <span style={{ marginLeft: 4, display: "flex", alignItems: "flex-end" }}><Sparkline name={p.name} color={isBench ? "rgba(255,255,255,0.18)" : t.color} /></span>
+                        <span style={{ marginLeft: 4, display: "flex", alignItems: "flex-end" }}><Sparkline name={p.name} color={isBench ? "rgba(255,255,255,0.18)" : t.color} setSparkTip={setSparkTip} sparkTipTimer={sparkTipTimer} /></span>
                       </div>
                     </div>
 

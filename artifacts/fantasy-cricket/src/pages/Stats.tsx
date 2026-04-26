@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { FANTASY_TEAMS } from "../teams";
 import { getMatchWinner } from "../utils";
+import { usePredictions } from "../context/PredictionsContext";
+import { usePoints } from "../context/PointsContext";
 
 export const STAT_CATS = [
   { id: "fantasyPts", label: "Fantasy Pts", sub: "Most Fantasy Points" },
@@ -75,27 +77,25 @@ export interface StatsPageProps {
   statsFilter: "all" | "fantasy" | "predictions";
   statsExpanded: boolean;
   fantasyPtsOpen: boolean;
-  predVisibleCount: number;
-  predArchiveOpen: boolean;
   iplStats: any;
   statsLoading: boolean;
   liveMatches: any[];
-  predictions: Record<string, Record<string, string | null>>;
-  playerPoints: Record<string, number>;
   setStatsCategory: React.Dispatch<React.SetStateAction<"fantasyPts" | "orangeCap" | "purpleCap" | "sixesLeader" | "foursLeader" | "catchesLeader" | "srLeader" | "ecoLeader" | "dotsLeader">>;
   setStatsFilter: (v: "all" | "fantasy" | "predictions") => void;
   setStatsExpanded: (v: boolean | ((x: boolean) => boolean)) => void;
   setFantasyPtsOpen: (fn: (x: boolean) => boolean) => void;
-  setPredVisibleCount: (fn: ((c: number) => number)) => void;
-  setPredArchiveOpen: (fn: (o: boolean) => boolean) => void;
 }
 
 export default function StatsPage(p: StatsPageProps) {
   const {
-    statsCategory, statsFilter, statsExpanded, fantasyPtsOpen, predVisibleCount, predArchiveOpen,
-    iplStats, statsLoading, liveMatches, predictions, playerPoints,
-    setStatsCategory, setStatsFilter, setStatsExpanded, setFantasyPtsOpen, setPredVisibleCount, setPredArchiveOpen,
+    statsCategory, statsFilter, statsExpanded, fantasyPtsOpen,
+    iplStats, statsLoading, liveMatches,
+    setStatsCategory, setStatsFilter, setStatsExpanded, setFantasyPtsOpen,
   } = p;
+  const { predictions } = usePredictions();
+  const { playerPoints } = usePoints();
+  const [predVisibleCount, setPredVisibleCount] = useState(20);
+  const [predArchiveOpen, setPredArchiveOpen] = useState(false);
 
   const cat = statsCategory;
   const raw: any[] = iplStats?.[cat] || [];

@@ -1,9 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import InningsTable from "../components/InningsTable";
 import { FANTASY_TEAMS } from "../teams";
 import { getMatchWinner, getH2H, fmtDate, fmtTime, getMatchNum, predictNextMatch, predictFirstInningsTotal } from "../utils";
 import { IPL_COLORS, TEAM_LOGO_CDN, VENUE_AVG } from "../constants";
 import { authHeaders, fetchAuthed } from "../lib/auth";
+import { useAuth } from "../context/AuthContext";
+import { usePredictions } from "../context/PredictionsContext";
+import { saveLocalPreds } from "../hooks/usePredictions";
 
 interface FixturesPageProps {
   liveMatches: any[];
@@ -15,24 +18,14 @@ interface FixturesPageProps {
   scorecards: Record<string, any>;
   scorecardLoading: string | null;
   openScoreRows: Set<string>;
-  predictions: Record<string, Record<string, string | null>>;
-  expandedPredMatchId: string | null;
-  predFlash: string | null;
-  predSaveState: Record<string, "saving" | "saved" | "error">;
-  currentUser: string | null;
   apiError: string | null;
-  lastPredSaveRef: React.MutableRefObject<number>;
   setMatchFilter: (f: "live" | "upcoming" | "completed" | "all") => void;
   setTeamFilter: React.Dispatch<React.SetStateAction<Set<string>>>;
   setFixtureHomeAwayFilter: (f: "all" | "home" | "away") => void;
   setOpenScoreRows: React.Dispatch<React.SetStateAction<Set<string>>>;
-  setExpandedPredMatchId: (id: string | null) => void;
-  setPredictions: React.Dispatch<React.SetStateAction<Record<string, Record<string, string | null>>>>;
-  setPredSaveState: React.Dispatch<React.SetStateAction<Record<string, "saving" | "saved" | "error">>>;
   toggleTeamFilter: (code: string) => void;
   shareMatchCard: (m: any) => void;
   fetchScorecard: (matchId: string, force?: boolean) => Promise<void> | void;
-  saveLocalPreds: (data: Record<string, Record<string, string | null>>) => void;
 }
 
 export default function FixturesPage({
@@ -45,25 +38,20 @@ export default function FixturesPage({
   scorecards,
   scorecardLoading,
   openScoreRows,
-  predictions,
-  expandedPredMatchId,
-  predFlash,
-  predSaveState,
-  currentUser,
   apiError,
-  lastPredSaveRef,
   setMatchFilter,
   setTeamFilter,
   setFixtureHomeAwayFilter,
   setOpenScoreRows,
-  setExpandedPredMatchId,
-  setPredictions,
-  setPredSaveState,
   toggleTeamFilter,
   shareMatchCard,
   fetchScorecard,
-  saveLocalPreds,
 }: FixturesPageProps) {
+  const { currentUser } = useAuth();
+  const { predictions, setPredictions, lastPredSaveRef } = usePredictions();
+  const [predFlash, setPredFlash] = useState<string | null>(null);
+  const [predSaveState, setPredSaveState] = useState<Record<string, "saving" | "saved" | "error">>({});
+  const [expandedPredMatchId, setExpandedPredMatchId] = useState<string | null>(null);
     const grouped = liveMatches.reduce((acc: Record<string, any[]>, m: any) => {
       const d = m.date || (m.dateTimeGMT || "").split("T")[0] || "Unknown";
       if (!acc[d]) acc[d] = [];

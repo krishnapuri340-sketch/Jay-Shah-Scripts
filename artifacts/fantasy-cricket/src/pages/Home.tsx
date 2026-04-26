@@ -5,6 +5,7 @@ import {
   getH2H, predictNextMatch, predictFirstInningsTotal,
   getMatchNum, getMatchWinner, getTeamData, rankLabel, applyMultiplier,
 } from "../utils";
+import { usePoints } from "../context/PointsContext";
 
 interface HomePageProps {
   countdown: { text: string; matchName: string; venue?: string; homeTeam?: string; awayTeam?: string } | null;
@@ -17,10 +18,7 @@ interface HomePageProps {
   handleLbRefresh: () => void | Promise<void>;
   lbRefreshing: boolean;
   shareLeaderboard: () => void | Promise<void>;
-  teamScores: any[];
-  playerPoints: Record<string, number>;
   setSelectedTeam: (id: string) => void;
-  matchHistory: any[];
   chartXiFilter: "all" | "xi";
   setChartXiFilter: React.Dispatch<React.SetStateAction<"all" | "xi">>;
   chartHover: number | null;
@@ -29,18 +27,17 @@ interface HomePageProps {
   setSelectedAwardIdx: React.Dispatch<React.SetStateAction<number>>;
   awardXiFilter: "all" | "xi";
   setAwardXiFilter: React.Dispatch<React.SetStateAction<"all" | "xi">>;
-  playerMatchPoints: Record<string, any[]>;
 }
 
 export default function HomePage(props: HomePageProps) {
   const {
     countdown, liveMatches, intelOpen, setIntelOpen, scorecards,
     setTab, setMatchFilter, handleLbRefresh, lbRefreshing, shareLeaderboard,
-    teamScores, playerPoints, setSelectedTeam, matchHistory,
+    setSelectedTeam,
     chartXiFilter, setChartXiFilter, chartHover, setChartHover,
     selectedAwardIdx, setSelectedAwardIdx, awardXiFilter, setAwardXiFilter,
-    playerMatchPoints,
   } = props;
+  const { playerPoints, teamScores, matchHistory, playerMatchPoints } = usePoints();
 
     return (
       <div>

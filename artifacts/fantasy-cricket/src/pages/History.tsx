@@ -1,15 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import TeamBadge from "../components/TeamBadge";
 import { IPL_HISTORY, IPL_TEAM_BADGE } from "../constants";
 
-interface Props {
-  historyYear: number | null;
-  setHistoryYear: (y: number | null) => void;
-  histTop10Tab: "bat" | "bwl";
-  setHistTop10Tab: (t: "bat" | "bwl") => void;
-}
-
-export default function HistoryPage({ historyYear, setHistoryYear, histTop10Tab, setHistTop10Tab }: Props) {
+export default function HistoryPage() {
+  const [historyYear, setHistoryYear] = useState<number | null>(null);
+  const [histTop10Tab, setHistTop10Tab] = useState<"bat" | "bwl">("bat");
   const s = historyYear ? IPL_HISTORY.find(h => h.year === historyYear) : null;
 
   // Trophy cabinet — titles per team, sorted desc

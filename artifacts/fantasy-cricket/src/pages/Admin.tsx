@@ -1,38 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { FANTASY_TEAMS } from "../teams";
 import { authHeaders } from "../lib/auth";
+import { useAuth } from "../context/AuthContext";
+import { usePoints } from "../context/PointsContext";
 
 export interface AdminPageProps {
-  currentUser: string;
-  abandonedMatchIds: string[];
-  liveMatches: any[];
-  playerPoints: Record<string, number>;
-  processedMatches: string[];
-  playerMatchPoints: Record<string, Array<{ matchNum: number; label: string; pts: number; source: string; stats?: any }>>;
-  pinEditTarget: string | null;
-  pinStep: "confirm" | "new";
-  pinConfirmVal: string;
-  pinConfirmError: boolean;
-  pinEditVal: string;
-  setPinEditTarget: (v: string | null) => void;
-  setPinStep: (s: "confirm" | "new") => void;
-  setPinConfirmVal: (v: string) => void;
-  setPinConfirmError: (v: boolean) => void;
-  setPinEditVal: (v: string) => void;
-  handleConfirmOldPin: (id: string) => void;
-  handleSavePin: (id: string) => void;
-  resetPinEdit: () => void;
   dataSources: { iplOfficial: number; liveCount: number; competitionId?: number } | null;
-  pointsUpdating: boolean;
-  pointsError: string | null;
-  pendingMatches: number;
-  nextAttempt: string | null;
-  pointsLastUpdated: Date | null;
-  pointsLoading: boolean;
-  adminBreakdownOpen: boolean;
-  setAdminBreakdownOpen: (fn: (o: boolean) => boolean) => void;
-  expandedAdminPlayer: string | null;
-  setExpandedAdminPlayer: (v: string | null) => void;
+  liveMatches: any[];
   liveLoading: boolean;
   supabaseSyncing: boolean;
   s3Prefetching: boolean;
@@ -42,15 +16,12 @@ export interface AdminPageProps {
   supabaseSyncMsg: string | null;
   s3PrefetchResult: { found: number; missing: number; foundIds: string[]; missingIds: string[] } | null;
   lastUpdated: Date | null;
-  setPlayerPoints: (v: Record<string, number>) => void;
-  setProcessedMatches: (v: string[]) => void;
   fetchLive: () => void;
   fetchPoints: () => void;
   syncSupabase: () => void;
   prefetchS3Scorecards: () => void;
   refreshStatsCache: () => void;
   refreshS3Live: () => void;
-  // Push notifications
   pushSupported: boolean;
   pushSubscribed: boolean;
   pushEnabled: boolean;
@@ -65,18 +36,27 @@ export interface AdminPageProps {
 
 export default function AdminPage(p: AdminPageProps) {
   const {
-    currentUser, abandonedMatchIds, liveMatches, playerPoints, processedMatches, playerMatchPoints,
-    pinEditTarget, pinStep, pinConfirmVal, pinConfirmError, pinEditVal,
-    setPinEditTarget, setPinStep, setPinConfirmVal, setPinConfirmError, setPinEditVal,
-    handleConfirmOldPin, handleSavePin, resetPinEdit,
-    dataSources, pointsUpdating, pointsError, pendingMatches, nextAttempt, pointsLastUpdated, pointsLoading,
-    adminBreakdownOpen, setAdminBreakdownOpen, expandedAdminPlayer, setExpandedAdminPlayer,
-    liveLoading, supabaseSyncing, s3Prefetching, statsRefreshing, s3LiveSyncing, s3LiveSyncMsg,
+    dataSources, liveMatches, liveLoading,
+    supabaseSyncing, s3Prefetching, statsRefreshing, s3LiveSyncing, s3LiveSyncMsg,
     supabaseSyncMsg, s3PrefetchResult, lastUpdated,
-    setPlayerPoints, setProcessedMatches, fetchLive, fetchPoints, syncSupabase, prefetchS3Scorecards, refreshStatsCache, refreshS3Live,
+    fetchLive, fetchPoints, syncSupabase, prefetchS3Scorecards, refreshStatsCache, refreshS3Live,
     pushSupported, pushSubscribed, pushEnabled, pushSubscriberCount, notifPermission,
     pushSubscribing, onSubscribePush, onUnsubscribePush, onTogglePushEnabled, onTestPush,
   } = p;
+  const {
+    currentUser,
+    pinEditTarget, pinStep, pinConfirmVal, pinConfirmError, pinEditVal,
+    setPinEditTarget, setPinStep, setPinConfirmVal, setPinConfirmError, setPinEditVal,
+    handleConfirmOldPin, handleSavePin, resetPinEdit,
+  } = useAuth();
+  const {
+    playerPoints, setPlayerPoints,
+    processedMatches, setProcessedMatches,
+    playerMatchPoints, abandonedMatchIds,
+    pointsUpdating, pointsError, pendingMatches, nextAttempt, pointsLastUpdated, pointsLoading,
+  } = usePoints();
+  const [adminBreakdownOpen, setAdminBreakdownOpen] = useState(false);
+  const [expandedAdminPlayer, setExpandedAdminPlayer] = useState<string | null>(null);
 
   const abandonedSet = new Set(abandonedMatchIds);
   const completedCount = liveMatches.filter((m: any) => m.matchEnded && !abandonedSet.has(String(m.id))).length;
