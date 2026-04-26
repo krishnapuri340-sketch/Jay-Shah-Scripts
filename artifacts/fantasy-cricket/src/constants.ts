@@ -65,7 +65,7 @@ export const IPL_TEAM_BADGE: Record<string, { abbr: string; bg: string; fg: stri
   "Kochi Tuskers Kerala":          { abbr: "KTK",  bg: "#F28A00", fg: "#fff" },
 };
 
-export const SWIPEABLE_TABS = ["home", "teams", "fixtures", "stats", "history"];
+export const SWIPEABLE_TABS = ["home", "teams", "fixtures", "stats", "history", "whatif"];
 
 export const IPL_HISTORY = [
   {

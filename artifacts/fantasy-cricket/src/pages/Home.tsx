@@ -6,7 +6,6 @@ import {
   getMatchNum, getMatchWinner, getTeamData, rankLabel, applyMultiplier,
 } from "../utils";
 import { usePoints } from "../context/PointsContext";
-import { raTeamScore, RA_TEAM_ORDER, RA_TEAMS, RA_FROM_MATCH } from "../reauction-data";
 
 interface HomePageProps {
   countdown: { text: string; matchName: string; venue?: string; homeTeam?: string; awayTeam?: string } | null;
@@ -39,15 +38,6 @@ export default function HomePage(props: HomePageProps) {
     selectedAwardIdx, setSelectedAwardIdx, awardXiFilter, setAwardXiFilter,
   } = props;
   const { playerPoints, teamScores, matchHistory, playerMatchPoints } = usePoints();
-  const [lbView, setLbView] = React.useState<"season" | "reauction">("reauction");
-
-  const raScores = React.useMemo(() => {
-    return RA_TEAM_ORDER.map(tid => {
-      const ft = FANTASY_TEAMS[tid];
-      const { total } = raTeamScore(tid, playerPoints, playerMatchPoints as any);
-      return { id: tid, team: ft, total };
-    }).sort((a, b) => b.total - a.total);
-  }, [playerPoints, playerMatchPoints]);
 
     return (
       <div>
@@ -266,29 +256,28 @@ export default function HomePage(props: HomePageProps) {
         })()}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, marginTop: countdown ? 16 : 0 }}>
           <div className="sec-title" style={{ marginBottom: 0 }}>Leaderboard</div>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <div style={{ display: "flex", background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 7, overflow: "hidden" }}>
-              {(["reauction", "season"] as const).map(v => (
-                <button key={v} onClick={() => setLbView(v)}
-                  style={{
-                    padding: "4px 9px", fontSize: "0.6rem", fontWeight: 700, border: "none", cursor: "pointer",
-                    fontFamily: "inherit",
-                    background: lbView === v ? "rgba(255,255,255,0.12)" : "transparent",
-                    color: lbView === v ? "var(--text)" : "var(--text-3)",
-                    letterSpacing: "0.04em",
-                  }}>
-                  {v === "season" ? "Original" : "Re-Auction"}
-                </button>
-              ))}
-            </div>
-            <button className="btn-icon" onClick={shareLeaderboard} title="Share leaderboard" aria-label="Share leaderboard">
+          <div style={{ display: "flex", gap: 6 }}>
+            <button
+              onClick={handleLbRefresh}
+              disabled={lbRefreshing}
+              title="Refresh all data"
+              style={{ padding: "6px 10px", display: "flex", alignItems: "center", gap: 5, background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, cursor: lbRefreshing ? "default" : "pointer", color: lbRefreshing ? "var(--text-3)" : "var(--text-2)", fontFamily: "inherit", transition: "opacity 0.2s" }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round"
+                style={{ animation: lbRefreshing ? "spin 0.9s linear infinite" : "none" }}>
+                <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+              </svg>
+              <span style={{ fontSize: "0.68rem" }}>{lbRefreshing ? "Syncing…" : "Refresh"}</span>
+            </button>
+            <button className="btn-primary" style={{ padding: "6px 10px", display: "flex", alignItems: "center", gap: 5 }} onClick={shareLeaderboard} title="Share leaderboard">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>
               </svg>
+              <span style={{ fontSize: "0.68rem" }}>Share</span>
             </button>
           </div>
         </div>
-        {lbView === "season" && (() => {
+        {(() => {
           const LB_BG: Record<string, string> = {
             rajveer:  `${import.meta.env.BASE_URL}lb-bg-rajveer.jpeg`,
             mombasa:  `${import.meta.env.BASE_URL}lb-bg-mumbai.jpeg`,
@@ -364,86 +353,8 @@ export default function HomePage(props: HomePageProps) {
           );
         })()}
 
-        {lbView === "reauction" && (() => {
-          const LB_BG: Record<string, string> = {
-            rajveer:  `${import.meta.env.BASE_URL}lb-bg-rajveer.jpeg`,
-            mombasa:  `${import.meta.env.BASE_URL}lb-bg-mumbai.jpeg`,
-            mumbai:   `${import.meta.env.BASE_URL}lb-bg-mombasa.jpeg`,
-            ponygoat: `${import.meta.env.BASE_URL}lb-bg-ponygoat.jpeg`,
-          };
-          const hasData = Object.keys(playerPoints).length > 0;
-          if (!hasData) return (
-            <div>
-              {[0,1,2,3].map(i => (
-                <div key={i} className="skel-lb-card">
-                  <div className="skel" style={{ width: 30, height: 30, borderRadius: "50%", flexShrink: 0 }} />
-                  <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 8 }}>
-                    <div className="skel" style={{ height: 13, width: "52%" }} />
-                    <div className="skel" style={{ height: 9, width: "78%" }} />
-                  </div>
-                  <div className="skel" style={{ width: 38, height: 22, flexShrink: 0 }} />
-                </div>
-              ))}
-            </div>
-          );
-          const raLeader = raScores[0]?.total ?? 0;
-          return (
-            <div>
-              {raScores.map((s, i) => {
-                const gap = i > 0 ? raLeader - s.total : 0;
-                return (
-                  <div key={s.id} className={`lb-card ${i === 0 ? "rank-first" : ""}`}
-                    onClick={() => setTab("teams")}
-                  >
-                    {/* Blurred team artwork background */}
-                    <div style={{
-                      position: "absolute", inset: -6, zIndex: 0,
-                      backgroundImage: `url(${LB_BG[s.id]})`,
-                      backgroundSize: "cover", backgroundPosition: "center 30%",
-                      filter: "blur(32px) brightness(0.72) saturate(1.4)",
-                      transform: "translateZ(0)", willChange: "filter",
-                    }} />
-                    {/* Glass scrim */}
-                    <div style={{
-                      position: "absolute", inset: 0, zIndex: 1,
-                      background: `linear-gradient(135deg, ${s.team.color}18 0%, rgba(9,9,11,0.18) 100%)`,
-                    }} />
-                    <div className="lb-accent" style={{ background: s.team.color, zIndex: 2, position: "relative" }} />
-                    <div className="lb-inner" style={{ position: "relative", zIndex: 2 }}>
-                      <div className={`lb-rank ${rankLabel(i)}`} style={{ textShadow: "0 1px 4px rgba(0,0,0,0.4)" }}>{i + 1}</div>
-                      <div className="lb-info">
-                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          <div className={`lb-name ${i === 0 ? "first" : ""}`}
-                            style={{ textShadow: "0 1px 6px rgba(0,0,0,1), 0 0 20px rgba(0,0,0,0.8)" }}>
-                            {s.team.name}
-                          </div>
-                        </div>
-                        <div className="lb-meta">
-                          {s.team.owner} · <span style={{ color: "#d4a843" }}>C:</span> {s.team.captain} · <span style={{ color: "rgba(255,255,255,0.45)" }}>VC:</span> {s.team.vc}
-                        </div>
-                      </div>
-                      <div style={{ textAlign: "right", flexShrink: 0 }}>
-                        <div className="lb-pts first opacity-[1] bg-[transparent]"
-                          style={{ color: s.team.color, textShadow: `0 0 12px ${s.team.color}66` }}>
-                          {s.total}
-                        </div>
-                        <div className="lb-pts-label" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>pts</div>
-                        {i > 0 && (
-                          <div style={{ fontSize: "0.58rem", color: gap === 0 ? "var(--text-3)" : "#f87171", textShadow: "0 1px 4px rgba(0,0,0,0.9)", fontWeight: 600, marginTop: 1 }}>
-                            {`−${gap}`}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          );
-        })()}
-
         {/* ─── Season Race ─── */}
-        {lbView === "season" && matchHistory.length > 0 && matchHistory[0].points.length >= 2 && (() => {
+        {matchHistory.length > 0 && matchHistory[0].points.length >= 2 && (() => {
           const allMatchNums = matchHistory[0].points.map((p: any) => p.matchNum);
           const n = allMatchNums.length;
 
@@ -483,69 +394,10 @@ export default function HomePage(props: HomePageProps) {
           }
           const banter = pool.length > 0 ? pool[Math.floor(Date.now() / 60000) % pool.length] : "";
 
-          // Re-auction chart data
-          const raChartData = RA_TEAM_ORDER.map(teamId => {
-            const raTeam = RA_TEAMS[teamId];
-            const ft = FANTASY_TEAMS[teamId];
-            const raTop11 = chartXiFilter === "xi"
-              ? raTeamScore(teamId, playerPoints, playerMatchPoints as any).top11
-              : null;
-            let cum = 0;
-            const points = allMatchNums.map((matchNum: number) => {
-              let pts = 0;
-              for (const player of raTeam.players) {
-                if (raTop11 && !raTop11.has(player.name)) continue;
-                const isCap = player.name === raTeam.captain;
-                const isVC = player.name === raTeam.vc;
-                const mult = isCap ? 2 : isVC ? 1.5 : 1;
-                if (player.isNew) {
-                  if (matchNum === RA_FROM_MATCH) {
-                    pts += (player.frozenPts ?? 0) * mult;
-                  }
-                  if (matchNum >= RA_FROM_MATCH) {
-                    const entry = (playerMatchPoints[player.name] || []).find((e: any) => e.matchNum === matchNum);
-                    if (entry) pts += entry.pts * mult;
-                  }
-                } else {
-                  const entry = (playerMatchPoints[player.name] || []).find((e: any) => e.matchNum === matchNum);
-                  if (entry) pts += entry.pts * mult;
-                }
-              }
-              cum += pts;
-              return { matchNum, label: `M${matchNum}`, cum };
-            });
-            return { teamId, color: ft.color, points };
-          });
-
-          const originalChartData = chartXiFilter === "xi"
-            ? matchHistory.map(t => {
-                const top11Set = getTeamData(t.teamId, playerPoints).top11;
-                const team = FANTASY_TEAMS[t.teamId];
-                let cum = 0;
-                const points = matchHistory[0].points.map(({ matchNum }: any) => {
-                  let pts = 0;
-                  for (const player of team.players) {
-                    if (!top11Set.has(player.name)) continue;
-                    const entry = (playerMatchPoints[player.name] || []).find((e: any) => e.matchNum === matchNum);
-                    if (entry) pts += applyMultiplier(entry.pts, player.name === team.captain, player.name === team.vc);
-                  }
-                  cum += pts;
-                  return { matchNum, label: `M${matchNum}`, cum };
-                });
-                return { ...t, points };
-              })
-            : matchHistory;
-
-          const activeChartData = lbView === "reauction" ? raChartData : originalChartData;
-
-          const sortedByFinal = [...activeChartData].sort((a, b) =>
-            (b.points[b.points.length - 1]?.cum ?? 0) - (a.points[a.points.length - 1]?.cum ?? 0)
-          );
-
           // Chart dimensions
           const W = 320, H = 148, PL = 14, PR = 54, PT = 14, PB = 20;
           const CW = W - PL - PR, CH = H - PT - PB;
-          const maxCum = Math.max(...activeChartData.flatMap(t => t.points.map((p: any) => p.cum)), 1);
+          const maxCum = Math.max(...matchHistory.flatMap(t => t.points.map((p: any) => p.cum)), 1);
           const xOf = (i: number) => PL + (n <= 1 ? CW / 2 : (i / (n - 1)) * CW);
           const yOf = (v: number) => PT + CH - (v / maxCum) * CH;
           const bottom = PT + CH;
@@ -567,6 +419,29 @@ export default function HomePage(props: HomePageProps) {
             }
             return d;
           };
+
+          const chartMatchHistory = chartXiFilter === "xi"
+            ? matchHistory.map(t => {
+                const top11Set = getTeamData(t.teamId, playerPoints).top11;
+                const team = FANTASY_TEAMS[t.teamId];
+                let cum = 0;
+                const points = matchHistory[0].points.map(({ matchNum }: any) => {
+                  let pts = 0;
+                  for (const player of team.players) {
+                    if (!top11Set.has(player.name)) continue;
+                    const entry = (playerMatchPoints[player.name] || []).find((e: any) => e.matchNum === matchNum);
+                    if (entry) pts += applyMultiplier(entry.pts, player.name === team.captain, player.name === team.vc);
+                  }
+                  cum += pts;
+                  return { matchNum, label: `M${matchNum}`, cum };
+                });
+                return { ...t, points };
+              })
+            : matchHistory;
+
+          const sortedByFinal = [...chartMatchHistory].sort((a, b) =>
+            (b.points[b.points.length - 1]?.cum ?? 0) - (a.points[a.points.length - 1]?.cum ?? 0)
+          );
 
           // ─ Per-team aggregated batting/bowling/fielding stats ─
           type TeamAggEntry = { runs: number; balls: number; sixes: number; fours: number; wickets: number; catches: number; ducks: number; dots: number; price: number; captainPts: number; vcPts: number };
@@ -677,7 +552,7 @@ export default function HomePage(props: HomePageProps) {
           return (
             <div style={{ marginTop: 22 }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                <div className="sec-title" style={{ marginBottom: 0 }}>{lbView === "reauction" ? "Re-Auction Race" : "Season Race"}</div>
+                <div className="sec-title" style={{ marginBottom: 0 }}>Season Race</div>
                 <div style={{ display: "flex", background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 7, overflow: "hidden" }}>
                   {(["all", "xi"] as const).map(f => (
                     <button key={f} onClick={() => setChartXiFilter(f)}
@@ -832,7 +707,7 @@ export default function HomePage(props: HomePageProps) {
                         {sortedByFinal.map(team => {
                           const pts = team.points.map((p: any, i: number) => ({ x: xOf(i), y: yOf(p.cum) }));
                           if (pts.length < 2) return null;
-                          const isLeader = team.teamId === sortedByFinal[0].teamId;
+                          const isLeader = team.teamId === leader.id;
                           const linePath = smoothPath(pts);
                           const lastPt = pts[pts.length - 1];
                           return (
@@ -878,7 +753,7 @@ export default function HomePage(props: HomePageProps) {
                           const lx = xOf(lastI) + 6;
                           const ly = labelMap[team.teamId] ?? yOf(lastPt.cum);
                           const ft = FANTASY_TEAMS[team.teamId];
-                          const isLeader = team.teamId === sortedByFinal[0].teamId;
+                          const isLeader = team.teamId === leader.id;
                           return (
                             <g key={team.teamId + "-lbl"} opacity={chartHover !== null ? 0.25 : 1}>
                               <circle cx={lx + AVT_R} cy={ly} r={AVT_R + 2} fill={team.color} opacity={0.22} />

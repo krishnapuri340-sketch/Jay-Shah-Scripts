@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { RA_TEAMS, RA_TEAM_ORDER, raTeamScore, REAUCTION_DATE, RA_FROM_MATCH, type RaPlayer, type RaTeam, type PlayerMatchPoints } from "../reauction-data";
-import { FANTASY_TEAMS, type FantasyTeam } from "../teams";
+import { FANTASY_TEAMS } from "../teams";
 import { IPL_COLORS, ROLE_COLORS, TEAM_LOGO_CDN } from "../constants";
 import { usePoints } from "../context/PointsContext";
 
@@ -183,8 +183,6 @@ export default function ReAuctionPage() {
           raTeam={raTeam}
           top11={activeData.top11}
           players={activeData.players}
-          total={activeData.total}
-          ft={activeData.ft}
           teamColor={FANTASY_TEAMS[activeTeam!].color}
           captain={raTeam.captain}
           vc={raTeam.vc}
@@ -197,160 +195,108 @@ export default function ReAuctionPage() {
 
 // ─── Roster Card ─────────────────────────────────────────────────────────────
 
-const TEAM_BG: Record<string, string> = {
-  rajveer:  "lb-bg-rajveer.jpeg",
-  mombasa:  "lb-bg-mumbai.jpeg",
-  mumbai:   "lb-bg-mombasa.jpeg",
-  ponygoat: "lb-bg-ponygoat.jpeg",
-};
-
 interface RosterCardProps {
   teamId: string;
   raTeam: RaTeam;
   top11: Set<string>;
   players: Array<RaPlayer & { slotPts: number; adjPts: number; liveGain: number }>;
-  total: number;
-  ft: FantasyTeam;
   teamColor: string;
   captain: string;
   vc: string;
   playerMatchPoints: PlayerMatchPoints;
 }
 
-function RosterCard({ teamId, top11, players, total, ft, teamColor, captain, vc, playerMatchPoints }: RosterCardProps) {
-  const [section, setSection] = useState<"xi" | "bench" | "total">("xi");
+function RosterCard({ top11, players, teamColor, captain, vc, playerMatchPoints }: RosterCardProps) {
+  const [showBench, setShowBench] = useState(false);
   const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
   const [expandedBdMatches, setExpandedBdMatches] = useState<Set<string>>(new Set());
 
   const xi = players.filter(p => top11.has(p.name));
   const bench = players.filter(p => !top11.has(p.name));
-
-  const xiTotal = xi.reduce((s, p) => s + p.adjPts, 0);
-  const benchTotal = bench.reduce((s, p) => s + p.adjPts, 0);
-  const grandTotal = xiTotal + benchTotal;
-
-  const bgImg = TEAM_BG[teamId];
-
-  const makePlayerRow = (p: typeof players[number]) => (
-    <PlayerRow key={p.name} p={p}
-      isCap={p.name === captain} isVC={p.name === vc} teamColor={teamColor}
-      matchPoints={playerMatchPoints[p.name] || []}
-      replacedMatchPoints={p.replacedName ? (playerMatchPoints[p.replacedName] || []).filter(e => e.matchNum < RA_FROM_MATCH) : []}
-      isExpanded={expandedPlayer === p.name}
-      expandedBdMatches={expandedBdMatches}
-      onToggle={() => setExpandedPlayer(expandedPlayer === p.name ? null : p.name)}
-      onToggleBd={(k) => setExpandedBdMatches(prev => { const n = new Set(prev); n.has(k) ? n.delete(k) : n.add(k); return n; })}
-    />
-  );
+  const newInXi = xi.filter(p => p.isNew).length;
+  const newInAll = players.filter(p => p.isNew).length;
 
   return (
     <div>
-      {/* ── Team header card ─────────────────────────────────────────────── */}
-      <div className="team-header-card" style={{ "--team-color": teamColor } as React.CSSProperties}>
-        {bgImg && (
-          <div style={{
-            position: "absolute", inset: -6, zIndex: 0,
-            backgroundImage: `url(${import.meta.env.BASE_URL}${bgImg})`,
-            backgroundSize: "cover", backgroundPosition: "center 30%",
-            filter: "blur(24px) brightness(0.55) saturate(1.4)",
-          }} />
-        )}
-        <div style={{
-          position: "absolute", inset: 0, zIndex: 1,
-          background: `linear-gradient(135deg, ${teamColor}14 0%, rgba(9,9,11,0.28) 100%)`,
-        }} />
-        <div style={{ flex: 1, position: "relative", zIndex: 2 }}>
-          <div className="team-hname" style={{ color: teamColor, textShadow: "0 1px 6px rgba(0,0,0,1)" }}>{ft.name}</div>
-          <div style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.92)", marginBottom: 6 }}>{ft.owner}</div>
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" as const }}>
-            <span style={{ fontSize: "0.52rem", color: "var(--text-3)", background: teamColor + "18", border: `1px solid ${teamColor}33`, borderRadius: 5, padding: "2px 6px", fontWeight: 600 }}>
-              {xi.filter(p => p.isNew).length} new in XI
-            </span>
-            <span style={{ fontSize: "0.52rem", color: "var(--text-3)", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 5, padding: "2px 6px" }}>
-              {players.filter(p => p.isNew).length} acquired
-            </span>
-          </div>
-        </div>
-        <div style={{ textAlign: "right", position: "relative", zIndex: 2 }}>
-          <div className="team-htotal" style={{ color: teamColor, textShadow: `0 0 10px ${teamColor}55, 0 1px 4px rgba(0,0,0,1)` }}>
-            {typeof total === "number" ? total.toFixed(1) : total}
-          </div>
-          <div className="team-hlabel" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>total pts</div>
-        </div>
+      {/* Stats bar */}
+      <div style={{
+        display: "flex", gap: 8, marginBottom: 12,
+        padding: "8px 12px",
+        background: "var(--surface)",
+        border: "1px solid var(--border)",
+        borderRadius: 10,
+      }}>
+        <StatChip label="NEW IN XI" value={newInXi} color={teamColor} />
+        <div style={{ width: 1, background: "var(--border)", flexShrink: 0 }} />
+        <StatChip label="TOTAL ACQUIRED" value={newInAll} color="rgba(255,255,255,0.4)" />
       </div>
 
-      {/* ── Segmented pill tabs ──────────────────────────────────────────── */}
-      <div style={{ display: "flex", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 22, padding: 3, marginBottom: 14, gap: 2 }}>
-        {([
-          ["xi",    "Playing XI", xiTotal > 0 ? `${xiTotal.toFixed(1)} pts` : ""],
-          ["bench", "Bench",      benchTotal > 0 ? `${benchTotal.toFixed(1)} pts` : ""],
-          ["total", "Total",      grandTotal > 0 ? `${grandTotal.toFixed(1)} pts` : ""],
-        ] as const).map(([id, label, badge]) => (
-          <button key={id} onClick={() => setSection(id)}
-            style={{
-              flex: 1, padding: "6px 0 7px", borderRadius: 18, border: "none", cursor: "pointer",
-              fontFamily: "inherit", fontSize: "0.68rem", fontWeight: 600,
-              transition: "all 0.18s ease",
-              background: section === id ? "var(--surface-3)" : "transparent",
-              color: section === id ? (id === "xi" ? "#4ade80" : id === "bench" ? "var(--text)" : "var(--gold)") : "var(--text-3)",
-              boxShadow: section === id ? "0 1px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)" : "none",
-              WebkitTapHighlightColor: "transparent",
-              display: "flex", flexDirection: "column", alignItems: "center", gap: 1,
-            }}>
-            <span>{label}</span>
-            {badge ? <span style={{ fontSize: "0.55rem", opacity: 0.7, fontWeight: 500 }}>{badge}</span> : null}
-          </button>
+      {/* XI */}
+      <div style={{ fontSize: "0.5rem", fontWeight: 700, letterSpacing: "0.1em", color: "var(--text-3)", marginBottom: 6 }}>
+        PLAYING XI
+      </div>
+      <div className="players-grid" style={{
+        borderTop: `2px solid ${teamColor}70`,
+        borderRadius: "var(--radius-md)",
+        boxShadow: `0 -3px 14px ${teamColor}22`,
+        marginBottom: 10,
+      }}>
+        {xi.map(p => (
+          <PlayerRow key={p.name} p={p}
+            isCap={p.name === captain} isVC={p.name === vc} teamColor={teamColor}
+            matchPoints={playerMatchPoints[p.name] || []}
+            replacedMatchPoints={p.replacedName ? (playerMatchPoints[p.replacedName] || []).filter(e => e.matchNum < RA_FROM_MATCH) : []}
+            isExpanded={expandedPlayer === p.name}
+            expandedBdMatches={expandedBdMatches}
+            onToggle={() => setExpandedPlayer(expandedPlayer === p.name ? null : p.name)}
+            onToggleBd={(k) => setExpandedBdMatches(prev => { const n = new Set(prev); n.has(k) ? n.delete(k) : n.add(k); return n; })}
+          />
         ))}
       </div>
 
-      {/* ── Playing XI ───────────────────────────────────────────────────── */}
-      {section === "xi" && (
-        <div className="players-grid" style={{
-          borderTop: `2px solid ${teamColor}70`,
-          borderRadius: "var(--radius-md)",
-          boxShadow: `0 -3px 14px ${teamColor}22`,
+      {/* Bench toggle */}
+      <button onClick={() => setShowBench(v => !v)}
+        style={{
+          width: "100%", padding: "8px 12px",
+          background: "var(--surface)", border: "1px solid var(--border)",
+          borderRadius: 10, cursor: "pointer", fontFamily: "inherit",
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          marginBottom: showBench ? 6 : 0,
         }}>
-          {xi.map(p => makePlayerRow(p))}
-        </div>
-      )}
-
-      {/* ── Bench ────────────────────────────────────────────────────────── */}
-      {section === "bench" && (
-        <div className="players-grid" style={{
-          opacity: 0.82,
-          borderTop: "1.5px solid rgba(255,255,255,0.05)",
-          borderRadius: "var(--radius-md)",
-        }}>
-          {bench.map(p => makePlayerRow(p))}
-        </div>
-      )}
-
-      {/* ── Total summary ────────────────────────────────────────────────── */}
-      {section === "total" && (
-        <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--radius-md)", overflow: "hidden" }}>
-          {[
-            { label: "Playing XI", pts: xiTotal, color: "#4ade80" },
-            { label: "Bench", pts: benchTotal, color: "var(--text-3)" },
-          ].map(row => (
-            <div key={row.label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", borderBottom: "1px solid var(--border)" }}>
-              <span style={{ fontSize: "0.72rem", color: "var(--text-2)" }}>{row.label}</span>
-              <span style={{ fontSize: "0.92rem", fontWeight: 700, color: row.color, fontVariantNumeric: "tabular-nums" }}>
-                {typeof row.pts === "number" ? row.pts.toFixed(1) : row.pts}
-              </span>
-            </div>
+        <span style={{ fontSize: "0.6rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.08em" }}>
+          BENCH ({bench.length})
+        </span>
+        <span style={{ fontSize: "0.5rem", color: "var(--text-3)" }}>
+          {showBench ? "▲" : "▼"}
+        </span>
+      </button>
+      {showBench && (
+        <div className="players-grid" style={{ opacity: 0.65 }}>
+          {bench.map(p => (
+            <PlayerRow key={p.name} p={p}
+              isCap={false} isVC={false} teamColor={teamColor}
+              matchPoints={playerMatchPoints[p.name] || []}
+              replacedMatchPoints={p.replacedName ? (playerMatchPoints[p.replacedName] || []).filter(e => e.matchNum < RA_FROM_MATCH) : []}
+              isExpanded={expandedPlayer === p.name}
+              expandedBdMatches={expandedBdMatches}
+              onToggle={() => setExpandedPlayer(expandedPlayer === p.name ? null : p.name)}
+              onToggleBd={(k) => setExpandedBdMatches(prev => { const n = new Set(prev); n.has(k) ? n.delete(k) : n.add(k); return n; })}
+            />
           ))}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px" }}>
-            <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--text-2)" }}>Total</span>
-            <span style={{ fontSize: "1.25rem", fontWeight: 800, color: teamColor, fontVariantNumeric: "tabular-nums", textShadow: `0 0 12px ${teamColor}55` }}>
-              {grandTotal.toFixed(1)}
-            </span>
-          </div>
         </div>
       )}
     </div>
   );
 }
 
+function StatChip({ label, value, color }: { label: string; value: number; color: string }) {
+  return (
+    <div style={{ flex: 1, textAlign: "center" as const }}>
+      <div style={{ fontSize: "0.45rem", color: "var(--text-3)", letterSpacing: "0.08em", marginBottom: 2 }}>{label}</div>
+      <div style={{ fontSize: "1rem", fontWeight: 800, color, lineHeight: 1 }}>{value}</div>
+    </div>
+  );
+}
 
 // ─── Scoring lines helper ─────────────────────────────────────────────────────
 
