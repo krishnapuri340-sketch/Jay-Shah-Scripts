@@ -6,8 +6,8 @@
 :root {
   --bg:        #09090b;
   --surface:   #111113;
-  --surface-2: #18181b;
-  --surface-3: #1f1f23;
+  --surface-2: #141417;
+  --surface-3: #1c1c21;
   --border:    rgba(255,255,255,0.06);
   --border-2:  rgba(255,255,255,0.10);
   --text:      #fafafa;
@@ -280,7 +280,7 @@ body { background: var(--bg); }
   border-radius: var(--radius-md); margin-bottom: 8px; overflow: hidden;
   background: transparent;
   border: 1px solid rgba(255,255,255,0.09);
-  box-shadow: 0 2px 16px rgba(0,0,0,0.35);
+  box-shadow: 0 2px 16px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
   cursor: pointer; position: relative;
   -webkit-tap-highlight-color: transparent;
   transition: opacity 0.15s;
@@ -352,7 +352,7 @@ body { background: var(--bg); }
 .countdown-card {
   border-radius: var(--radius-md); padding: 16px 18px 14px; margin-bottom: 16px;
   background: var(--surface-2);
-  border: 1px solid var(--border); box-shadow: var(--elev-1);
+  border: 1px solid var(--border); box-shadow: var(--elev-1), inset 0 1px 0 rgba(255,255,255,0.04);
   display: flex; flex-direction: column; gap: 0;
   position: relative; overflow: hidden;
 }
@@ -369,7 +369,7 @@ body { background: var(--bg); }
   border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 8px;
   background: var(--surface-2);
   border: 1px solid var(--border);
-  box-shadow: var(--elev-1);
+  box-shadow: var(--elev-1), inset 0 1px 0 rgba(255,255,255,0.04);
   transition: opacity 0.15s;
   position: relative; overflow: hidden;
 }
@@ -898,6 +898,7 @@ body { background: var(--bg); }
   border-radius: var(--radius-md); margin-bottom: 8px;
   display: flex; align-items: stretch; gap: 0;
   cursor: pointer; transition: opacity 0.15s; overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
 }
 .hist-card:active { opacity: 0.8; }
 .hist-card-left {
@@ -1276,6 +1277,7 @@ body { background: var(--bg); }
 .admin-section {
   background: rgba(15,21,32,0.9); border: 1px solid rgba(255,255,255,0.06);
   border-radius: 14px; padding: 16px; margin-bottom: 16px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
 }
 .admin-section-title {
   font-size: 0.75rem; font-weight: 700; letter-spacing: 2px;
