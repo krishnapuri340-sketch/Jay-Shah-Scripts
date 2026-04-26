@@ -65,6 +65,7 @@ export default function TeamsPage(props: TeamsPageProps) {
   const [scoringGuideOpen, setScoringGuideOpen] = useState(false);
   const [expandedMatchNums, setExpandedMatchNums] = useState<Set<number>>(new Set());
   const [teamSection, setTeamSection] = useState<"xi" | "bench" | "matchpts">("xi");
+  const [drillPlayer, setDrillPlayer] = useState<string | null>(null);
 
     const t = FANTASY_TEAMS[selectedTeam];
     const td = getTeamData(selectedTeam, playerPoints);
@@ -245,7 +246,7 @@ export default function TeamsPage(props: TeamsPageProps) {
           </div>
         )}
         {(() => {
-          const renderBreakdown = (p: { name: string; raw: number; adj: number; role: string; ipl: string }) => {
+          const renderBreakdown = (p: { name: string; raw: number; adj: number; role: string; ipl: string }, onClose?: () => void) => {
             const playerName = p.name;
             const breakdown = playerMatchPoints[playerName] || [];
             const isCap = playerName === t.captain;
@@ -268,7 +269,7 @@ export default function TeamsPage(props: TeamsPageProps) {
                     {!inTop11 && <span style={{ fontSize: "0.5rem", color: "var(--text-3)", background: "rgba(255,255,255,0.05)", borderRadius: 4, padding: "1px 5px" }}>bench</span>}
                     <span style={{ fontSize: "0.58rem", color: "var(--text-3)" }}>Match breakdown</span>
                   </div>
-                  <button onClick={(e) => { e.stopPropagation(); setExpandedPlayer(null); }}
+                  <button onClick={(e) => { e.stopPropagation(); onClose ? onClose() : setExpandedPlayer(null); }}
                     style={{ background: "rgba(255,255,255,0.05)", border: "none", color: "var(--text-3)", cursor: "pointer", fontSize: "0.7rem", padding: "3px 7px", borderRadius: 6, lineHeight: 1 }}>✕</button>
                 </div>
 
@@ -456,7 +457,8 @@ export default function TeamsPage(props: TeamsPageProps) {
             return { isLiveNow, isUpcoming, isDimmed, glowColor };
           };
 
-          return (() => {
+          const drillData = drillPlayer ? td.players.find(p => p.name === drillPlayer) ?? null : null;
+          const innerContent = (() => {
             const xi = td.players.filter(p => td.top11.has(p.name)).sort((a, b) => b.adj - a.adj);
             const bench = td.players.filter(p => !td.top11.has(p.name)).sort((a, b) => b.adj - a.adj);
             const xiTotal = xi.reduce((s, p) => s + p.adj, 0);
@@ -517,10 +519,12 @@ export default function TeamsPage(props: TeamsPageProps) {
                     {/* Name + role + sparkline */}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "nowrap" as const }}>
-                        <div className="player-name" style={{
+                        <div className="player-name"
+                        onClick={(e) => { e.stopPropagation(); setDrillPlayer(p.name); }}
+                        style={{
                           color: isLiveNow ? "#fca5a5" : isBench ? "var(--text-3)" : "var(--text)",
                           overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const,
-                          fontSize: "0.88rem",
+                          fontSize: "0.88rem", cursor: "pointer", WebkitTapHighlightColor: "transparent",
                         }}>{p.name}</div>
                         {isCap && <CaptainBadge />}
                         {isVC && <VCBadge />}
@@ -721,7 +725,50 @@ export default function TeamsPage(props: TeamsPageProps) {
                 })()}
               </>
             );
-          })()
+          })();
+          return (
+            <>
+              {drillData && (
+                <div
+                  onClick={() => setDrillPlayer(null)}
+                  style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.62)", display: "flex", alignItems: "flex-end", WebkitTapHighlightColor: "transparent" }}
+                >
+                  <div
+                    onClick={e => e.stopPropagation()}
+                    style={{ width: "100%", maxHeight: "85vh", overflowY: "auto" as const, background: "var(--surface)", borderRadius: "20px 20px 0 0", paddingBottom: "env(safe-area-inset-bottom, 16px)" }}
+                  >
+                    {/* Drag handle */}
+                    <div style={{ display: "flex", justifyContent: "center", padding: "10px 0 4px" }}>
+                      <div style={{ width: 38, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.12)" }} />
+                    </div>
+                    {/* Player header */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 16px 10px" }}>
+                      <img src={TEAM_LOGO_CDN[drillData.ipl]} alt={drillData.ipl}
+                        style={{ width: 36, height: 36, objectFit: "contain", flexShrink: 0 }}
+                        onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                      <div>
+                        <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "1rem", fontWeight: 700, color: "var(--text)", letterSpacing: "-0.01em" }}>{drillData.name}</div>
+                        <div style={{ display: "flex", gap: 5, alignItems: "center", marginTop: 3 }}>
+                          <span style={{ fontSize: "0.52rem", fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.07em", color: ROLE_COLORS[drillData.role] || "var(--text-3)" }}>{drillData.role}</span>
+                          <span style={{ fontSize: "0.52rem", color: "rgba(255,255,255,0.18)" }}>·</span>
+                          <span style={{ fontSize: "0.52rem", fontWeight: 600, color: IPL_COLORS[drillData.ipl] || "var(--text-3)" }}>{drillData.ipl}</span>
+                          {drillData.price != null && <>
+                            <span style={{ fontSize: "0.52rem", color: "rgba(255,255,255,0.18)" }}>·</span>
+                            <span style={{ fontSize: "0.52rem", color: "var(--text-3)", fontWeight: 500 }}>{drillData.price}cr</span>
+                          </>}
+                        </div>
+                      </div>
+                    </div>
+                    {/* Breakdown */}
+                    <div style={{ padding: "0 12px 16px" }}>
+                      {renderBreakdown(drillData, () => setDrillPlayer(null))}
+                    </div>
+                  </div>
+                </div>
+              )}
+              {innerContent}
+            </>
+          );
         })()}
       </div>
     );
