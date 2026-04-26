@@ -114,6 +114,7 @@ export default function TeamsPage(props: TeamsPageProps) {
 
     const { playing: liveNowPlaying, infos: liveNowInfo } = extractForTeam(liveMatchPreviews);
     const { playing: nextMatchPlaying, infos: nextMatchInfoForTeam, playerMatchLabel: nextPlayerMatchLabel } = extractForTeam(upcomingLineupPreviews);
+    const bannerPlayers = isRA ? RA_TEAMS[selectedTeam].players : td.players;
 
     const hasLiveNow = liveNowPlaying.size > 0;
     const hasNextMatch = nextMatchPlaying.size > 0;
@@ -225,13 +226,13 @@ export default function TeamsPage(props: TeamsPageProps) {
                   {liveNowInfo[0] && <span style={{ fontSize: "0.65rem", color: "var(--text-3)" }}>{liveNowInfo[0].matchLabel}</span>}
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  {td.players.filter(p => liveNowPlaying.has(p.name)).map(p => (
+                  {bannerPlayers.filter(p => liveNowPlaying.has(p.name)).map(p => (
                     <div key={p.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                         <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#f87171", display: "inline-block", flexShrink: 0 }} />
                         <span style={{ fontSize: "0.78rem", fontWeight: 500, color: "#fca5a5" }}>{p.name}</span>
-                        {p.name === t.captain && <span style={{ fontSize: "0.55rem", fontWeight: 700, color: "#d4a843" }}>C</span>}
-                        {p.name === t.vc && <span style={{ fontSize: "0.55rem", fontWeight: 700, color: "var(--text-3)" }}>VC</span>}
+                        {p.name === activeCap && <span style={{ fontSize: "0.55rem", fontWeight: 700, color: "#d4a843" }}>C</span>}
+                        {p.name === activeVC && <span style={{ fontSize: "0.55rem", fontWeight: 700, color: "var(--text-3)" }}>VC</span>}
                       </div>
                       <span style={{ fontSize: "0.62rem", color: IPL_COLORS[p.ipl] || "var(--text-3)", fontWeight: 600 }}>{p.ipl}</span>
                     </div>
@@ -258,12 +259,12 @@ export default function TeamsPage(props: TeamsPageProps) {
                   ))}
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  {td.players.filter(p => nextMatchPlaying.has(p.name) && !liveNowPlaying.has(p.name)).map(p => (
+                  {bannerPlayers.filter(p => nextMatchPlaying.has(p.name) && !liveNowPlaying.has(p.name)).map(p => (
                     <div key={p.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                         <span style={{ fontSize: "0.78rem", fontWeight: 500, color: "var(--text-2)" }}>{p.name}</span>
-                        {p.name === t.captain && <span style={{ fontSize: "0.55rem", fontWeight: 700, color: "#d4a843" }}>C</span>}
-                        {p.name === t.vc && <span style={{ fontSize: "0.55rem", fontWeight: 700, color: "var(--text-3)" }}>VC</span>}
+                        {p.name === activeCap && <span style={{ fontSize: "0.55rem", fontWeight: 700, color: "#d4a843" }}>C</span>}
+                        {p.name === activeVC && <span style={{ fontSize: "0.55rem", fontWeight: 700, color: "var(--text-3)" }}>VC</span>}
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                         {nextMatchInfoForTeam.length > 1 && nextPlayerMatchLabel.get(p.name) && (
