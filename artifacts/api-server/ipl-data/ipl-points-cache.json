@@ -208,6 +208,70 @@
               "noBalls": 0,
               "dots": 1
             }
+          ],
+          "extras": {
+            "byes": 0,
+            "lb": 2,
+            "wides": 4,
+            "nb": 0,
+            "penalty": 0,
+            "total": 6
+          },
+          "fow": [
+            {
+              "player": "Abhishek Sharma",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Travis Head",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Nitish Kumar Reddy",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Heinrich Klaasen",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Salil Arora",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Ishan Kishan",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Harsh Dubey",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Harshal Patel",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Aniket Verma",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            }
           ]
         },
         {
@@ -413,6 +477,40 @@
               "wides": 1,
               "noBalls": 0,
               "dots": 3
+            }
+          ],
+          "extras": {
+            "byes": 8,
+            "lb": 3,
+            "wides": 7,
+            "nb": 0,
+            "penalty": 0,
+            "total": 18
+          },
+          "fow": [
+            {
+              "player": "Phil Salt",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Devdutt Padikkal",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Rajat Patidar",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
+            },
+            {
+              "player": "Jitesh Sharma",
+              "runs": null,
+              "wicket": 0,
+              "overs": ""
             }
           ]
         }

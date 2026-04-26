@@ -361,7 +361,7 @@ export default function InningsTable({ inning, isFantasy }: Props) {
                       <td style={{ textAlign: "right", padding: "10px 6px", fontSize: "0.82rem", color: "var(--text-2)", verticalAlign: "top", fontVariantNumeric: "tabular-nums" }}>
                         {b.runs}
                       </td>
-                      <td style={{ textAlign: "right", padding: "10px 6px", fontSize: "0.82rem", fontWeight: isTop ? 700 : 500, color: isTop ? "#9a88c0" : "var(--text-2)", verticalAlign: "top", fontVariantNumeric: "tabular-nums" }}>
+                      <td style={{ textAlign: "right", padding: "10px 6px", fontSize: "0.82rem", color: "var(--text-3)", verticalAlign: "top", fontVariantNumeric: "tabular-nums" }}>
                         {b.wickets}
                       </td>
                       {hasWidesOrNb && (
