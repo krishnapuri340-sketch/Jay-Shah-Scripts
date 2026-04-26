@@ -116,22 +116,33 @@ export default function TeamsPage(props: TeamsPageProps) {
     const { playing: nextMatchPlaying, infos: nextMatchInfoForTeam, playerMatchLabel: nextPlayerMatchLabel } = extractForTeam(upcomingLineupPreviews);
     const bannerPlayers = isRA ? RA_TEAMS[selectedTeam].players : td.players;
 
-    // In RA mode: if a released player is in the playing set, their replacement inherits the slot
+    // In RA mode: expand playing sets to include new RA players
+    // Strategy 1: if released player is in lineup, new player inherits the slot
+    // Strategy 2: if new player's own IPL team is in the match, add them directly
     const raReplacementMap = isRA
       ? new Map(RA_TEAMS[selectedTeam].players
           .filter(p => p.isNew && p.replacedName)
           .map(p => [p.replacedName!, p.name]))
       : new Map<string, string>();
-    const expandPlaying = (playing: Set<string>) => {
-      if (!isRA || raReplacementMap.size === 0) return playing;
+    const liveIplTeams = new Set<string>(liveNowInfo.flatMap(i => i.playingTeams));
+    const nextIplTeams = new Set<string>(nextMatchInfoForTeam.flatMap(i => i.playingTeams));
+    const expandPlaying = (playing: Set<string>, matchIplTeams: Set<string>) => {
+      if (!isRA) return playing;
       const expanded = new Set(playing);
+      // Slot inheritance: released player playing → new player plays too
       for (const [released, acquired] of raReplacementMap) {
         if (playing.has(released)) expanded.add(acquired);
       }
+      // Direct IPL-team match: new player's team is in this match
+      if (matchIplTeams.size > 0) {
+        for (const p of RA_TEAMS[selectedTeam].players) {
+          if (p.isNew && matchIplTeams.has(p.ipl.toUpperCase())) expanded.add(p.name);
+        }
+      }
       return expanded;
     };
-    const effectiveLivePlaying = expandPlaying(liveNowPlaying);
-    const effectiveNextPlaying = expandPlaying(nextMatchPlaying);
+    const effectiveLivePlaying = expandPlaying(liveNowPlaying, liveIplTeams);
+    const effectiveNextPlaying = expandPlaying(nextMatchPlaying, nextIplTeams);
 
     const hasLiveNow = liveNowPlaying.size > 0;
     const hasNextMatch = nextMatchPlaying.size > 0;
