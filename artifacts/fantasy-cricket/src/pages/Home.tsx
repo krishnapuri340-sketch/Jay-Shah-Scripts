@@ -268,7 +268,7 @@ export default function HomePage(props: HomePageProps) {
           <div className="sec-title" style={{ marginBottom: 0 }}>Leaderboard</div>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <div style={{ display: "flex", background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 7, overflow: "hidden" }}>
-              {(["season", "reauction"] as const).map(v => (
+              {(["reauction", "season"] as const).map(v => (
                 <button key={v} onClick={() => setLbView(v)}
                   style={{
                     padding: "4px 9px", fontSize: "0.6rem", fontWeight: 700, border: "none", cursor: "pointer",

@@ -148,7 +148,7 @@ export default function TeamsPage(props: TeamsPageProps) {
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             {/* Original / Re-Auction toggle */}
             <div style={{ display: "flex", background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 7, overflow: "hidden" }}>
-              {(["original", "reauction"] as const).map(v => (
+              {(["reauction", "original"] as const).map(v => (
                 <button key={v} onClick={() => setTeamsView(v)}
                   style={{
                     padding: "4px 9px", fontSize: "0.6rem", fontWeight: 700, border: "none", cursor: "pointer",
