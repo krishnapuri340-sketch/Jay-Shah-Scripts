@@ -279,10 +279,10 @@ export default function HomePage(props: HomePageProps) {
         </div>
         {(() => {
           const LB_SOLID: Record<string, string> = {
-            rajveer:  "#c0392b",
-            mombasa:  "#2563eb",
-            mumbai:   "#d97706",
-            ponygoat: "#16a34a",
+            rajveer:  "#ff4444",
+            mombasa:  "#4d8eff",
+            mumbai:   "#ffbe00",
+            ponygoat: "#22e06a",
           };
           if (teamScores.length === 0) return (
             <div>
@@ -307,13 +307,13 @@ export default function HomePage(props: HomePageProps) {
                 <div key={s.id} className={`lb-card ${i === 0 ? "rank-first" : ""}`}
                   onClick={() => { setSelectedTeam(s.id); setTab("teams"); }}
                   style={{
-                    border: `1px solid ${(LB_SOLID[s.id] || s.team.color)}55`,
-                    boxShadow: `0 4px 28px rgba(0,0,0,0.5), 0 0 0 0.5px ${(LB_SOLID[s.id] || s.team.color)}33, inset 0 1px 0 rgba(255,255,255,0.14)`,
+                    border: `1px solid ${(LB_SOLID[s.id] || s.team.color)}88`,
+                    boxShadow: `0 4px 32px ${(LB_SOLID[s.id] || s.team.color)}44, 0 1px 0 rgba(255,255,255,0.16) inset`,
                   }}>
                   {/* Glass colour gradient */}
                   <div style={{
                     position: "absolute", inset: 0, zIndex: 0,
-                    background: `linear-gradient(135deg, ${LB_SOLID[s.id] || s.team.color}55 0%, ${LB_SOLID[s.id] || s.team.color}18 60%, transparent 100%)`,
+                    background: `linear-gradient(135deg, ${LB_SOLID[s.id] || s.team.color}cc 0%, ${LB_SOLID[s.id] || s.team.color}66 50%, ${LB_SOLID[s.id] || s.team.color}22 100%)`,
                     borderRadius: "inherit",
                   }} />
                   {/* Top shine */}
