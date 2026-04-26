@@ -463,7 +463,7 @@ export default function TeamsPage(props: TeamsPageProps) {
                               </span>
                               <span style={{ fontSize: "0.65rem", color: "var(--text-2)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{shortMatchLabel(entry.label)}</span>
                               <span style={{ width: 5, height: 5, borderRadius: "50%", background: entry.source === "official" ? "#34d399" : "#fbbf24", flexShrink: 0 }} />
-                              <span style={{ fontSize: "0.92rem", fontWeight: 700, color: entry.pts > 0 ? "var(--text)" : "var(--text-3)", minWidth: 26, textAlign: "right" as const }}>{entry.pts}</span>
+                              <span style={{ fontSize: "0.92rem", fontWeight: 700, color: entry.pts > 4 ? "var(--text)" : "var(--text-3)", minWidth: 26, textAlign: "right" as const }}>{entry.pts}</span>
                               {s && <svg width="8" height="5" viewBox="0 0 10 6" fill="none" style={{ flexShrink: 0, transition: "transform 0.18s", transform: isEntryOpen ? "rotate(180deg)" : "rotate(0deg)" }}><path d="M1 1l4 4 4-4" stroke="var(--text-3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
                             </div>
                             {isEntryOpen && s && renderBdExpandLines(lines, diff)}
