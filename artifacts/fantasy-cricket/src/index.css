@@ -223,7 +223,7 @@ body { background: var(--bg); }
 .nav-indicator {
   position: absolute;
   top: 0;
-  left: calc(var(--nav-idx, 0) * ((100% - 16px) / 5) + (100% - 16px) / 10 - 30px);
+  left: calc(var(--nav-idx, 0) * ((100% - 16px) / 5) + (100% - 16px) / 10 - 22px);
   width: 60px;
   height: 2.5px;
   background: var(--gold);
