@@ -279,13 +279,15 @@ body { background: var(--bg); }
 .lb-card {
   border-radius: var(--radius-md); margin-bottom: 8px; overflow: hidden;
   background: transparent;
-  border: 1px solid rgba(255,255,255,0.09);
-  box-shadow: 0 2px 16px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.13);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.10);
   cursor: pointer; position: relative;
   -webkit-tap-highlight-color: transparent;
   transition: opacity 0.15s;
   isolation: isolate;
   animation: lbCardEnter 0.25s ease both;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
 }
 .lb-card:nth-child(1) { animation-delay: 0.04s; }
 .lb-card:nth-child(2) { animation-delay: 0.1s; }

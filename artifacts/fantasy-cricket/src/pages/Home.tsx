@@ -304,12 +304,22 @@ export default function HomePage(props: HomePageProps) {
               {teamScores.map((s, i) => {
                 const gap = i > 0 && Object.keys(playerPoints).length > 0 ? leaderTotal - s.total : 0;
                 return (
-                <div key={s.id} className={`lb-card ${i === 0 ? "rank-first" : ""}`} onClick={() => { setSelectedTeam(s.id); setTab("teams"); }}>
-                  {/* Solid colour background */}
+                <div key={s.id} className={`lb-card ${i === 0 ? "rank-first" : ""}`}
+                  onClick={() => { setSelectedTeam(s.id); setTab("teams"); }}
+                  style={{
+                    border: `1px solid ${(LB_SOLID[s.id] || s.team.color)}55`,
+                    boxShadow: `0 4px 28px rgba(0,0,0,0.5), 0 0 0 0.5px ${(LB_SOLID[s.id] || s.team.color)}33, inset 0 1px 0 rgba(255,255,255,0.14)`,
+                  }}>
+                  {/* Glass colour gradient */}
                   <div style={{
                     position: "absolute", inset: 0, zIndex: 0,
-                    background: LB_SOLID[s.id] || s.team.color,
-                    opacity: 0.45,
+                    background: `linear-gradient(135deg, ${LB_SOLID[s.id] || s.team.color}55 0%, ${LB_SOLID[s.id] || s.team.color}18 60%, transparent 100%)`,
+                    borderRadius: "inherit",
+                  }} />
+                  {/* Top shine */}
+                  <div style={{
+                    position: "absolute", inset: 0, zIndex: 1,
+                    background: "linear-gradient(to bottom, rgba(255,255,255,0.12) 0%, transparent 38%)",
                     borderRadius: "inherit",
                   }} />
                   <div className="lb-accent" style={{ background: LB_SOLID[s.id] || s.team.color, zIndex: 2, position: "relative" }} />
