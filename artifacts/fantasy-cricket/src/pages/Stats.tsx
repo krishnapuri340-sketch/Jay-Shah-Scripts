@@ -120,12 +120,21 @@ export default function StatsPage(p: StatsPageProps) {
       </div>
 
       {statsFilter !== "predictions" && (
-        <div data-no-swipe="true" className="stats-cat-scroller">
-          {STAT_CATS.map(c => (
-            <button key={c.id} onClick={() => { setStatsCategory(c.id); setStatsExpanded(false); }} className={`stats-cat-btn ${statsCategory === c.id ? "active" : ""}`}>
-              {c.label}
-            </button>
-          ))}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+          <span style={{ fontSize: "0.7rem", fontWeight: 700, color: "var(--text-3)", letterSpacing: "0.06em", textTransform: "uppercase" }}>Category</span>
+          <select
+            value={statsCategory}
+            onChange={e => { setStatsCategory(e.target.value as any); setStatsExpanded(false); }}
+            style={{
+              background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.10)",
+              borderRadius: 8, color: "var(--text-2)", fontSize: "0.72rem", fontWeight: 600,
+              padding: "6px 10px", cursor: "pointer", outline: "none",
+            }}
+          >
+            {STAT_CATS.map(c => (
+              <option key={c.id} value={c.id}>{c.label}</option>
+            ))}
+          </select>
         </div>
       )}
 

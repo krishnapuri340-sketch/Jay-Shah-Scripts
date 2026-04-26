@@ -756,20 +756,6 @@ body { background: var(--bg); }
 .btn-primary:active { opacity: 0.7; }
 .btn-primary:disabled { opacity: 0.38; cursor: not-allowed; }
 
-.stats-cat-row { display: flex; gap: 9px; margin-bottom: 20px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-.stats-cat-row::-webkit-scrollbar { display: none; }
-.stats-cat-btn {
-  flex-shrink: 0; padding: 5px 12px; border-radius: 20px;
-  border: 1px solid var(--border); background: var(--surface-2); color: var(--text-3);
-  cursor: pointer; font-family: inherit; font-size: 0.65rem; font-weight: 500;
-  transition: all 0.15s; white-space: nowrap;
-  -webkit-tap-highlight-color: transparent;
-}
-.stats-cat-btn:active { opacity: 0.7; }
-.stats-cat-btn.active {
-  color: var(--text); border-color: var(--border-2);
-  background: var(--surface-3);
-}
 
 /* chart */
 .chart-wrap {
@@ -1228,10 +1214,6 @@ body { background: var(--bg); }
   font-size: 0.6rem; color: var(--text-3); text-align: center; padding: 4px 0;
 }
 
-/* Stats horizontal category scroller */
-.stats-cat-scroller {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px;
-}
 
 /* WhatIf — owner avatar selector (used 2x) */
 .wi-owner-grid { display: flex; gap: 6px; margin-bottom: 14px; }
