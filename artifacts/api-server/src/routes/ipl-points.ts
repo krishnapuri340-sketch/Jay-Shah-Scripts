@@ -1168,9 +1168,9 @@ async function fetchIplS3Innings(matchId: string, isCompleted: boolean): Promise
     };
     const fow: FowEntry[] = (inn.FallofWickets ?? inn.FallOfWickets ?? inn.Fow ?? []).map((f: any) => ({
       player: ((f.PlayerName || f.Name || "").replace(/\s*\([^)]*\)\s*$/, "")).trim(),
-      runs: Number(f.Runs ?? f.Score ?? f.RunsAtFall ?? 0),
-      wicket: Number(f.Wickets ?? f.WicketNo ?? f.WicketNumber ?? 0),
-      overs: String(f.Overs ?? f.Over ?? ""),
+      runs: Number(f.FallScore ?? f.Runs ?? f.Score ?? 0),
+      wicket: Number(f.FallWickets ?? f.Wickets ?? f.WicketNo ?? 0),
+      overs: String(f.FallOvers ?? f.Overs ?? f.Over ?? ""),
     }));
     return { name: `${teamName} Inning ${n}`, total: totalStr, batting, bowling, extras: extrasDetail, fow };
   };
