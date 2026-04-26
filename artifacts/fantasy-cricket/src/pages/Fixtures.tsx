@@ -485,6 +485,7 @@ export default function FixturesPage({
                                                 saveLocalPreds(d.predictions);
                                                 setPredictions(d.predictions);
                                                 setPredSaveState(s => ({ ...s, [saveKey]: "saved" }));
+                                                navigator.vibrate?.(40);
                                                 setTimeout(() => setPredSaveState(s => { const n = { ...s }; delete n[saveKey]; return n; }), 2000);
                                               } else {
                                                 lastPredSaveRef.current = Date.now();
