@@ -299,6 +299,15 @@ body { background: var(--bg); }
   position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
 }
 .lb-card.rank-first .lb-accent { display: none; }
+.lb-card::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 55%;
+  background: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.52) 100%);
+  z-index: 1;
+  pointer-events: none;
+}
 .lb-inner { padding: 16px 18px 14px 18px; display: flex; align-items: center; gap: 13px; }
 .lb-emoji { display: none; }
 .lb-rank {
