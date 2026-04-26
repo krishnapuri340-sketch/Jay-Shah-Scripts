@@ -24831,7 +24831,7 @@
         "Tim Seifert": 10,
         "Sunil Narine": 66,
         "Mitchell Marsh": 14,
-        "Ayush Badoni": 14
+        "Ayush Badoni": 34
       },
       "innings": [
         {
@@ -25042,7 +25042,7 @@
         },
         {
           "name": "Lucknow Super Giants Inning 2",
-          "total": "94/5 (15.3 ov)",
+          "total": "111/5 (16.2 ov)",
           "batting": [
             {
               "name": "Aiden Markram",
@@ -25090,11 +25090,11 @@
             },
             {
               "name": "Ayush Badoni",
-              "runs": 6,
-              "balls": 10,
+              "runs": 16,
+              "balls": 13,
               "fours": 0,
-              "sixes": 0,
-              "sr": "60.00",
+              "sixes": 1,
+              "sr": "123.08",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -25112,11 +25112,11 @@
             },
             {
               "name": "Himmat Singh",
-              "runs": 0,
-              "balls": 1,
+              "runs": 7,
+              "balls": 3,
               "fours": 0,
-              "sixes": 0,
-              "sr": "0.00",
+              "sixes": 1,
+              "sr": "233.33",
               "dismissal": "not out",
               "notOut": true,
               "dnb": false
@@ -25180,11 +25180,11 @@
           "bowling": [
             {
               "name": "Anukul Roy",
-              "overs": "1.3",
+              "overs": "2",
               "maidens": 0,
-              "runs": 9,
+              "runs": 19,
               "wickets": 1,
-              "eco": "6",
+              "eco": "9.5",
               "wides": 0,
               "noBalls": 0,
               "dots": 3
@@ -25235,11 +25235,11 @@
             },
             {
               "name": "Kartik Tyagi",
-              "overs": "2",
+              "overs": "2.2",
               "maidens": 0,
-              "runs": 13,
+              "runs": 20,
               "wickets": 0,
-              "eco": "6.5",
+              "eco": "8.57",
               "wides": 0,
               "noBalls": 0,
               "dots": 5
@@ -25448,10 +25448,10 @@
         },
         "Ayush Badoni": {
           "played": true,
-          "runs": 6,
-          "balls": 10,
+          "runs": 16,
+          "balls": 13,
           "fours": 0,
-          "sixes": 0,
+          "sixes": 1,
           "duck": false,
           "wickets": 0,
           "dots": 0,
