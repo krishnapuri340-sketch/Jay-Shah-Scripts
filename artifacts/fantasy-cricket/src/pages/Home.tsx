@@ -824,7 +824,7 @@ export default function HomePage(props: HomePageProps) {
                           style={{
                             background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.10)",
                             borderRadius: 8, color: "var(--text-2)", fontSize: "0.65rem", fontWeight: 600,
-                            padding: "5px 8px", cursor: "pointer", outline: "none", maxWidth: 140,
+                            padding: "5px 8px", cursor: "pointer", outline: "none", maxWidth: 140, colorScheme: "dark" as any,
                           }}
                         >
                           {awardsV2.map((a, i) => (

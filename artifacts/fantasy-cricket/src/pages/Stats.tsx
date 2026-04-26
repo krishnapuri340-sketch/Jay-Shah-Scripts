@@ -128,7 +128,7 @@ export default function StatsPage(p: StatsPageProps) {
             style={{
               background: "var(--surface-2)", border: "1px solid rgba(255,255,255,0.10)",
               borderRadius: 8, color: "var(--text-2)", fontSize: "0.72rem", fontWeight: 600,
-              padding: "6px 10px", cursor: "pointer", outline: "none",
+              padding: "6px 10px", cursor: "pointer", outline: "none", colorScheme: "dark" as any,
             }}
           >
             {STAT_CATS.map(c => (
