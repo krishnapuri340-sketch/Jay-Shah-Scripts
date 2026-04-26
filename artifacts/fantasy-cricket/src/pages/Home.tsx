@@ -278,11 +278,11 @@ export default function HomePage(props: HomePageProps) {
           </div>
         </div>
         {(() => {
-          const LB_SOLID: Record<string, string> = {
-            rajveer:  "#ff4444",
-            mombasa:  "#4d8eff",
-            mumbai:   "#ffbe00",
-            ponygoat: "#22e06a",
+          const LB_BG: Record<string, string> = {
+            rajveer:  `${import.meta.env.BASE_URL}lb-bg-rajveer.jpeg`,
+            mombasa:  `${import.meta.env.BASE_URL}lb-bg-mumbai.jpeg`,
+            mumbai:   `${import.meta.env.BASE_URL}lb-bg-mombasa.jpeg`,
+            ponygoat: `${import.meta.env.BASE_URL}lb-bg-ponygoat.jpeg`,
           };
           if (teamScores.length === 0) return (
             <div>
@@ -304,30 +304,28 @@ export default function HomePage(props: HomePageProps) {
               {teamScores.map((s, i) => {
                 const gap = i > 0 && Object.keys(playerPoints).length > 0 ? leaderTotal - s.total : 0;
                 return (
-                <div key={s.id} className={`lb-card ${i === 0 ? "rank-first" : ""}`}
-                  onClick={() => { setSelectedTeam(s.id); setTab("teams"); }}
-                  style={{
-                    border: `1px solid ${(LB_SOLID[s.id] || s.team.color)}88`,
-                    boxShadow: `0 4px 32px ${(LB_SOLID[s.id] || s.team.color)}44, 0 1px 0 rgba(255,255,255,0.16) inset`,
-                  }}>
-                  {/* Glass colour gradient */}
+                <div key={s.id} className={`lb-card ${i === 0 ? "rank-first" : ""}`} onClick={() => { setSelectedTeam(s.id); setTab("teams"); }}>
+                  {/* Blurred team artwork background */}
                   <div style={{
-                    position: "absolute", inset: 0, zIndex: 0,
-                    background: `linear-gradient(135deg, ${LB_SOLID[s.id] || s.team.color}cc 0%, ${LB_SOLID[s.id] || s.team.color}66 50%, ${LB_SOLID[s.id] || s.team.color}22 100%)`,
-                    borderRadius: "inherit",
+                    position: "absolute", inset: -6, zIndex: 0,
+                    backgroundImage: `url(${LB_BG[s.id]})`,
+                    backgroundSize: "cover", backgroundPosition: "center 30%",
+                    filter: "blur(32px) brightness(0.72) saturate(1.4)",
+                    transform: "translateZ(0)",
+                    willChange: "filter",
                   }} />
-                  {/* Top shine */}
+                  {/* Glass scrim */}
                   <div style={{
                     position: "absolute", inset: 0, zIndex: 1,
-                    background: "linear-gradient(to bottom, rgba(255,255,255,0.12) 0%, transparent 38%)",
-                    borderRadius: "inherit",
+                    background: `linear-gradient(135deg, ${s.team.color}18 0%, rgba(9,9,11,0.18) 100%)`,
                   }} />
-                  <div className="lb-accent" style={{ background: LB_SOLID[s.id] || s.team.color, zIndex: 2, position: "relative" }} />
+                  <div className="lb-accent" style={{ background: s.team.color, zIndex: 2, position: "relative" }} />
                   <div className="lb-inner" style={{ position: "relative", zIndex: 2 }}>
-                    <div className={`lb-rank ${rankLabel(i)}`}>{i + 1}</div>
+                    <div className={`lb-rank ${rankLabel(i)}`} style={{ textShadow: "0 1px 4px rgba(0,0,0,0.4)" }}>{i + 1}</div>
                     <div className="lb-info">
                       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                        <div className={`lb-name ${i === 0 ? "first" : ""}`}>
+                        <div className={`lb-name ${i === 0 ? "first" : ""}`}
+                          style={{ textShadow: "0 1px 6px rgba(0,0,0,1), 0 0 20px rgba(0,0,0,0.8)" }}>
                           {s.team.name}
                         </div>
                       </div>
@@ -337,12 +335,12 @@ export default function HomePage(props: HomePageProps) {
                     </div>
                     <div style={{ textAlign: "right", flexShrink: 0 }}>
                       <div className="lb-pts first opacity-[1] bg-[transparent]"
-                        style={{ color: Object.keys(playerPoints).length === 0 ? "var(--text-3)" : (LB_SOLID[s.id] || s.team.color) }}>
+                        style={{ color: Object.keys(playerPoints).length === 0 ? "var(--text-3)" : s.team.color, textShadow: Object.keys(playerPoints).length === 0 ? "none" : `0 0 12px ${s.team.color}66` }}>
                         {Object.keys(playerPoints).length === 0 ? "—" : s.total}
                       </div>
-                      <div className="lb-pts-label">pts</div>
+                      <div className="lb-pts-label" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>pts</div>
                       {i > 0 && Object.keys(playerPoints).length > 0 && (
-                        <div style={{ fontSize: "0.58rem", color: gap === 0 ? "var(--text-3)" : "#f87171", fontWeight: 600, marginTop: 1 }}>
+                        <div style={{ fontSize: "0.58rem", color: gap === 0 ? "var(--text-3)" : "#f87171", textShadow: "0 1px 4px rgba(0,0,0,0.9)", fontWeight: 600, marginTop: 1 }}>
                           {`−${gap}`}
                         </div>
                       )}
