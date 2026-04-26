@@ -3,7 +3,7 @@ import { ROLE_COLORS, IPL_COLORS, IPL_TEAM_BADGE, TEAM_LOGO_CDN } from "../const
 import { FANTASY_TEAMS } from "../teams";
 import { getTeamData, applyMultiplier } from "../utils";
 import { usePoints } from "../context/PointsContext";
-import { RA_TEAMS, raTeamScore } from "../reauction-data";
+import { RA_TEAMS, raTeamScore, RA_FROM_MATCH } from "../reauction-data";
 
 interface TeamsPageProps {
   selectedTeam: string;
@@ -288,6 +288,188 @@ export default function TeamsPage(props: TeamsPageProps) {
             const raw = p.raw;
             const adj = p.adj;
             const multiplier = isCap ? "× 2 (Captain)" : isVC ? "× 1.5 (VC)" : null;
+
+            // ── Scoring lines builder (shared for RA old+new player rows) ──
+            const buildLines = (s: any) => {
+              const lines: { label: string; pts: number; color: string }[] = [];
+              if (!s) return lines;
+              lines.push({ label: "Playing XI", pts: 4, color: "#64748b" });
+              if (s.runs > 0) lines.push({ label: `${s.runs} runs (${s.balls}b)`, pts: s.runs, color: "#f97316" });
+              if (s.fours > 0) lines.push({ label: `${s.fours} fours`, pts: s.fours * 4, color: "#fb923c" });
+              if (s.sixes > 0) lines.push({ label: `${s.sixes} sixes`, pts: s.sixes * 6, color: "#fbbf24" });
+              if (s.duck) lines.push({ label: "Duck", pts: -2, color: "#ef4444" });
+              const r = s.runs, b = s.balls;
+              if (r >= 100) lines.push({ label: "Century bonus", pts: 16, color: "#34d399" });
+              else if (r >= 75) lines.push({ label: "75+ bonus", pts: 12, color: "#34d399" });
+              else if (r >= 50) lines.push({ label: "50+ bonus", pts: 8, color: "#34d399" });
+              else if (r >= 25) lines.push({ label: "25+ bonus", pts: 4, color: "#34d399" });
+              if (b >= 10 || r >= 20) {
+                const sr = b > 0 ? (r / b) * 100 : 0;
+                if (sr > 190) lines.push({ label: `SR ${sr.toFixed(0)} bonus`, pts: 8, color: "#34d399" });
+                else if (sr > 170) lines.push({ label: `SR ${sr.toFixed(0)} bonus`, pts: 6, color: "#34d399" });
+                else if (sr > 150) lines.push({ label: `SR ${sr.toFixed(0)} bonus`, pts: 4, color: "#34d399" });
+                else if (sr >= 130) lines.push({ label: `SR ${sr.toFixed(0)} bonus`, pts: 2, color: "#34d399" });
+                else if (sr >= 70 && sr <= 100) lines.push({ label: `SR ${sr.toFixed(0)} penalty`, pts: -2, color: "#ef4444" });
+                else if (sr >= 60 && sr < 70) lines.push({ label: `SR ${sr.toFixed(0)} penalty`, pts: -4, color: "#ef4444" });
+                else if (sr >= 50 && sr < 60) lines.push({ label: `SR ${sr.toFixed(0)} penalty`, pts: -6, color: "#ef4444" });
+              }
+              if (s.wickets > 0) lines.push({ label: `${s.wickets} wkt${s.wickets > 1 ? "s" : ""}`, pts: s.wickets * 30, color: "#60a5fa" });
+              if (s.lbwBowled > 0) lines.push({ label: `${s.lbwBowled} LBW/Bowled`, pts: s.lbwBowled * 8, color: "#60a5fa" });
+              if (s.dots > 0) lines.push({ label: `${s.dots} dots`, pts: s.dots * 2, color: "#818cf8" });
+              if (s.maidens > 0) lines.push({ label: `${s.maidens} maiden${s.maidens > 1 ? "s" : ""}`, pts: s.maidens * 12, color: "#818cf8" });
+              const w = s.wickets;
+              if (w >= 5) lines.push({ label: "5-wkt haul", pts: 16, color: "#34d399" });
+              else if (w >= 4) lines.push({ label: "4-wkt haul", pts: 12, color: "#34d399" });
+              else if (w >= 3) lines.push({ label: "3-wkt haul", pts: 8, color: "#34d399" });
+              const overs = s.ballsBowled / 6;
+              if (overs >= 2) {
+                const eco = s.runsConceded / overs;
+                if (eco < 5) lines.push({ label: `Eco ${eco.toFixed(1)}`, pts: 8, color: "#34d399" });
+                else if (eco < 6) lines.push({ label: `Eco ${eco.toFixed(1)}`, pts: 6, color: "#34d399" });
+                else if (eco <= 7) lines.push({ label: `Eco ${eco.toFixed(1)}`, pts: 4, color: "#34d399" });
+                else if (eco <= 8) lines.push({ label: `Eco ${eco.toFixed(1)}`, pts: 2, color: "#34d399" });
+                else if (eco >= 10 && eco <= 11) lines.push({ label: `Eco ${eco.toFixed(1)}`, pts: -2, color: "#ef4444" });
+                else if (eco > 11 && eco <= 12) lines.push({ label: `Eco ${eco.toFixed(1)}`, pts: -4, color: "#ef4444" });
+                else if (eco > 12) lines.push({ label: `Eco ${eco.toFixed(1)}`, pts: -6, color: "#ef4444" });
+              }
+              if (s.catches > 0) lines.push({ label: `${s.catches} catch${s.catches > 1 ? "es" : ""}`, pts: s.catches * 8, color: "#a78bfa" });
+              if (s.catches >= 3) lines.push({ label: "3+ catch bonus", pts: 4, color: "#a78bfa" });
+              if (s.runOuts > 0) lines.push({ label: `${s.runOuts} run out${s.runOuts > 1 ? "s" : ""}`, pts: s.runOuts * 10, color: "#a78bfa" });
+              if ((s as any).sharedRunOuts > 0) lines.push({ label: `${(s as any).sharedRunOuts} shared RO`, pts: (s as any).sharedRunOuts * 5, color: "#a78bfa" });
+              if (s.stumpings > 0) lines.push({ label: `${s.stumpings} stumping${s.stumpings > 1 ? "s" : ""}`, pts: s.stumpings * 12, color: "#a78bfa" });
+              return lines;
+            };
+            const renderBdExpandLines = (lines: ReturnType<typeof buildLines>, diff: number) => (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr auto", rowGap: 1, columnGap: 10, padding: "6px 8px", background: "rgba(255,255,255,0.02)", borderRadius: 7, marginTop: 4 }}>
+                {lines.map((line, li) => (
+                  <React.Fragment key={li}>
+                    <span style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{line.label}</span>
+                    <span style={{ fontSize: "0.6rem", fontWeight: 600, color: line.pts >= 0 ? line.color : "#ef4444", textAlign: "right" as const }}>{line.pts > 0 ? "+" : ""}{line.pts}</span>
+                  </React.Fragment>
+                ))}
+                {Math.abs(diff) > 0 && (
+                  <React.Fragment>
+                    <span style={{ fontSize: "0.6rem", color: "var(--text-3)", fontStyle: "italic" as const }}>other</span>
+                    <span style={{ fontSize: "0.6rem", fontWeight: 600, color: diff >= 0 ? "#a78bfa" : "#ef4444", textAlign: "right" as const }}>{diff > 0 ? "+" : ""}{diff}</span>
+                  </React.Fragment>
+                )}
+              </div>
+            );
+
+            // ── RA new-player breakdown (early return) ──────────────────────
+            const raEx2 = isRA ? raExtras.get(playerName) : undefined;
+            if (isRA && raEx2?.isNew) {
+              const frozenPts = raEx2.frozenPts ?? 0;
+              const liveGain = raEx2.liveGain ?? 0;
+              const replacedName = raEx2.replacedName;
+              const replacedLastName = replacedName ? replacedName.split(" ").slice(-1)[0] : null;
+              const replacedRows = replacedName
+                ? (playerMatchPoints[replacedName] || []).filter((e: any) => e.matchNum < RA_FROM_MATCH)
+                : [];
+              const newPlayerRows = breakdown;
+              const hasAnyData = replacedRows.length > 0 || newPlayerRows.length > 0;
+              return (
+                <div style={{ background: "rgba(8,12,20,0.97)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 14px", marginTop: 1, marginBottom: 1 }}>
+                  {/* Header */}
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      {isCap && <span style={{ fontSize: "0.5rem", fontWeight: 800, color: "#d4a843", background: "rgba(212,168,67,0.14)", border: "1px solid rgba(212,168,67,0.3)", borderRadius: 5, padding: "1px 5px" }}>C ×2</span>}
+                      {isVC && <span style={{ fontSize: "0.5rem", fontWeight: 800, color: "#9e8e7e", background: "rgba(158,142,126,0.12)", border: "1px solid rgba(158,142,126,0.28)", borderRadius: 5, padding: "1px 5px" }}>VC ×1.5</span>}
+                      {!inTop11 && <span style={{ fontSize: "0.5rem", color: "var(--text-3)", background: "rgba(255,255,255,0.05)", borderRadius: 4, padding: "1px 5px" }}>bench</span>}
+                      <span style={{ fontSize: "0.58rem", color: "var(--text-3)" }}>Re-Auction breakdown</span>
+                    </div>
+                    <button onClick={(e) => { e.stopPropagation(); onClose ? onClose() : setExpandedPlayer(null); }}
+                      style={{ background: "rgba(255,255,255,0.05)", border: "none", color: "var(--text-3)", cursor: "pointer", fontSize: "0.7rem", padding: "3px 7px", borderRadius: 6, lineHeight: 1 }}>✕</button>
+                  </div>
+
+                  {!hasAnyData ? (
+                    <div style={{ color: "var(--text-3)", fontSize: "0.72rem", textAlign: "center" as const, padding: "10px 0" }}>No match data yet</div>
+                  ) : (
+                    <>
+                      {/* ── Replaced player rows (M1–M33) ── */}
+                      {replacedRows.length === 0 && replacedLastName && (
+                        <div style={{ opacity: 0.7, marginBottom: 4 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "2px 0" }}>
+                            <span style={{ fontSize: "0.5rem", fontWeight: 700, color: "var(--text-3)", background: "rgba(255,255,255,0.06)", borderRadius: 4, padding: "1px 4px", flexShrink: 0 }}>M1–M33</span>
+                            <span style={{ fontSize: "0.44rem", fontWeight: 700, color: "rgba(255,100,100,0.7)", background: "rgba(255,100,100,0.08)", borderRadius: 3, padding: "1px 4px", flexShrink: 0 }}>{replacedLastName}</span>
+                            <span style={{ fontSize: "0.65rem", color: "var(--text-3)", flex: 1, fontStyle: "italic" as const }}>Did not play</span>
+                            <span style={{ fontSize: "0.92rem", fontWeight: 700, color: "var(--text-3)", minWidth: 26, textAlign: "right" as const }}>0</span>
+                          </div>
+                        </div>
+                      )}
+                      {replacedRows.map((entry: any, ei: number) => {
+                        const s = entry.stats;
+                        const bdKey = `OLD-${playerName}-${ei}`;
+                        const isEntryOpen = expandedBdMatches.has(bdKey);
+                        const toggleEntry = () => setExpandedBdMatches(prev => { const n = new Set(prev); n.has(bdKey) ? n.delete(bdKey) : n.add(bdKey); return n; });
+                        const lines = buildLines(s);
+                        const computed = lines.reduce((a, l) => a + l.pts, 0);
+                        const diff = s ? entry.pts - computed : 0;
+                        const isLast = ei === replacedRows.length - 1;
+                        return (
+                          <div key={bdKey} style={{ opacity: 0.72, marginBottom: isLast ? 0 : 6, paddingBottom: isLast ? 0 : 6, borderBottom: isLast ? "none" : "1px solid rgba(255,255,255,0.05)" }}>
+                            <div onClick={toggleEntry} style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", WebkitTapHighlightColor: "transparent", padding: "2px 0" }}>
+                              <span style={{ fontSize: "0.5rem", fontWeight: 700, color: "var(--text-3)", background: "rgba(255,255,255,0.06)", borderRadius: 4, padding: "1px 4px", flexShrink: 0 }}>M{entry.matchNum}</span>
+                              {replacedLastName && <span style={{ fontSize: "0.44rem", fontWeight: 700, color: "rgba(255,100,100,0.7)", background: "rgba(255,100,100,0.08)", borderRadius: 3, padding: "1px 4px", flexShrink: 0 }}>{replacedLastName}</span>}
+                              <span style={{ fontSize: "0.65rem", color: "var(--text-3)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{shortMatchLabel(entry.label)}</span>
+                              <span style={{ width: 5, height: 5, borderRadius: "50%", background: entry.source === "official" ? "#34d399" : "#fbbf24", flexShrink: 0 }} />
+                              <span style={{ fontSize: "0.92rem", fontWeight: 700, color: "var(--text-3)", minWidth: 26, textAlign: "right" as const }}>{entry.pts}</span>
+                              {s && <svg width="8" height="5" viewBox="0 0 10 6" fill="none" style={{ flexShrink: 0, transition: "transform 0.18s", transform: isEntryOpen ? "rotate(180deg)" : "rotate(0deg)" }}><path d="M1 1l4 4 4-4" stroke="var(--text-3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                            </div>
+                            {isEntryOpen && s && renderBdExpandLines(lines, diff)}
+                          </div>
+                        );
+                      })}
+
+                      {/* ── Re-Auction divider ── */}
+                      {(replacedRows.length > 0 || !!replacedName) && newPlayerRows.length > 0 && (
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, margin: "8px 0", opacity: 0.8 }}>
+                          <div style={{ flex: 1, height: 1, background: `linear-gradient(to right, transparent, ${t.color}60)` }} />
+                          <span style={{ fontSize: "0.44rem", fontWeight: 800, letterSpacing: "0.07em", color: t.color, textTransform: "uppercase" as const }}>↩ Re-Auction · M{RA_FROM_MATCH}+</span>
+                          <div style={{ flex: 1, height: 1, background: `linear-gradient(to left, transparent, ${t.color}60)` }} />
+                        </div>
+                      )}
+
+                      {/* ── New player rows ── */}
+                      {newPlayerRows.map((entry: any, ei: number) => {
+                        const s = entry.stats;
+                        const bdKey = `${playerName}-${ei}`;
+                        const isEntryOpen = expandedBdMatches.has(bdKey);
+                        const toggleEntry = () => setExpandedBdMatches(prev => { const n = new Set(prev); n.has(bdKey) ? n.delete(bdKey) : n.add(bdKey); return n; });
+                        const isPost = entry.matchNum >= RA_FROM_MATCH;
+                        const lines = buildLines(s);
+                        const computed = lines.reduce((a, l) => a + l.pts, 0);
+                        const diff = s ? entry.pts - computed : 0;
+                        return (
+                          <div key={ei} style={{ marginBottom: ei < newPlayerRows.length - 1 ? 6 : 0, paddingBottom: ei < newPlayerRows.length - 1 ? 6 : 0, borderBottom: ei < newPlayerRows.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none" }}>
+                            <div onClick={toggleEntry} style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", WebkitTapHighlightColor: "transparent", padding: "2px 0" }}>
+                              <span style={{ fontSize: "0.5rem", fontWeight: 700, color: isPost ? "#34d399" : "var(--text-3)", background: isPost ? "rgba(52,211,153,0.12)" : "rgba(255,255,255,0.06)", borderRadius: 4, padding: "1px 4px", flexShrink: 0 }}>
+                                {entry.matchNum < 900 ? `M${entry.matchNum}` : "LIVE"}
+                              </span>
+                              <span style={{ fontSize: "0.65rem", color: "var(--text-2)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{shortMatchLabel(entry.label)}</span>
+                              <span style={{ width: 5, height: 5, borderRadius: "50%", background: entry.source === "official" ? "#34d399" : "#fbbf24", flexShrink: 0 }} />
+                              <span style={{ fontSize: "0.92rem", fontWeight: 700, color: entry.pts > 0 ? "var(--text)" : "var(--text-3)", minWidth: 26, textAlign: "right" as const }}>{entry.pts}</span>
+                              {s && <svg width="8" height="5" viewBox="0 0 10 6" fill="none" style={{ flexShrink: 0, transition: "transform 0.18s", transform: isEntryOpen ? "rotate(180deg)" : "rotate(0deg)" }}><path d="M1 1l4 4 4-4" stroke="var(--text-3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                            </div>
+                            {isEntryOpen && s && renderBdExpandLines(lines, diff)}
+                          </div>
+                        );
+                      })}
+
+                      {/* ── Footer ── */}
+                      <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", marginTop: 10, paddingTop: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span style={{ fontSize: "0.62rem", color: "var(--text-3)" }}>
+                          {frozenPts} frozen{liveGain > 0 ? ` + ${liveGain} live` : ""}
+                          {multiplier ? ` · ${multiplier}` : ""}
+                        </span>
+                        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "1rem", fontWeight: 700, color: inTop11 ? t.color : "var(--text-3)" }}>{adj} pts</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            }
+
             return (
               <div style={{
                 background: "rgba(8,12,20,0.97)",
@@ -558,7 +740,13 @@ export default function TeamsPage(props: TeamsPageProps) {
                         ? `linear-gradient(90deg, ${iplColor}0a 0%, transparent 55%)`
                         : `linear-gradient(90deg, ${iplColor}${isBench ? "05" : "08"} 0%, transparent 45%)`,
                       boxShadow: isLiveNow ? "inset 0 0 0 1px rgba(248,113,113,0.08)" : "none",
+                      position: "relative",
                     }}>
+
+                    {/* New-player accent bar (RA mode) */}
+                    {raEx?.isNew && (
+                      <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 3, background: t.color, borderRadius: "3px 0 0 3px" }} />
+                    )}
 
                     {/* IPL team logo */}
                     <img src={TEAM_LOGO_CDN[p.ipl]} alt={p.ipl} style={{ width: 32, height: 32, objectFit: "contain", flexShrink: 0, opacity: isBench ? 0.45 : 1 }} onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
@@ -581,13 +769,27 @@ export default function TeamsPage(props: TeamsPageProps) {
                         {isLiveNow && <span style={{ fontSize: "0.42rem", fontWeight: 800, color: "#f87171", letterSpacing: "0.09em", background: "rgba(248,113,113,0.12)", border: "1px solid rgba(248,113,113,0.28)", borderRadius: 3, padding: "1px 4px", flexShrink: 0, lineHeight: 1 }}>LIVE</span>}
                         {isUpcoming && !isLiveNow && <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#4ade80", flexShrink: 0, display: "inline-block", boxShadow: "0 0 5px #4ade8088" }} />}
                       </div>
-                      <div style={{ display: "flex", alignItems: "flex-end", gap: 3, marginTop: 2, lineHeight: 1 }}>
+                      <div style={{ display: "flex", alignItems: "flex-end", gap: 3, marginTop: 2, lineHeight: 1, flexWrap: "nowrap" as const }}>
                         <span style={{ fontSize: "0.5rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" as const, color: isBench ? "var(--text-3)" : roleColor, flexShrink: 0, lineHeight: 1, verticalAlign: "middle" }}>{p.role}</span>
-                        {p.price != null && <>
-                          <span style={{ fontSize: "0.5rem", fontWeight: 400, color: "rgba(255,255,255,0.2)", lineHeight: 1, verticalAlign: "middle" }}>·</span>
-                          <span style={{ fontSize: "0.5rem", fontWeight: 500, color: "var(--text-3)", letterSpacing: "0.01em", flexShrink: 0, lineHeight: 1, verticalAlign: "middle" }}>{p.price}cr</span>
-                        </>}
-                        <span style={{ marginLeft: 4, display: "flex", alignItems: "flex-end" }}><Sparkline name={p.name} color={isBench ? "rgba(255,255,255,0.18)" : t.color} setSparkTip={setSparkTip} sparkTipTimer={sparkTipTimer} /></span>
+                        {raEx?.isNew ? (
+                          <span style={{ fontSize: "0.46rem", color: "var(--text-3)", fontVariantNumeric: "tabular-nums", flexShrink: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+                            {raEx.replacedName && <span style={{ color: "rgba(255,100,100,0.65)", fontStyle: "italic" as const, marginRight: 3 }}>↩ {raEx.replacedName.split(" ").pop()} ·</span>}
+                            <span style={{ color: "rgba(255,255,255,0.45)" }}>{raEx.frozenPts}</span>
+                            <span style={{ color: "var(--text-3)" }}> frozen</span>
+                            {raEx.liveGain > 0
+                              ? <span> + <span style={{ color: "rgba(255,255,255,0.45)" }}>{raEx.liveGain}</span> M{RA_FROM_MATCH}+</span>
+                              : <span style={{ color: "var(--text-3)" }}> + 0 M{RA_FROM_MATCH}+</span>
+                            }
+                          </span>
+                        ) : (
+                          <>
+                            {p.price != null && <>
+                              <span style={{ fontSize: "0.5rem", fontWeight: 400, color: "rgba(255,255,255,0.2)", lineHeight: 1, verticalAlign: "middle" }}>·</span>
+                              <span style={{ fontSize: "0.5rem", fontWeight: 500, color: "var(--text-3)", letterSpacing: "0.01em", flexShrink: 0, lineHeight: 1, verticalAlign: "middle" }}>{p.price}cr</span>
+                            </>}
+                            <span style={{ marginLeft: 4, display: "flex", alignItems: "flex-end" }}><Sparkline name={p.name} color={isBench ? "rgba(255,255,255,0.18)" : t.color} setSparkTip={setSparkTip} sparkTipTimer={sparkTipTimer} /></span>
+                          </>
+                        )}
                       </div>
                     </div>
 
