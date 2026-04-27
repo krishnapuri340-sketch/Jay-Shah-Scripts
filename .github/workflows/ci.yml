@@ -35,6 +35,9 @@ jobs:
       - name: Typecheck (all artifacts)
         run: pnpm run typecheck
 
+      - name: Run tests
+        run: pnpm --filter "@workspace/api-server" run test
+
       - name: Build (all artifacts)
         run: pnpm run build
         env:
