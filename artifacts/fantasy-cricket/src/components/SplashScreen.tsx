@@ -53,9 +53,10 @@ export default function SplashScreen({ onDone }: Props) {
         playsInline
         preload="auto"
         style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
+          maxWidth: "100%",
+          maxHeight: "100%",
+          width: "auto",
+          height: "auto",
           display: "block",
         }}
       />
