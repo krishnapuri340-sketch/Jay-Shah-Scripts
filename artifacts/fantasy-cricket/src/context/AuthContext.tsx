@@ -138,19 +138,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const handleSavePin = async (uid: string) => {
     if (!/^\d{4}$/.test(pinEditVal)) return;
-    const updated = { ...userPins, [uid]: true };
-    setUserPins(updated);
-    savePins(updated);
     const savedOld = pinConfirmVal;
-    resetPinEdit();
+    const savedNew = pinEditVal;
     try {
-      await fetch(`/api/ipl/pins/${encodeURIComponent(uid)}`, {
+      const res = await fetch(`/api/ipl/pins/${encodeURIComponent(uid)}`, {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authHeaders() },
-        body: JSON.stringify({ pin: pinEditVal, oldPin: savedOld }),
+        body: JSON.stringify({ pin: savedNew, oldPin: savedOld }),
       });
-    } catch (_) {}
+      if (!res.ok) {
+        setPinConfirmError(true);
+        return;
+      }
+      // Only update UI after server confirms success
+      const updated = { ...userPins, [uid]: true };
+      setUserPins(updated);
+      savePins(updated);
+      resetPinEdit();
+    } catch (_) {
+      // Network failure — keep form open
+      setPinConfirmError(true);
+    }
   };
+
 
   return (
     <AuthContext.Provider value={{
