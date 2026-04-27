@@ -144,18 +144,21 @@ async function seedPredsFromLegacyFile(): Promise<void> {
       }
     }
     const total = Object.values(file).reduce((n, p) => n + Object.keys(p).length, 0);
-    console.log(`[preds] Migrated ${total} rows from flat file to DB`);
+    console.log(`[preds] Seeded ${total} rows from file → DB`);
+    // Self-clean: remove file so it doesn't re-run on next restart
+    try { require("fs").unlinkSync(PRED_FILE); } catch {}
   } catch (e) {
-    console.warn("[preds] Legacy file migration failed:", e);
+    console.warn("[preds] Seed from file failed:", e);
   }
 }
 
-// Startup: load from DB; if empty, migrate from legacy file first.
+// Startup: load from DB; also apply seed file if present (upserts missing/override rows).
 (async () => {
   try {
+    // Run seeder first if file present — allows one-shot retroactive inserts
+    await seedPredsFromLegacyFile();
     let dbPreds = await loadPredsFromDB();
     if (Object.keys(dbPreds).length === 0) {
-      await seedPredsFromLegacyFile();
       dbPreds = await loadPredsFromDB();
     }
     predsCache = dbPreds;
