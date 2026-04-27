@@ -1,5 +1,3 @@
-App.tsx — Full file
-
 import React, { useState, useEffect, useRef } from "react";
 import HistoryPage from "./pages/History";
 import AdminPage from "./pages/Admin";
