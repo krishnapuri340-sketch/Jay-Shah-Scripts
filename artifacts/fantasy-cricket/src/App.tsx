@@ -1,3 +1,5 @@
+App.tsx — Full file
+
 import React, { useState, useEffect, useRef } from "react";
 import HistoryPage from "./pages/History";
 import AdminPage from "./pages/Admin";
@@ -556,6 +558,7 @@ export default function App() {
     setStatsRefreshing(false);
   };
 
+  // FIX: added setIplIdToMatchNum and setPendingMatches to match handleLbRefresh
   const handleStatsTabRefresh = async () => {
     if (statsTabRefreshing) return;
     setStatsTabRefreshing(true);
@@ -565,8 +568,10 @@ export default function App() {
           if (!data || (data.error && !data.playerPoints)) return;
           setPlayerPoints(data.playerPoints || {});
           setPlayerMatchPoints(data.playerMatchPoints || {});
+          setIplIdToMatchNum(data.iplIdToMatchNum || {});
           setProcessedMatches(data.processedMatches || []);
           setAbandonedMatchIds(data.abandonedMatchIds || []);
+          setPendingMatches(data.pendingMatches || 0);
           setPointsUpdating(data.updating || false);
           setPointsLastUpdated(new Date());
         }),
