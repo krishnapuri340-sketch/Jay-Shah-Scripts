@@ -5,7 +5,7 @@ import { join } from "path";
 import { fileURLToPath } from "url";
 import { fetchMatchOverview, refreshLiveMatches, getPointsHealthSnapshot, getMatchTeamPoints } from "./ipl-points";
 import { sendPushToAll } from "./push";
-import { createSession, getSessionUser, requireSession, requireCommissioner } from "../lib/sessions";
+import { createSession, getSessionUser, requireSession, requireCommissioner, isCommissioner } from "../lib/sessions";
 import { db, predictions, userPins } from "@workspace/db";
 import bcrypt from "bcryptjs";
 
@@ -33,9 +33,6 @@ function tossTitle(home: string, away: string): string {
 }
 
 function tossBody(rawToss: string): string {
-  // Normalise common cricapi phrasings into a compact factual line.
-  // Examples in:  "Delhi Capitals won the toss and elected to bat"
-  //              "Punjab Kings won the toss and chose to field"
   return rawToss
     .replace(/\s+won the toss and elected to\s+/i, " won the toss, elected to ")
     .replace(/\s+won the toss and chose to\s+/i, " won the toss, chose to ")
@@ -82,7 +79,6 @@ function pointsBody(sorted: [string, number][]): string {
 }
 
 // ── Shared data stores ────────────────────────────────────────────────────────
-// Anchor data directory to the bundle file location (dist/index.mjs).
 const _bundleDir2 = fileURLToPath(new URL(".", import.meta.url));
 const _dataDir = (() => {
   const dir = join(_bundleDir2, "../ipl-data");
@@ -127,7 +123,6 @@ async function savePredToDB(matchId: string, userId: string, pick: string | null
     });
 }
 
-// One-time migration: seed DB from legacy flat file if it exists and DB is empty.
 async function seedPredsFromLegacyFile(): Promise<void> {
   const PRED_FILE = join(_dataDir, "ipl-predictions.json");
   try {
@@ -145,17 +140,14 @@ async function seedPredsFromLegacyFile(): Promise<void> {
     }
     const total = Object.values(file).reduce((n, p) => n + Object.keys(p).length, 0);
     console.log(`[preds] Seeded ${total} rows from file → DB`);
-    // Self-clean: remove file so it doesn't re-run on next restart
     try { require("fs").unlinkSync(PRED_FILE); } catch {}
   } catch (e) {
     console.warn("[preds] Seed from file failed:", e);
   }
 }
 
-// Startup: load from DB; also apply seed file if present (upserts missing/override rows).
 (async () => {
   try {
-    // Run seeder first if file present — allows one-shot retroactive inserts
     await seedPredsFromLegacyFile();
     let dbPreds = await loadPredsFromDB();
     if (Object.keys(dbPreds).length === 0) {
@@ -170,7 +162,6 @@ async function seedPredsFromLegacyFile(): Promise<void> {
 
 // ── PINs — PostgreSQL-backed with bcrypt hashing ──────────────────────────────
 const OWNER_IDS = ["rajveer", "mombasa", "mumbai", "ponygoat"];
-// In-memory hash cache — avoids a DB round-trip on every login attempt.
 let pinHashCache: Record<string, string> = {};
 
 async function savePinHashToDB(userId: string, hash: string): Promise<void> {
@@ -182,7 +173,6 @@ async function savePinHashToDB(userId: string, hash: string): Promise<void> {
     });
 }
 
-// Legacy KV helpers — used only during one-time PIN migration.
 const REPLIT_DB_URL = process.env.REPLIT_DB_URL;
 async function legacyKvGet(key: string): Promise<string | null> {
   if (!REPLIT_DB_URL) return null;
@@ -227,7 +217,6 @@ function loadLegacyPinsFromFile(): Record<string, string> {
   return {};
 }
 
-// Startup: load hashes from DB; if empty, hash + migrate from KV / file / generate fresh.
 (async () => {
   try {
     const rows = await db.select().from(userPins);
@@ -236,7 +225,6 @@ function loadLegacyPinsFromFile(): Record<string, string> {
       console.log(`[pins] Loaded from DB: ${Object.keys(pinHashCache).join(", ")}`);
       return;
     }
-    // DB empty — migrate plaintext from KV or file and hash them.
     const kv   = await loadLegacyPinsFromKV();
     const file = loadLegacyPinsFromFile();
     const merged = { ...file, ...(kv || {}) };
@@ -249,7 +237,6 @@ function loadLegacyPinsFromFile(): Record<string, string> {
       }
       console.log("[pins] Migrated:", Object.keys(pinHashCache).join(", "));
     } else {
-      // Completely fresh deployment — generate cryptographically random PINs.
       console.log("[pins] ⚠️  First-run: generating random PINs (treat as secrets):");
       for (const uid of OWNER_IDS) {
         const pin = String(randomInt(1000, 10000));
@@ -264,7 +251,6 @@ function loadLegacyPinsFromFile(): Record<string, string> {
   }
 })();
 
-// Exported for potential use by other modules (async — bcrypt comparison).
 export async function verifyOwnerPin(ownerId: string, pin: string): Promise<boolean> {
   if (!ownerId || !pin) return false;
   const hash = pinHashCache[ownerId];
@@ -327,7 +313,6 @@ async function fetchIPLLive(): Promise<any[]> {
   }
 }
 
-// IPL official team name → short code (S3 feed only provides codes for batting teams)
 const TEAM_NAME_TO_CODE: Record<string, string> = {
   "Rajasthan Royals": "RR",
   "Chennai Super Kings": "CSK",
@@ -343,10 +328,8 @@ const TEAM_NAME_TO_CODE: Record<string, string> = {
 };
 
 function teamCode(name: string, batCode1: string, batName1: string, batCode2: string, batName2: string): string {
-  // Prefer matching the team name against the batting team names (which carry the short code)
   if (name && batName1 && name === batName1) return batCode1;
   if (name && batName2 && name === batName2) return batCode2;
-  // Fallback to the static map
   return TEAM_NAME_TO_CODE[name] || "";
 }
 
@@ -359,8 +342,6 @@ function transformMatch(m: any): any {
   const matchTime = m?.GMTMatchTime ? m.GMTMatchTime.replace(" GMT", "") : (m?.MatchTime || "00:00");
   const dateTimeGMT = matchDate ? `${matchDate}T${matchTime}:00Z` : "";
 
-  // Home/away identity — from official HomeTeamName/AwayTeamName
-  // Codes are derived by matching against batting team codes (the only codes in the S3 feed)
   const homeName = m?.HomeTeamName || "";
   const awayName = m?.AwayTeamName || "";
   const bat1Code = m?.FirstBattingTeamCode || "";
@@ -370,7 +351,6 @@ function transformMatch(m: any): any {
   const homeCode = teamCode(homeName, bat1Code, bat1Name, bat2Code, bat2Name);
   const awayCode = teamCode(awayName, bat1Code, bat1Name, bat2Code, bat2Name);
 
-  // Batting order (may differ from home/away when away team wins toss and bats)
   const firstBatCode  = m?.FirstBattingTeamCode  || homeCode;
   const secondBatCode = m?.SecondBattingTeamCode || awayCode;
   const firstBatName  = m?.FirstBattingTeamName  || homeName;
@@ -416,16 +396,16 @@ function transformMatch(m: any): any {
 }
 
 let cache: { data: any; timestamp: number } | null = null;
-const CACHE_TTL_IDLE = 30 * 1000;  // 30 s when no live match
-const CACHE_TTL_LIVE = 5 * 1000;   //  5 s when a match is active
+const CACHE_TTL_IDLE = 30 * 1000;
+const CACHE_TTL_LIVE = 5 * 1000;
 let matchesRefreshing = false;
-let currentLiveIplIds: string[] = []; // updated by each doRefreshMatches run
-let completedMatchIds = new Set<string>(); // updated by each doRefreshMatches run
+let currentLiveIplIds: string[] = [];
+let completedMatchIds = new Set<string>();
 
 // ── Push notification state tracking ──────────────────────────────────────────
 const prevMatchStates = new Map<string, { started: boolean; ended: boolean; scoreCount: number; toss: string | null }>();
 const pendingPointsTimers = new Map<string, ReturnType<typeof setTimeout>>();
-let pushBootstrapDone = false; // skip first run so we don't push on server restart
+let pushBootstrapDone = false;
 
 async function doRefreshMatches(): Promise<void> {
   if (matchesRefreshing) return;
@@ -462,17 +442,14 @@ async function doRefreshMatches(): Promise<void> {
       },
       timestamp: Date.now(),
     };
-    // Track live IPL match IDs for S3 live polling
     currentLiveIplIds = allMatches
       .filter((m: any) => m.matchStarted && !m.matchEnded)
       .map((m: any) => m.id);
-    // Pre-warm scorecard overview cache for completed matches
     const completedIds = allMatches.filter((m: any) => m.matchEnded).map((m: any) => m.id);
-    completedMatchIds = new Set(completedIds); // keep module-level set in sync
+    completedMatchIds = new Set(completedIds);
     for (const id of completedIds) {
       fetchMatchOverview(id, true).catch(() => {});
     }
-    // Pull fresh S3 innings for each live match
     if (currentLiveIplIds.length > 0) {
       refreshLiveMatches(currentLiveIplIds).catch(() => {});
     }
@@ -483,7 +460,6 @@ async function doRefreshMatches(): Promise<void> {
         const prev = prevMatchStates.get(m.id);
         const nowLive = m.matchStarted && !m.matchEnded;
         const nowEnded = !!m.matchEnded;
-
         const nowScoreCount = Array.isArray(m.score) ? m.score.length : 0;
 
         if (prev) {
@@ -546,7 +522,6 @@ async function doRefreshMatches(): Promise<void> {
               image: TEAM_LOGO[home] || TEAM_LOGO[away],
             }).catch(() => {});
 
-            // Schedule delayed points push (90 s — gives Supabase time to sync)
             if (!pendingPointsTimers.has(m.id)) {
               const matchId = String(m.id);
               const matchLabel = `${home} vs ${away}`;
@@ -574,7 +549,6 @@ async function doRefreshMatches(): Promise<void> {
         prevMatchStates.set(m.id, { started: m.matchStarted, ended: nowEnded, scoreCount: nowScoreCount, toss: m.toss || null });
       }
     } else {
-      // Bootstrap: seed state without firing notifications
       for (const m of allMatches) {
         const sc = Array.isArray(m.score) ? m.score.length : 0;
         prevMatchStates.set(m.id, { started: m.matchStarted, ended: !!m.matchEnded, scoreCount: sc, toss: m.toss || null });
@@ -588,7 +562,6 @@ async function doRefreshMatches(): Promise<void> {
   }
 }
 
-// Adaptive scheduler: 30 s during a live match, 90 s when idle
 function scheduleNextMatchRefresh(): void {
   const delay = currentLiveIplIds.length > 0 ? CACHE_TTL_LIVE : CACHE_TTL_IDLE;
   setTimeout(async () => {
@@ -597,20 +570,16 @@ function scheduleNextMatchRefresh(): void {
   }, delay);
 }
 
-// Warm cache on startup then begin adaptive cycle
 doRefreshMatches().then(scheduleNextMatchRefresh);
 
 router.get("/ipl/matches", async (req, res) => {
   try {
     if (!cache) {
-      // Very first boot — wait for the initial fill
       await doRefreshMatches();
     } else if (Date.now() - cache.timestamp >= (currentLiveIplIds.length > 0 ? CACHE_TTL_LIVE : CACHE_TTL_IDLE)) {
-      // Stale — fire background refresh but respond immediately with old data
       doRefreshMatches().catch(() => {});
     }
     if (cache) {
-      // ETag = cache timestamp (changes whenever doRefreshMatches replaces the cache)
       const etag = `W/"m-${cache.timestamp}"`;
       res.setHeader("ETag", etag);
       res.setHeader("Cache-Control", "no-cache");
@@ -629,7 +598,7 @@ router.get("/ipl/matches", async (req, res) => {
 });
 
 let standingsCache: { data: any; timestamp: number } | null = null;
-const STANDINGS_TTL = 60 * 1000; // 60 s
+const STANDINGS_TTL = 60 * 1000;
 let standingsRefreshing = false;
 
 async function doRefreshStandings(): Promise<void> {
@@ -691,7 +660,6 @@ router.get("/ipl/predictions", (req, res) => {
 });
 
 // GET /api/ipl/predictions/stream → SSE push channel (authenticated users only)
-// Token passed as ?token=<session-token> query param (EventSource cannot set headers)
 router.get("/ipl/predictions/stream", (req, res) => {
   const userId = getSessionUser(req);
   if (!userId) {
@@ -705,10 +673,8 @@ router.get("/ipl/predictions/stream", (req, res) => {
     "X-Accel-Buffering": "no",
   });
   res.flushHeaders();
-  // Send current state immediately so client is up-to-date on connect
   res.write(`data: ${JSON.stringify(predsCache)}\n\n`);
   sseClients.add(res);
-  // Keepalive ping every 25 s so proxies don't drop the connection
   const hb = setInterval(() => {
     try { res.write(": ping\n\n"); } catch { clearInterval(hb); sseClients.delete(res); }
   }, 25_000);
@@ -725,17 +691,18 @@ router.post("/ipl/predictions/:matchId", (req, res) => {
   const { ownerId, pick } = req.body as { ownerId?: string; pick?: string | null };
   if (!matchId || !ownerId) return res.status(400).json({ error: "matchId and ownerId required" });
   if (!VALID_OWNER_IDS.has(ownerId)) return res.status(400).json({ error: "Invalid ownerId" });
-  const isCommissioner = sessionUserId === "rajveer";
+  // C3 fix: use isCommissioner() from sessions.ts — single source of truth
+  const userIsCommissioner = isCommissioner(sessionUserId);
   // Non-commissioner users can only edit their own prediction rows
-  if (!isCommissioner && ownerId !== sessionUserId) {
+  if (!userIsCommissioner && ownerId !== sessionUserId) {
     return res.status(403).json({ error: "You can only edit your own predictions" });
   }
   // Block prediction changes for completed matches (commissioner bypass allowed)
-  if (!isCommissioner && completedMatchIds.has(matchId)) {
+  if (!userIsCommissioner && completedMatchIds.has(matchId)) {
     return res.status(403).json({ error: "Match already completed — predictions are locked" });
   }
   // Block prediction changes once a match has started (commissioner bypass allowed)
-  if (!isCommissioner && currentLiveIplIds.includes(matchId)) {
+  if (!userIsCommissioner && currentLiveIplIds.includes(matchId)) {
     return res.status(403).json({ error: "Match is live — predictions are locked" });
   }
   // Validate pick against the two teams actually playing in this match
@@ -750,7 +717,7 @@ router.post("/ipl/predictions/:matchId", (req, res) => {
   }
   if (!predsCache[matchId]) predsCache[matchId] = {};
   predsCache[matchId][ownerId] = pick ?? null;
-  broadcastPredictions(); // push to all open SSE sessions instantly
+  broadcastPredictions();
   savePredToDB(matchId, ownerId, pick ?? null).catch(e => console.error("[preds] DB save failed:", e));
   return res.json({ ok: true, predictions: predsCache });
 });
@@ -758,7 +725,7 @@ router.post("/ipl/predictions/:matchId", (req, res) => {
 // ── PIN rate limiter ───────────────────────────────────────────────────────────
 const pinAttempts = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT_MAX = 5;
-const RATE_LIMIT_WINDOW = 60_000; // 60 s
+const RATE_LIMIT_WINDOW = 60_000;
 
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();
@@ -771,7 +738,6 @@ function checkRateLimit(ip: string): boolean {
   rec.count++;
   return true;
 }
-// Prune stale entries every 5 min
 setInterval(() => {
   const now = Date.now();
   for (const [ip, rec] of pinAttempts.entries()) {
@@ -785,8 +751,8 @@ function ownerOnly(req: any, res: any, targetUserId?: string): boolean {
     res.status(401).json({ error: "Authentication required" });
     return false;
   }
-  // Commissioner can change anyone's PIN; owners can only change their own
-  if (sessionUserId === "rajveer" || sessionUserId === targetUserId) {
+  // C3 fix: use isCommissioner() from sessions.ts — single source of truth
+  if (isCommissioner(sessionUserId) || sessionUserId === targetUserId) {
     return true;
   }
   res.status(403).json({ error: "Forbidden" });
@@ -834,7 +800,6 @@ router.post("/ipl/pins/:userId", async (req, res) => {
 });
 
 // ── Health detail endpoint ───────────────────────────────────────────────────
-// GET /api/health/detail — full system snapshot for the Admin tab and ops checks
 router.get("/health/detail", (_req, res) => {
   const points = getPointsHealthSnapshot();
   const matchesAgeMs = cache ? Date.now() - cache.timestamp : null;
