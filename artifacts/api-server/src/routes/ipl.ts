@@ -779,8 +779,18 @@ setInterval(() => {
   }
 }, 5 * 60_000);
 
-function ownerOnly(req: any, res: any): boolean {
-  return requireCommissioner(req, res);
+function ownerOnly(req: any, res: any, targetUserId?: string): boolean {
+  const sessionUserId = getSessionUser(req);
+  if (!sessionUserId) {
+    res.status(401).json({ error: "Authentication required" });
+    return false;
+  }
+  // Commissioner can change anyone's PIN; owners can only change their own
+  if (sessionUserId === "rajveer" || sessionUserId === targetUserId) {
+    return true;
+  }
+  res.status(403).json({ error: "Forbidden" });
+  return false;
 }
 
 // GET /api/ipl/pins → { userId: true/false } — which owners have a PIN set (commissioner-only)
@@ -805,10 +815,10 @@ router.post("/ipl/pins/validate", async (req, res) => {
   return res.json({ ok: true, userId, token });
 });
 
-// POST /api/ipl/pins/:userId → { pin, oldPin } — change PIN (commissioner only; bcrypt-verified oldPin)
+// POST /api/ipl/pins/:userId → { pin, oldPin } — change PIN (owner or commissioner; bcrypt-verified oldPin)
 router.post("/ipl/pins/:userId", async (req, res) => {
-  if (!ownerOnly(req, res)) return;
   const { userId } = req.params;
+  if (!ownerOnly(req, res, userId)) return;
   const { pin, oldPin } = req.body as { pin?: string; oldPin?: string };
   if (!userId || !pin || !/^\d{4}$/.test(pin)) return res.status(400).json({ error: "userId and 4-digit pin required" });
   if (!oldPin) return res.status(400).json({ error: "Current PIN (oldPin) required" });
