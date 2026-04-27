@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import SplashScreen from "./components/SplashScreen";
 import HistoryPage from "./pages/History";
 import AdminPage from "./pages/Admin";
 import StatsPage from "./pages/Stats";
@@ -312,9 +311,6 @@ export default function App() {
     teamScores,
     pointsLastUpdated,
   } = usePoints();
-
-  // ── Splash ─────────────────────────────────────────────────────────────────
-  const [showSplash, setShowSplash] = useState(true);
 
   // ── UI state ──────────────────────────────────────────────────────────────
   const [tab, setTab] = useState("home");
@@ -1534,8 +1530,6 @@ export default function App() {
     if (dx < 0 && idx < SWIPEABLE_TABS.length - 1) setTab(SWIPEABLE_TABS[idx + 1]);
     if (dx > 0 && idx > 0) setTab(SWIPEABLE_TABS[idx - 1]);
   };
-
-  if (showSplash) return <SplashScreen onDone={() => setShowSplash(false)} />;
 
   if (!currentUser) return <LoginScreen onValidate={handleValidate} />;
 
