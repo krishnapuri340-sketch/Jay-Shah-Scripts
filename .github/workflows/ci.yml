@@ -44,3 +44,4 @@ jobs:
           REPLIT_DB_URL: https://stub.replit.com
           VAPID_PUBLIC_KEY: stub
           VAPID_PRIVATE_KEY: stub
+          BASE_PATH: /stub
