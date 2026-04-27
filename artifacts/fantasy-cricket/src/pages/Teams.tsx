@@ -62,6 +62,13 @@ export default function TeamsPage(props: TeamsPageProps) {
   const { playerPoints, teamScores, playerMatchPoints } = usePoints();
   const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
   const [expandedBdMatches, setExpandedBdMatches] = useState<Set<string>>(new Set());
+// FIX: clear all expanded state when the user switches teams
+React.useEffect(() => {
+  setExpandedPlayer(null);
+  setExpandedBdMatches(new Set());
+  setDrillPlayer(null);
+  setTeamSection("xi");
+}, [selectedTeam]);
   const [scoringGuideOpen, setScoringGuideOpen] = useState(false);
   const [expandedMatchNums, setExpandedMatchNums] = useState<Set<number>>(new Set());
   const [teamSection, setTeamSection] = useState<"xi" | "bench" | "matchpts">("xi");
